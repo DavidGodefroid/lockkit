@@ -1,0 +1,7 @@
+lockkit
+Copyright 2026 David Godefroid
+
+This product includes software developed as part of locksql
+(https://github.com/DavidGodefroid/locksql), from which lockkit was
+extracted at commit 56d3072. Both are licensed under the Apache License,
+Version 2.0.
