@@ -24,6 +24,7 @@ contract between lockkit and the products built on it.
 | `ipc` | console socket (private or shared dir), peer credentials, 1 MiB newline-delimited JSON-RPC 2.0, lockkit's methods and error codes |
 | `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
 | `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it |
+| `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`), the redacted-reference store |
 
 ## 2. `kit.Product`
 
@@ -154,7 +155,26 @@ err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side time
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
 bastion reaches; no local port is ever opened.
 
-## 8. Asking for a lockkit change
+## 8. Personal data
+
+- `pii.Detectors([]string{"email", "phone", "iban", "card"})` (also `be_niss`,
+  `fr_nir`, `nl_bsn`, `us_ssn`); `pii.Detect(v, ds)` masks what they find in
+  a text or integer value, scanning at most `DetectLimit` bytes.
+- `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
+  `partial` → `j***(12)`, `email` → `j***@example.com`.
+- `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
+  en/fr/nl/de/es: use them to propose mask rules (a proposal tightens: apply
+  it at once).
+- `pii.RefStore`: `n := s.Begin()` per result, `s.PutDistinct(n, value)`
+  (or `Put(n, "row.col", value)`) returns `rN.K`; show
+  `pii.RedactedRef(ref)`; resolve with `Get` in the console only. Values
+  never leave the console's memory.
+
+Which field is personal (columns, JSON paths, headers) is your product's
+decision; never send an unmasked value to a client unless the human
+unmasked it in the console.
+
+## 9. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
