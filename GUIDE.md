@@ -25,6 +25,9 @@ contract between lockkit and the products built on it.
 | `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
 | `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it |
 | `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`), the redacted-reference store |
+| `render` | capped, escaped output for agents: `Value` (any typed JSON result) and `Table` (TSV/JSON) |
+| `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
+| `update` | cosign keyless signature check of a release artifact, checksums |
 
 ## 2. `kit.Product`
 
@@ -174,7 +177,34 @@ Which field is personal (columns, JSON paths, headers) is your product's
 decision; never send an unmasked value to a client unless the human
 unmasked it in the console.
 
-## 9. Asking for a lockkit change
+## 9. Output, sanitising, signatures
+
+**Results are typed JSON, not rows.** `render.Value(w, v, render.Caps{MaxCellChars, MaxOutputBytes})`
+writes any value as one JSON line: every string (keys included) escaped
+and cut at `MaxCellChars` characters, numbers/booleans/nulls kept, the
+whole at most `MaxOutputBytes` (else `render.ErrOutputCap`, nothing
+written: page or narrow your result). `render.Table` + `render.Render(w,
+t, caps, "tsv"|"json")` is one helper among others, for tabular results.
+
+**Errors.** Every error text that leaves the console (client, audit log)
+goes through a `sanitize.Sanitizer`:
+
+```go
+san := sanitize.New(sanitize.URLUserinfo)          // your patterns: AMQP/HTTP URIs with userinfo, ...
+san.Register(regexp.MustCompile(`Authorization: [^\r\n]*`)) // groups are removed, else the match becomes ***
+msg := san.Error(err, password)                     // known secrets first (every encoded form), then patterns
+```
+
+Text printed for the human (approval screens, console lines) goes through
+`sanitize.Terminal(s, multiline)`: client-supplied text cannot drive or
+spoof the terminal.
+
+**Signatures.** `update.Verify(ctx, artifact, sigstoreBundle, update.Identity{CertIdentityRegexp: "^https://github\\.com/<you>/<repo>/\\.github/workflows/release\\.yml@refs/tags/v[0-9]", OIDCIssuer: "https://token.actions.githubusercontent.com"}, update.Options{})`
+runs `cosign verify-blob`; a missing cosign is `update.ErrCosignMissing`
+(refuse, never skip), a bad signature an `*update.VerifyError`. Then
+`update.ChecksumFor(sums, name)` and `update.CheckSHA256(data, want)`.
+
+## 10. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
