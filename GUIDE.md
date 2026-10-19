@@ -19,6 +19,7 @@ contract between lockkit and the products built on it.
 | `fingerprint` | fprintd verification (desktop security level 2) and a fake for tests |
 | `sysconf` | the machine-wide `/etc/<name>/system.toml` of the separated setup; process, tty and relay probes |
 | `ui` | palette, banner, status marks of human-facing output |
+| `audit` | the console's append-only JSONL audit log, `audit.Record`, `audit.Base` |
 
 ## 2. `kit.Product`
 
@@ -75,7 +76,23 @@ pw, legacy, err := kc.Get(profile, host, port, defaultPort)
 `secrets.VaultRead` runs the `vault` CLI (the console never handles the
 Vault token). Wipe every secret you are done with (`secrets.Wipe`).
 
-## 5. Asking for a lockkit change
+## 5. Audit
+
+```go
+log, err := audit.Open(P, stateBase) // <stateBase>/<P.Name>/audit.log, dir 0700, file 0600, O_APPEND
+err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, then rec's fields in order}
+```
+
+A record is any value implementing `audit.Record` (`AuditEvent() string`)
+whose JSON is an object. `audit.Base` holds the product-neutral fields
+(event, profile, decision, error, code, span, warnings, intent, reason,
+approval, peer uid/pid/user); a product with fields of its own declares its
+own struct with the same JSON names. Never put a secret, a row, a message
+body or a file's content in a record; sanitise `Error` first. The event
+names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
+product.
+
+## 6. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
