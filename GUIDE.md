@@ -20,6 +20,7 @@ contract between lockkit and the products built on it.
 | `sysconf` | the machine-wide `/etc/<name>/system.toml` of the separated setup; process, tty and relay probes |
 | `ui` | palette, banner, status marks of human-facing output |
 | `audit` | the console's append-only JSONL audit log, `audit.Record`, `audit.Base` |
+| `config` | config file lookup, secret-safe TOML decoding, profile base, TLS/SSH, `Policy`, diff helpers, approved store |
 
 ## 2. `kit.Product`
 
@@ -92,7 +93,41 @@ body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.
 
-## 6. Asking for a lockkit change
+## 6. Config and policy: the AI tightens, the human loosens
+
+Files: `.<name>/config.toml` in the project (found by walking up,
+`config.FindProjectRoot(P, cwd)`) and `<user config>/<name>/config.toml`
+(`config.UserConfigPath(P)`). Decode your own raw profile struct with
+`config.Decode(P, data, name, &raw)`: it refuses any key that looks like a
+secret (password, token, ...), any unknown key, and never quotes a value
+in an error. Check every free-text value shown on an approval screen with
+`config.CheckValue(P, key, val)` (embedded DSN passwords, terminal control
+or bidi characters) and profile names with `config.CheckProfileName`.
+
+Shared profile part: `config.Base` (user, credentials `ask|keychain|vault`,
+vault_path, credentials_ttl, tls, tls_ca/cert/key, production, ssh bastion,
+idle_timeout, max_session), `config.ParseSSH` for the `ssh` table, and
+`config.DiffBase` for its loosening rules.
+
+Your policy implements `config.Policy`:
+
+```go
+type Policy interface {
+	Diff(approved Policy) []Change // your loosening rules; call DiffBase for the shared part
+	Describe() []string            // lines for the console's status screen
+}
+```
+
+The rule: a change with `Loosens: true` takes effect only after the human
+confirms the diff in the console; a tightening applies at once. Helpers:
+`SetDiff` (lists where a removal or an addition loosens), `LooserLimit`
+(0 = unlimited), `TLSRank`, `SortedSet`. The approved store
+(`LoadApproved/SaveApproved(P, stateBase, ApprovedKey(root, profile), v)`)
+keeps the last policy the human accepted; `Fingerprint(v)` hashes a
+canonical form. Never let an IPC method loosen anything: an agent proposes
+a loosening (`change.request`), only the console's human applies it.
+
+## 7. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
