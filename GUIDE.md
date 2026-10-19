@@ -34,6 +34,8 @@ contract between lockkit and the products built on it.
 | `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
 | `update` | cosign keyless signature check of a release artifact, checksums |
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
+| `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
+| `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 
 ## 2. `kit.Product`
 
@@ -354,9 +356,68 @@ The pieces are exported for a product that assembles its own console:
 - isolation checks, core-dump hardening: `console`;
 - detectors, mask modes, references: `pii`; capped output: `render`;
 - error scrubbing: `sanitize`; release signature checks: `update`;
-- MCP plumbing and agent wiring *(pending: `mcpkit`, `agentwire`)*.
+- MCP plumbing (server, stdio, profile argument, progress, untrusted
+  framing, the no-console answer, refusals, large integers): `mcpkit`;
+- agent wiring (MCP entries, skills, rules, instructions sections, Codex
+  TOML, Claude permissions, `claude mcp add`): `agentwire`.
 
-## 12. Asking for a lockkit change
+## 12. MCP server and agent wiring
+
+**MCP server.** Your tools are yours (names `<name>_*`, descriptions,
+instructions, texts): declare them with the SDK
+(`github.com/modelcontextprotocol/go-sdk/mcp`, the version lockkit's go.mod
+pins), each a thin adapter over `client.Call`. mcpkit gives the rest:
+
+```go
+s := mcpkit.New(P, version, instructions)        // Implementation{Name: P.Name}
+profiles := mcpkit.Profiles{Product: P, Pinned: pinnedFlag, List: configuredNames}
+
+mcp.AddTool(s, &mcp.Tool{Name: "lockmq_read", Description: "..."}, func(ctx context.Context, req *mcp.CallToolRequest, in ReadIn) (*mcp.CallToolResult, ReadOut, error) {
+	profile, err := profiles.Resolve(in.Profile)                  // pinned / unknown / several: errors the model can act on
+	if err != nil {
+		return nil, ReadOut{}, err
+	}
+	stop := mcpkit.Progress(ctx, req, 0, mcpkit.WaitingMessage(P)) // every 5 s while the human decides
+	out, err := read(ctx, profile, in)
+	stop()
+	if res, info, ok := mcpkit.Refused(err); ok {                  // err is a *mcpkit.ToolError with a Refusal
+		return res, ReadOut{Refusal: info}, nil
+	}
+	if err != nil {
+		return nil, ReadOut{}, err
+	}
+	return mcpkit.Text(mcpkit.Untrusted("messages", "the broker") + "\n" + text(out)), out, nil
+})
+return mcpkit.Serve(ctx, s, os.Stdin, os.Stdout)                // stdout carries only the protocol
+```
+
+A status tool reports `profiles.ForStatus(arg)` and, per profile whose
+dial fails, `mcpkit.NoConsole(P, profile, err)` (the exact start command and
+what to ask of the user; `NoConsoleLine` for the text). Run integers that
+may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
+structured output.
+
+**Agent wiring.** Declare your texts once:
+
+```go
+var Wiring = agentwire.Wiring{Product: P, Assets: agentwire.Assets{
+	MCPCommand:        []string{"lockmq", "mcp"},
+	Skill:             skillMD,        // .claude/skills/lockmq/SKILL.md (project) and ~/.claude/skills/... (user)
+	Instructions:      agentsMD,       // the <!-- lockmq:begin --> section of AGENTS.md / GEMINI.md, the Cursor rule body
+	CursorFrontMatter: cursorFront,    // .cursor/rules/lockmq.mdc
+	ProjectConfig:     exampleConfig,  // .lockmq/config.toml when absent (nil: none)
+	ClaudeAllow:       []string{"mcp__lockmq__lockmq_status", "Bash(lockmq status:*)"},
+	ClaudeNote:        "...",          // optional end of the project notes
+}}
+```
+
+then `Wiring.Init(agentwire.ProjectRoot(P, cwd), agent)` for `<name> init
+<agent>`, `Wiring.InitUser(env, agent)` / `PendingUser` for the account
+(`env, _ := agentwire.SystemEnv()`), `agentwire.Detect(env)` and
+`Wiring.Unwired(env)` for your doctor's "agent wiring" line. Only list in
+`ClaudeAllow` calls that never touch data without the console's approval.
+
+## 13. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
