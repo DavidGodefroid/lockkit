@@ -84,6 +84,24 @@ type Profile struct {
 	IdleTimeout, MaxSession time.Duration
 }
 
+// PIIBackend is implemented by a backend whose policy has mask rules: the
+// console then serves pii.list and pii.add for it. A pattern's syntax
+// (db.table.column, a JSON path, a header name) is the product's. Adding a
+// mask rule only tightens the policy, so it applies at once.
+type PIIBackend interface {
+	// PIIRules returns the mask and allow rules of p.
+	PIIRules(p Policy) (mask, allow []string)
+	// CheckMask validates a pattern sent by a client and returns its
+	// canonical form; an error is shown to the client (invalid params).
+	CheckMask(pattern string) (string, error)
+	// SaveMask adds the canonical pattern to the config file as it is on
+	// disk, so the human's unconfirmed edits are neither lost nor applied.
+	SaveMask(pattern string) error
+	// WithMask returns p with the canonical pattern added (canonical form,
+	// sorted lists); p itself is not changed.
+	WithMask(p Policy, pattern string) Policy
+}
+
 // Policy is a product's policy: the diff and description of config.Policy,
 // plus the profile the console needs. Its JSON encoding is what the
 // console fingerprints and stores as the approved policy, so it must be

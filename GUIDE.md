@@ -145,7 +145,8 @@ a loosening (`change.request`), only the console's human applies it.
 The wire protocol is newline-delimited JSON-RPC 2.0, one message ≤ 1 MiB
 (`ipc.WriteMsg`, `ipc.ReadMsg`), `ipc.ProtocolMajor` exchanged in `hello`.
 lockkit's methods, served by every console: `hello`, `status`, `pii.list`,
-`pii.add`, `change.request`, `logout`. Your methods use their own names
+`pii.add`, `change.request`, `logout` (`pii.*` once your backend implements
+`console.PIIBackend`, see §10; without it they answer "method not found"). Your methods use their own names
 (`op.run`, `query.plan`, ...); errors use the shared codes (`CodeRefused`
 with a `refusal.Info` in `Data`, `CodeDenied`, `CodeTimeout`,
 `CodePolicyPending`, ...).
@@ -246,6 +247,20 @@ type Policy interface {
 	Profile() console.Profile                    // name, production, where, host/port, user, credentials, vault, ttl, session limits
 }
 type Handler func(ctx context.Context, req ipc.Request, env console.Env) ipc.Response
+```
+
+A policy with mask rules implements `console.PIIBackend` on the backend;
+the console then serves `pii.list` and `pii.add` (a mask rule only
+tightens: saved to the file on disk, applied at once, kept in a pending
+loosening, audited as `policy`/`tightened`):
+
+```go
+type PIIBackend interface {
+	PIIRules(p console.Policy) (mask, allow []string)
+	CheckMask(pattern string) (string, error)          // your syntax; returns the canonical form
+	SaveMask(pattern string) error                     // append to the config file as it is on disk
+	WithMask(p console.Policy, pattern string) console.Policy // pure: p plus the rule
+}
 ```
 
 A handler that needs the human calls `env.Approve(ctx, req.ID, screen)`:

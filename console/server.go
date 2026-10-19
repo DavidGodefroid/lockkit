@@ -104,7 +104,7 @@ type Server struct {
 }
 
 // The console's own methods: a backend may not take their names.
-var ownMethods = []string{ipc.MethodHello, ipc.MethodStatus, ipc.MethodChangeRequest, ipc.MethodLogout}
+var ownMethods = []string{ipc.MethodHello, ipc.MethodStatus, ipc.MethodPIIList, ipc.MethodPIIAdd, ipc.MethodChangeRequest, ipc.MethodLogout}
 
 // NewServer checks cfg and returns a server enforcing cfg.Policy.
 func NewServer(cfg ServerConfig) (*Server, error) {
@@ -242,6 +242,10 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 		return s.hello(req)
 	case ipc.MethodStatus:
 		return OKResp(req.ID, s.Status())
+	case ipc.MethodPIIList:
+		return s.piiList(req)
+	case ipc.MethodPIIAdd:
+		return s.piiAdd(req)
 	case ipc.MethodChangeRequest:
 		return s.changeRequest(req)
 	case ipc.MethodLogout:
@@ -321,6 +325,67 @@ func (s *Server) changeRequest(req ipc.Request) ipc.Response {
 	s.println(Paint.Warn("change request from a client: " + change + " (:review)"))
 	s.refreshStatus()
 	return OKResp(req.ID, ipc.ChangeResult{Queued: true})
+}
+
+// piiBackend returns the backend's PII side, or the answer of a product
+// without mask rules.
+func (s *Server) piiBackend(req ipc.Request) (PIIBackend, *ipc.Response) {
+	pb, ok := s.cfg.Backend.(PIIBackend)
+	if !ok {
+		r := ErrResp(req.ID, ipc.CodeMethodNotFound, s.cfg.Product.Name+" has no PII rules")
+		return nil, &r
+	}
+	return pb, nil
+}
+
+func (s *Server) piiResult(pb PIIBackend) ipc.PIIListResult {
+	mask, allow := pb.PIIRules(s.approved)
+	return ipc.PIIListResult{Mask: nonNil(mask), Allow: nonNil(allow)}
+}
+
+func (s *Server) piiList(req ipc.Request) ipc.Response {
+	pb, r := s.piiBackend(req)
+	if r != nil {
+		return *r
+	}
+	return OKResp(req.ID, s.piiResult(pb))
+}
+
+// piiAdd adds a mask rule: to the file, to the policy in force, and to a
+// pending loosening, which was read before the rule reached the file and
+// would otherwise drop it once applied from :review.
+func (s *Server) piiAdd(req ipc.Request) ipc.Response {
+	pb, r := s.piiBackend(req)
+	if r != nil {
+		return *r
+	}
+	var p ipc.PIIAddParams
+	if r := Decode(req, &p); r != nil {
+		return *r
+	}
+	pattern, err := pb.CheckMask(p.Pattern)
+	if err != nil {
+		return ErrResp(req.ID, ipc.CodeInvalidParams, s.san.Error(err))
+	}
+	if err := pb.SaveMask(pattern); err != nil {
+		return ErrResp(req.ID, ipc.CodeInternal, s.san.Error(err))
+	}
+	if err := s.adopt(pb.WithMask(s.approved, pattern), "tightened"); err != nil {
+		return ErrResp(req.ID, ipc.CodeInternal, s.san.Error(err))
+	}
+	if s.pending != nil {
+		next := pb.WithMask(*s.pending, pattern)
+		s.pending = &next
+	}
+	s.println("PII rule added by a client: mask " + sanitize.Terminal(pattern, false))
+	return OKResp(req.ID, s.piiResult(pb))
+}
+
+func nonNil(s []string) []string {
+	if s == nil {
+		return []string{}
+	}
+	return s
 }
 
 // Env.
