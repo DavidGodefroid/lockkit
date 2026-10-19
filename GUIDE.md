@@ -21,6 +21,9 @@ contract between lockkit and the products built on it.
 | `ui` | palette, banner, status marks of human-facing output |
 | `audit` | the console's append-only JSONL audit log, `audit.Record`, `audit.Base` |
 | `config` | config file lookup, secret-safe TOML decoding, profile base, TLS/SSH, `Policy`, diff helpers, approved store |
+| `ipc` | console socket (private or shared dir), peer credentials, 1 MiB newline-delimited JSON-RPC 2.0, lockkit's methods and error codes |
+| `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
+| `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it |
 
 ## 2. `kit.Product`
 
@@ -127,7 +130,31 @@ keeps the last policy the human accepted; `Fingerprint(v)` hashes a
 canonical form. Never let an IPC method loosen anything: an agent proposes
 a loosening (`change.request`), only the console's human applies it.
 
-## 7. Asking for a lockkit change
+## 7. IPC, client, tunnel
+
+The wire protocol is newline-delimited JSON-RPC 2.0, one message ≤ 1 MiB
+(`ipc.WriteMsg`, `ipc.ReadMsg`), `ipc.ProtocolMajor` exchanged in `hello`.
+lockkit's methods, served by every console: `hello`, `status`, `pii.list`,
+`pii.add`, `change.request`, `logout`. Your methods use their own names
+(`op.run`, `query.plan`, ...); errors use the shared codes (`CodeRefused`
+with a `refusal.Info` in `Data`, `CodeDenied`, `CodeTimeout`,
+`CodePolicyPending`, ...).
+
+Sockets: `ipc.SocketPath(P, projectKey, profile)` in the user's private
+runtime dir (0700, socket 0600) or `ipc.SharedSocketPath(dir, ...)` in a
+separated setup (`ipc.ListenShared(P, path, gid)`, dir 0710/2710, socket
+0660). `ipc.PeerCred` is the kernel's word on who is calling.
+
+```go
+c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole) names the start command
+err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side timeout; ctx cancel closes the connection
+```
+
+`tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
+then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
+bastion reaches; no local port is ever opened.
+
+## 8. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
