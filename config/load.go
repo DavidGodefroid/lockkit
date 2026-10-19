@@ -74,6 +74,14 @@ func ProjectKey(p kit.Product, cwd string) string {
 	return "user"
 }
 
+// ProjectKeyOf is ProjectKey for a known project root ("" for none).
+func ProjectKeyOf(root string) string {
+	if root == "" {
+		return "user"
+	}
+	return ProjectHash(root)
+}
+
 // ProjectHash returns the first 8 hex digits of sha256 of the absolute,
 // cleaned project root.
 func ProjectHash(root string) string {

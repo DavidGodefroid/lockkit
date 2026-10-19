@@ -6,8 +6,13 @@ records what happened. A product (locksql, lockmq, lockfile) supplies its
 names and its operations; lockkit supplies the rest. This guide is the
 contract between lockkit and the products built on it.
 
-> Status: being extracted. Sections marked *(pending)* land with the
-> following packages.
+> Status: v0.1, no stability promise before v1: pin an exact version.
+> locksql runs on every package below except `console.Run`/`console.Server`:
+> its console still keeps its own modes, status row, policy review and
+> start-up sequence (they are interleaved with its SQL state), on lockkit's
+> terminal, approvers, isolation checks and request loop. Moving locksql
+> onto `console.Run` is the next locksql PR; until then the two copies of
+> that logic must stay in step (the framework is the reference).
 
 ## 1. Package map
 
@@ -28,6 +33,7 @@ contract between lockkit and the products built on it.
 | `render` | capped, escaped output for agents: `Value` (any typed JSON result) and `Table` (TSV/JSON) |
 | `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
 | `update` | cosign keyless signature check of a release artifact, checksums |
+| `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 
 ## 2. `kit.Product`
 
@@ -204,8 +210,153 @@ runs `cosign verify-blob`; a missing cosign is `update.ErrCosignMissing`
 (refuse, never skip), a bad signature an `*update.VerifyError`. Then
 `update.ChecksumFor(sums, name)` and `update.CheckSHA256(data, want)`.
 
-## 10. Asking for a lockkit change
+## 10. The console and the `Backend` seam
+
+Your `console` command is one call:
+
+```go
+err := console.Run(ctx, P, backend, console.Options{
+	Profile: "prod", ProjectRoot: root, IO: term, TTY: os.Stdin,
+	Sanitizer: sanitize.New(sanitize.URLUserinfo),
+})
+```
+
+`Run` does, in order: the isolation checks (separated account, session or
+desktop shape, X11, relays; refuses before any prompt or file write), core
+dumps off (refused on production if it fails), the policy review (first
+start: describe and approve; since the approved policy: tightenings apply,
+loosenings are asked), the production banner and typed profile name, the
+user and the secret (`ask`, `keychain` with an offer to save, `vault` read
+at every connection), `Backend.Connect`, `Backend.Checks` (red findings,
+typed `continue`; any finding refuses on production), the socket (private
+or shared), then the request loop until logout, `:quit`, Ctrl-C, the idle
+timeout or the maximum session.
+
+```go
+type Backend interface {
+	Methods() map[string]console.Handler                                  // your IPC methods (not hello/status/change.request/logout)
+	Connect(ctx context.Context, c console.Credentials) (console.Session, error) // c.Secret is wiped after the call
+	Checks(ctx context.Context, s console.Session) []console.Finding      // privilege audit of the account
+	LoadPolicy() (console.Policy, error)                                  // read from your config files, every 2s
+	Status(s console.Session) any                                         // your part of `status`
+}
+type Policy interface {
+	Diff(approved config.Policy) []config.Change // your loosening rules (DiffBase for the shared part)
+	Describe() []string
+	Profile() console.Profile                    // name, production, where, host/port, user, credentials, vault, ttl, session limits
+}
+type Handler func(ctx context.Context, req ipc.Request, env console.Env) ipc.Response
+```
+
+A handler that needs the human calls `env.Approve(ctx, req.ID, screen)`:
+
+```go
+a := env.Approve(ctx, req.ID, console.Screen{
+	Header:    "rabbitmq.example.com / orders · tier peek",
+	Note:      params.Intent,                          // the agent's reason, escaped and audited
+	Body:      []string{"PEEK orders.failed  count 3"},
+	Warnings:  []string{"NOT READ-ONLY: 3 messages requeued, redelivered=true"},
+	NeverAuto: true,                                   // never approved by auto mode
+})
+if !a.Approved {
+	return a.Refusal // denied (with the human's reason), timed out, client gone, no finger
+}
+```
+
+The console frames the screen (red on production), asks `y` or, on
+production, the typed profile name, takes a finger at level 2, times out
+after 5 minutes, and audits the decision (`approved`, `denied`, `timeout`,
+`abandoned`, `auto`) before `Approve` returns. Use `Screen.Record` to write
+the decision as your own audit record type. `env.Session(ctx)` gives the
+live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
+Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
+`env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches;
+`env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
+console.
+
+A minimal product:
+
+```go
+type queueBackend struct{ cfg *Config }
+
+func (b *queueBackend) Methods() map[string]console.Handler {
+	return map[string]console.Handler{"op.read": b.read}
+}
+func (b *queueBackend) Connect(ctx context.Context, c console.Credentials) (console.Session, error) {
+	return dialBroker(ctx, b.cfg.URL, c.User, c.Secret)
+}
+func (b *queueBackend) Checks(ctx context.Context, s console.Session) []console.Finding {
+	if s.(*broker).IsAdministrator(ctx) {
+		return []console.Finding{{Text: "the account has the administrator tag", Refuse: true}}
+	}
+	return nil
+}
+func (b *queueBackend) LoadPolicy() (console.Policy, error) { return loadPolicy(b.cfg.Root, b.cfg.Profile) }
+func (b *queueBackend) Status(s console.Session) any         { return s.(*broker).Overview() }
+
+func (b *queueBackend) read(ctx context.Context, req ipc.Request, env console.Env) ipc.Response {
+	var p readParams
+	if r := console.Decode(req, &p); r != nil {
+		return *r
+	}
+	sess, err := env.Session(ctx)
+	if err != nil {
+		return console.ErrResp(req.ID, ipc.CodeConnLost, err.Error())
+	}
+	if a := env.Approve(ctx, req.ID, readScreen(p)); !a.Approved {
+		return a.Refusal
+	}
+	msgs, err := sess.(*broker).Read(ctx, p)
+	if err != nil {
+		return console.ErrResp(req.ID, ipc.CodeInternal, env.Sanitizer().Error(err))
+	}
+	return console.OKResp(req.ID, mask(msgs)) // typed JSON; render.Value caps it client-side
+}
+```
+
+The console's own commands and keys: `:review` (pending loosening and
+change requests), `:status`, `:mode` / Shift+Tab (auto mode, never on
+production; takes a finger at level 2), `:results` / Ctrl-O (clear results,
+refused at level 2), `:unmask` (confirmed), `:quit`.
+
+The pieces are exported for a product that assembles its own console:
+`console.NewTerminal`, `console.NewTypedApprover` / `NewDesktopTypedApprover`
+/ `NewFingerprintApprover`, `console.CheckIsolation` + `RealIsolationEnv`,
+`console.Harden`, `console.Loop`, `console.WithPeer` / `PeerText` /
+`StampPeer`, `console.Level`, `console.ErrResp` / `OKResp` / `Decode`.
+
+## 11. Do not reimplement in your product
+
+- a socket, a peer check or the JSON-RPC framing: `ipc`, `client`;
+- an approval prompt, a production typed name, a fingerprint wait, an
+  approval timeout or the audit of a decision: `console.Env.Approve`;
+- auto/manual mode, clear results, unmask switches, the status row:
+  `console.Server`;
+- reading a secret from the terminal, the keychain or Vault: `console.Run`
+  (or `secrets`);
+- the config lookup, secret-key refusal, approved store, fingerprints and
+  the "AI tightens, human loosens" review: `config` + `console`;
+- isolation checks, core-dump hardening: `console`;
+- detectors, mask modes, references: `pii`; capped output: `render`;
+- error scrubbing: `sanitize`; release signature checks: `update`;
+- MCP plumbing and agent wiring *(pending: `mcpkit`, `agentwire`)*.
+
+## 12. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
-need, the API you would like, and the product code that needs it.
+need, the API you would like, and the product code that needs it. Build
+against a local checkout with an uncommitted `go.work`:
+
+```
+go 1.26.0
+
+use (
+	.
+	../lockkit
+)
+```
+
+(`go.work` and `go.work.sum` stay out of git: add them to
+`.git/info/exclude`.) For CI, pin the pushed commit or tag:
+`go get github.com/DavidGodefroid/lockkit@<commit or vX.Y.Z>`.

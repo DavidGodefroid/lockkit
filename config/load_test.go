@@ -48,6 +48,9 @@ func TestFindProjectRootWalksUp(t *testing.T) {
 	if ProjectKey(testProduct, other) != "user" {
 		t.Error("ProjectKey outside a project is not user")
 	}
+	if ProjectKeyOf(root) != ProjectHash(root) || ProjectKeyOf("") != "user" {
+		t.Error("ProjectKeyOf")
+	}
 }
 
 func TestProjectHash(t *testing.T) {
