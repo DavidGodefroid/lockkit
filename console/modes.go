@@ -71,10 +71,15 @@ func (s *Server) toggleMode() {
 }
 
 func (s *Server) toggleResults() {
-	if !s.showResults && s.fingerprintLevel() {
-		// Level 2: the window is on the agent's desktop, which could read
-		// the clear results off it.
-		s.println(Paint.Warn("results stay masked at level 2: the window is on the agent's desktop"))
+	if !s.showResults && s.cfg.Level != 0 {
+		// Levels 1 and 2: the window is on the agent's desktop, which
+		// could read the clear results off it. Nothing is audited: the
+		// switch did not move.
+		if s.fingerprintLevel() {
+			s.println(Paint.Warn("results stay masked at level 2: the window is on the agent's desktop"))
+		} else {
+			s.println(Paint.Warn("results stay masked at level 1: " + level1Window))
+		}
 		return
 	}
 	s.showResults = !s.showResults

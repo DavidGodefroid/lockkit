@@ -114,6 +114,9 @@ func NewServer(cfg ServerConfig) (*Server, error) {
 	if err := cfg.Product.Validate(); err != nil {
 		return nil, err
 	}
+	if cfg.ShowResults && cfg.Level != 0 {
+		return nil, fmt.Errorf("%w: level %d does not accept --show-results", ErrConfig, cfg.Level)
+	}
 	methods := cfg.Backend.Methods()
 	for _, m := range ownMethods {
 		if _, ok := methods[m]; ok {
@@ -156,6 +159,9 @@ func (s *Server) println(line string) { s.cfg.IO.Println(line) }
 
 // fingerprintLevel reports level 2: a typed answer alone never widens.
 func (s *Server) fingerprintLevel() bool { return s.cfg.Level == 2 }
+
+// level1Window is why level 1 prints nothing in clear.
+const level1Window = "the agent's account can read this window"
 
 // record writes the console's own records, through the backend's
 // AuditRecord when it has one.

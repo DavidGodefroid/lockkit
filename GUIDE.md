@@ -346,7 +346,7 @@ func (b *queueBackend) read(ctx context.Context, req ipc.Request, env console.En
 The console's own commands and keys: `:review` (pending loosening and
 change requests), `:status`, `:mode` / Shift+Tab (auto mode, never on
 production; takes a finger at level 2), `:results` / Ctrl-O (clear results,
-refused at level 2), `:unmask` (confirmed), `:quit`.
+refused at levels 1 and 2, as is `--show-results` at start), `:unmask` (confirmed), `:quit`.
 
 The pieces are exported for a product that assembles its own console:
 `console.NewTerminal`, `console.NewTypedApprover` / `NewDesktopTypedApprover`
