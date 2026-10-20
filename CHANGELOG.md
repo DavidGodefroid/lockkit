@@ -3,6 +3,17 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console`: clear results are refused at desktop security level 1 too
+  (the agent's account can read the console window): `Run` returns
+  `ErrConfig` for `ShowResults` at level 1, `NewServer` refuses
+  `ShowResults` at any level but 0, and Ctrl-O / `:results` leave the
+  results masked at level 1 with `results stay masked at level 1: the
+  agent's account can read this window`; a refused switch is not audited.
+  `--auto` and `--allow-unmask` are unchanged at level 1. Levels 0 and 2
+  are unchanged.
+
 ## v0.1.0 (unreleased)
 
 First release: the product-neutral half of
