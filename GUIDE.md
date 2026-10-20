@@ -170,8 +170,20 @@ bastion reaches; no local port is ever opened.
 ## 8. Personal data
 
 - `pii.Detectors([]string{"email", "phone", "iban", "card"})` (also `be_niss`,
-  `fr_nir`, `nl_bsn`, `us_ssn`); `pii.Detect(v, ds)` masks what they find in
-  a text or integer value, scanning at most `DetectLimit` bytes.
+  `fr_nir`, `nl_bsn`, `us_ssn`, and the opt-in `phone_loose`);
+  `pii.Detect(v, ds)` masks what they find in a text or integer value, or an
+  integral float (`|f| < 1e19`), scanning at most `DetectLimit` bytes.
+  - `email`: Unicode letters, digits and marks in the local part and the
+    domain labels (RFC 6531); a letters-only top-level domain.
+  - Wherever a space separates digits, U+00A0, U+202F and U+2009 do too;
+    full-width digits count as digits. Other Unicode forms (full-width
+    letters, other compatibility characters) are not folded.
+  - `phone`: `+` and 8 to 15 digits, `00` and 10 to 17 digits, or a
+    national number: a trunk 0, 9 to 11 digits, a first group of at least
+    2 digits. `phone_loose` adds national numbers without a trunk 0
+    (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
+    groups, the first of 2 to 4 digits; it also masks some grouped amounts
+    (`123 456 789`), hence opt-in.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in

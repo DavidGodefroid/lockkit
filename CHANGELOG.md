@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `pii` (locksql#17): Unicode e-mail domains; U+00A0, U+202F, U+2009 and
+  full-width digits in phone, IBAN, card and national-id values; opt-in
+  `phone_loose` detector for national numbers without a trunk 0; `Detect`
+  scans integral floats; `CutAt` also retreats over Unicode letters and
+  typographic spaces. Detectors only mask more.
+
 ## v0.1.0 (unreleased)
 
 First release: the product-neutral half of

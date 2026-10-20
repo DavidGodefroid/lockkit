@@ -7,9 +7,11 @@ package pii
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -101,8 +103,9 @@ func Detects(s string, ds []Detector) bool {
 }
 
 // Detect runs the detectors over a text or integer value (a national
-// number or a card can be stored as one) and returns the masked text, or v
-// itself, with its type, when nothing was found. Other values pass.
+// number or a card can be stored as one), or an integral float (the same
+// number in a double column), and returns the masked text, or v itself,
+// with its type, when nothing was found. Other values pass.
 func Detect(v any, ds []Detector) any {
 	if len(ds) == 0 {
 		return v
@@ -113,6 +116,14 @@ func Detect(v any, ds []Detector) any {
 		in = x
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		in = fmt.Sprint(x) // drivers use every width (pgx: int4 is int32)
+	case float32:
+		if in = integralText(float64(x)); in == "" {
+			return v
+		}
+	case float64:
+		if in = integralText(x); in == "" {
+			return v
+		}
 	default:
 		return v
 	}
@@ -124,6 +135,16 @@ func Detect(v any, ds []Detector) any {
 		return v // unchanged: keep the original type
 	}
 	return out
+}
+
+// integralText is f written as an integer when it is one that fits the
+// integer path (|f| < 1e19), else "": 4111111111111111.0 is a card number,
+// 1.5 is not scanned.
+func integralText(f float64) string {
+	if f != math.Trunc(f) || math.Abs(f) >= 1e19 {
+		return ""
+	}
+	return strconv.FormatFloat(f, 'f', 0, 64)
 }
 
 // DetectLimit is how much of a text value the detectors scan. A longer
@@ -150,9 +171,20 @@ const cutTail = 64
 // valueChars may belong to a value the detectors recognise.
 const valueChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@._%+-/() "
 
+// valueRune reports whether r may belong to such a value: valueChars, any
+// letter, mark or digit (a Unicode address) and the spaces digits are
+// grouped with.
+func valueRune(r rune) bool {
+	if r < utf8.RuneSelf {
+		return strings.IndexByte(valueChars, byte(r)) >= 0
+	}
+	_, folded := foldRune(r)
+	return folded || unicode.IsLetter(r) || unicode.IsMark(r) || unicode.IsNumber(r)
+}
+
 // CutAt cuts s, which must be longer than n bytes, to at most n bytes
 // followed by CutMark: at a rune boundary, then back over up to cutTail
-// value-like characters, so that a value the cut splits (a partial e-mail
+// value-like characters (valueRune), so that a value the cut splits (a partial e-mail
 // address or number, which no detector would recognise) is dropped
 // rather than shown in part.
 func CutAt(s string, n int) string {
@@ -160,8 +192,12 @@ func CutAt(s string, n int) string {
 	for end > 0 && !utf8.RuneStart(s[end]) {
 		end--
 	}
-	for back := 0; back < cutTail && end > 0 && strings.IndexByte(valueChars, s[end-1]) >= 0; back++ {
-		end--
+	for back := 0; back < cutTail && end > 0; back++ {
+		r, size := utf8.DecodeLastRuneInString(s[:end])
+		if !valueRune(r) {
+			break
+		}
+		end -= size
 	}
 	return s[:end] + CutMark
 }
