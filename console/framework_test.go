@@ -403,6 +403,93 @@ func TestLevel2Widening(t *testing.T) {
 	}
 }
 
+// At level 1 the agent's account can read the console window: Ctrl-O and
+// :results leave the results masked, with nothing audited, while auto mode
+// and :unmask still work as at level 0.
+func TestLevel1ClearResultsRefused(t *testing.T) {
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Level = 1 })
+	before := len(h.records(t))
+	h.s.Key(KeyCtrlO)
+	h.s.Command(context.Background(), ":results")
+	if h.s.ShowResults() || !strings.Contains(h.io.statusLine(), "results masked") {
+		t.Fatalf("clear results at level 1: %v %q", h.s.ShowResults(), h.io.statusLine())
+	}
+	if n := strings.Count(h.io.plain(), "results stay masked at level 1: the agent's account can read this window"); n != 2 {
+		t.Fatalf("refusal printed %d times:\n%s", n, h.io.plain())
+	}
+	for _, rec := range h.records(t)[before:] {
+		if rec["event"] == "results" {
+			t.Fatalf("refused switch audited: %v", rec)
+		}
+	}
+	h.s.Command(context.Background(), ":status")
+	if !strings.Contains(h.io.plain(), "masked (the agent's view)") {
+		t.Errorf(":status:\n%s", h.io.plain())
+	}
+	if st := h.s.Status(); st.ShowResults || st.Level != 1 {
+		t.Errorf("status = %+v", st)
+	}
+	h.s.Key(KeyShiftTab)
+	if !h.s.Auto() {
+		t.Error("auto mode refused at level 1")
+	}
+	h.io.answers = []string{"y"}
+	h.s.Command(context.Background(), ":unmask")
+	if !h.s.UnmaskAllowed() {
+		t.Error("unmask refused at level 1")
+	}
+}
+
+// ShowResults at start is refused by NewServer at levels 1 and 2, whoever
+// assembles the console; Auto and AllowUnmask stay accepted at level 1.
+func TestNewServerRefusesShowResultsOnDesktop(t *testing.T) {
+	for _, level := range []int{1, 2} {
+		log, _ := audit.Open(testProduct, t.TempDir())
+		_, err := NewServer(ServerConfig{Product: testProduct, Backend: &fakeBackend{policy: uat()}, Policy: uat(),
+			Session: &fakeSession{}, Audit: log, IO: &fakeIO{}, Level: level, ShowResults: true})
+		if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "--show-results") {
+			t.Errorf("level %d: err = %v", level, err)
+		}
+	}
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.ShowResults = true })
+	if !h.s.ShowResults() {
+		t.Error("level 0 lost ShowResults")
+	}
+	h1 := newHarness(t, uat(), func(c *ServerConfig) { c.Level, c.Auto, c.AllowUnmask = 1, true, true })
+	if !h1.s.Auto() || !h1.s.UnmaskAllowed() {
+		t.Error("level 1 refused --auto or --allow-unmask")
+	}
+}
+
+// Run refuses --show-results at level 1 before any prompt, session or
+// audit record; level 2 keeps its own refusal.
+func TestRunRefusesShowResultsAtLevel1(t *testing.T) {
+	env := desktopEnvFake()
+	env.NewVerifier = func(string) (fingerprint.Verifier, error) {
+		return &fingerprint.Fake{EnrolledErr: fingerprint.ErrNotEnrolled}, nil
+	}
+	b := &fakeBackend{policy: uat()}
+	io := &fakeIO{answers: []string{"y"}}
+	state := t.TempDir()
+	err := Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: &env,
+		ShowResults: true, Harden: func() error { return nil }})
+	if !errors.Is(err, ErrConfig) || err.Error() != "configuration error: level 1 does not accept --show-results: the agent's account can read this window" {
+		t.Fatalf("err = %v", err)
+	}
+	if io.promptCount() != 0 || len(b.sessions) != 0 {
+		t.Fatalf("prompts %d sessions %d", io.promptCount(), len(b.sessions))
+	}
+	if entries, _ := os.ReadDir(state); len(entries) != 0 {
+		t.Fatalf("state written: %v", entries)
+	}
+	env2 := desktopEnvFake()
+	err = Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: &fakeIO{}, StateDir: t.TempDir(), Isolation: &env2,
+		ShowResults: true, Harden: func() error { return nil }})
+	if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "level 2 does not accept") {
+		t.Fatalf("level 2: %v", err)
+	}
+}
+
 func TestChangeRequestQueuedForReview(t *testing.T) {
 	h := newHarness(t, uat(), nil)
 	r := h.call(t, context.Background(), ipc.MethodChangeRequest, ipc.ChangeParams{Change: "tier = peek \x1b[31m"})

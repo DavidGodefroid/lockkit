@@ -25,8 +25,8 @@ type Options struct {
 	Profile     string
 	ProjectRoot string
 	IO          IO
-	// Auto, AllowUnmask and ShowResults are the start-up switches (refused
-	// at level 2).
+	// Auto, AllowUnmask and ShowResults are the start-up switches (all
+	// three refused at level 2; ShowResults refused at level 1 too).
 	Auto, AllowUnmask, ShowResults bool
 	// StateDir is the state base (kit.StateBase() when empty).
 	StateDir string
@@ -120,6 +120,9 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	if iso.Verifier != nil && (o.Auto || o.AllowUnmask || o.ShowResults) {
 		return fmt.Errorf("%w: level 2 does not accept --auto, --allow-unmask or --show-results", ErrConfig)
+	}
+	if iso.Level() == 1 && o.ShowResults {
+		return fmt.Errorf("%w: level 1 does not accept --show-results: %s", ErrConfig, level1Window)
 	}
 	harden := Harden
 	if o.Harden != nil {
