@@ -119,7 +119,8 @@ func TestMaskText(t *testing.T) {
 func FuzzDetectorsNoPanic(f *testing.F) {
 	f.Add("+32 475 12 34 56 BE68 5390 0754 7034 a@b.c 4111 1111 1111 1111")
 	f.Add("2 69 05 2A 001 123 07 111222333 123-45-6789 85.07.30-033.28")
-	ds, _ := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn"})
+	f.Add("+32\u00a0475\u202f12\u200934 56 josé@exämple.de (415) 555-2671 ４１１１")
+	ds, _ := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose"})
 	f.Fuzz(func(t *testing.T, s string) {
 		for _, d := range ds {
 			s = d.Mask(s)

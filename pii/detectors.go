@@ -3,6 +3,7 @@ package pii
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -19,7 +20,7 @@ type Detector interface {
 // detectorOrder is the order detectors run in, whatever the order they are
 // configured in: emails first (their digits are not phone numbers), the
 // checksummed numbers next, phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone"}
+var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone", "phone_loose"}
 
 var detectorFinders = map[string]func(string) []span{
 	"email":   findEmails,
@@ -30,10 +31,15 @@ var detectorFinders = map[string]func(string) []span{
 	"nl_bsn":  findBSN,
 	"us_ssn":  findSSN,
 	"phone":   findPhones,
+	// phone_loose is opt-in: it adds national numbers written without a
+	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
+	// rate than phone.
+	"phone_loose": findLoosePhones,
 }
 
 // Detectors returns the named detectors, de-duplicated, in their fixed run
-// order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn.
+// order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn,
+// phone_loose.
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for _, n := range names {
@@ -60,6 +66,15 @@ func (d finderDetector) Name() string { return d.name }
 
 func (d finderDetector) Mask(s string) string {
 	spans := d.find(s)
+	// Folding can also hide a value (a full-width digit glued to a number
+	// makes it longer), so the values found in the folded text are added to
+	// those found in s, never substituted: folding only masks more.
+	if t, offs := fold(s); offs != nil {
+		for _, sp := range d.find(t) {
+			spans = append(spans, span{offs[sp.start], offs[sp.end]})
+		}
+		spans = mergeSpans(spans)
+	}
 	if len(spans) == 0 {
 		return s
 	}
@@ -77,6 +92,75 @@ func (d finderDetector) Mask(s string) string {
 
 // span is a byte range [start, end) of a recognised value.
 type span struct{ start, end int }
+
+// mergeSpans sorts spans and joins those that overlap.
+func mergeSpans(spans []span) []span {
+	sort.Slice(spans, func(i, j int) bool { return spans[i].start < spans[j].start })
+	out := spans[:0]
+	for _, sp := range spans {
+		if n := len(out); n > 0 && sp.start < out[n-1].end {
+			out[n-1].end = max(out[n-1].end, sp.end)
+			continue
+		}
+		out = append(out, sp)
+	}
+	return out
+}
+
+// foldRune maps the characters a value may be written with beyond ASCII to
+// the ASCII byte the detectors expect: the no-break, narrow no-break and
+// thin spaces (French and Belgian digit grouping, spreadsheet exports) to a
+// space, full-width digits to digits. Other runes are kept.
+func foldRune(r rune) (byte, bool) {
+	switch {
+	case r == '\u00a0' || r == '\u202f' || r == '\u2009':
+		return ' ', true
+	case r >= '\uff10' && r <= '\uff19':
+		return byte('0' + r - '\uff10'), true
+	}
+	return 0, false
+}
+
+// fold returns s with every foldRune character replaced by its ASCII byte,
+// and offs, the offset in s of each byte of the result (plus its end), so
+// that a span found in the result maps back to s whole: a folded character
+// becomes one byte, so no span boundary falls inside it. offs is nil when
+// nothing was folded and the result is s itself.
+func fold(s string) (string, []int) {
+	need := false
+	for i := 0; i < len(s); i++ {
+		if s[i] >= utf8.RuneSelf {
+			for _, r := range s[i:] {
+				if _, ok := foldRune(r); ok {
+					need = true
+					break
+				}
+			}
+			break
+		}
+	}
+	if !need {
+		return s, nil
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	offs := make([]int, 0, len(s)+1)
+	for i := 0; i < len(s); {
+		r, n := utf8.DecodeRuneInString(s[i:])
+		if c, ok := foldRune(r); ok {
+			b.WriteByte(c)
+			offs = append(offs, i)
+		} else {
+			b.WriteString(s[i : i+n])
+			for k := 0; k < n; k++ {
+				offs = append(offs, i+k)
+			}
+		}
+		i += n
+	}
+	offs = append(offs, len(s))
+	return b.String(), offs
+}
 
 // scanWindow is the slice of text handed to the regexp engine at a time.
 // Go's regexp is much faster on short inputs, and the digit detectors run
@@ -175,9 +259,10 @@ func mod97(s string) int {
 // --- email
 
 // emailRe accepts any letter, digit or combining mark in the local part
-// (jöhn, a decomposed rené) and any letter in the domain labels, so that a
+// (jöhn, a decomposed rené) and in the domain labels (RFC 6531), so that a
 // non-ASCII character cannot cut the address and leave its prefix in clear.
-var emailRe = regexp.MustCompile(`[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}0-9\-]+(?:\.[\p{L}0-9\-]+)*\.\p{L}{2,}`)
+// The top-level domain is letters only.
+var emailRe = regexp.MustCompile(`[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(?:\.[\p{L}\p{M}\p{N}\-]+)*\.\p{L}[\p{L}\p{M}]+`)
 
 // findEmails accepts a match only at the start of a word, never the tail of
 // a longer local part, or right where the previous address ended: an
@@ -397,8 +482,18 @@ const phoneSeps = " ./-()"
 
 // findPhones scans by hand: a phone number is digit groups joined by at most
 // two separator characters. The longest prefix of groups that forms a valid
-// number is masked.
-func findPhones(s string) []span {
+// number is masked. Without "+" or "00", a number must start with a trunk
+// 0, have 9 to 11 digits and a first group of at least 2 digits.
+func findPhones(s string) []span { return findPhonesWith(s, false) }
+
+// findLoosePhones also accepts a national number without a trunk 0: 9 to
+// 11 digits in at least two groups, the first of 2 to 4 digits and not
+// starting with 0 ("(415) 555-2671", "415-555-2671", "612 345 678",
+// "347 1234567"). An ungrouped run of digits is not one (an id or an
+// amount), nor are dot-grouped thousands ("123.456.789").
+func findLoosePhones(s string) []span { return findPhonesWith(s, true) }
+
+func findPhonesWith(s string, loose bool) []span {
 	var out []span
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -413,8 +508,14 @@ func findPhones(s string) []span {
 			}
 			continue
 		}
-		if end, ok := phoneAt(s, i, plus); ok {
-			out = append(out, span{i, end})
+		// A loose number never continues a digit group ("1 234 567 890").
+		if end, ok := phoneAt(s, i, plus, loose && !afterGroup(s, i)); ok {
+			start := i
+			// "(02) 123 45 67": the opening parenthesis goes with the number.
+			if before(s, i) == '(' && strings.IndexByte(s[i:end], ')') >= 0 {
+				start--
+			}
+			out = append(out, span{start, end})
 			i = end - 1
 			continue
 		}
@@ -432,7 +533,7 @@ type phoneGroup struct {
 	length int    // digits in this group
 }
 
-func phoneAt(s string, i int, plus bool) (int, bool) {
+func phoneAt(s string, i int, plus, loose bool) (int, bool) {
 	j := i
 	if plus {
 		j++
@@ -478,7 +579,7 @@ func phoneAt(s string, i int, plus bool) (int, bool) {
 		if g.sep != "" && !strings.Contains(g.sep, " ") {
 			continue
 		}
-		if phoneValid(g.digits, plus, groups[0].length) {
+		if phoneValid(g.digits, plus, groups[0].length) || loose && !plus && looseValid(groups[:k+1]) {
 			return g.end, true
 		}
 	}
@@ -496,6 +597,36 @@ func phoneValid(d string, plus bool, firstGroup int) bool {
 		return len(d) >= 9 && len(d) <= 11 && d[1] != '0' && firstGroup >= 2
 	}
 	return false
+}
+
+// afterGroup reports whether s[i] follows a digit and one or two phone
+// separators.
+func afterGroup(s string, i int) bool {
+	for n := 1; n <= 2 && i-n >= 0 && strings.IndexByte(phoneSeps, s[i-n]) >= 0; n++ {
+		if isDigit(before(s, i-n)) {
+			return true
+		}
+	}
+	return false
+}
+
+func looseValid(g []phoneGroup) bool {
+	d := g[len(g)-1].digits
+	if len(g) < 2 || len(d) < 9 || len(d) > 11 || d[0] == '0' || g[0].length < 2 || g[0].length > 4 {
+		return false
+	}
+	// yyyy-mm-dd ("2026-01-02 10:30").
+	if len(g) >= 3 && g[0].length == 4 && g[1].length == 2 && g[2].length == 2 &&
+		g[0].sep == g[1].sep && len(g[0].sep) == 1 && strings.IndexByte("-/.", g[0].sep[0]) >= 0 {
+		return false
+	}
+	thousands := true
+	for k, x := range g {
+		if k > 0 && x.length != 3 || k < len(g)-1 && x.sep != "." {
+			thousands = false
+		}
+	}
+	return !thousands
 }
 
 // isDateLike rejects dd-mm-yyyy shapes ("01-02-2026 12:30").
