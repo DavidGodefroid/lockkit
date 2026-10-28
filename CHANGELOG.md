@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.2.0 (2026-10-28)
 
 - `secrets` (locksql#51): `VaultReadToken(ctx, path, token)` reads a
   login from Vault with a token the caller holds, such as one the human
