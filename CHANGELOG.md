@@ -5,6 +5,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
+  `e_mail`, `login` (unless the column is a date or time, as Django's
+  `last_login`), `username`, `nickname`, `displayname`, `pseudo` and
+  `handle`; `username`, `nickname` and `displayname` count inside unsplit
+  compounds like `firstname`. `LooksQuasi` also reports free-text columns
+  (`notes`, `comment`, `bio`, `remarks` and their French, Dutch, German and
+  Spanish forms) and coordinates (`lat`, `lng`, `lon`, `latitude`,
+  `longitude`, `coordinates`). `neutralLast` still excludes `*_id`,
+  `*_count`, `*_verified`.
+
 - `pii` (locksql#17): Unicode e-mail domains; U+00A0, U+202F, U+2009 and
   full-width digits in phone, IBAN, card and national-id values; opt-in
   `phone_loose` detector for national numbers without a trunk 0; `Detect`

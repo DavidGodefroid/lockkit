@@ -13,7 +13,7 @@ import (
 // their own.
 var sensitiveTokens = set(
 	// email
-	"email", "emails", "courriel", "emailadres", "emailadresse", "correo",
+	"email", "emails", "mail", "mails", "courriel", "emailadres", "emailadresse", "correo",
 	// phone
 	"phone", "phones", "telephone", "tel", "telefoon", "telefon", "telefono", "gsm", "mobile", "mobiel",
 	"handy", "cellphone", "msisdn", "fax", "phonenumber", "telefoonnummer", "telefonnummer", "portable",
@@ -21,6 +21,9 @@ var sensitiveTokens = set(
 	"firstname", "lastname", "surname", "fullname", "givenname", "familyname", "middlename", "maidenname",
 	"prenom", "voornaam", "achternaam", "familienaam", "vorname", "nachname", "familienname",
 	"apellido", "apellidos",
+	// account names: a login (see loginTokens), a handle or a nickname
+	// names its person as well as an e-mail
+	"username", "usernames", "nickname", "displayname", "screenname", "pseudo", "pseudonyme", "handle",
 	// address
 	"address", "addresses", "addr", "adresse", "adres", "anschrift", "direccion", "domicilio",
 	"street", "streetname", "rue", "straat", "strasse", "calle", "city", "ville", "stad", "woonplaats",
@@ -37,6 +40,10 @@ var sensitiveTokens = set(
 	// credentials (hashes included)
 	"password", "passwd", "pwd", "secret", "token", "apikey", "otp",
 )
+
+// loginTokens are personal unless the column is a date or a time: "login"
+// holds a user name, Django's "last_login" a timestamp.
+var loginTokens = set("login", "logon")
 
 // pairTokens are two consecutive tokens that make a field personal data
 // together ("first_name", "mail_address", "card_number").
@@ -90,7 +97,7 @@ var documentTokens = set(
 
 // quasiTokens are name tokens of quasi-identifiers: not personal data
 // alone, but a birth date, a postal code and a gender together identify
-// most people.
+// most people, a position locates one, and free text often names one.
 var quasiTokens = set(
 	// birth
 	"birth", "birthdate", "birthday", "dob", "naissance", "geboorte", "geboortedatum", "geburt",
@@ -99,6 +106,12 @@ var quasiTokens = set(
 	"zip", "zipcode", "postcode", "postalcode", "postleitzahl", "plz",
 	// gender
 	"gender", "sex", "sexe", "geslacht", "geschlecht", "genero", "sexo",
+	// free text, which often names or describes a person
+	"note", "notes", "comment", "comments", "remark", "remarks", "bio", "biography",
+	"commentaire", "commentaires", "remarque", "remarques", "opmerking", "opmerkingen", "notitie", "notities",
+	"notiz", "notizen", "kommentar", "bemerkung", "comentario", "comentarios", "observaciones",
+	// coordinates ("long" alone is too often a type or a flag)
+	"lat", "lng", "lon", "latitude", "longitude", "coordinates", "coords", "geolocation", "geopoint",
 )
 
 var quasiPairs = map[[2]string]bool{
@@ -133,7 +146,7 @@ func LooksPersonalColumn(name, typ string) bool {
 		return true
 	}
 	for i, t := range toks {
-		if sensitiveTokens[t] {
+		if sensitiveTokens[t] || loginTokens[t] && !isTemporalType(typ) {
 			return true
 		}
 		if nameWords[t] && (ownerAt(toks, i, -1) || ownerAt(toks, i, +1)) {
@@ -142,7 +155,8 @@ func LooksPersonalColumn(name, typ string) bool {
 	}
 	// Unsplit compounds such as "emailaddress" or "customeremail".
 	joined := strings.Join(toks, "")
-	for _, suffix := range []string{"email", "phone", "address", "firstname", "lastname", "fullname"} {
+	for _, suffix := range []string{"email", "phone", "address", "firstname", "lastname", "fullname",
+		"username", "nickname", "displayname"} {
 		if strings.HasSuffix(joined, suffix) && len(joined) > len(suffix) && len(toks) == 1 {
 			return true
 		}
@@ -151,7 +165,7 @@ func LooksPersonalColumn(name, typ string) bool {
 }
 
 // LooksQuasi reports a field name that looks like a quasi-identifier
-// (birth date, postal code, gender).
+// (birth date, postal code, gender, coordinates, free-text notes).
 func LooksQuasi(name string) bool {
 	toks := Tokens(name)
 	if len(toks) == 0 {
@@ -176,6 +190,12 @@ func ownerAt(toks []string, i, step int) bool {
 		return nameOwners[toks[j]]
 	}
 	return false
+}
+
+// isTemporalType reports a date or time column type (date, time,
+// timestamp, datetime, timestamptz).
+func isTemporalType(typ string) bool {
+	return strings.Contains(typ, "date") || strings.Contains(typ, "time")
 }
 
 func isBinaryType(typ string) bool {
