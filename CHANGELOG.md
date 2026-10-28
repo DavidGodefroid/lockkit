@@ -3,6 +3,18 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
+  `e_mail`, `login` (unless the column is a date or time, as Django's
+  `last_login`), `username`, `nickname`, `displayname`, `pseudo` and
+  `handle`; `username`, `nickname` and `displayname` count inside unsplit
+  compounds like `firstname`. `LooksQuasi` also reports free-text columns
+  (`notes`, `comment`, `bio`, `remarks` and their French, Dutch, German and
+  Spanish forms) and coordinates (`lat`, `lng`, `lon`, `latitude`,
+  `longitude`, `coordinates`). `neutralLast` still excludes `*_id`,
+  `*_count`, `*_verified`.
+
 ## v0.2.0 (2026-10-28)
 
 - `secrets` (locksql#51): `VaultReadToken(ctx, path, token)` reads a
