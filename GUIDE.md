@@ -223,10 +223,25 @@ Text printed for the human (approval screens, console lines) goes through
 `sanitize.Terminal(s, multiline)`: client-supplied text cannot drive or
 spoof the terminal.
 
-**Signatures.** `update.Verify(ctx, artifact, sigstoreBundle, update.Identity{CertIdentityRegexp: "^https://github\\.com/<you>/<repo>/\\.github/workflows/release\\.yml@refs/tags/v[0-9]", OIDCIssuer: "https://token.actions.githubusercontent.com"}, update.Options{})`
+**Signatures.** `update.Verify(ctx, artifact, sigstoreBundle, update.Identity{CertIdentityRegexp: "^https://github\\.com/<you>/<repo>/\\.github/workflows/release\\.yml@refs/tags/v1\\.2\\.3$", OIDCIssuer: "https://token.actions.githubusercontent.com"}, update.Options{})`
 runs `cosign verify-blob`; a missing cosign is `update.ErrCosignMissing`
 (refuse, never skip), a bad signature an `*update.VerifyError`. Then
 `update.ChecksumFor(sums, name)` and `update.CheckSHA256(data, want)`.
+Bind the identity to the exact tag you install (anchored, dots escaped),
+never to `v[0-9]`: a tag moved to an older release's signed files would
+verify.
+
+**Deployment.** The products run in Docker only: the separated setup
+(`sysconf`'s `system.toml`, the console account, the clients group, the
+socket directory) is baked into each product's image, and the host gets one
+command, a POSIX shell launcher that runs every subcommand in the image with
+the account and volumes it needs, pinned to the image digest its release's
+cosign signature verifies. lockkit has no package for it: the launcher is
+per product, its pattern is locksql's
+[docs/launcher.md](https://github.com/DavidGodefroid/locksql/blob/main/docs/launcher.md).
+Code that assumes a host install (installing the separated setup, replacing
+the binary in place) serves only a product's legacy commands, which the
+image refuses.
 
 ## 10. The console and the `Backend` seam
 
