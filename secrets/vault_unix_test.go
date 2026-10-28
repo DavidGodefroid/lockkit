@@ -59,3 +59,32 @@ func TestVaultReadWithoutCLI(t *testing.T) {
 		t.Errorf("err = %v, want ErrVaultMissing", err)
 	}
 }
+
+// VaultReadToken hands the token to the CLI in its environment only: not in
+// its arguments, and over a VAULT_TOKEN the console's environment holds.
+func TestVaultReadTokenRunsTheCLI(t *testing.T) {
+	argsFile := installFakeVault(t, `printf '%s\n' "token=$VAULT_TOKEN" >> "$(dirname "$0")/args"
+cat <<'EOF2'
+{"lease_id":"database/creds/ro/x","lease_duration":120,"data":{"username":"v-ro-1","password":"pw-1"}}
+EOF2`)
+	t.Setenv("VAULT_ADDR", "https://vault.example:8200")
+	t.Setenv("VAULT_TOKEN", "hvs.stale")
+	token := []byte("hvs.typed")
+	c, err := VaultReadToken(context.Background(), "database/creds/ro", token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.User != "v-ro-1" || string(c.Password) != "pw-1" {
+		t.Errorf("login = %q / %q", c.User, c.Password)
+	}
+	got, _ := os.ReadFile(argsFile)
+	if want := "read\n-format=json\n--\ndatabase/creds/ro\naddr=https://vault.example:8200\ntoken=hvs.typed\n"; string(got) != want {
+		t.Errorf("CLI saw %q, want %q", got, want)
+	}
+	if string(token) != "hvs.typed" {
+		t.Errorf("the caller's token was changed: %q", token)
+	}
+	if os.Getenv("VAULT_TOKEN") != "hvs.stale" {
+		t.Error("the console's own environment was changed")
+	}
+}
