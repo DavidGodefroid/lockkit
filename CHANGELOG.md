@@ -5,6 +5,15 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `secrets` (locksql#51): `VaultReadToken(ctx, path, token)` reads a
+  login from Vault with a token the caller holds, such as one the human
+  typed: passed to the vault CLI as VAULT_TOKEN in the child's environment
+  only (never argv, never disk), over any VAULT_TOKEN of the console and
+  its `~/.vault-token`. An empty token or one Vault refuses (expired,
+  revoked, not allowed) is `ErrVaultAuth`, whose hint asks for another
+  token rather than `vault login`; the token is cut out of the CLI's
+  message. `VaultRead` is unchanged.
+
 - `pii` (locksql#17): Unicode e-mail domains; U+00A0, U+202F, U+2009 and
   full-width digits in phone, IBAN, card and national-id values; opt-in
   `phone_loose` detector for national numbers without a trunk 0; `Detect`

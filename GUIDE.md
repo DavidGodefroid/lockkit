@@ -89,8 +89,11 @@ pw, legacy, err := kc.Get(profile, host, port, defaultPort)
 ```
 
 `secrets.PromptPassword` reads from the controlling terminal;
-`secrets.VaultRead` runs the `vault` CLI (the console never handles the
-Vault token). Wipe every secret you are done with (`secrets.Wipe`).
+`secrets.VaultRead` runs the `vault` CLI, which finds the Vault token
+itself (VAULT_TOKEN or `~/.vault-token`); `secrets.VaultReadToken` gives
+it a token the console holds (typed by the human) in the CLI's environment
+only, never its arguments, and returns `ErrVaultAuth` when Vault refuses
+it. Wipe every secret you are done with (`secrets.Wipe`).
 
 ## 5. Audit
 
