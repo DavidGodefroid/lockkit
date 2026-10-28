@@ -3,7 +3,16 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.2.0 (2026-10-28)
+
+- `secrets` (locksql#51): `VaultReadToken(ctx, path, token)` reads a
+  login from Vault with a token the caller holds, such as one the human
+  typed: passed to the vault CLI as VAULT_TOKEN in the child's environment
+  only (never argv, never disk), over any VAULT_TOKEN of the console and
+  its `~/.vault-token`. An empty token or one Vault refuses (expired,
+  revoked, not allowed) is `ErrVaultAuth`, whose hint asks for another
+  token rather than `vault login`; the token is cut out of the CLI's
+  message. `VaultRead` is unchanged.
 
 - `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
   `e_mail`, `login` (unless the column is a date or time, as Django's

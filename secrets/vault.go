@@ -6,16 +6,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"time"
 	"unicode"
 )
 
 // VaultCommand is the program run to read a secret from HashiCorp Vault.
-// It inherits the console's environment (VAULT_ADDR, VAULT_TOKEN,
-// VAULT_NAMESPACE, VAULT_CACERT, ...) and its token helper
-// (~/.vault-token): the console never handles the Vault token itself.
+// It inherits the console's environment (VAULT_ADDR, VAULT_NAMESPACE,
+// VAULT_CACERT, ...). VaultRead also leaves the Vault token to it
+// (VAULT_TOKEN, or the token helper's ~/.vault-token); VaultReadToken
+// hands it the token the human typed, in its environment only.
 const VaultCommand = "vault"
 
 // vaultTimeout bounds one vault read.
@@ -56,9 +59,11 @@ type VaultCredentials struct {
 	LeaseDuration time.Duration
 }
 
-// vaultRun runs the vault CLI; tests replace it.
-var vaultRun = func(ctx context.Context, args ...string) (stdout, stderr []byte, err error) {
+// vaultRun runs the vault CLI with env as its environment, or the
+// console's when env is nil; tests replace it.
+var vaultRun = func(ctx context.Context, env []string, args ...string) (stdout, stderr []byte, err error) {
 	cmd := exec.CommandContext(ctx, VaultCommand, args...)
+	cmd.Env = env
 	var out, errb bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &out, &errb
 	err = cmd.Run()
@@ -67,19 +72,50 @@ var vaultRun = func(ctx context.Context, args ...string) (stdout, stderr []byte,
 
 // VaultRead reads the login at path with `vault read -format=json`: the
 // fields username and password of the secret's data, or of data.data for
-// a KV version 2 secret. Every call reads Vault again; nothing is cached
-// or written to disk.
+// a KV version 2 secret. The CLI finds the Vault token itself
+// (VAULT_TOKEN, or its token helper). Every call reads Vault again;
+// nothing is cached or written to disk.
 func VaultRead(ctx context.Context, path string) (*VaultCredentials, error) {
+	return vaultRead(ctx, path, nil)
+}
+
+// VaultReadToken is VaultRead with the Vault token the caller holds, such
+// as one the human typed: the CLI gets it as VAULT_TOKEN in its own
+// environment, over any VAULT_TOKEN of the console's, never in its
+// arguments, and so never reads its token helper (~/.vault-token).
+// Surrounding spaces are trimmed. An empty token, or one with a space or a
+// control character inside, is ErrVaultAuth and never reaches the CLI; so
+// is a token Vault refuses (expired, revoked, or whose policy may not read
+// path): ask for another. The caller keeps and wipes token.
+func VaultReadToken(ctx context.Context, path string, token []byte) (*VaultCredentials, error) {
+	tok := bytes.TrimSpace(token)
+	if len(tok) == 0 || bytes.ContainsFunc(tok, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) || !unicode.IsPrint(r) }) {
+		return nil, fmt.Errorf("%w: the Vault token is empty or holds a space or a control character", ErrVaultAuth)
+	}
+	env := slices.DeleteFunc(os.Environ(), func(kv string) bool { return strings.HasPrefix(kv, "VAULT_TOKEN=") })
+	// The string is a copy Go cannot wipe; it lives as long as this call.
+	env = append(env, "VAULT_TOKEN="+string(tok))
+	return vaultRead(ctx, path, env)
+}
+
+// vaultRead runs `vault read` for path with env as the CLI's environment
+// (nil: the console's). A non-nil env holds the token the caller gave.
+func vaultRead(ctx context.Context, path string, env []string) (*VaultCredentials, error) {
 	if err := CheckVaultPath(path); err != nil {
 		return nil, err
 	}
 	ctx, cancel := context.WithTimeout(ctx, vaultTimeout)
 	defer cancel()
 	// "--" ends the flags: the path is never read as one.
-	out, stderr, err := vaultRun(ctx, "read", "-format=json", "--", path)
+	out, stderr, err := vaultRun(ctx, env, "read", "-format=json", "--", path)
 	defer Wipe(out)
+	defer Wipe(stderr)
 	if err != nil {
-		return nil, vaultError(path, err, stderr)
+		var tok string
+		if env != nil {
+			tok = strings.TrimPrefix(env[len(env)-1], "VAULT_TOKEN=")
+		}
+		return nil, vaultError(path, err, stderr, tok)
 	}
 	return parseVault(path, out)
 }
@@ -99,13 +135,19 @@ func CheckVaultPath(path string) error {
 }
 
 // vaultError maps a failed CLI run to one of the ErrVault errors, with the
-// first line of the CLI's message.
-func vaultError(path string, err error, stderr []byte) error {
+// first line of the CLI's message. token is the one VaultReadToken gave,
+// "" for VaultRead: it is cut out of the message, and a refusal then
+// tells to ask for another token rather than to run `vault login`.
+func vaultError(path string, err error, stderr []byte, token string) error {
 	if errors.Is(err, exec.ErrNotFound) {
 		return fmt.Errorf("%w: install it in the console account's PATH (https://developer.hashicorp.com/vault/install)", ErrVaultMissing)
 	}
 	if errors.Is(err, context.DeadlineExceeded) {
 		return fmt.Errorf("%w: no answer within %s (check VAULT_ADDR)", ErrVaultUnreachable, vaultTimeout)
+	}
+	if token != "" {
+		stderr = bytes.ReplaceAll(stderr, []byte(token), []byte("[token]"))
+		defer Wipe(stderr)
 	}
 	msg := vaultMessage(stderr)
 	lower := strings.ToLower(string(stderr))
@@ -115,6 +157,9 @@ func vaultError(path string, err error, stderr []byte) error {
 	case strings.Contains(lower, "missing client token"), strings.Contains(lower, "permission denied"),
 		strings.Contains(lower, "invalid token"), strings.Contains(lower, "token is expired"), strings.Contains(lower, "code: 403"):
 		kind, hint = ErrVaultAuth, "run `vault login` as the console account, or check that its token's policy may read "+path
+		if token != "" {
+			hint = "the Vault token is invalid or expired, or its policy may not read " + path
+		}
 	case strings.Contains(lower, "unknown role"), strings.Contains(lower, "role not found"),
 		strings.Contains(lower, "no role"), strings.Contains(lower, "could not find role"),
 		strings.Contains(lower, "role") && strings.Contains(lower, "not found"):
