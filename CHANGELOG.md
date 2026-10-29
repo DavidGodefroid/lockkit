@@ -5,6 +5,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `audit`: `prev_hash` is now the last member of a line, not the second:
+  the chain is additive at the end, so a product's pinned record format
+  (locksql's 0.8 lines) stays a byte-identical prefix. A record naming
+  `prev_hash` itself is refused. On Windows the append lock covers one
+  byte far past the log (LockFileEx locks are mandatory), so a reader is
+  never refused; CI runs the audit tests on Windows.
+
 - `audit`: `EventPending`, the record of a request handed to the hub
   (`ticket` set), written before the requester is told pending; a failed
   write refuses the request and withdraws its ticket (GUIDE §5).
@@ -24,7 +31,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   or ticket to another agent's token.
 
 - `audit` (#30): hash chain and hub fields, additive. Every record now
-  carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
+  carries `prev_hash`, the `LineHash` of the line before it,
   `Genesis` on the first line of an empty log; `Verify` checks a log and
   returns a `*ChainError` at the first broken line (a record edited,
   removed, inserted or reordered). Old logs stay readable: their records

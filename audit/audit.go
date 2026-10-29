@@ -172,8 +172,10 @@ func (l *Log) open() (*os.File, error) {
 func (l *Log) Path() string { return l.path }
 
 // Append writes rec as one JSON line: {"ts": the current time in RFC 3339
-// with milliseconds, "prev_hash": the LineHash of the file's last line
-// (Genesis in an empty file), then rec's fields in their encoding order}.
+// with milliseconds, then rec's fields in their encoding order, then
+// "prev_hash": the LineHash of the file's last line (Genesis in an empty
+// file)}. The chain comes last, so that a product's line keeps its format
+// before the chain as a prefix; a record may not name prev_hash itself.
 // A last line cut short is left as it is and the record starts a line of
 // its own. An error means nothing was written, or the write failed: the
 // caller must not treat the event as audited.
@@ -190,6 +192,10 @@ func (l *Log) Append(rec Record) error {
 	obj := bytes.TrimRight(body.Bytes(), "\n")
 	if len(obj) < 2 || obj[0] != '{' || obj[len(obj)-1] != '}' {
 		return errors.New("audit: a record must encode to a JSON object")
+	}
+	// Quotes inside a JSON string are escaped: this is a member name.
+	if bytes.Contains(obj, []byte(`"prev_hash":`)) {
+		return errors.New("audit: a record may not carry prev_hash")
 	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -218,14 +224,14 @@ func (l *Log) Append(rec Record) error {
 	}
 	buf.WriteString(`{"ts":"`)
 	buf.WriteString(time.Now().Format("2006-01-02T15:04:05.000Z07:00"))
-	buf.WriteString(`","prev_hash":"`)
-	buf.WriteString(prev)
 	buf.WriteByte('"')
 	if len(obj) > 2 {
 		buf.WriteByte(',')
+		buf.Write(obj[1 : len(obj)-1])
 	}
-	buf.Write(obj[1:])
-	buf.WriteByte('\n')
+	buf.WriteString(`,"prev_hash":"`)
+	buf.WriteString(prev)
+	buf.WriteString("\"}\n")
 	// One write call per record: with O_APPEND the line lands whole.
 	if _, err := f.Write(buf.Bytes()); err != nil {
 		f.Close()
