@@ -36,6 +36,7 @@ contract between lockkit and the products built on it.
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
 | `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
+| `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 
 ## 2. `kit.Product`
@@ -210,6 +211,24 @@ and cut at `MaxCellChars` characters, numbers/booleans/nulls kept, the
 whole at most `MaxOutputBytes` (else `render.ErrOutputCap`, nothing
 written: page or narrow your result). `render.Table` + `render.Render(w,
 t, caps, "tsv"|"json")` is one helper among others, for tabular results.
+
+**Approval screens that leave the lock** (to lockhub, in a ticket) are
+`render.MaskedScreen` values, built only by `render.MaskScreen`: draw the
+screen as `render.ScreenSource` with each body line in `render.Part`s,
+structure apart from values, and name the column of each value you know.
+
+```go
+src := render.ScreenSource{Header: "db / shop · tier read", Note: note, Body: []render.Line{{
+	{Text: "SELECT id FROM customers WHERE email = "}, {Text: "'" + email + "'", Value: true, Column: "email"},
+}}}
+ms := render.MaskScreen(src, render.Masking{Detectors: ds}) // ds: pii.Detectors(policy's names)
+t.Screen, t.PII.Touched = ms.Screen(), ms.Touched()
+```
+
+A value whose column looks personal (`pii.LooksPersonalColumn`, or your
+`Masking.Personal`) is masked whole; the detectors run over everything
+else, structure included, which otherwise stays visible. The zero
+`MaskedScreen` is not valid and does not encode.
 
 **Errors.** Every error text that leaves the console (client, audit log)
 goes through a `sanitize.Sanitizer`:
@@ -497,6 +516,35 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unle
   Ed25519 key you pinned.
 - `HashOf(v)` is the plan hash or policy fingerprint of any value:
   `sha256:` over its canonical JSON.
+
+`plans` keeps the plans themselves, in the lock's volume (one 0600 file
+per plan in a 0700 directory, refused if wider), so a pending plan
+survives a restart:
+
+```go
+st, err := plans.Open(filepath.Join(home, "plans"))
+caller := plans.Caller{UID: peer.UID, Token: requesterToken}
+p, err := st.Create(plans.Binding{UID: peer.UID, Agent: agent, TokenHash: plans.HashToken(requesterToken),
+	PolicyFP: fp, PlanHash: hash}, body, 10*time.Minute)
+// run(plan_id) in hub mode:
+if q, ok := st.FindPending(caller, hash); ok { /* answer q.Ticket again */ }
+err = st.MarkPending(p.ID, caller, t) // the signed ticket, kept for Match
+// run(ticket): q, _ := st.ByTicket(id, caller); own, _ := q.LockTicket(lockPub)
+// then VerifyDecision, d.Match(own), d.Usable(own, ...), and:
+err = st.Check(p.ID, caller, recomputedFP, recomputedHash) // ErrStale: new plan, new ticket
+err = st.Begin(p.ID, caller, d.Nonce)                      // single use; ErrReplay, ErrUsed
+// ... execute ...
+err = st.Finish(p.ID, caller, ok, reason)
+```
+
+Another peer UID gets `ErrWrongPeer`, another agent token
+`ErrWrongRequester` (this catches mistakes; agents of one UID can read
+each other's token, so it is no security boundary). The token itself is
+never written, only its hash. A plan executing when the lock stopped
+comes back `Failed` and never runs again. `End` records a denial,
+withdrawal or staleness, `WithdrawAll` withdraws every pending plan (a
+lock started without its hub), `Prune` expires and removes final plans
+after `Retention`; consumed nonces are kept.
 
 ## 14. Asking for a lockkit change
 
