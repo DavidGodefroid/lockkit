@@ -180,6 +180,9 @@ type Screen struct {
 	// Record, when set, turns the decision record into the product's own
 	// (with its fields); nil writes the audit.Base.
 	Record func(audit.Base) audit.Record
+	// Hub is the plan and masked screen for the hub, in hub mode
+	// (HubOf(env) not nil); a request without one is refused there.
+	Hub *HubTicket
 }
 
 // Approval is the outcome of Env.Approve.

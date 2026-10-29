@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/DavidGodefroid/lockkit/audit"
+	"github.com/DavidGodefroid/lockkit/hubclient"
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/sanitize"
 )
@@ -91,7 +92,7 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 		d.Retype = q.Retype
 	}
 	if aa, ok := a.Approver.(AsyncApprover); ok {
-		return a.submit(ctx, id, q.Frame, aa, d)
+		return a.submit(ctx, id, q.Frame, aa, d, record)
 	}
 	Bell(a.IO)
 	r := a.Decide(ctx, d)
@@ -134,16 +135,21 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 
 // submit hands d to an asynchronous approver. Whatever the approver
 // answers, the request is pending: a hub that refuses the ticket or cannot
-// be reached never turns into a prompt here.
-func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncApprover, d Decision) Approval {
+// be reached never turns into a prompt here. The pending request is passed
+// to record (audit.EventPending, with its ticket).
+func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncApprover, d Decision, record func(audit.Base)) Approval {
 	p, err := aa.Submit(ctx, d)
 	if p.Ticket == "" {
 		if err == nil {
 			err = errors.New("no ticket")
 		}
 		a.IO.Println(Paint.Fail("not submitted: " + sanitize.Terminal(err.Error(), false)))
+		if errors.Is(err, hubclient.ErrRateLimited) {
+			return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "too many requests are waiting for a decision; wait for them to be decided before asking again")}
+		}
 		return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "the request could not be submitted for approval; do not retry unless asked")}
 	}
+	record(audit.Base{Event: audit.EventPending, Decision: "pending", Approval: HubApproval, Ticket: p.Ticket})
 	line := Paint.Paint(frame, "╰─ ") + "pending: ticket " + sanitize.Terminal(p.Ticket, false)
 	if err != nil {
 		line += Paint.Dim(" (not delivered yet: " + sanitize.Terminal(err.Error(), false) + ")")

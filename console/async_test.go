@@ -22,6 +22,15 @@ type fakeAsync struct {
 	decisions []Decision
 	err       error
 	noTicket  bool
+	withdrawn []string
+}
+
+// Withdraw records the tickets withdrawn.
+func (a *fakeAsync) Withdraw(_ context.Context, d Decision, ticket, reason string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.withdrawn = append(a.withdrawn, ticket)
+	return nil
 }
 
 func (a *fakeAsync) Mode() string { return "hub" }
@@ -156,5 +165,34 @@ func TestAsyncApproverNoLocalAutoMode(t *testing.T) {
 	r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "orders"})
 	if r.Error != nil || pendingOf(t, r.Result)["status"] != "pending" || len(a.decisions) != 1 || h.s.Auto() {
 		t.Fatalf("result %s decisions %d auto %v", r.Result, len(a.decisions), h.s.Auto())
+	}
+}
+
+// A pending request is audited with its ticket; one that cannot be
+// audited is withdrawn and refused, never answered pending.
+func TestAsyncApproverPendingAudited(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only file")
+	}
+	a := &fakeAsync{}
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Approver = a })
+	r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "orders"})
+	if r.Error != nil {
+		t.Fatal(r.Error)
+	}
+	rec := h.lastRecord(t)
+	if rec["event"] != "pending" || rec["decision"] != "pending" || rec["ticket"] != "T1" || rec["approval"] != "hub" {
+		t.Fatalf("record %v", rec)
+	}
+	if err := os.Chmod(h.log, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(h.log, 0o600)
+	r = h.call(t, context.Background(), "op.read", map[string]any{"queue": "orders"})
+	if r.Error == nil || r.Error.Code != -32603 || r.Result != nil {
+		t.Fatalf("unrecorded pending: %s %+v", r.Result, r.Error)
+	}
+	if len(a.withdrawn) != 1 || a.withdrawn[0] != "T2" {
+		t.Fatalf("withdrawn %v", a.withdrawn)
 	}
 }

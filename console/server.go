@@ -76,6 +76,8 @@ type ServerConfig struct {
 	// profile (an X11 session, core dumps that could not be disabled) when
 	// the policy in force becomes production; nil refuses nothing.
 	RefuseProduction func() error
+	// Hub is the hub mode (Run with HubOptions); nil standalone.
+	Hub *Hub
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -435,6 +437,9 @@ func (s *Server) UnmaskAllowed() bool { return s.allowUnmask }
 // Policy implements Env.
 func (s *Server) Policy() Policy { return s.approved }
 
+// Hub is the console's hub mode, nil standalone (HubOf).
+func (s *Server) Hub() *Hub { return s.cfg.Hub }
+
 // Audit implements Env.
 func (s *Server) Audit(rec audit.Record) { _ = s.write(rec) }
 
@@ -559,10 +564,20 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	var recErr error
 	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
 		b := base
-		b.Event, b.Decision, b.Reason, b.Error, b.Approval = d.Event, d.Decision, d.Reason, d.Error, d.Approval
+		b.Event, b.Decision, b.Reason, b.Error, b.Approval, b.Ticket = d.Event, d.Decision, d.Reason, d.Error, d.Approval, d.Ticket
 		recErr = rec(b) // a denial stays a denial either way
 	})
 	if a.Approved && recErr != nil {
+		return unrecorded()
+	}
+	// A pending request runs once decided: unrecorded, its ticket is
+	// withdrawn and the request refused.
+	if a.Pending != nil && recErr != nil {
+		if w, ok := s.approver.(Withdrawer); ok {
+			if err := w.Withdraw(ctx, Decision{Screen: &sc}, a.Pending.Ticket, "the console could not record the request"); err != nil {
+				s.println(Paint.Fail("ticket " + sanitize.Terminal(a.Pending.Ticket, false) + " not withdrawn: " + sanitize.Terminal(err.Error(), false)))
+			}
+		}
 		return unrecorded()
 	}
 	return a

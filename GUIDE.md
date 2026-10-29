@@ -36,6 +36,7 @@ contract between lockkit and the products built on it.
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
 | `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
+| `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
 | `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 
@@ -366,6 +367,29 @@ rather than `env.Approve`: `Asker.Ask` rings the bell, prompts (typed
 profile name on production, an optional retype answer), takes the finger
 and returns the same `Approval`, handing each outcome to a record callback.
 `Server.Approve` is built on it, so both decide the same way.
+
+**Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
+writes: `--hub URL --hub-key-file PATH --instance NAME` (all three or
+none; `--auto` is refused with them). Pass them as `Options.Hub`: `Run`
+then reads the pinned hub key, the instance key (`hubclient.InstanceKey`
+in the home volume) and opens the plans and the hub state under the
+product's state directory. Requests are no longer asked on the terminal:
+`env.Approve` pushes a ticket and answers `pending` (a result, with the
+ticket id). For that the product puts a `console.HubTicket` on the
+screen: the plan (made in `console.HubOf(env).Store`), its caller, the
+risk class and the `render.MaskedScreen`; a screen without one is refused
+in hub mode, never asked here. The run of a decided ticket is the
+product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
+matched, still usable, binding unchanged, nonce consumed; it returns
+the decision, whose approver, facade and signature go in the audit
+record), the effect, then `h.Client.Finish`. A pending answer is
+audited (`audit.EventPending`, approval `hub`, the ticket); one that
+cannot be recorded is withdrawn and refused. A product with its own console lifecycle
+calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
+for its `Asker` (base keeps the console's own decisions), and
+`hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance
+NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
+for `lock up` to pin.
 
 A minimal product:
 

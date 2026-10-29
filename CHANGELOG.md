@@ -5,6 +5,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `console` hub mode (#28): `HubOptions` (`--hub`, `--hub-key-file`,
+  `--instance`, all three or none, `--auto` refused with them) put `Run`
+  in hub mode: requests with a `Screen.Hub` (`HubTicket`: plan, caller,
+  risk, `render.MaskedScreen`) are pushed to lockhub and answered pending;
+  one without is refused, never asked on the terminal. `HubOf(env)` gives
+  the product the plans and the client to run a decided ticket.
+  `hubclient.InstanceKey` / `HubKeyCommand` (`<lock> hub-key --instance
+  NAME`) make and print the instance key; `hubclient/hubtest` is a fake
+  hub for tests.
+
 - `audit`: `prev_hash` is now the last member of a line, not the second:
   the chain is additive at the end, so a product's pinned record format
   (locksql's 0.8 lines) stays a byte-identical prefix. A record naming
@@ -96,6 +106,22 @@ GUIDE.md is the contract between lockkit and the products built on it.
   the structure of the request kept. `Screen()` is the `ticket.Screen`,
   `Touched()` the kinds masked; the zero value is not `Valid` and does not
   encode (`ErrUnmasked`).
+
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
 
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
