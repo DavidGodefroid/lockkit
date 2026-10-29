@@ -178,3 +178,12 @@ func watchReport(io IO) func(error) {
 		}
 	}
 }
+
+// Withdraw takes back the ticket of d's plan (the console could not record
+// it): the plan ends Withdrawn here, then at the hub.
+func (a *hubApprover) Withdraw(ctx context.Context, d Decision, _ string, reason string) error {
+	if d.Screen == nil || d.Screen.Hub == nil {
+		return errNoHubTicket
+	}
+	return a.hub.Client.Withdraw(ctx, a.hub.Store, d.Screen.Hub.PlanID, d.Screen.Hub.Caller, reason)
+}

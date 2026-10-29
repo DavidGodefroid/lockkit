@@ -46,6 +46,16 @@ type AsyncApprover interface {
 	Submit(ctx context.Context, d Decision) (Pending, error)
 }
 
+// HubApproval is the audit approval of a request handed to an
+// AsyncApprover.
+const HubApproval = "hub"
+
+// Withdrawer is an AsyncApprover that can take back a ticket it submitted:
+// a pending request the console could not record is withdrawn.
+type Withdrawer interface {
+	Withdraw(ctx context.Context, d Decision, ticket, reason string) error
+}
+
 // Pending is a request handed to an AsyncApprover.
 type Pending struct {
 	// Ticket is the id the agent presents to run the request once decided.

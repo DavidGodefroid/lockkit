@@ -564,10 +564,20 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	var recErr error
 	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
 		b := base
-		b.Event, b.Decision, b.Reason, b.Error, b.Approval = d.Event, d.Decision, d.Reason, d.Error, d.Approval
+		b.Event, b.Decision, b.Reason, b.Error, b.Approval, b.Ticket = d.Event, d.Decision, d.Reason, d.Error, d.Approval, d.Ticket
 		recErr = rec(b) // a denial stays a denial either way
 	})
 	if a.Approved && recErr != nil {
+		return unrecorded()
+	}
+	// A pending request runs once decided: unrecorded, its ticket is
+	// withdrawn and the request refused.
+	if a.Pending != nil && recErr != nil {
+		if w, ok := s.approver.(Withdrawer); ok {
+			if err := w.Withdraw(ctx, Decision{Screen: &sc}, a.Pending.Ticket, "the console could not record the request"); err != nil {
+				s.println(Paint.Fail("ticket " + sanitize.Terminal(a.Pending.Ticket, false) + " not withdrawn: " + sanitize.Terminal(err.Error(), false)))
+			}
+		}
 		return unrecorded()
 	}
 	return a
