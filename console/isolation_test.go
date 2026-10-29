@@ -88,10 +88,14 @@ func TestIsolationSameUserRefused(t *testing.T) {
 	if err == nil || err.Error() != SameUserRefusal(testProduct) {
 		t.Fatalf("err = %v", err)
 	}
-	for _, want := range []string{"separate account", "sudo lockmq install", "lockmq doctor"} {
+	for _, want := range []string{"separate account", "through the launcher", "scripts/install.sh", "lockmq doctor"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error lacks %q: %v", want, err)
 		}
+	}
+	// The image refuses the former host install: no text may send there.
+	if strings.Contains(err.Error(), " install`") || strings.Contains(testProduct.LauncherHint(), "lockmq install") {
+		t.Errorf("refusal names the host install: %v", err)
 	}
 	if strings.Contains(io.output(), "X11") {
 		t.Errorf("X11 warning before the same-user refusal:\n%s", io.output())
