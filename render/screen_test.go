@@ -65,6 +65,20 @@ func TestMaskScreenKeepsStructure(t *testing.T) {
 	}
 }
 
+// A value split across parts is found on the whole line.
+func TestMaskScreenSplitValue(t *testing.T) {
+	src := ScreenSource{Body: []Line{
+		{{Text: "to = '"}, {Text: "jean.dupont", Value: true}, {Text: "@example.com'"}},
+		{{Text: "iban = "}, {Text: "BE68 5390", Value: true}, {Text: " 0754 7034", Value: true}},
+	}}
+	body := strings.Join(MaskScreen(src, Masking{Detectors: detectors(t)}).Screen().Body, "\n")
+	for _, leak := range []string{"dupont", "@example.com", "5390", "7034"} {
+		if strings.Contains(body, leak) {
+			t.Errorf("%q shown:\n%s", leak, body)
+		}
+	}
+}
+
 // Personal decides which columns are personal.
 func TestMaskScreenPersonal(t *testing.T) {
 	src := ScreenSource{Body: []Line{{{Text: "x = "}, {Text: "secret-ish", Value: true, Column: "internal_code"}}}}

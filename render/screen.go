@@ -105,7 +105,9 @@ func MaskScreen(src ScreenSource, m Masking) MaskedScreen {
 			}
 			b = append(b, text...)
 		}
-		out.s.Body = append(out.s.Body, string(b))
+		// Once more over the whole line: a value split across parts
+		// ("jean" + "@example.com") is found only there.
+		out.s.Body = append(out.s.Body, detect(string(b)))
 	}
 	for _, w := range src.Warnings {
 		out.s.Warnings = append(out.s.Warnings, detect(w))
