@@ -16,7 +16,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
   plan pending (`ErrUnreachable`), never a fallback; `Sync` resends.
   `Poll`/`Watch` long-poll decisions with a cursor kept in a 0600 state
   file with the decisions not yet acted on; `Begin` checks `Match`,
-  `Usable` and the plan's binding, then consumes the decision nonce;
+  `Usable` and the plan's binding, then consumes the decision nonce and
+  returns the verified decision (approver, facade, signature for the audit);
   `Finish` and `Withdraw` tell the hub.
 
 - `audit` (#30): hash chain and hub fields, additive. Every record now

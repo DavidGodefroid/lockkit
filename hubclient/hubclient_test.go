@@ -183,7 +183,7 @@ func TestHubDownIsPendingAndResumes(t *testing.T) {
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Pending {
 		t.Fatalf("plan is %s, want pending", sp.State)
 	}
-	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
 		t.Fatalf("begin with the hub down: %v, want ErrPending", err)
 	}
 	// The hub comes back on another address: a new client resends.
@@ -273,21 +273,24 @@ func TestApprovedRunsOnce(t *testing.T) {
 	e := newEnv(t, nil)
 	ctx := context.Background()
 	p, id := submitted(t, e)
-	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
 		t.Fatalf("before a decision: %v, want ErrPending", err)
 	}
 	e.hub.Decide(id, ticket.Approved, "")
 	if n, err := e.client.Poll(ctx, 0); err != nil || n != 1 {
 		t.Fatalf("poll: %d %v", n, err)
 	}
-	if _, err := e.client.Begin(e.store, id, plans.Caller{UID: 1000, Token: "other"}, recheck(policyFP, planHash)); !errors.Is(err, plans.ErrWrongRequester) {
+	if _, _, err := e.client.Begin(e.store, id, plans.Caller{UID: 1000, Token: "other"}, recheck(policyFP, planHash)); !errors.Is(err, plans.ErrWrongRequester) {
 		t.Fatalf("another agent: %v, want ErrWrongRequester", err)
 	}
-	got, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	got, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
 	if err != nil || got.ID != p.ID || got.State != plans.Executing {
 		t.Fatalf("begin: %+v %v", got, err)
 	}
-	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); err == nil {
+	if d == nil || d.Decision != ticket.Approved || d.Approver.ID != "host:uid:1000" || d.Facade != "tty" || d.Sig == "" {
+		t.Fatalf("decision for the audit: %+v", d)
+	}
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); err == nil {
 		t.Fatal("the approval ran twice")
 	}
 	if err := e.client.Finish(ctx, e.store, p.ID, caller, true, ""); err != nil {
@@ -310,7 +313,7 @@ func TestForgedDecisionIgnored(t *testing.T) {
 	if n != 0 || !errors.Is(err, hubclient.ErrBadDecision) {
 		t.Fatalf("poll of a forged decision: %d %v, want 0 and ErrBadDecision", n, err)
 	}
-	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
 		t.Fatalf("forged approval: %v, want ErrPending", err)
 	}
 }
@@ -322,7 +325,7 @@ func TestDecisionForAnotherPlanRefused(t *testing.T) {
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrBadDecision) {
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrBadDecision) {
 		t.Fatalf("decision on another plan hash: %v, want ErrBadDecision", err)
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Pending {
@@ -337,9 +340,12 @@ func TestDeniedEndsPlan(t *testing.T) {
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
-	_, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
 	if !errors.Is(err, hubclient.ErrDenied) || !strings.Contains(err.Error(), "not today") {
 		t.Fatalf("denied: %v", err)
+	}
+	if d == nil || d.Decision != ticket.Denied || d.Approver.ID == "" {
+		t.Fatalf("denial for the audit: %+v", d)
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Denied {
 		t.Errorf("plan is %s", sp.State)
@@ -353,7 +359,7 @@ func TestStaleRecheck(t *testing.T) {
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
-	_, err := e.client.Begin(e.store, id, caller, recheck(policyFP, "sha256:"+strings.Repeat("9", 64)))
+	_, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, "sha256:"+strings.Repeat("9", 64)))
 	if !errors.Is(err, plans.ErrStale) {
 		t.Fatalf("moved plan: %v, want ErrStale", err)
 	}
@@ -381,7 +387,7 @@ func TestCursorAndInboxPersisted(t *testing.T) {
 	if got := e.hub.Sinces(); len(got) != 2 || got[0] != "0" || got[1] != "1" {
 		t.Errorf("since sent: %v, want [0 1]", got)
 	}
-	if _, err := c2.Begin(e.store, id, caller, recheck(policyFP, planHash)); err != nil {
+	if _, _, err := c2.Begin(e.store, id, caller, recheck(policyFP, planHash)); err != nil {
 		t.Fatalf("decision lost by the restart: %v", err)
 	}
 }
@@ -410,7 +416,7 @@ func TestWatchDeliversDecisions(t *testing.T) {
 	defer func() { cancel(); <-done }()
 	deadline := time.Now().Add(5 * time.Second)
 	for {
-		_, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+		_, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
 		if err == nil {
 			return
 		}

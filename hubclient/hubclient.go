@@ -540,68 +540,76 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 // plans.Store.Check). The plan comes back Executing under the decision's
 // nonce, consumed: the product runs it, then calls Finish.
 //
+// Begin also returns the verified decision, for the lock's audit (who
+// approved, on which facade, the hub's signature), with the plan or with
+// the error of a decision that was matched but not acted on.
+//
 // No decision yet is ErrPending; a denial ends the plan Denied and is
 // ErrDenied with the human's reason; a decision too old or past the
 // ticket ends it Expired.
-func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, error) {
+func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, *ticket.Decision, error) {
 	p, err := st.ByTicket(ticketID, caller)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if p.State != plans.Pending {
-		return nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
+		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
 	}
 	c.mu.Lock()
 	e, ok := c.inbox[ticketID]
 	c.mu.Unlock()
 	if !ok {
-		return nil, ErrPending
+		return nil, nil, ErrPending
 	}
 	d, err := c.verify(e)
 	if err != nil {
 		c.drop(ticketID)
-		return nil, err
+		return nil, nil, err
 	}
 	own, err := p.LockTicket(c.pub)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if err := d.Match(own); err != nil {
 		c.drop(ticketID)
-		return nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
+		return nil, nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
 	}
 	if d.Decision == ticket.Denied {
 		if err := st.End(p.ID, caller, plans.Denied, d.Reason); err != nil {
-			return nil, err
+			return nil, d, err
 		}
 		c.drop(ticketID)
 		if d.Reason == "" {
-			return nil, ErrDenied
+			return nil, d, ErrDenied
 		}
-		return nil, fmt.Errorf("%w: %s", ErrDenied, d.Reason)
+		return nil, d, fmt.Errorf("%w: %s", ErrDenied, d.Reason)
 	}
 	if err := d.Usable(own, c.cfg.Now(), ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL)); err != nil {
 		if errors.Is(err, ticket.ErrExpired) {
 			_ = st.End(p.ID, caller, plans.Expired, err.Error())
 		}
 		c.drop(ticketID)
-		return nil, err
+		return nil, d, err
 	}
 	fp, hash, err := recheck(p)
 	if err != nil {
-		return nil, err
+		return nil, d, err
 	}
 	if err := st.Check(p.ID, caller, fp, hash); err != nil {
 		if errors.Is(err, plans.ErrStale) {
 			c.drop(ticketID)
 		}
-		return nil, err
+		return nil, d, err
 	}
 	if err := st.Begin(p.ID, caller, d.Nonce); err != nil {
-		return nil, err
+		return nil, d, err
 	}
 	c.drop(ticketID)
-	return st.Get(p.ID, caller)
+	p, err = st.Get(p.ID, caller)
+	if err != nil {
+		return nil, d, err
+	}
+	return p, d, nil
 }
 
 // drop forgets the decision on ticketID.
