@@ -3,6 +3,20 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `ticket` (new, #25): the contract between a lock and lockhub. Signed
+  `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
+  instance, lock key id and plan hash: `Match` refuses a decision for
+  another instance or plan), closed `Risk` classes with their TTL
+  (reads none, write and policy-loosen 24 h, prod-write and unlock 4 h;
+  `ClampTTL` only shortens), RFC 8785 canonical JSON (`Canonical`,
+  `CanonicalizeJSON`), Ed25519 signatures with domain separation
+  (`SignBytes`/`VerifyBytes` and `Context`), strict verification, X25519
+  sealed boxes (`Seal`/`Open`) and signed X25519 keys (`KeyCert`), ULID ids,
+  nonces, `HashOf`. Signed fixtures under `ticket/testdata` for lockhub's
+  compatibility tests.
+
 ## v0.2.1 (2026-10-28)
 
 - `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
