@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `audit` (#59): `VerifyAnchored(r, Anchor)` checks a log against an
+  anchor kept elsewhere (the hub's): a log cut before it, or whose chain
+  was stripped (every `prev_hash` removed, which `Verify` alone reads as
+  legacy), is a `*ChainError`. `Summary.Anchor()` makes the anchor.
+
 - `console` (#63): a product handler that panics no longer takes the
   console down: its client gets an internal error with a generic text,
   the console prints one line, the audit records a failed run, and the
