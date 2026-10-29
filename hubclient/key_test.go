@@ -109,3 +109,25 @@ func TestReadHubKey(t *testing.T) {
 		t.Error("missing file accepted")
 	}
 }
+
+// An empty home is the user's home, never the working directory: the
+// console (OpenHub) and `hub-key` must find the same key.
+func TestInstanceKeyEmptyHomeIsUserHome(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Chdir(t.TempDir())
+	var out bytes.Buffer
+	if err := hubclient.HubKeyCommand(&out, "", []string{"--instance", "crm-test"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(home, "hub", "crm-test.key")); err != nil {
+		t.Fatalf("key not in $HOME/hub: %v", err)
+	}
+	if _, err := os.Stat("hub"); err == nil {
+		t.Fatal("key written under the working directory")
+	}
+	k, err := hubclient.InstanceKey(home, "crm-test")
+	if err != nil || base64.StdEncoding.EncodeToString(k.Public().(ed25519.PublicKey))+"\n" != out.String() {
+		t.Fatalf("hub-key and InstanceKey(home) differ: %v", err)
+	}
+}

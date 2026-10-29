@@ -25,13 +25,30 @@ func ValidInstance(name string) bool { return instanceRE.MatchString(name) }
 // KeyDir is where a lock keeps its instance keys, under its home volume.
 func KeyDir(home string) string { return filepath.Join(home, "hub") }
 
+// homeDir is home, or the user's home when empty: never the working
+// directory.
+func homeDir(home string) (string, error) {
+	if home != "" {
+		return home, nil
+	}
+	h, err := os.UserHomeDir()
+	if err != nil || !filepath.IsAbs(h) {
+		return "", fmt.Errorf("hubclient: no home directory for the instance key (%v)", err)
+	}
+	return h, nil
+}
+
 // InstanceKey returns the Ed25519 key of instance, kept in
 // KeyDir(home)/<instance>.key (0600 in a 0700 directory, the seed in
-// base64 std on one line). The first call creates it; a key file group or
-// others can read is refused.
+// base64 std on one line); home "" is the user's home. The first call
+// creates it; a key file group or others can read is refused.
 func InstanceKey(home, instance string) (ed25519.PrivateKey, error) {
 	if !ValidInstance(instance) {
 		return nil, fmt.Errorf("hubclient: invalid instance name %q", instance)
+	}
+	home, err := homeDir(home)
+	if err != nil {
+		return nil, err
 	}
 	dir := KeyDir(home)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
@@ -99,7 +116,8 @@ func ReadHubKey(path string) (ed25519.PublicKey, error) {
 }
 
 // HubKeyCommand is a lock's `hub-key --instance NAME`: it prints the
-// public key of the instance (InstanceKey, created on the first call) in
+// public key of the instance (InstanceKey of home, "" the user's, created
+// on the first call) in
 // base64 std on one line, for `lock up` to pin at the hub.
 func HubKeyCommand(w io.Writer, home string, args []string) error {
 	fs := flag.NewFlagSet("hub-key", flag.ContinueOnError)
