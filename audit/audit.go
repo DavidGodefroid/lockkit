@@ -99,8 +99,9 @@ func (b Base) AuditEvent() string { return b.Event }
 
 // Log appends records to <stateDir>/<product>/audit.log. The file is opened in
 // append mode for each record, so it is never truncated and never held open.
-// Logs of one file in one process share a lock, so that each record links
-// to the line written just before it; the console is the only writer.
+// Logs of one file in one process share a lock, and every append holds a
+// lock on the file itself, so that each record links to the line written
+// just before it, whatever process writes it.
 type Log struct {
 	path string
 	mu   *sync.Mutex
@@ -190,6 +191,12 @@ func (l *Log) Append(rec Record) error {
 	f, err := l.open()
 	if err != nil {
 		return err
+	}
+	// Another process (a product command beside its console) may append
+	// to the same log: read the last line and write under the file lock.
+	if err := lockFile(f); err != nil {
+		f.Close()
+		return fmt.Errorf("audit: lock: %w", err)
 	}
 	last, cut, err := lastLine(f)
 	if err != nil {

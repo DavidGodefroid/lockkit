@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -264,5 +265,65 @@ func TestHubFields(t *testing.T) {
 		if _, ok := readLines(t, l.Path())[1][k]; ok {
 			t.Errorf("standalone record has %q", k)
 		}
+	}
+}
+
+// TestHelperAppend is a writer process for TestChainAcrossProcesses.
+func TestHelperAppend(t *testing.T) {
+	dir := os.Getenv("LOCKKIT_AUDIT_HELPER_DIR")
+	if dir == "" {
+		t.Skip("helper process only")
+	}
+	l, err := Open(testProduct, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for range 300 {
+		if err := l.Append(Base{Event: EventCatalog, Intent: strings.Repeat("y", 200)}); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// Two processes appending to one log (a console and a product command
+// beside it) keep one chain: the file lock orders their records.
+func TestChainAcrossProcesses(t *testing.T) {
+	if testing.Short() {
+		t.Skip("spawns processes")
+	}
+	dir := t.TempDir()
+	var cmds []*exec.Cmd
+	for range 2 {
+		cmd := exec.Command(os.Args[0], "-test.run=^TestHelperAppend$", "-test.count=1")
+		cmd.Env = append(os.Environ(), "LOCKKIT_AUDIT_HELPER_DIR="+dir)
+		var out bytes.Buffer
+		cmd.Stdout, cmd.Stderr = &out, &out
+		if err := cmd.Start(); err != nil {
+			t.Fatal(err)
+		}
+		cmds = append(cmds, cmd)
+		t.Cleanup(func() {
+			if t.Failed() {
+				t.Log(out.String())
+			}
+		})
+	}
+	l, err := Open(testProduct, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for range 300 {
+		if err := l.Append(Base{Event: EventLogin}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, c := range cmds {
+		if err := c.Wait(); err != nil {
+			t.Fatalf("writer: %v", err)
+		}
+	}
+	s, err := verifyFile(t, l.Path())
+	if err != nil || s.Records != 900 {
+		t.Fatalf("Verify = %+v, %v", s, err)
 	}
 }

@@ -118,8 +118,10 @@ Each line carries `prev_hash`, the `audit.LineHash` of the line before it
 a record edited, removed, inserted or reordered; records written before the
 chain (without `prev_hash`) are read as legacy at the start of the log.
 A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
-elsewhere (the hub's own log). When `Append` returns an error, the event is
-not audited: in hub mode, refuse the execution. Never put a secret, a row, a message
+elsewhere (the hub's own log). Appends hold a lock on the file, so a product
+command may write the console's log while the console runs. When `Append`
+returns an error, the event is not audited: in hub mode, refuse the
+execution. Never put a secret, a row, a message
 body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.
