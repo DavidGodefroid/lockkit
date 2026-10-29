@@ -203,7 +203,11 @@ type Approval struct {
 
 // PendingResp is the answer to a request waiting for a decision taken
 // elsewhere: a result, not an error, so that the agent stops and waits
-// rather than retries.
+// rather than retries. It names p.Instance when set (hub mode).
 func PendingResp(id int64, lock string, p Pending) ipc.Response {
-	return OKResp(id, map[string]string{"status": "pending", "ticket": p.Ticket, "lock": lock})
+	m := map[string]string{"status": "pending", "ticket": p.Ticket, "lock": lock}
+	if p.Instance != "" {
+		m["instance"] = p.Instance
+	}
+	return OKResp(id, m)
 }

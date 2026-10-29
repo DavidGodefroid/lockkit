@@ -13,6 +13,11 @@ prompts, with stricter rules: audit writes and widenings fail closed, no
 widening while a prompt waits, and production refusals re-applied when
 the policy becomes production. Audit lines gain `prev_hash` at the end.
 
+- `mcpkit`, `console`: the pending answer names the lock instance in hub
+  mode (`"instance"`, the console's `--instance`): `mcpkit.PendingOn`,
+  `PendingResult.Instance`, `console.Pending.Instance`; without one the
+  answer is unchanged.
+
 - `console` hub mode (#28): `HubOptions` (`--hub`, `--hub-key-file`,
   `--instance`, all three or none, `--auto` refused with them) put `Run`
   in hub mode: requests with a `Screen.Hub` (`HubTicket`: plan, caller,

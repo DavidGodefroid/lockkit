@@ -74,6 +74,9 @@ func TestAsyncApproverPending(t *testing.T) {
 	if m := pendingOf(t, r.Result); m["status"] != "pending" || m["ticket"] != "T1" || m["lock"] != testProduct.Name {
 		t.Fatalf("result %v", m)
 	}
+	if _, ok := pendingOf(t, r.Result)["instance"]; ok {
+		t.Fatalf("an approver without an instance named one: %s", r.Result)
+	}
 	if len(a.decisions) != 1 || a.decisions[0].Screen == nil || a.decisions[0].Screen.Body[0] != "READ orders" || a.decisions[0].Screen.Note != "why" {
 		t.Fatalf("decisions %+v", a.decisions)
 	}

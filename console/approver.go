@@ -60,6 +60,8 @@ type Withdrawer interface {
 type Pending struct {
 	// Ticket is the id the agent presents to run the request once decided.
 	Ticket string
+	// Instance is the lock instance the ticket is on (hub mode).
+	Instance string
 }
 
 // Outcome of an approval.
