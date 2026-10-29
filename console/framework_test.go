@@ -102,6 +102,8 @@ func (b *fakeBackend) Methods() map[string]Handler {
 			Queue     string `json:"queue"`
 			Note      string `json:"note"`
 			NeverAuto bool   `json:"never_auto"`
+			// BadRecord makes the screen's Record return no record.
+			BadRecord bool `json:"bad_record"`
 		}
 		if r := Decode(req, &p); r != nil {
 			return *r
@@ -109,8 +111,12 @@ func (b *fakeBackend) Methods() map[string]Handler {
 		if _, err := env.Session(ctx); err != nil {
 			return ErrResp(req.ID, ipc.CodeConnLost, err.Error())
 		}
-		a := env.Approve(ctx, req.ID, Screen{Header: "broker.example.com / orders", Note: p.Note,
-			Body: []string{"READ " + p.Queue}, NeverAuto: p.NeverAuto, Warnings: []string{"not read-only"}})
+		sc := Screen{Header: "broker.example.com / orders", Note: p.Note,
+			Body: []string{"READ " + p.Queue}, NeverAuto: p.NeverAuto, Warnings: []string{"not read-only"}}
+		if p.BadRecord {
+			sc.Record = func(audit.Base) audit.Record { return nil }
+		}
+		a := env.Approve(ctx, req.ID, sc)
 		if !a.Approved {
 			return a.Refusal
 		}
@@ -293,6 +299,54 @@ func TestApproveDeniedWithReasonTimeoutAndGone(t *testing.T) {
 	}
 	if rec := h.lastRecord(t); rec["event"] != "abandoned" {
 		t.Fatalf("audit: %v", rec)
+	}
+}
+
+// An approval that cannot be audited is refused (fail closed); three
+// failed writes in a row end the session.
+func TestApproveAuditFailureRefuses(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only file")
+	}
+	h := newHarness(t, uat(), nil)
+	// A product record that is no record.
+	h.io.answers = []string{"y"}
+	r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q", "bad_record": true})
+	if r.Error == nil || r.Error.Code != ipc.CodeInternal || !strings.Contains(r.Error.Message, "could not record the approval") {
+		t.Fatalf("bad record approved: %s %+v", r.Result, r.Error)
+	}
+	if !strings.Contains(h.io.plain(), "audit log write failed") || !strings.Contains(h.io.plain(), "refused: the approval could not be recorded") {
+		t.Fatalf("the human was not told:\n%s", h.io.plain())
+	}
+	// A write that succeeds resets the count.
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error != nil {
+		t.Fatal(r.Error)
+	}
+	// An unwritable log: manual and auto approvals are refused.
+	if err := os.Chmod(h.log, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(h.log, 0o600)
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
+		t.Fatalf("unwritable log approved: %s %+v", r.Result, r.Error)
+	}
+	h.s.auto = true
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
+		t.Fatalf("unwritable log auto-approved: %s %+v", r.Result, r.Error)
+	}
+	if _, ended := h.s.Ended(); ended {
+		t.Fatal("ended after two failures")
+	}
+	// A denial stays a denial; the third failure in a row ends the session.
+	h.s.auto = false
+	h.io.answers = []string{"n"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeDenied {
+		t.Fatalf("denial: %+v", r.Error)
+	}
+	if reason, ended := h.s.Ended(); !ended || reason != "the audit log cannot be written" {
+		t.Fatalf("session not ended: %q %v", reason, ended)
 	}
 }
 
