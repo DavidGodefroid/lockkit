@@ -3,6 +3,13 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `render` (#58): `MaskScreen` with no detectors runs every detector
+  (`pii.AllDetectors`: all but the opt-in `phone_loose`), never none: a
+  product that forgets `pii.Detectors` sends no header, note or structure
+  in clear.
+
 ## v0.3.0 (2026-10-30)
 
 Hub support: the packages a lock needs to ask the human through lockhub
