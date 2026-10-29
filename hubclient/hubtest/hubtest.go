@@ -1,4 +1,7 @@
-package hubclient_test
+// Package hubtest is a fake lockhub for the tests of locks: it speaks the
+// lock API v1 (signed requests, tickets, decisions with a cursor) on an
+// httptest server, and lets a test decide tickets.
+package hubtest
 
 import (
 	"crypto/ed25519"
@@ -15,25 +18,25 @@ import (
 	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
-// fakeHub speaks lockhub's lock API v1: signed requests, tickets,
-// decisions with a cursor.
-type fakeHub struct {
-	t        *testing.T
+// Hub is a fake lockhub serving one lock instance.
+type Hub struct {
+	t        testing.TB
 	instance string
-	lockPub  ed25519.PublicKey
-	hubPub   ed25519.PublicKey
-	hubPriv  ed25519.PrivateKey
+	// Pub and Priv are the hub's key; a lock pins Pub.
+	Pub  ed25519.PublicKey
+	Priv ed25519.PrivateKey
+	srv  *httptest.Server
 
 	mu        sync.Mutex
+	lockPub   ed25519.PublicKey
 	nonces    map[string]bool
 	tickets   map[string][]byte
-	pushes    int // POST /v1/tickets accepted
+	pushes    int
 	withdrawn map[string]string
 	consumed  map[string]bool
 	decisions []item
-	sinces    []string // since values the lock sent
-	status    int      // forced status for POST /v1/tickets, 0 none
-	srv       *httptest.Server
+	sinces    []string
+	status    int
 }
 
 type item struct {
@@ -42,10 +45,12 @@ type item struct {
 	Decision json.RawMessage `json:"decision"`
 }
 
-func newFakeHub(t *testing.T, instance string, lockPub ed25519.PublicKey) *fakeHub {
+// New starts a hub for instance, whose pinned lock key is lockPub. It
+// stops with the test.
+func New(t testing.TB, instance string, lockPub ed25519.PublicKey) *Hub {
 	t.Helper()
 	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
-	h := &fakeHub{t: t, instance: instance, lockPub: lockPub, hubPub: pub, hubPriv: priv,
+	h := &Hub{t: t, instance: instance, lockPub: lockPub, Pub: pub, Priv: priv,
 		nonces: map[string]bool{}, tickets: map[string][]byte{}, withdrawn: map[string]string{}, consumed: map[string]bool{}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/hello", func(w http.ResponseWriter, r *http.Request) {
@@ -68,13 +73,25 @@ func newFakeHub(t *testing.T, instance string, lockPub ed25519.PublicKey) *fakeH
 	return h
 }
 
+// URL is the hub's base URL.
+func (h *Hub) URL() string { return h.srv.URL }
+
+// Close stops the hub (it becomes unreachable).
+func (h *Hub) Close() { h.srv.Close() }
+
+// SetLockKey changes the lock key the hub pinned for the instance.
+func (h *Hub) SetLockKey(pub ed25519.PublicKey) { h.mu.Lock(); h.lockPub = pub; h.mu.Unlock() }
+
+// SetPushStatus makes every POST /v1/tickets answer code (0: normal).
+func (h *Hub) SetPushStatus(code int) { h.mu.Lock(); h.status = code; h.mu.Unlock() }
+
 func writeJSON(w http.ResponseWriter, code int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-func (h *fakeHub) auth(next func(http.ResponseWriter, *http.Request, []byte)) http.HandlerFunc {
+func (h *Hub) auth(next func(http.ResponseWriter, *http.Request, []byte)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		inst, ts, nonce, sig := r.Header.Get("Lock-Instance"), r.Header.Get("Lock-Time"), r.Header.Get("Lock-Nonce"), r.Header.Get("Lock-Sig")
@@ -96,7 +113,7 @@ func (h *fakeHub) auth(next func(http.ResponseWriter, *http.Request, []byte)) ht
 	}
 }
 
-func (h *fakeHub) push(w http.ResponseWriter, r *http.Request, body []byte) {
+func (h *Hub) push(w http.ResponseWriter, r *http.Request, body []byte) {
 	if h.status != 0 {
 		writeJSON(w, h.status, map[string]string{"error": "forced", "message": "forced by the test"})
 		return
@@ -104,6 +121,10 @@ func (h *fakeHub) push(w http.ResponseWriter, r *http.Request, body []byte) {
 	tk, err := ticket.VerifyTicket(h.lockPub, body)
 	if err != nil {
 		writeJSON(w, 400, map[string]string{"error": "bad_ticket", "message": err.Error()})
+		return
+	}
+	if tk.Source.Instance != h.instance {
+		writeJSON(w, 403, map[string]string{"error": "forbidden", "message": "ticket for another instance"})
 		return
 	}
 	if old, ok := h.tickets[tk.ID]; ok {
@@ -119,7 +140,7 @@ func (h *fakeHub) push(w http.ResponseWriter, r *http.Request, body []byte) {
 	writeJSON(w, 201, map[string]any{"ticket": tk.ID, "created": true})
 }
 
-func (h *fakeHub) list(w http.ResponseWriter, r *http.Request, _ []byte) {
+func (h *Hub) list(w http.ResponseWriter, r *http.Request, _ []byte) {
 	h.sinces = append(h.sinces, r.URL.Query().Get("since"))
 	since, _ := strconv.ParseInt(r.URL.Query().Get("since"), 10, 64)
 	res := struct {
@@ -135,28 +156,28 @@ func (h *fakeHub) list(w http.ResponseWriter, r *http.Request, _ []byte) {
 	writeJSON(w, 200, res)
 }
 
-// decide records a decision on ticket id signed with key (the hub's when
-// nil).
-func (h *fakeHub) decide(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey) {
+// Decide records a decision on ticket id, signed with the hub's key.
+func (h *Hub) Decide(id string, out ticket.Outcome, reason string) {
 	h.t.Helper()
-	h.decideWith(id, out, reason, key, nil)
+	h.DecideWith(id, out, reason, nil, nil)
 }
 
-// decideWith is decide with mod applied to the decision before signing.
-func (h *fakeHub) decideWith(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey, mod func(*ticket.Decision)) {
+// DecideWith is Decide signed with key (nil: the hub's), mod applied to
+// the decision before signing (nil: none).
+func (h *Hub) DecideWith(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey, mod func(*ticket.Decision)) {
 	h.t.Helper()
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	raw, ok := h.tickets[id]
 	if !ok {
-		h.t.Fatalf("decide: no ticket %s", id)
+		h.t.Fatalf("hubtest: no ticket %s", id)
 	}
 	var tk ticket.Ticket
 	if err := json.Unmarshal(raw, &tk); err != nil {
 		h.t.Fatal(err)
 	}
 	if key == nil {
-		key = h.hubPriv
+		key = h.Priv
 	}
 	d := &ticket.Decision{V: ticket.Version, Ticket: tk.ID, Instance: tk.Source.Instance, KeyID: tk.Source.KeyID,
 		PlanHash: tk.PlanHash, Decision: out, Reason: reason, Approver: ticket.Approver{ID: "host:uid:1000"},
@@ -171,14 +192,37 @@ func (h *fakeHub) decideWith(id string, out ticket.Outcome, reason string, key e
 	h.decisions = append(h.decisions, item{Seq: int64(len(h.decisions) + 1), Ticket: id, Decision: b})
 }
 
-func (h *fakeHub) pushed() int {
+// Pushed is how many tickets the hub accepted.
+func (h *Hub) Pushed() int { h.mu.Lock(); defer h.mu.Unlock(); return h.pushes }
+
+// Ticket is the signed ticket id as pushed, nil when not.
+func (h *Hub) Ticket(id string) []byte { h.mu.Lock(); defer h.mu.Unlock(); return h.tickets[id] }
+
+// Tickets lists the ids of the tickets pushed.
+func (h *Hub) Tickets() []string {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	return h.pushes
+	var ids []string
+	for id := range h.tickets {
+		ids = append(ids, id)
+	}
+	return ids
 }
 
-func (h *fakeHub) ticket(id string) []byte {
+// Consumed reports whether the lock said ticket id was consumed.
+func (h *Hub) Consumed(id string) bool { h.mu.Lock(); defer h.mu.Unlock(); return h.consumed[id] }
+
+// Withdrawn returns the reason ticket id was withdrawn with, and whether.
+func (h *Hub) Withdrawn(id string) (string, bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	return h.tickets[id]
+	r, ok := h.withdrawn[id]
+	return r, ok
+}
+
+// Sinces lists the since values of the lock's decision polls.
+func (h *Hub) Sinces() []string {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	return append([]string(nil), h.sinces...)
 }
