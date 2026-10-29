@@ -77,6 +77,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   pending, never asked on the terminal instead; no ticket at all fails
   the request. The console's auto mode is off with an AsyncApprover.
 
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
+
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 

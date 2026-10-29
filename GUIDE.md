@@ -350,8 +350,11 @@ if !a.Approved {
 The console frames the screen (red on production), asks `y` or, on
 production, the typed profile name, takes a finger at level 2, times out
 after 5 minutes, and audits the decision (`approved`, `denied`, `timeout`,
-`abandoned`, `auto`) before `Approve` returns. Use `Screen.Record` to write
-the decision as your own audit record type. `env.Session(ctx)` gives the
+`abandoned`, `auto`) before `Approve` returns. An approval it cannot
+record (the log unwritable, `Screen.Record` returning no valid record) is
+refused with `ipc.CodeInternal` and told to the human; three failed
+writes in a row end the session. Use `Screen.Record` to write the
+decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
 Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
 `env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches;

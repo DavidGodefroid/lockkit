@@ -291,7 +291,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		_ = sess.Close()
 		return err
 	}
-	s.record(context.Background(),audit.Base{Event: audit.EventLogin, Decision: "ok"})
+	s.record(context.Background(), audit.Base{Event: audit.EventLogin, Decision: "ok"})
 	o.IO.Println("")
 	o.IO.Println(Paint.Step("Listening on " + sanitize.Terminal(path, false)))
 	if o.Ready != nil {
@@ -314,7 +314,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	serveErr := s.Loop().Serve(ctx, ln, lines)
 	s.Close()
 	reason, _ := s.Ended()
-	s.record(context.Background(),audit.Base{Event: audit.EventLogout, Decision: reason})
+	s.record(context.Background(), audit.Base{Event: audit.EventLogout, Decision: reason})
 	o.IO.Println(Paint.Step("session ended: " + reason))
 	return serveErr
 }
