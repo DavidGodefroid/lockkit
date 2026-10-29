@@ -239,6 +239,9 @@ func TestRestart(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
 	s2, err := Open(dir, WithClock(c.now))
 	if err != nil {
 		t.Fatal(err)
@@ -327,6 +330,7 @@ func TestPermissions(t *testing.T) {
 	s, dir, c := newStore(t)
 	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
 	_ = s.Begin(p.ID, agent3, "nonce-1")
+	s.Close() // the Opens below check the files, not the lock
 	for _, path := range []string{dir, filepath.Join(dir, p.ID+".json"), filepath.Join(dir, "nonces")} {
 		fi, err := os.Stat(path)
 		if err != nil {
@@ -389,5 +393,34 @@ func TestLimitsAndTokens(t *testing.T) {
 	}
 	if HashToken("") != "" || HashToken("a") == HashToken("b") {
 		t.Error("HashToken")
+	}
+}
+
+// One store per directory: a second Open while the first is open fails
+// (two consoles on one volume would each accept the same decision nonce),
+// and succeeds once it is closed (#60).
+func TestOpenLocksTheDirectory(t *testing.T) {
+	s, dir, c := newStore(t)
+	if _, err := Open(dir, WithClock(c.now)); !errors.Is(err, ErrLocked) {
+		t.Fatalf("second Open: %v, want ErrLocked", err)
+	}
+	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
+	if err := s.Begin(p.ID, agent3, "nonce-1"); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("second Close: %v", err)
+	}
+	s2, err := Open(dir, WithClock(c.now))
+	if err != nil {
+		t.Fatalf("Open after Close: %v", err)
+	}
+	defer s2.Close()
+	q, _ := s2.Create(bind(agent3), json.RawMessage(`{}`), 0)
+	if err := s2.Begin(q.ID, agent3, "nonce-1"); !errors.Is(err, ErrReplay) {
+		t.Fatalf("nonce reused across stores: %v", err)
 	}
 }
