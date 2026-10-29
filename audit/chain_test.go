@@ -342,3 +342,24 @@ func TestPendingRecord(t *testing.T) {
 		t.Fatalf("pending record: %v", got)
 	}
 }
+
+// A reader opening the log while a writer holds the lock reads it: the
+// lock covers no byte of the log (mandatory locks on Windows).
+func TestReadWhileLocked(t *testing.T) {
+	l, err := Open(testProduct, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	appendAll(t, l, EventLogin)
+	f, err := l.open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := lockFile(f); err != nil {
+		t.Fatal(err)
+	}
+	if b, err := os.ReadFile(l.Path()); err != nil || !bytes.Contains(b, []byte(`"event":"login"`)) {
+		t.Fatalf("read while locked: %v %q", err, b)
+	}
+}
