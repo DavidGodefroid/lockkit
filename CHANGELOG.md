@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `hubclient`: the hub key file and the instance key are read through one
+  descriptor opened without waiting, checked regular and small: a FIFO,
+  a device or a directory is refused at once instead of blocking the
+  console. `pii.AllDetectors` panics rather than return none.
+
 - `render` (#58): `MaskScreen` with no detectors runs every detector
   (`pii.AllDetectors`: all but the opt-in `phone_loose`), never none: a
   product that forgets `pii.Detectors` sends no header, note or structure
