@@ -5,6 +5,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `console` (#3): a policy that becomes production while the console runs
+  re-applies every start-up refusal of a production profile before the
+  backend's checks, and ends the session when one fails.
+  `ServerConfig.RefuseProduction` carries them; `Run` sets it.
 - `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
   `e_mail`, `login` (unless the column is a date or time, as Django's
   `last_login`), `username`, `nickname`, `displayname`, `pseudo` and
