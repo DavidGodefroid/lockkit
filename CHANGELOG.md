@@ -5,6 +5,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+
+
 - `console` (#28, part 1): `Decision.Screen` carries the approval screen
   to the approver (a terminal approver ignores it). An `AsyncApprover`
   (lockhub) takes requests with `Submit`: the request is answered
@@ -39,6 +41,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `Screen.Record` returning no valid record, is refused with
   `ipc.CodeInternal`, and the human sees why; three failed writes in a
   row end the session. Denials stay denials.
+
+- `console`: widenings take effect only once recorded. Auto mode on,
+  clear results shown, unmask allowed and a loosened policy approved (at
+  `:review` or at start) write their audit record first; if it cannot be
+  written they stay off (the policy is neither saved nor applied; at start
+  the console does not start), and the console says so.
 
 - `mcpkit` (#31): `Pending(lock, ticket)` is the shared answer of a run
   waiting on a hub ticket: not an error, a fixed "do not retry, end your

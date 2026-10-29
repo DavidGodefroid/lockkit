@@ -79,13 +79,26 @@ func (s *Server) toggleMode() {
 			return
 		}
 	}
+	if !s.auto && s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: "auto"}) != nil {
+		s.notRecorded("auto mode")
+		return
+	}
 	s.auto = !s.auto
-	s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: s.modeName()})
+	if !s.auto {
+		_ = s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: s.modeName()})
+	}
 	if s.auto {
 		s.println(Paint.Yellow(ui.MarkWarn + " auto mode: requests run without a prompt; those that ask for a human every time are still prompted (Shift+Tab: back to manual)"))
 	} else {
 		s.println(Paint.OK("manual mode: every request is prompted"))
 	}
+	s.refreshStatus()
+}
+
+// notRecorded tells the human that a widening stays off: its audit record
+// could not be written, and a widening takes effect only once recorded.
+func (s *Server) notRecorded(what string) {
+	s.println(Paint.Fail(what + ": not recorded in the audit log, so it stays off"))
 	s.refreshStatus()
 }
 
@@ -104,12 +117,14 @@ func (s *Server) toggleResults() {
 	if !s.showResults && s.widenRefused("clear results") {
 		return
 	}
-	s.showResults = !s.showResults
-	decision := "hidden"
-	if s.showResults {
-		decision = "shown"
+	if !s.showResults && s.record(context.Background(), audit.Base{Event: audit.EventResults, Decision: "shown"}) != nil {
+		s.notRecorded("clear results")
+		return
 	}
-	s.record(context.Background(), audit.Base{Event: audit.EventResults, Decision: decision})
+	s.showResults = !s.showResults
+	if !s.showResults {
+		_ = s.record(context.Background(), audit.Base{Event: audit.EventResults, Decision: "hidden"})
+	}
 	if s.showResults {
 		msg := "results: each result is printed here in clear, personal data included; the agent still gets it masked (Ctrl-O: hide)"
 		if s.profile.Production {
@@ -146,8 +161,11 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 		s.println("unmask: still off")
 		return
 	}
+	if s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "allowed", Approval: s.approver.Mode()}) != nil {
+		s.notRecorded("unmask")
+		return
+	}
 	s.allowUnmask = true
-	s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "allowed", Approval: s.approver.Mode()})
 	s.println(red + "unmask: allowed; clients may ask for unmasked output, approved here each time (:unmask: off)" + reset)
 	s.refreshStatus()
 }
