@@ -79,7 +79,9 @@ func newPIIHarness(t *testing.T, p piiPolicy) (*harness, *piiBackend) {
 	return h, b
 }
 
-func piiUAT() piiPolicy { return piiPolicy{fakePolicy: uat(), Mask: []string{"orders.email"}, Allow: []string{"orders.id"}} }
+func piiUAT() piiPolicy {
+	return piiPolicy{fakePolicy: uat(), Mask: []string{"orders.email"}, Allow: []string{"orders.id"}}
+}
 
 func TestPIIListAndAdd(t *testing.T) {
 	h, b := newPIIHarness(t, piiUAT())
