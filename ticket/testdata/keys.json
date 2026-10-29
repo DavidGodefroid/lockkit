@@ -1,0 +1,8 @@
+{
+  "note": "TEST KEYS ONLY: published, never use outside tests",
+  "lock_ed25519_seed": "ERERERERERERERERERERERERERERERERERERERERERE",
+  "lock_key_id": "ed25519:10ba682c8ad13513971e8b56881aab8b",
+  "hub_ed25519_seed": "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI",
+  "hub_key_id": "ed25519:1325b850c2871916eae203f0efc3c898",
+  "lock_x25519_private": "REREREREREREREREREREREREREREREREREREREREREQ"
+}
