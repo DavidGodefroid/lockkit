@@ -5,6 +5,20 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `hubclient` (new, #29): a lock's client for lockhub. Requests signed
+  with the instance key (`Lock-Instance`, `Lock-Time`, `Lock-Nonce`,
+  `Lock-Sig`), decisions verified under a pinned hub key only (`New`
+  refuses a config without one; no discovery). `Submit` takes a
+  `render.MaskedScreen` (an unmasked one is refused), signs the ticket,
+  records it in the plan store and pushes it; it is idempotent (same plan,
+  same ticket) and dedupes by plan hash, with a pending cap (20) and a rate
+  limit (10 new tickets / 5 min). A hub that cannot be reached leaves the
+  plan pending (`ErrUnreachable`), never a fallback; `Sync` resends.
+  `Poll`/`Watch` long-poll decisions with a cursor kept in a 0600 state
+  file with the decisions not yet acted on; `Begin` checks `Match`,
+  `Usable` and the plan's binding, then consumes the decision nonce;
+  `Finish` and `Withdraw` tell the hub.
+
 - `plans` (new, #27): a lock's persisted plan store, one 0600 file per
   plan in a 0700 directory (wider modes and symlinks refused). A plan is
   bound to the peer UID, the requesting agent's token (stored hashed),
