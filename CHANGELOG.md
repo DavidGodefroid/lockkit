@@ -5,6 +5,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `hubclient` (#57): an `http://` hub URL is refused unless the host is a
+  loopback address, or `Config.PlainHTTP` (console flag `--hub-plain-http`,
+  `HubOptions.PlainHTTP`) is set for a service name without a dot or a
+  private address; redirects are refused (a 3xx is an error, the `Lock-*`
+  headers are never sent elsewhere); the state file must be a plain file
+  with no group or other access.
+
 - `hubclient`: the hub key file and the instance key are read through one
   descriptor opened without waiting, checked regular and small: a FIFO,
   a device or a directory is refused at once instead of blocking the

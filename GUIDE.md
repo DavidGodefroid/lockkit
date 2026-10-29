@@ -370,7 +370,7 @@ and returns the same `Approval`, handing each outcome to a record callback.
 `Server.Approve` is built on it, so both decide the same way.
 
 **Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
-writes: `--hub URL --hub-key-file PATH --instance NAME` (all three or
+writes: `--hub URL --hub-key-file PATH --instance NAME`, plus `--hub-plain-http` for an http:// hub on its own network (all three or
 none; `--auto` is refused with them). Pass them as `Options.Hub`: `Run`
 then reads the pinned hub key, the instance key (`hubclient.InstanceKey`
 in the home volume) and opens the plans and the hub state under the
