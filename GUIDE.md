@@ -502,8 +502,9 @@ p, err := st.Create(plans.Binding{UID: peer.UID, Agent: agent, TokenHash: plans.
 	PolicyFP: fp, PlanHash: hash}, body, 10*time.Minute)
 // run(plan_id) in hub mode:
 if q, ok := st.FindPending(caller, hash); ok { /* answer q.Ticket again */ }
-err = st.MarkPending(p.ID, caller, t.ID, t.Expires)
-// run(ticket) once the decision verified and matched:
+err = st.MarkPending(p.ID, caller, t) // the signed ticket, kept for Match
+// run(ticket): q, _ := st.ByTicket(id, caller); own, _ := q.LockTicket(lockPub)
+// then VerifyDecision, d.Match(own), d.Usable(own, ...), and:
 err = st.Check(p.ID, caller, recomputedFP, recomputedHash) // ErrStale: new plan, new ticket
 err = st.Begin(p.ID, caller, d.Nonce)                      // single use; ErrReplay, ErrUsed
 // ... execute ...

@@ -1,6 +1,8 @@
 package plans
 
 import (
+	"bytes"
+	"crypto/ed25519"
 	"encoding/json"
 	"errors"
 	"os"
@@ -10,7 +12,27 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/DavidGodefroid/lockkit/ticket"
 )
+
+var lockKey = ed25519.NewKeyFromSeed(bytes.Repeat([]byte{0x11}, ed25519.SeedSize))
+
+// tkt is the signed ticket of plan p, fixed id tk1.
+func tkt(t *testing.T, p *Plan, expires *time.Time) *ticket.Ticket {
+	t.Helper()
+	k := ticket.NewTicket(ticket.Source{Lock: "locksql", Instance: "crm-prod"}, ticket.RiskWrite,
+		p.Binding.PlanHash, p.Binding.PolicyFP, p.Created, 0)
+	k.ID = tk1
+	if expires != nil {
+		e := *expires
+		k.Expires = &e
+	}
+	if err := k.Sign(lockKey); err != nil {
+		t.Fatal(err)
+	}
+	return k
+}
 
 type clock struct {
 	mu sync.Mutex
@@ -65,7 +87,7 @@ func TestLifecycle(t *testing.T) {
 	if err := s.Check(p.ID, agent3, fpA, hashA); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.MarkPending(p.ID, agent3, tk1, nil); err != nil {
+	if err := s.MarkPending(p.ID, agent3, tkt(t, p, nil)); err != nil {
 		t.Fatal(err)
 	}
 	if got, ok := s.FindPending(agent3, hashA); !ok || got.ID != p.ID || got.Ticket != tk1 {
@@ -73,6 +95,8 @@ func TestLifecycle(t *testing.T) {
 	}
 	if got, err := s.ByTicket(tk1, agent3); err != nil || got.ID != p.ID {
 		t.Fatalf("ByTicket: %v %v", got, err)
+	} else if lt, err := got.LockTicket(lockKey.Public().(ed25519.PublicKey)); err != nil || lt.ID != tk1 || lt.PlanHash != hashA {
+		t.Fatalf("LockTicket: %v %v", lt, err)
 	}
 	if err := s.Begin(p.ID, agent3, "nonce-1"); err != nil {
 		t.Fatal(err)
@@ -107,7 +131,7 @@ func TestBindingMismatch(t *testing.T) {
 	if _, ok := s.FindPending(agent3, hashA); ok {
 		t.Error("planned is not pending")
 	}
-	_ = s.MarkPending(p.ID, agent3, tk1, nil)
+	_ = s.MarkPending(p.ID, agent3, tkt(t, p, nil))
 	if _, ok := s.FindPending(agent4, hashA); ok {
 		t.Error("dedup crossed agents")
 	}
@@ -131,7 +155,7 @@ func TestStale(t *testing.T) {
 	for _, c := range []struct{ fp, hash string }{{fpB, hashA}, {fpA, hashB}, {fpB, hashB}} {
 		s, _, _ := newStore(t)
 		p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
-		_ = s.MarkPending(p.ID, agent3, tk1, nil)
+		_ = s.MarkPending(p.ID, agent3, tkt(t, p, nil))
 		if err := s.Check(p.ID, agent3, c.fp, c.hash); !errors.Is(err, ErrStale) {
 			t.Fatalf("%v: %v", c, err)
 		}
@@ -172,7 +196,7 @@ func TestSingleUse(t *testing.T) {
 	if err := s.Begin(q.ID, agent3, "nonce-9"); !errors.Is(err, ErrUsed) {
 		t.Fatalf("denied plan began: %v", err)
 	}
-	if err := s.MarkPending(q.ID, agent3, tk1, nil); !errors.Is(err, ErrState) {
+	if err := s.MarkPending(q.ID, agent3, tkt(t, q, nil)); !errors.Is(err, ErrState) {
 		t.Fatalf("denied → pending: %v", err)
 	}
 }
@@ -204,7 +228,7 @@ func TestSingleUseConcurrent(t *testing.T) {
 func TestRestart(t *testing.T) {
 	s, dir, c := newStore(t)
 	p, _ := s.Create(bind(agent3), json.RawMessage(`{"sql":"DELETE FROM t WHERE id = 1"}`), 0)
-	_ = s.MarkPending(p.ID, agent3, tk1, nil)
+	_ = s.MarkPending(p.ID, agent3, tkt(t, p, nil))
 	q, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
 	_ = s.Begin(q.ID, agent3, "nonce-q")
 	r, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
@@ -248,7 +272,7 @@ func TestExpiryAndPrune(t *testing.T) {
 	keep, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
 	exp := c.now().Add(4 * time.Hour)
 	pend, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 10*time.Minute)
-	_ = s.MarkPending(pend.ID, agent3, tk1, &exp) // the ticket's TTL replaces the plan's
+	_ = s.MarkPending(pend.ID, agent3, tkt(t, pend, &exp)) // the ticket's TTL replaces the plan's
 	c.add(11 * time.Minute)
 	if _, err := s.Get(p.ID, agent3); !errors.Is(err, ErrNoSuchPlan) {
 		t.Fatalf("expired plan: %v", err)
@@ -282,7 +306,7 @@ func TestExpiryAndPrune(t *testing.T) {
 func TestWithdrawAll(t *testing.T) {
 	s, _, _ := newStore(t)
 	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
-	_ = s.MarkPending(p.ID, agent3, tk1, nil)
+	_ = s.MarkPending(p.ID, agent3, tkt(t, p, nil))
 	q, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
 	w, err := s.WithdrawAll("started without the hub")
 	if err != nil || len(w) != 1 || w[0].ID != p.ID || w[0].State != Withdrawn {
@@ -354,8 +378,14 @@ func TestLimitsAndTokens(t *testing.T) {
 	if strings.Contains(string(b), agent3.Token) {
 		t.Fatal("token written in clear")
 	}
-	if err := s.MarkPending(p.ID, agent3, "not-a-ticket", nil); err == nil {
-		t.Error("bad ticket id accepted")
+	if err := s.MarkPending(p.ID, agent3, &ticket.Ticket{ID: "x"}); err == nil {
+		t.Error("unsigned ticket accepted")
+	}
+	other := tkt(t, p, nil)
+	other.PlanHash = hashB
+	_ = other.Sign(lockKey)
+	if err := s.MarkPending(p.ID, agent3, other); !errors.Is(err, ErrStale) {
+		t.Errorf("ticket for another plan hash: %v", err)
 	}
 	if HashToken("") != "" || HashToken("a") == HashToken("b") {
 		t.Error("HashToken")

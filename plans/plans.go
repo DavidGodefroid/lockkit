@@ -12,6 +12,7 @@
 package plans
 
 import (
+	"crypto/ed25519"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
@@ -113,8 +114,11 @@ type Plan struct {
 	ID      string  `json:"id"`
 	State   State   `json:"state"`
 	Binding Binding `json:"binding"`
-	// Ticket is the hub ticket id, once pending.
-	Ticket string `json:"ticket,omitempty"`
+	// Ticket is the hub ticket id, once pending, and SignedTicket the
+	// ticket as the lock signed and pushed it: a decision is matched
+	// against it (ticket.Decision.Match), never against one rebuilt.
+	Ticket       string          `json:"ticket,omitempty"`
+	SignedTicket json.RawMessage `json:"signed_ticket,omitempty"`
 	// Nonce is the decision nonce consumed when the plan began executing.
 	Nonce string `json:"nonce,omitempty"`
 	// Reason says why the plan reached its final state (denial reason,
@@ -125,6 +129,16 @@ type Plan struct {
 	Expires *time.Time `json:"expires,omitempty"`
 	// Body is the product's plan, opaque to the store.
 	Body json.RawMessage `json:"body"`
+}
+
+// LockTicket decodes the signed ticket of a pending plan, verified under
+// the lock's own key pub (the store is the lock's, but a file is only
+// trusted once its signature checks).
+func (p *Plan) LockTicket(pub ed25519.PublicKey) (*ticket.Ticket, error) {
+	if len(p.SignedTicket) == 0 {
+		return nil, fmt.Errorf("%w: plan %s has no ticket", ErrState, p.ID)
+	}
+	return ticket.VerifyTicket(pub, p.SignedTicket)
 }
 
 // Defaults.
@@ -334,6 +348,7 @@ func (s *Store) appendNonce(n string) error {
 func clone(p *Plan) *Plan {
 	c := *p
 	c.Body = append(json.RawMessage(nil), p.Body...)
+	c.SignedTicket = append(json.RawMessage(nil), p.SignedTicket...)
 	if p.Expires != nil {
 		e := *p.Expires
 		c.Expires = &e
@@ -494,11 +509,19 @@ func (s *Store) Check(id string, c Caller, policyFP, planHash string) error {
 	return fmt.Errorf("%w: %s changed", ErrStale, strings.Join(moved, " and "))
 }
 
-// MarkPending records that plan id waits on ticket ticketID, until
-// expires (nil: no expiry).
-func (s *Store) MarkPending(id string, c Caller, ticketID string, expires *time.Time) error {
-	if !ticket.ValidID(ticketID) {
-		return fmt.Errorf("plans: ticket id %q", ticketID)
+// MarkPending records that plan id waits on t, the ticket the lock signed
+// for it, until t.Expires (nil: no expiry). t must carry the plan's hash
+// and policy fingerprint.
+func (s *Store) MarkPending(id string, c Caller, t *ticket.Ticket) error {
+	if t == nil || t.Sig == "" {
+		return errors.New("plans: MarkPending needs the signed ticket")
+	}
+	if err := t.Validate(); err != nil {
+		return fmt.Errorf("plans: %w", err)
+	}
+	signed, err := t.Marshal()
+	if err != nil {
+		return fmt.Errorf("plans: %w", err)
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -509,11 +532,14 @@ func (s *Store) MarkPending(id string, c Caller, ticketID string, expires *time.
 	if p.State != Planned {
 		return fmt.Errorf("%w: %s → pending", ErrState, p.State)
 	}
+	if t.PlanHash != p.Binding.PlanHash || t.PolicyFP != p.Binding.PolicyFP {
+		return fmt.Errorf("%w: the ticket's hashes are not the plan's", ErrStale)
+	}
 	u := clone(p)
-	u.State, u.Ticket, u.Updated = Pending, ticketID, s.now().UTC()
+	u.State, u.Ticket, u.SignedTicket, u.Updated = Pending, t.ID, signed, s.now().UTC()
 	u.Expires = nil
-	if expires != nil {
-		e := expires.UTC()
+	if t.Expires != nil {
+		e := t.Expires.UTC()
 		u.Expires = &e
 	}
 	if err := s.write(u); err != nil {
