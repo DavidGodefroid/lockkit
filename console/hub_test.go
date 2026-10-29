@@ -188,7 +188,7 @@ func TestRunHubModeEndToEnd(t *testing.T) {
 		t.Fatalf("op.write: %+v\n%s", r.Error, io.plain())
 	}
 	m := pendingOf(t, r.Result)
-	if m["status"] != "pending" || m["ticket"] == "" || io.promptCount() != prompts {
+	if m["status"] != "pending" || m["ticket"] == "" || m["instance"] != hubInstance || io.promptCount() != prompts {
 		t.Fatalf("result %v prompts %d→%d", m, prompts, io.promptCount())
 	}
 	raw := hub.Ticket(m["ticket"])

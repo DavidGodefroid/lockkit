@@ -165,7 +165,7 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	t.Workspace, t.Requester = h.Workspace, h.Requester
 	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: d.Screen.NeverAuto, Retype: d.Retype}
 	id, err := a.hub.Client.Submit(ctx, a.hub.Store, h.PlanID, h.Caller, t, h.Masked)
-	return Pending{Ticket: id}, err
+	return Pending{Ticket: id, Instance: a.hub.Instance}, err
 }
 
 // watchReport prints the hub client's errors, each once in a row.

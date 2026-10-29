@@ -28,6 +28,23 @@ func TestPending(t *testing.T) {
 	}
 }
 
+// In hub mode the pending answer names the lock instance too; outside it
+// (no instance) the answer is unchanged.
+func TestPendingOnInstance(t *testing.T) {
+	res, out := PendingOn("locksql", "crm-prod", "01JBDN0Z0000000000000000AB")
+	b, _ := json.Marshal(res.StructuredContent)
+	if string(b) != `{"status":"pending","ticket":"01JBDN0Z0000000000000000AB","lock":"locksql","instance":"crm-prod"}` {
+		t.Fatalf("structured %s", b)
+	}
+	if out.Instance != "crm-prod" || res.IsError {
+		t.Fatalf("out %+v", out)
+	}
+	res, _ = PendingOn("locksql", "", "01JBDN0Z0000000000000000AB")
+	if b, _ := json.Marshal(res.StructuredContent); string(b) != `{"status":"pending","ticket":"01JBDN0Z0000000000000000AB","lock":"locksql"}` {
+		t.Fatalf("no instance: %s", b)
+	}
+}
+
 // Through the SDK: a typed tool returning Pending reaches the client as a
 // non-error result whose structured content has the pending fields.
 func TestPendingOverMCP(t *testing.T) {

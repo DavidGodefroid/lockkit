@@ -20,6 +20,9 @@ type PendingResult struct {
 	Status string `json:"status"` // StatusPending
 	Ticket string `json:"ticket"`
 	Lock   string `json:"lock"`
+	// Instance is the lock instance the ticket is on (the console's
+	// --instance), set in hub mode.
+	Instance string `json:"instance,omitempty"`
 }
 
 // PendingText is the fixed text of a pending answer.
@@ -33,7 +36,13 @@ func PendingText(lock, ticket string) string {
 // returned, for a tool with a typed output, whose output the SDK puts in
 // the structured content).
 func Pending(lock, ticket string) (*mcp.CallToolResult, PendingResult) {
-	out := PendingResult{Status: StatusPending, Ticket: ticket, Lock: lock}
+	return PendingOn(lock, "", ticket)
+}
+
+// PendingOn is Pending for a ticket on lock instance instance ("" none:
+// the answer of Pending).
+func PendingOn(lock, instance, ticket string) (*mcp.CallToolResult, PendingResult) {
+	out := PendingResult{Status: StatusPending, Ticket: ticket, Lock: lock, Instance: instance}
 	res := Text(PendingText(lock, ticket))
 	res.StructuredContent = out
 	return res, out
