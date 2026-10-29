@@ -76,6 +76,8 @@ type ServerConfig struct {
 	// profile (an X11 session, core dumps that could not be disabled) when
 	// the policy in force becomes production; nil refuses nothing.
 	RefuseProduction func() error
+	// Hub is the hub mode (Run with HubOptions); nil standalone.
+	Hub *Hub
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -417,6 +419,9 @@ func (s *Server) UnmaskAllowed() bool { return s.allowUnmask }
 
 // Policy implements Env.
 func (s *Server) Policy() Policy { return s.approved }
+
+// Hub is the console's hub mode, nil standalone (HubOf).
+func (s *Server) Hub() *Hub { return s.cfg.Hub }
 
 // Audit implements Env.
 func (s *Server) Audit(rec audit.Record) { s.write(rec) }

@@ -5,6 +5,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `console` hub mode (#28): `HubOptions` (`--hub`, `--hub-key-file`,
+  `--instance`, all three or none, `--auto` refused with them) put `Run`
+  in hub mode: requests with a `Screen.Hub` (`HubTicket`: plan, caller,
+  risk, `render.MaskedScreen`) are pushed to lockhub and answered pending;
+  one without is refused, never asked on the terminal. `HubOf(env)` gives
+  the product the plans and the client to run a decided ticket.
+  `hubclient.InstanceKey` / `HubKeyCommand` (`<lock> hub-key --instance
+  NAME`) make and print the instance key; `hubclient/hubtest` is a fake
+  hub for tests.
+
 - `hubclient` (new, #29): a lock's client for lockhub. Requests signed
   with the instance key (`Lock-Instance`, `Lock-Time`, `Lock-Nonce`,
   `Lock-Sig`), decisions verified under a pinned hub key only (`New`

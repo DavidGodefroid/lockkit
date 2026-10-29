@@ -50,6 +50,9 @@ type Options struct {
 	Keychain *secrets.Keychain
 	// Ready, when set, is told the socket path once the console listens.
 	Ready func(socket string)
+	// Hub, when enabled, decides requests on lockhub (HubOptions); --auto
+	// is refused with it.
+	Hub HubOptions
 }
 
 // connectTimeout bounds one connection attempt.
@@ -121,6 +124,14 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if iso.Verifier != nil && (o.Auto || o.AllowUnmask || o.ShowResults) {
 		return fmt.Errorf("%w: level 2 does not accept --auto, --allow-unmask or --show-results", ErrConfig)
 	}
+	if o.Hub.Enabled() {
+		if err := o.Hub.check(); err != nil {
+			return err
+		}
+		if o.Auto {
+			return fmt.Errorf("%w: --auto does not go with --hub: the hub decides", ErrConfig)
+		}
+	}
 	if iso.Level() == 1 && o.ShowResults {
 		return fmt.Errorf("%w: level 1 does not accept --show-results: %s", ErrConfig, level1Window)
 	}
@@ -163,6 +174,12 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	log, err := audit.Open(p, o.StateDir)
 	if err != nil {
 		return err
+	}
+	var hub *Hub
+	if o.Hub.Enabled() {
+		if hub, err = openHub(p, o.Hub, o.StateDir, o.Now); err != nil {
+			return err
+		}
 	}
 	appr := NewTypedApprover(o.IO)
 	if iso.Desktop {
@@ -258,9 +275,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if quantum == 0 {
 		quantum = ResponseQuantum
 	}
+	var serverAppr Approver = appr
+	if hub != nil {
+		serverAppr = &hubApprover{Approver: appr, hub: hub, lock: p.Name, now: o.Now}
+	}
 	s, err := NewServer(ServerConfig{
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
-		IO: o.IO, Approver: appr, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
+		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		Reconnect: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
 		RefuseProduction: refuseProduction,
@@ -275,6 +296,16 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	o.IO.Println(Paint.Step("Listening on " + sanitize.Terminal(path, false)))
 	if o.Ready != nil {
 		o.Ready(path)
+	}
+	if hub != nil {
+		o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(o.Hub.URL, false) + " as " + hub.Instance))
+		wctx, stopWatch := context.WithCancel(ctx)
+		watched := make(chan struct{})
+		go func() {
+			defer close(watched)
+			hub.Client.Watch(wctx, hub.Store, watchReport(o.IO))
+		}()
+		defer func() { stopWatch(); <-watched }()
 	}
 	var lines <-chan string
 	if ls, ok := o.IO.(LineSource); ok {

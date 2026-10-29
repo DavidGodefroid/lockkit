@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/DavidGodefroid/lockkit/audit"
+	"github.com/DavidGodefroid/lockkit/hubclient"
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/sanitize"
 )
@@ -142,6 +143,9 @@ func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncAppro
 			err = errors.New("no ticket")
 		}
 		a.IO.Println(Paint.Fail("not submitted: " + sanitize.Terminal(err.Error(), false)))
+		if errors.Is(err, hubclient.ErrRateLimited) {
+			return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "too many requests are waiting for a decision; wait for them to be decided before asking again")}
+		}
 		return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "the request could not be submitted for approval; do not retry unless asked")}
 	}
 	line := Paint.Paint(frame, "╰─ ") + "pending: ticket " + sanitize.Terminal(p.Ticket, false)
