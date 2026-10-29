@@ -205,20 +205,21 @@ func (s *Server) write(rec audit.Record) error {
 	return err
 }
 
+// asker takes the human decisions of s.
+func (s *Server) asker() Asker {
+	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, End: s.End,
+		Waiting: func(on bool) {
+			if on {
+				s.prompting++
+			} else {
+				s.prompting--
+			}
+		}}
+}
+
 // decide asks the approver and explains a missing finger. Too many
 // non-matching fingers end the console.
-func (s *Server) decide(ctx context.Context, d Decision) Result {
-	s.prompting++
-	r := s.approver.Approve(ctx, d)
-	s.prompting--
-	if r.Outcome == NoFinger {
-		s.println(Paint.Fail("denied: " + sanitize.Terminal(r.Err.Error(), false)))
-		if errors.Is(r.Err, ErrTooManyNoMatch) {
-			s.End("fingerprint: three non-matching fingers")
-		}
-	}
-	return r
-}
+func (s *Server) decide(ctx context.Context, d Decision) Result { return s.asker().Decide(ctx, d) }
 
 // noFingerFields is the audit text of a refusal for want of a finger.
 func noFingerFields(r Result) (reason, errText string) {
@@ -554,58 +555,17 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		}
 		return Approval{Approved: true, Auto: true}
 	}
-	expected, prompt := "y", "Approve? [y/N] "
-	if production {
-		expected = s.profile.Name
-		prompt = fmt.Sprintf("Type the profile name %q to approve: ", s.profile.Name)
+	q := Ask{Frame: frame, Production: production, Retype: sc.Retype}
+	var recErr error
+	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
+		b := base
+		b.Event, b.Decision, b.Reason, b.Error, b.Approval = d.Event, d.Decision, d.Reason, d.Error, d.Approval
+		recErr = rec(b) // a denial stays a denial either way
+	})
+	if a.Approved && recErr != nil {
+		return unrecorded()
 	}
-	canRetype := sc.Retype != "" && sc.Retype != expected
-	if canRetype {
-		prompt = "(" + sc.Retype + " to retype) " + prompt
-	}
-	Bell(s.cfg.IO)
-	d := Decision{Prompt: Paint.Paint(frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: production, For: "to approve the request above"}
-	if canRetype {
-		d.Retype = sc.Retype
-	}
-	r := s.decide(ctx, d)
-	b := base
-	switch r.Outcome {
-	case RetypeRequested:
-		return Approval{Retype: true}
-	case Approved:
-		b.Event, b.Decision, b.Approval = audit.EventApproved, "approved", s.approver.Mode()
-		if rec(b) != nil {
-			return unrecorded()
-		}
-		return Approval{Approved: true}
-	case Unanswered:
-		if ctx.Err() != nil {
-			b.Event, b.Decision = audit.EventAbandoned, "abandoned"
-			_ = rec(b) // refused either way
-			s.println(Paint.Fail("client gone: request cancelled"))
-			return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "the request was cancelled")}
-		}
-		b.Event, b.Decision = audit.EventTimeout, "timeout"
-		_ = rec(b) // refused either way
-		s.println(Paint.Fail("no answer: denied"))
-		return Approval{Refusal: ErrResp(id, ipc.CodeTimeout, "no answer from the human within the approval timeout; do not retry unless asked")}
-	case NoFinger:
-		b.Event, b.Decision, b.Reason, b.Error, b.Approval = audit.EventDenied, "denied", "no fingerprint", r.Err.Error(), s.approver.Mode()
-		_ = rec(b) // refused either way
-		return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "denied by the human: no fingerprint; do not retry unless asked")}
-	}
-	b.Event, b.Decision = audit.EventDenied, "denied"
-	msg := "denied by the human; do not retry unless asked"
-	if reason := DenyReason(r.Answer); reason != "" {
-		b.Reason = reason
-		msg = "denied by the human: " + reason + "; do not retry unless asked"
-		s.println(Paint.Fail("denied: " + reason))
-	} else {
-		s.println(Paint.Fail("denied"))
-	}
-	_ = rec(b) // refused either way
-	return Approval{Refusal: ErrResp(id, ipc.CodeDenied, msg)}
+	return a
 }
 
 // maxDenyReason bounds the reason given with a denial.
