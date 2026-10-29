@@ -5,6 +5,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `mcpkit`: `RequesterFromEnv` sends the hash of `LEA_AGENT_TOKEN`
+  (`plans.HashToken`), not the token: the raw token stays in the agent's
+  process. The console's binding compares the same (#61).
+
 - `hubclient`: the hub key file and the instance key are read through one
   descriptor opened without waiting, checked regular and small: a FIFO,
   a device or a directory is refused at once instead of blocking the

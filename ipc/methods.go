@@ -33,7 +33,9 @@ const (
 )
 
 // Requester is the agent behind a request, as its MCP server reports it
-// (mcpkit.RequesterFromEnv): the agent's name and its lea token. A product
+// (mcpkit.RequesterFromEnv): the agent's name and the hash of its lea token
+// (the raw token stays in the agent's process). Never write Token to the
+// audit log, an approval screen or an error text. A product
 // carries it in the params of its plan and run methods; in hub mode the
 // console binds a plan to the token (stored hashed) and refuses it to
 // another token with CodeWrongRequester. Agents of one UID can read each
