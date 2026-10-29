@@ -44,7 +44,8 @@ type ScreenSource struct {
 
 // Masking says what is personal on a screen.
 type Masking struct {
-	// Detectors find personal values in any text (pii.Detectors).
+	// Detectors find personal values in any text (pii.Detectors); none
+	// is every detector (pii.AllDetectors), never no detection.
 	Detectors []pii.Detector
 	// Personal reports a personal column; nil is pii.LooksPersonalColumn.
 	Personal func(column, typ string) bool
@@ -72,6 +73,9 @@ var ErrUnmasked = errors.New("render: screen not built by MaskScreen")
 // header, note and warnings alike. The structure of the request stays
 // visible.
 func MaskScreen(src ScreenSource, m Masking) MaskedScreen {
+	if len(m.Detectors) == 0 {
+		m.Detectors = pii.AllDetectors()
+	}
 	personal := m.Personal
 	if personal == nil {
 		personal = pii.LooksPersonalColumn

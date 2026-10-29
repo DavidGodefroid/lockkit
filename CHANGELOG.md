@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `render` (#58): `MaskScreen` with no detectors runs every detector
+  (`pii.AllDetectors`: all but the opt-in `phone_loose`), never none: a
+  product that forgets `pii.Detectors` sends no header, note or structure
+  in clear.
+
 - `console` (#63): a product handler that panics no longer takes the
   console down: its client gets an internal error with a generic text,
   the console prints one line, the audit records a failed run, and the

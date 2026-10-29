@@ -153,3 +153,13 @@ func TestDetectorsAcrossWindowEdges(t *testing.T) {
 		t.Error("card after a digit run not masked")
 	}
 }
+
+func TestAllDetectorsSkipsOptIn(t *testing.T) {
+	var names []string
+	for _, d := range AllDetectors() {
+		names = append(names, d.Name())
+	}
+	if got := strings.Join(names, ","); got != "email,iban,card,be_niss,fr_nir,nl_bsn,us_ssn,phone" {
+		t.Fatalf("AllDetectors = %s", got)
+	}
+}
