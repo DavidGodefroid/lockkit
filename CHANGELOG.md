@@ -3,12 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## v0.3.0 (date of the tag)
+## v0.3.0 (2026-10-30)
 
 Hub support: the packages a lock needs to ask the human through lockhub
 instead of its own console window (`ticket`, `render` masked screens,
-`plans`, the asynchronous console, `hubclient`, the audit chain, the
-`mcpkit` pending answer). Standalone consoles behave as in v0.2.1.
+`plans`, the asynchronous console and its hub mode, `hubclient`, the audit
+chain, the `mcpkit` pending answer). Standalone consoles keep their
+prompts, with stricter rules: audit writes and widenings fail closed, no
+widening while a prompt waits, and production refusals re-applied when
+the policy becomes production. Audit lines gain `prev_hash` at the end.
 
 - `console` hub mode (#28): `HubOptions` (`--hub`, `--hub-key-file`,
   `--instance`, all three or none, `--auto` refused with them) put `Run`
@@ -26,8 +29,6 @@ instead of its own console window (`ticket`, `render` masked screens,
   `prev_hash` itself is refused. On Windows the append lock covers one
   byte far past the log (LockFileEx locks are mandatory), so a reader is
   never refused; CI runs the audit tests on Windows.
-
-
 
 - `console` (#28, part 1): `Decision.Screen` carries the approval screen
   to the approver (a terminal approver ignores it). An `AsyncApprover`
@@ -112,22 +113,6 @@ instead of its own console window (`ticket`, `render` masked screens,
   `Touched()` the kinds masked; the zero value is not `Valid` and does not
   encode (`ErrUnmasked`).
 
-- `console` (#28, part 1): `Decision.Screen` carries the approval screen
-  to the approver (a terminal approver ignores it). An `AsyncApprover`
-  (lockhub) takes requests with `Submit`: the request is answered
-  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
-  result, not an error), set as `Approval.Pending` and as
-  `Approval.Refusal` so that a product returning the refusal answers
-  pending. A hub that refuses or cannot be reached keeps the request
-  pending, never asked on the terminal instead; no ticket at all fails
-  the request. The console's auto mode is off with an AsyncApprover.
-
-- `console` (#5): audit writes fail closed. An approval (typed or auto)
-  whose record cannot be written, the log being unwritable or
-  `Screen.Record` returning no valid record, is refused with
-  `ipc.CodeInternal`, and the human sees why; three failed writes in a
-  row end the session. Denials stay denials.
-
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 
@@ -153,18 +138,20 @@ instead of its own console window (`ticket`, `render` masked screens,
   runs on it, unchanged, and a product that draws its own approval screen
   (prompting inside it) uses it too, so every approval is decided in one
   place.
+
 - `console` (#2): while a prompt waits, a control key or command never
   widens a switch (auto mode on, clear results shown, unmasked output
   allowed): it is refused with a line saying to answer the prompt first;
   narrowing stays allowed. `Decision.For` names the decision, and the level
   2 finger prompt says it ("… on the reader to approve the request above").
 
-## v0.2.1 (2026-10-28)
-
 - `console` (#3): a policy that becomes production while the console runs
   re-applies every start-up refusal of a production profile before the
   backend's checks, and ends the session when one fails.
   `ServerConfig.RefuseProduction` carries them; `Run` sets it.
+
+## v0.2.1 (2026-10-28)
+
 - `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
   `e_mail`, `login` (unless the column is a date or time, as Django's
   `last_login`), `username`, `nickname`, `displayname`, `pseudo` and
