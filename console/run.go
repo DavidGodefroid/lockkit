@@ -86,7 +86,9 @@ func (st *starter) decide(ctx context.Context, d Decision) Result {
 	return r
 }
 
-func (st *starter) audit(b audit.Base) {
+// audit writes b; a failure is told and returned: an approval at start is
+// not saved without its record.
+func (st *starter) audit(b audit.Base) error {
 	b.Profile = st.profile.Name
 	var rec audit.Record = b
 	if ar, ok := st.b.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
@@ -94,8 +96,21 @@ func (st *starter) audit(b audit.Base) {
 	}
 	if err := st.log.Append(rec); err != nil {
 		st.io.Println("audit log write failed: " + err.Error())
+		return err
 	}
+	return nil
 }
+
+// failed records that an approved policy, already on record, was not
+// saved, and returns err.
+func (st *starter) failed(err error) error {
+	_ = st.audit(audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+	return err
+}
+
+// errApprovalUnrecorded: the human approved a policy at start, but the
+// record could not be written; nothing is saved and the console stops.
+var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
 
 // Run is a product's `console` command: the isolation checks, the policy
 // review, the production confirmation, the credentials and the connection,
@@ -352,10 +367,12 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 			st.audit(audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 			return nil, "", errors.New("console: the policy was not approved")
 		}
-		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-			return nil, "", err
+		if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
+			return nil, "", errApprovalUnrecorded
 		}
-		st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()})
+		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+			return nil, "", st.failed(err)
+		}
 		return cur, "", nil
 	}
 	changes := cur.Diff(ap)
@@ -387,10 +404,12 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		io.Println("changes refused: the last approved policy applies")
 		return ap, config.Fingerprint(cur), nil
 	}
-	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-		return nil, "", err
+	if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
+		return nil, "", errApprovalUnrecorded
 	}
-	st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()})
+	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+		return nil, "", st.failed(err)
+	}
 	return cur, "", nil
 }
 

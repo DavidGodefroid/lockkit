@@ -15,6 +15,25 @@ GUIDE.md is the contract between lockkit and the products built on it.
   NAME`) make and print the instance key; `hubclient/hubtest` is a fake
   hub for tests.
 
+- `audit`: `prev_hash` is now the last member of a line, not the second:
+  the chain is additive at the end, so a product's pinned record format
+  (locksql's 0.8 lines) stays a byte-identical prefix. A record naming
+  `prev_hash` itself is refused. On Windows the append lock covers one
+  byte far past the log (LockFileEx locks are mandatory), so a reader is
+  never refused; CI runs the audit tests on Windows.
+
+
+
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
 - `hubclient` (new, #29): a lock's client for lockhub. Requests signed
   with the instance key (`Lock-Instance`, `Lock-Time`, `Lock-Nonce`,
   `Lock-Sig`), decisions verified under a pinned hub key only (`New`
@@ -40,6 +59,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `ipc.CodeInternal`, and the human sees why; three failed writes in a
   row end the session. Denials stay denials.
 
+- `console`: widenings take effect only once recorded. Auto mode on,
+  clear results shown, unmask allowed and a loosened policy approved (at
+  `:review` or at start) write their audit record first; if it cannot be
+  written they stay off (the policy is neither saved nor applied; at start
+  the console does not start), and the console says so.
+
 - `mcpkit` (#31): `Pending(lock, ticket)` is the shared answer of a run
   waiting on a hub ticket: not an error, a fixed "do not retry, end your
   turn" text and the structured `PendingResult`
@@ -49,7 +74,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   or ticket to another agent's token.
 
 - `audit` (#30): hash chain and hub fields, additive. Every record now
-  carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
+  carries `prev_hash`, the `LineHash` of the line before it,
   `Genesis` on the first line of an empty log; `Verify` checks a log and
   returns a `*ChainError` at the first broken line (a record edited,
   removed, inserted or reordered). Old logs stay readable: their records

@@ -102,7 +102,7 @@ it. Wipe every secret you are done with (`secrets.Wipe`).
 
 ```go
 log, err := audit.Open(P, stateBase) // <stateBase>/<P.Name>/audit.log, dir 0700, file 0600, O_APPEND
-err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, "prev_hash", then rec's fields in order}
+err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, rec's fields in order, "prev_hash" last}
 sum, err := audit.Verify(file)      // checks the chain; *audit.ChainError names the broken line
 ```
 
