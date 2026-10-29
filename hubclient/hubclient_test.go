@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/hubclient"
+	"github.com/DavidGodefroid/lockkit/hubclient/hubtest"
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/render"
 	"github.com/DavidGodefroid/lockkit/ticket"
@@ -27,7 +28,7 @@ var (
 )
 
 type env struct {
-	hub     *fakeHub
+	hub     *hubtest.Hub
 	client  *hubclient.Client
 	store   *plans.Store
 	cfg     hubclient.Config
@@ -37,12 +38,12 @@ type env struct {
 func newEnv(t *testing.T, mod func(*hubclient.Config)) *env {
 	t.Helper()
 	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
-	h := newFakeHub(t, inst, pub)
+	h := hubtest.New(t, inst, pub)
 	st, err := plans.Open(filepath.Join(t.TempDir(), "plans"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	cfg := hubclient.Config{URL: h.srv.URL, Instance: inst, Key: priv, HubKey: h.hubPub,
+	cfg := hubclient.Config{URL: h.URL(), Instance: inst, Key: priv, HubKey: h.Pub,
 		StateFile: filepath.Join(t.TempDir(), "hub-state.json")}
 	if mod != nil {
 		mod(&cfg)
@@ -112,7 +113,7 @@ func TestSubmitPushesSignedMaskedTicket(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	raw := e.hub.ticket(id)
+	raw := e.hub.Ticket(id)
 	if raw == nil {
 		t.Fatal("hub has no ticket")
 	}
@@ -140,7 +141,7 @@ func TestSubmitRefusesUnmaskedScreen(t *testing.T) {
 	if !errors.Is(err, render.ErrUnmasked) {
 		t.Fatalf("err = %v, want ErrUnmasked", err)
 	}
-	if e.hub.pushed() != 0 {
+	if e.hub.Pushed() != 0 {
 		t.Error("an unmasked ticket reached the hub")
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Planned {
@@ -166,7 +167,7 @@ func TestSubmitIdempotentAndDeduped(t *testing.T) {
 	if err != nil || id3 != id1 {
 		t.Fatalf("same plan hash: %s %v, want %s", id3, err, id1)
 	}
-	if n := e.hub.pushed(); n != 1 {
+	if n := e.hub.Pushed(); n != 1 {
 		t.Errorf("hub got %d tickets, want 1", n)
 	}
 }
@@ -174,8 +175,7 @@ func TestSubmitIdempotentAndDeduped(t *testing.T) {
 func TestHubDownIsPendingAndResumes(t *testing.T) {
 	e := newEnv(t, nil)
 	ctx := context.Background()
-	url := e.hub.srv.URL
-	e.hub.srv.Close()
+	e.hub.Close()
 	p, tk := e.plan(t, planHash)
 	id, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
 	if !errors.Is(err, hubclient.ErrUnreachable) || id == "" {
@@ -188,10 +188,9 @@ func TestHubDownIsPendingAndResumes(t *testing.T) {
 		t.Fatalf("begin with the hub down: %v, want ErrPending", err)
 	}
 	// The hub comes back on another address: a new client resends.
-	h2 := newFakeHub(t, inst, e.lockPub)
-	_ = url
+	h2 := hubtest.New(t, inst, e.lockPub)
 	cfg := e.cfg
-	cfg.URL, cfg.HubKey = h2.srv.URL, h2.hubPub
+	cfg.URL, cfg.HubKey = h2.URL(), h2.Pub
 	c2, err := hubclient.New(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -199,7 +198,7 @@ func TestHubDownIsPendingAndResumes(t *testing.T) {
 	if err := c2.Sync(ctx, e.store); err != nil {
 		t.Fatal(err)
 	}
-	if h2.ticket(id) == nil {
+	if h2.Ticket(id) == nil {
 		t.Fatal("pending ticket not resent")
 	}
 }
@@ -217,8 +216,8 @@ func TestRateLimitAndPendingCap(t *testing.T) {
 	if _, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen()); !errors.Is(err, hubclient.ErrRateLimited) {
 		t.Fatalf("third ticket: %v, want ErrRateLimited", err)
 	}
-	if e.hub.pushed() != 2 {
-		t.Errorf("hub got %d tickets", e.hub.pushed())
+	if e.hub.Pushed() != 2 {
+		t.Errorf("hub got %d tickets", e.hub.Pushed())
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Planned {
 		t.Errorf("rate-limited plan is %s", sp.State)
@@ -237,7 +236,7 @@ func TestRateLimitAndPendingCap(t *testing.T) {
 
 func TestHubTooManyPending(t *testing.T) {
 	e := newEnv(t, nil)
-	e.hub.status = http.StatusTooManyRequests
+	e.hub.SetPushStatus(http.StatusTooManyRequests)
 	p, tk := e.plan(t, planHash)
 	_, err := e.client.Submit(context.Background(), e.store, p.ID, caller, tk, screen())
 	if !errors.Is(err, hubclient.ErrRateLimited) {
@@ -252,7 +251,7 @@ func TestHubTooManyPending(t *testing.T) {
 func TestWrongLockKeyRefused(t *testing.T) {
 	e := newEnv(t, nil)
 	other, _, _ := ed25519.GenerateKey(rand.Reader)
-	e.hub.lockPub = other // the hub pinned another key for the instance
+	e.hub.SetLockKey(other) // the hub pinned another key for the instance
 	p, tk := e.plan(t, planHash)
 	_, err := e.client.Submit(context.Background(), e.store, p.ID, caller, tk, screen())
 	var he *hubclient.HubError
@@ -278,7 +277,7 @@ func TestApprovedRunsOnce(t *testing.T) {
 	if _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrPending) {
 		t.Fatalf("before a decision: %v, want ErrPending", err)
 	}
-	e.hub.decide(id, ticket.Approved, "", nil)
+	e.hub.Decide(id, ticket.Approved, "")
 	if n, err := e.client.Poll(ctx, 0); err != nil || n != 1 {
 		t.Fatalf("poll: %d %v", n, err)
 	}
@@ -295,7 +294,7 @@ func TestApprovedRunsOnce(t *testing.T) {
 	if err := e.client.Finish(ctx, e.store, p.ID, caller, true, ""); err != nil {
 		t.Fatal(err)
 	}
-	if !e.hub.consumed[id] {
+	if !e.hub.Consumed(id) {
 		t.Error("consumed not sent to the hub")
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Executed {
@@ -307,7 +306,7 @@ func TestForgedDecisionIgnored(t *testing.T) {
 	e := newEnv(t, nil)
 	_, id := submitted(t, e)
 	_, forger, _ := ed25519.GenerateKey(rand.Reader)
-	e.hub.decide(id, ticket.Approved, "", forger)
+	e.hub.DecideWith(id, ticket.Approved, "", forger, nil)
 	n, err := e.client.Poll(context.Background(), 0)
 	if n != 0 || !errors.Is(err, hubclient.ErrBadDecision) {
 		t.Fatalf("poll of a forged decision: %d %v, want 0 and ErrBadDecision", n, err)
@@ -320,7 +319,7 @@ func TestForgedDecisionIgnored(t *testing.T) {
 func TestDecisionForAnotherPlanRefused(t *testing.T) {
 	e := newEnv(t, nil)
 	p, id := submitted(t, e)
-	e.hub.decideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.PlanHash = "sha256:" + strings.Repeat("9", 64) })
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.PlanHash = "sha256:" + strings.Repeat("9", 64) })
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
@@ -335,7 +334,7 @@ func TestDecisionForAnotherPlanRefused(t *testing.T) {
 func TestDeniedEndsPlan(t *testing.T) {
 	e := newEnv(t, nil)
 	p, id := submitted(t, e)
-	e.hub.decide(id, ticket.Denied, "not today", nil)
+	e.hub.Decide(id, ticket.Denied, "not today")
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
@@ -351,7 +350,7 @@ func TestDeniedEndsPlan(t *testing.T) {
 func TestStaleRecheck(t *testing.T) {
 	e := newEnv(t, nil)
 	p, id := submitted(t, e)
-	e.hub.decide(id, ticket.Approved, "", nil)
+	e.hub.Decide(id, ticket.Approved, "")
 	if _, err := e.client.Poll(context.Background(), 0); err != nil {
 		t.Fatal(err)
 	}
@@ -368,7 +367,7 @@ func TestCursorAndInboxPersisted(t *testing.T) {
 	e := newEnv(t, nil)
 	ctx := context.Background()
 	_, id := submitted(t, e)
-	e.hub.decide(id, ticket.Approved, "", nil)
+	e.hub.Decide(id, ticket.Approved, "")
 	if _, err := e.client.Poll(ctx, 0); err != nil {
 		t.Fatal(err)
 	}
@@ -380,7 +379,7 @@ func TestCursorAndInboxPersisted(t *testing.T) {
 	if _, err := c2.Poll(ctx, 0); err != nil {
 		t.Fatal(err)
 	}
-	if got := e.hub.sinces; len(got) != 2 || got[0] != "0" || got[1] != "1" {
+	if got := e.hub.Sinces(); len(got) != 2 || got[0] != "0" || got[1] != "1" {
 		t.Errorf("since sent: %v, want [0 1]", got)
 	}
 	if _, err := c2.Begin(e.store, id, caller, recheck(policyFP, planHash)); err != nil {
@@ -394,8 +393,8 @@ func TestWithdraw(t *testing.T) {
 	if err := e.client.Withdraw(context.Background(), e.store, p.ID, caller, "agent gave up"); err != nil {
 		t.Fatal(err)
 	}
-	if e.hub.withdrawn[id] != "agent gave up" {
-		t.Errorf("hub withdrawals: %v", e.hub.withdrawn)
+	if r, _ := e.hub.Withdrawn(id); r != "agent gave up" {
+		t.Errorf("hub withdrawal reason: %q", r)
 	}
 	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Withdrawn {
 		t.Errorf("plan is %s", sp.State)
@@ -405,7 +404,7 @@ func TestWithdraw(t *testing.T) {
 func TestWatchDeliversDecisions(t *testing.T) {
 	e := newEnv(t, nil)
 	_, id := submitted(t, e)
-	e.hub.decide(id, ticket.Approved, "", nil)
+	e.hub.Decide(id, ticket.Approved, "")
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan struct{})
 	go func() { e.client.Watch(ctx, e.store, nil); close(done) }()
