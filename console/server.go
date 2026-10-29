@@ -207,7 +207,7 @@ func (s *Server) write(rec audit.Record) error {
 
 // asker takes the human decisions of s.
 func (s *Server) asker() Asker {
-	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, End: s.End,
+	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, Lock: s.cfg.Product.Name, End: s.End,
 		Waiting: func(on bool) {
 			if on {
 				s.prompting++
@@ -555,7 +555,7 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		}
 		return Approval{Approved: true, Auto: true}
 	}
-	q := Ask{Frame: frame, Production: production, Retype: sc.Retype}
+	q := Ask{Frame: frame, Production: production, Retype: sc.Retype, Screen: &sc}
 	var recErr error
 	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
 		b := base
@@ -645,18 +645,29 @@ func Loosens(changes []config.Change) bool {
 // where the backend is ends the session: the open connection no longer
 // matches the policy.
 func (s *Server) adopt(p Policy, decision string) error {
+	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
+	if decision == "applied" {
+		// A loosening takes effect only once recorded: the record comes
+		// first, and a failed write leaves the last approved policy.
+		b.Approval = s.approver.Mode()
+		if err := s.record(context.Background(), b); err != nil {
+			return fmt.Errorf("the approval could not be recorded in the audit log: %w", err)
+		}
+	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
 		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
+			if decision == "applied" {
+				// The approval is on record: record that it did not happen.
+				_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+			}
 			return err
 		}
 	}
 	old := s.profile
 	s.apply(p)
-	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
-	if decision == "applied" {
-		b.Approval = s.approver.Mode()
+	if decision != "applied" {
+		_ = s.record(context.Background(), b)
 	}
-	s.record(context.Background(), b)
 	n := s.profile
 	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
 		if err := s.cfg.RefuseProduction(); err != nil {
