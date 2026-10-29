@@ -3,7 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.3.0 (2026-10-30)
+
+Hub support: the packages a lock needs to ask the human through lockhub
+instead of its own console window (`ticket`, `render` masked screens,
+`plans`, the asynchronous console and its hub mode, `hubclient`, the audit
+chain, the `mcpkit` pending answer). Standalone consoles keep their
+prompts, with stricter rules: audit writes and widenings fail closed, no
+widening while a prompt waits, and production refusals re-applied when
+the policy becomes production. Audit lines gain `prev_hash` at the end.
 
 - `hubclient`: the hub key file and the instance key are read through one
   descriptor opened without waiting, checked regular and small: a FIFO,
@@ -31,16 +39,6 @@ GUIDE.md is the contract between lockkit and the products built on it.
   the console prints one line, the audit records a failed run, and the
   session goes on (and stops when its context ends). `Loop` recovers a
   panicking `Handle` too.
-
-## v0.3.0 (2026-10-30)
-
-Hub support: the packages a lock needs to ask the human through lockhub
-instead of its own console window (`ticket`, `render` masked screens,
-`plans`, the asynchronous console and its hub mode, `hubclient`, the audit
-chain, the `mcpkit` pending answer). Standalone consoles keep their
-prompts, with stricter rules: audit writes and widenings fail closed, no
-widening while a prompt waits, and production refusals re-applied when
-the policy becomes production. Audit lines gain `prev_hash` at the end.
 
 - `mcpkit`, `console`: the pending answer names the lock instance in hub
   mode (`"instance"`, the console's `--instance`): `mcpkit.PendingOn`,
