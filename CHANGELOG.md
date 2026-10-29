@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `hubclient`: the hub key file and the instance key are read through one
+  descriptor opened without waiting, checked regular and small: a FIFO,
+  a device or a directory is refused at once instead of blocking the
+  console. `pii.AllDetectors` panics rather than return none.
+
 - `plans` (#60): `Open` locks the store directory (flock, LockFileEx),
   without waiting: a second store on the same directory (two consoles on
   one volume) fails with `ErrLocked`, so a decision nonce is accepted

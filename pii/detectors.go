@@ -66,7 +66,11 @@ func AllDetectors() []Detector {
 			names = append(names, n)
 		}
 	}
-	ds, _ := Detectors(names)
+	ds, err := Detectors(names)
+	if err != nil || len(ds) == 0 {
+		// Never none: masking would fall back to no detection at all.
+		panic(fmt.Sprintf("pii: AllDetectors: %v", err))
+	}
 	return ds
 }
 

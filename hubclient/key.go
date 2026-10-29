@@ -68,7 +68,8 @@ func InstanceKey(home, instance string) (ed25519.PrivateKey, error) {
 	return ed25519.NewKeyFromSeed(seed), nil
 }
 
-// readPrivate reads a regular file no one but its owner can open.
+// readPrivate reads a regular file no one but its owner can open: not a
+// symlink, and checked on the descriptor it is read through.
 func readPrivate(path string) ([]byte, error) {
 	fi, err := os.Lstat(path)
 	if err != nil {
@@ -77,10 +78,21 @@ func readPrivate(path string) ([]byte, error) {
 	if !fi.Mode().IsRegular() {
 		return nil, fmt.Errorf("hubclient: %s is not a regular file", path)
 	}
+	f, err := os.OpenFile(path, os.O_RDONLY|nonBlock, 0)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	if fi, err = f.Stat(); err != nil {
+		return nil, err
+	}
+	if !fi.Mode().IsRegular() {
+		return nil, fmt.Errorf("hubclient: %s is not a regular file", path)
+	}
 	if runtime.GOOS != "windows" && fi.Mode().Perm()&0o077 != 0 {
 		return nil, fmt.Errorf("hubclient: %s is open to group or others (%v)", path, fi.Mode().Perm())
 	}
-	return os.ReadFile(path)
+	return io.ReadAll(io.LimitReader(f, 1024))
 }
 
 func createKey(path string) (ed25519.PrivateKey, error) {
@@ -103,7 +115,7 @@ func createKey(path string) (ed25519.PrivateKey, error) {
 // ReadHubKey reads the pinned hub key: an Ed25519 public key in base64 std
 // on one line (the file `lock up` mounts at /run/lockfamily/hub.pub).
 func ReadHubKey(path string) (ed25519.PublicKey, error) {
-	b, err := os.ReadFile(path)
+	b, err := readSmallRegular(path, 1024)
 	if err != nil {
 		return nil, fmt.Errorf("hubclient: hub key: %w", err)
 	}
@@ -113,6 +125,35 @@ func ReadHubKey(path string) (ed25519.PublicKey, error) {
 		return nil, fmt.Errorf("hubclient: %s is not an Ed25519 public key in base64 on one line", path)
 	}
 	return ed25519.PublicKey(pub), nil
+}
+
+// readSmallRegular reads path, a regular file of at most max bytes,
+// through one descriptor opened without waiting: a FIFO, a device or a
+// directory is refused, never read.
+func readSmallRegular(path string, max int64) ([]byte, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY|nonBlock, 0)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+	if !fi.Mode().IsRegular() {
+		return nil, fmt.Errorf("%s is not a regular file", path)
+	}
+	if fi.Size() > max {
+		return nil, fmt.Errorf("%s is larger than %d bytes", path, max)
+	}
+	b, err := io.ReadAll(io.LimitReader(f, max+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(b)) > max {
+		return nil, fmt.Errorf("%s is larger than %d bytes", path, max)
+	}
+	return b, nil
 }
 
 // HubKeyCommand is a lock's `hub-key --instance NAME`: it prints the
