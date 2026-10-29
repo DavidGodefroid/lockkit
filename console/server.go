@@ -190,7 +190,7 @@ func (s *Server) write(rec audit.Record) {
 
 // asker takes the human decisions of s.
 func (s *Server) asker() Asker {
-	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, End: s.End,
+	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, Lock: s.cfg.Product.Name, End: s.End,
 		Waiting: func(on bool) {
 			if on {
 				s.prompting++
@@ -531,7 +531,7 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		rec(b)
 		return Approval{Approved: true, Auto: true}
 	}
-	q := Ask{Frame: frame, Production: production, Retype: sc.Retype}
+	q := Ask{Frame: frame, Production: production, Retype: sc.Retype, Screen: &sc}
 	return s.asker().Ask(ctx, id, q, func(d audit.Base) {
 		b := base
 		b.Event, b.Decision, b.Reason, b.Error, b.Approval = d.Event, d.Decision, d.Reason, d.Error, d.Approval
