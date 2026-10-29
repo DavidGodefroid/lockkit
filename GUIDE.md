@@ -472,7 +472,7 @@ body, _ := t.Marshal() // canonical JSON
 
 d, err := ticket.VerifyDecision(pinnedHubKey, data) // schema + signature
 err = d.Match(t)                                   // same ticket, instance, key, plan hash
-err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
+err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unless approved
 // then consume d.Nonce once, recompute the plan hash, execute
 ```
 
@@ -487,8 +487,9 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
   sign other bytes with `SignBytes`/`VerifyBytes` and a context of their
   own. Verification decodes strictly (unknown members, duplicate members,
   lone surrogates and trailing data are refused), so what verifies is
-  exactly what you read. `KeyID` names a key; it never replaces the key you
-  pinned.
+  exactly what you read, and only its exact canonical bytes verify.
+  `KeyID` names a key; it never replaces the key you pinned. Dedupe and
+  refuse replays on the ticket id and the decision nonce, not on bytes.
 - **Sealed boxes** (`Seal`/`Open`: X25519, HKDF-SHA256,
   XChaCha20-Poly1305) carry what the hub must not read: an `unlock`
   secret, a clear screen for a device, a reveal. The associated data binds

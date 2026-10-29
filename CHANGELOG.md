@@ -5,6 +5,9 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `ticket`: `Decision.Usable` refuses a decision that is not an approval
+  (`ErrDenied`).
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
