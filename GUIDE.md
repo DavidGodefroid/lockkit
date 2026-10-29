@@ -6,7 +6,7 @@ records what happened. A product (locksql, lockmq, lockfile, lockhttp) supplies 
 names and its operations; lockkit supplies the rest. This guide is the
 contract between lockkit and the products built on it.
 
-> Status: v0.1, no stability promise before v1: pin an exact version.
+> Status: v0.3, no stability promise before v1: pin an exact version.
 > locksql runs on every package below except `console.Run`/`console.Server`:
 > its console still keeps its own modes, status row, policy review and
 > start-up sequence (they are interleaved with its SQL state), on lockkit's
