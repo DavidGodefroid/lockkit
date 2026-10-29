@@ -8,7 +8,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // ErrBadSignature: the signature does not verify under the key given, or
@@ -117,4 +119,15 @@ func NewNonce() string {
 func validNonce(s string) bool {
 	b, err := enc.DecodeString(s)
 	return err == nil && len(b) == nonceSize
+}
+
+// RequestMessage is what a lock signs, under ContextRequest, for one HTTP
+// request to the hub (the Lock-Sig header): the method, the path with its
+// query, the signing instance (Lock-Instance), the Unix time in seconds
+// (Lock-Time), the request nonce (Lock-Nonce) and the hex SHA-256 of the
+// body, one per line. The hub accepts it within a minute of its own clock
+// and each nonce once.
+func RequestMessage(method, pathQuery, instance string, at time.Time, nonce string, body []byte) []byte {
+	sum := sha256.Sum256(body)
+	return []byte(method + "\n" + pathQuery + "\n" + instance + "\n" + strconv.FormatInt(at.Unix(), 10) + "\n" + nonce + "\n" + hex.EncodeToString(sum[:]))
 }

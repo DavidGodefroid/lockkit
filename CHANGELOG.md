@@ -14,7 +14,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `CanonicalizeJSON`), Ed25519 signatures with domain separation
   (`SignBytes`/`VerifyBytes` and `Context`), strict verification, X25519
   sealed boxes (`Seal`/`Open`) and signed X25519 keys (`KeyCert`), ULID ids,
-  nonces, `HashOf`. Signed fixtures under `ticket/testdata` for lockhub's
+  nonces, `HashOf`, `RequestMessage` (what `Lock-Sig` signs). Only the
+  exact canonical form verifies; `Canonical` refuses integers a double
+  cannot hold and invalid UTF-8 rather than encode them with a loss.
+  Signed fixtures under `ticket/testdata` for lockhub's
   compatibility tests.
 
 - `console` (#2): while a prompt waits, a control key or command never

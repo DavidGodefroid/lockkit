@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,25 +22,35 @@ var ErrNotCanonicalizable = errors.New("ticket: not canonicalizable JSON")
 const maxDepth = 64
 
 // Canonical is the RFC 8785 (JCS) form of v: json.Marshal, then
-// CanonicalizeJSON. Signatures and hashes are computed over it.
+// CanonicalizeJSON. Signatures and hashes are computed over it, so it
+// refuses what json.Marshal would encode with a loss: a string with
+// invalid UTF-8 (json.Marshal writes U+FFFD for it) and, as
+// CanonicalizeJSON, an integer a double cannot hold exactly. Encode such
+// values as strings (base64, decimal) first.
 func Canonical(v any) ([]byte, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
-	return CanonicalizeJSON(b)
+	return canonicalize(b, true)
 }
 
 // CanonicalizeJSON is the RFC 8785 (JCS) form of one JSON value: object
 // members sorted by their UTF-16 code units, no whitespace, strings with
 // the minimal escapes, numbers as ECMAScript prints them. It refuses what
 // I-JSON refuses: invalid UTF-8, lone surrogates, duplicate member names,
-// numbers out of the IEEE 754 double range, and trailing data.
-func CanonicalizeJSON(b []byte) ([]byte, error) {
+// numbers out of the IEEE 754 double range, integers it cannot hold
+// exactly (above 2^53, mostly: two of them would print alike), and
+// trailing data.
+func CanonicalizeJSON(b []byte) ([]byte, error) { return canonicalize(b, false) }
+
+// canonicalize is CanonicalizeJSON; marshalled also refuses the \ufffd
+// escape, which is how json.Marshal writes invalid UTF-8.
+func canonicalize(b []byte, marshalled bool) ([]byte, error) {
 	if !utf8.Valid(b) {
 		return nil, fmt.Errorf("%w: invalid UTF-8", ErrNotCanonicalizable)
 	}
-	p := &parser{s: b}
+	p := &parser{s: b, marshalled: marshalled}
 	p.ws()
 	var out bytes.Buffer
 	if err := p.value(&out, 0); err != nil {
@@ -53,8 +64,9 @@ func CanonicalizeJSON(b []byte) ([]byte, error) {
 }
 
 type parser struct {
-	s []byte
-	i int
+	s          []byte
+	i          int
+	marshalled bool
 }
 
 func (p *parser) errf(format string, a ...any) error {
@@ -267,6 +279,9 @@ func (p *parser) str() (string, error) {
 				if err != nil {
 					return "", err
 				}
+				if r == utf8.RuneError && p.marshalled {
+					return "", p.errf("invalid UTF-8 in a string")
+				}
 				if utf16.IsSurrogate(r) {
 					if r >= 0xDC00 || !bytes.HasPrefix(p.s[p.i:], []byte(`\u`)) {
 						return "", p.errf("lone surrogate")
@@ -324,13 +339,16 @@ func (p *parser) number(out *bytes.Buffer) error {
 	} else if digits() == 0 {
 		return p.errf("invalid number")
 	}
+	integer := true
 	if p.i < len(p.s) && p.s[p.i] == '.' {
+		integer = false
 		p.i++
 		if digits() == 0 {
 			return p.errf("invalid number")
 		}
 	}
 	if p.i < len(p.s) && (p.s[p.i] == 'e' || p.s[p.i] == 'E') {
+		integer = false
 		p.i++
 		if p.i < len(p.s) && (p.s[p.i] == '+' || p.s[p.i] == '-') {
 			p.i++
@@ -342,6 +360,13 @@ func (p *parser) number(out *bytes.Buffer) error {
 	f, err := strconv.ParseFloat(string(p.s[start:p.i]), 64)
 	if err != nil || math.IsInf(f, 0) || math.IsNaN(f) {
 		return p.errf("number out of range")
+	}
+	if integer && math.Abs(f) >= 1<<53 {
+		lit, _ := new(big.Int).SetString(string(p.s[start:p.i]), 10)
+		exact, _ := big.NewFloat(f).Int(nil)
+		if lit.Cmp(exact) != 0 {
+			return p.errf("integer %s does not fit a double exactly", p.s[start:p.i])
+		}
 	}
 	out.WriteString(formatNumber(f))
 	return nil

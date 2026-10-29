@@ -61,6 +61,9 @@ func TestCanonicalizeRefuses(t *testing.T) {
 		`nul`,
 		``,
 		`"\x"`,
+		`9007199254740993`,
+		`-9007199254740993`,
+		`[123456789012345678901234567890]`,
 	} {
 		if _, err := CanonicalizeJSON([]byte(in)); !errors.Is(err, ErrNotCanonicalizable) {
 			t.Errorf("%q: got %v, want ErrNotCanonicalizable", in, err)
@@ -136,4 +139,35 @@ func FuzzCanonicalizeJSON(f *testing.F) {
 			t.Fatalf("value changed: %q → %q", in, out)
 		}
 	})
+}
+
+// Canonical refuses what json.Marshal would encode with a loss, so two
+// different values never hash alike.
+func TestCanonicalLossless(t *testing.T) {
+	for _, v := range []any{
+		map[string]any{"p": "a\xffb"},
+		[]int64{1<<53 + 1},
+		[]uint64{1<<64 - 1},
+		json.Number("9007199254740993"),
+	} {
+		if _, err := Canonical(v); !errors.Is(err, ErrNotCanonicalizable) {
+			t.Errorf("%#v: got %v, want ErrNotCanonicalizable", v, err)
+		}
+		if _, err := HashOf(v); err == nil {
+			t.Errorf("HashOf(%#v) accepted", v)
+		}
+	}
+	for _, v := range []any{
+		[]int64{1 << 53, -(1 << 53), 1 << 62}, // exact in a double
+		"\ufffd is fine when it is the real character",
+		json.RawMessage(`18446744073709551616`),
+	} {
+		if _, err := Canonical(v); err != nil {
+			t.Errorf("%#v: %v", v, err)
+		}
+	}
+	a, _ := HashOf([]int64{1 << 53})
+	if b, err := HashOf([]int64{1<<53 + 1}); err == nil && a == b {
+		t.Fatal("2^53 and 2^53+1 hash alike")
+	}
 }

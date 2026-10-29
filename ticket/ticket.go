@@ -362,7 +362,9 @@ func (t *Ticket) Marshal() ([]byte, error) { return Canonical(t) }
 func (d *Decision) Marshal() ([]byte, error) { return Canonical(d) }
 
 // decodeStrict decodes exactly one JSON value into v, refusing unknown
-// members and trailing data.
+// members and trailing data, and anything but the canonical form of what
+// it decoded: encoding/json matches member names without case and would
+// take {"RISK":…} for "risk", so one value would have many encodings.
 func decodeStrict(data []byte, v any) error {
 	if !utf8.Valid(data) {
 		return invalid("invalid UTF-8")
@@ -379,6 +381,13 @@ func decodeStrict(data []byte, v any) error {
 	}
 	if dec.More() {
 		return invalid("trailing data")
+	}
+	c, err := Canonical(v)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrInvalid, err)
+	}
+	if !bytes.Equal(c, data) {
+		return invalid("not in canonical form")
 	}
 	return nil
 }

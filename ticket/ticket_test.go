@@ -174,6 +174,10 @@ func TestTicketRefusals(t *testing.T) {
 		"trailing":       string(data) + "{}",
 		"version":        strings.Replace(string(data), `"v":1`, `"v":2`, 1),
 		"risk":           strings.Replace(string(data), `"prod-write"`, `"admin"`, 1),
+		"case-folded":    strings.Replace(string(data), `"risk":`, `"RISK":`, 1),
+		"whitespace":     strings.Replace(string(data), `"v":1`, `"v": 1`, 1),
+		"member order":   reorder(string(data)),
+		"escaped":        strings.Replace(string(data), `"locksql"`, `"lock\u0073ql"`, 1),
 	} {
 		if _, err := VerifyTicket(lockPub, []byte(in)); !errors.Is(err, ErrInvalid) {
 			t.Errorf("%s: got %v, want ErrInvalid", name, err)
@@ -439,6 +443,11 @@ func TestVerifyBytes(t *testing.T) {
 	}
 }
 
+// reorder moves the "v" member first: same value, not canonical.
+func reorder(s string) string {
+	return `{"v":1,` + strings.Replace(s[1:], `,"v":1`, "", 1)
+}
+
 func FuzzVerifyTicket(f *testing.F) {
 	tk := sampleTicket(f)
 	data, _ := tk.Marshal()
@@ -449,14 +458,29 @@ func FuzzVerifyTicket(f *testing.F) {
 		if err != nil {
 			return
 		}
-		// Anything that verifies re-encodes to the exact signed form.
+		// Only the exact canonical form verifies.
 		out, err := got.Marshal()
 		if err != nil {
 			t.Fatal(err)
 		}
-		c, _ := CanonicalizeJSON(in)
-		if !bytes.Equal(out, c) {
+		if !bytes.Equal(out, in) {
 			t.Fatalf("verified %q but re-encodes as %q", in, out)
 		}
 	})
+}
+
+func TestRequestMessage(t *testing.T) {
+	at := time.Unix(1793318400, 0)
+	m := RequestMessage("POST", "/v1/tickets?x=1", "crm-prod", at, "AAECAwQFBgcICQoLDA0ODw", []byte(`{}`))
+	want := "POST\n/v1/tickets?x=1\ncrm-prod\n1793318400\nAAECAwQFBgcICQoLDA0ODw\n44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+	if string(m) != want {
+		t.Fatalf("got %q", m)
+	}
+	sig := SignBytes(lockKey, ContextRequest, m)
+	if VerifyBytes(lockPub, ContextRequest, RequestMessage("POST", "/v1/tickets?x=1", "crm-prod", at, "AAECAwQFBgcICQoLDA0ODw", []byte(`{ }`)), sig) == nil {
+		t.Fatal("body not covered")
+	}
+	if VerifyBytes(lockPub, ContextRequest, RequestMessage("POST", "/v1/tickets?x=1", "crm-dev", at, "AAECAwQFBgcICQoLDA0ODw", []byte(`{}`)), sig) == nil {
+		t.Fatal("instance not covered")
+	}
 }
