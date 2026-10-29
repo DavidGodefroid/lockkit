@@ -380,8 +380,11 @@ screen: the plan (made in `console.HubOf(env).Store`), its caller, the
 risk class and the `render.MaskedScreen`; a screen without one is refused
 in hub mode, never asked here. The run of a decided ticket is the
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
-matched, still usable, binding unchanged, nonce consumed), the effect,
-then `h.Client.Finish`. A product with its own console lifecycle
+matched, still usable, binding unchanged, nonce consumed; it returns
+the decision, whose approver, facade and signature go in the audit
+record), the effect, then `h.Client.Finish`. A pending answer is
+audited (`audit.EventPending`, approval `hub`, the ticket); one that
+cannot be recorded is withdrawn and refused. A product with its own console lifecycle
 calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
 for its `Asker` (base keeps the console's own decisions), and
 `hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance

@@ -123,7 +123,7 @@ func (b *hubBackend) Methods() map[string]Handler {
 				return *r
 			}
 			h := HubOf(env)
-			plan, err := h.Client.Begin(h.Store, p.Ticket, hubCaller, func(*plans.Plan) (string, string, error) {
+			plan, _, err := h.Client.Begin(h.Store, p.Ticket, hubCaller, func(*plans.Plan) (string, string, error) {
 				return hubPolicyFP, hubPlanHash, nil
 			})
 			if err != nil {
