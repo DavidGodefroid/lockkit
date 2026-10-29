@@ -12,6 +12,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
   the structure of the request kept. `Screen()` is the `ticket.Screen`,
   `Touched()` the kinds masked; the zero value is not `Valid` and does not
   encode (`ErrUnmasked`).
+- `ticket`: `Decision.Usable` refuses a decision that is not an approval
+  (`ErrDenied`).
 
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
@@ -28,6 +30,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
   Signed fixtures under `ticket/testdata` for lockhub's
   compatibility tests.
 
+- `console`: `Asker` takes a console's human decisions: `Ask` closes an
+  approval screen with the prompt (typed profile name on production, retype
+  answer, fingerprint) and returns the `Approval`, its outcome recorded
+  through a callback; `Decide` asks for any other decision. `Server.Approve`
+  runs on it, unchanged, and a product that draws its own approval screen
+  (prompting inside it) uses it too, so every approval is decided in one
+  place.
 - `console` (#2): while a prompt waits, a control key or command never
   widens a switch (auto mode on, clear results shown, unmasked output
   allowed): it is refused with a line saying to answer the prompt first;
