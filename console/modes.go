@@ -72,7 +72,7 @@ func (s *Server) toggleMode() {
 		// answer alone, which the agent could type too, never turns it on.
 		if r := s.decide(context.Background(), Decision{Prompt: "Switch to auto mode? [y/N] ", Expected: "y", For: "to switch to auto mode"}); r.Outcome != Approved {
 			if reason, errText := noFingerFields(r); reason != "" {
-				s.record(context.Background(),audit.Base{Event: audit.EventMode, Decision: "refused", Reason: reason, Error: errText})
+				s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: "refused", Reason: reason, Error: errText})
 			}
 			s.println("mode: still manual")
 			s.refreshStatus()
@@ -80,7 +80,7 @@ func (s *Server) toggleMode() {
 		}
 	}
 	s.auto = !s.auto
-	s.record(context.Background(),audit.Base{Event: audit.EventMode, Decision: s.modeName()})
+	s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: s.modeName()})
 	if s.auto {
 		s.println(Paint.Yellow(ui.MarkWarn + " auto mode: requests run without a prompt; those that ask for a human every time are still prompted (Shift+Tab: back to manual)"))
 	} else {
@@ -109,7 +109,7 @@ func (s *Server) toggleResults() {
 	if s.showResults {
 		decision = "shown"
 	}
-	s.record(context.Background(),audit.Base{Event: audit.EventResults, Decision: decision})
+	s.record(context.Background(), audit.Base{Event: audit.EventResults, Decision: decision})
 	if s.showResults {
 		msg := "results: each result is printed here in clear, personal data included; the agent still gets it masked (Ctrl-O: hide)"
 		if s.profile.Production {
@@ -126,7 +126,7 @@ func (s *Server) toggleResults() {
 func (s *Server) toggleUnmask(ctx context.Context) {
 	if s.allowUnmask {
 		s.allowUnmask = false
-		s.record(context.Background(),audit.Base{Event: audit.EventUnmask, Decision: "off"})
+		s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "off"})
 		s.println(Paint.OK("unmask: off; clients get masked output only"))
 		s.refreshStatus()
 		return
@@ -141,13 +141,13 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 	s.println(red + ui.MarkWarn + " " + warn + reset)
 	if r := s.decide(ctx, Decision{Prompt: "Allow unmasked output? [y/N] ", Expected: "y", For: "to allow unmasked output"}); r.Outcome != Approved {
 		if reason, errText := noFingerFields(r); reason != "" {
-			s.record(context.Background(),audit.Base{Event: audit.EventUnmask, Decision: "refused", Reason: reason, Error: errText})
+			s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "refused", Reason: reason, Error: errText})
 		}
 		s.println("unmask: still off")
 		return
 	}
 	s.allowUnmask = true
-	s.record(context.Background(),audit.Base{Event: audit.EventUnmask, Decision: "allowed", Approval: s.approver.Mode()})
+	s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "allowed", Approval: s.approver.Mode()})
 	s.println(red + "unmask: allowed; clients may ask for unmasked output, approved here each time (:unmask: off)" + reset)
 	s.refreshStatus()
 }
