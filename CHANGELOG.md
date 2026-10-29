@@ -3,7 +3,12 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.3.0 (date of the tag)
+
+Hub support: the packages a lock needs to ask the human through lockhub
+instead of its own console window (`ticket`, `render` masked screens,
+`plans`, the asynchronous console, `hubclient`, the audit chain, the
+`mcpkit` pending answer). Standalone consoles behave as in v0.2.1.
 
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
