@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `plans` (#60): `Open` locks the store directory (flock, LockFileEx),
+  without waiting: a second store on the same directory (two consoles on
+  one volume) fails with `ErrLocked`, so a decision nonce is accepted
+  once. `Store.Close` releases it; `console.Hub.Close` too, and `Run`
+  closes its hub when it returns.
+
 - `console` (#63): a product handler that panics no longer takes the
   console down: its client gets an internal error with a generic text,
   the console prints one line, the audit records a failed run, and the

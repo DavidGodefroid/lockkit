@@ -264,3 +264,34 @@ func TestRunHubDownStaysPending(t *testing.T) {
 	cancel()
 	<-done
 }
+
+// Run releases its hub when it returns: a console started again on the
+// same state opens the plans store (one store per directory, #60).
+func TestRunReleasesHub(t *testing.T) {
+	home, state := t.TempDir(), t.TempDir()
+	key, _ := hubclient.InstanceKey(home, hubInstance)
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	o := HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}
+	for i := 0; i < 2; i++ {
+		env := runEnv(t)
+		b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+		io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+		ready := make(chan string, 1)
+		done := make(chan error, 1)
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+				Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s }, Hub: o})
+		}()
+		select {
+		case <-ready:
+		case err := <-done:
+			cancel()
+			t.Fatalf("start %d: %v\n%s", i+1, err, io.plain())
+		case <-time.After(10 * time.Second):
+			t.Fatal("no socket")
+		}
+		cancel()
+		<-done
+	}
+}

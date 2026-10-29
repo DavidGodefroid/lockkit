@@ -129,6 +129,10 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 	return &Hub{Client: c, Store: st, Instance: o.Instance, lock: p.Name, now: now}, nil
 }
 
+// Close releases the plans store (its directory lock): Run closes its
+// hub when it returns.
+func (h *Hub) Close() error { return h.Store.Close() }
+
 // Approver is the hub approver: requests (a Decision with a Screen) go to
 // the hub, the console's own decisions to base.
 func (h *Hub) Approver(base Approver) AsyncApprover {
