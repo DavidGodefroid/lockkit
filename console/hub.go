@@ -75,6 +75,8 @@ type Hub struct {
 	Client   *hubclient.Client
 	Store    *plans.Store
 	Instance string
+	lock     string
+	now      func() time.Time
 }
 
 // HubOf returns env's hub, nil when the console is standalone.
@@ -85,10 +87,18 @@ func HubOf(env Env) *Hub {
 	return nil
 }
 
-// openHub opens the hub mode of product p: the pinned hub key, the
-// instance key, and the plans and hub state under the product's state
-// directory.
-func openHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time) (*Hub, error) {
+// OpenHub opens the hub mode of product p: it checks o, reads the pinned
+// hub key and the instance key, and opens the plans and the hub state
+// under the product's state directory (stateDir as Options.StateDir; now
+// nil is time.Now). Run calls it; a product with its own console
+// lifecycle calls it too, then Approver and Watch.
+func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time) (*Hub, error) {
+	if err := o.check(); err != nil {
+		return nil, err
+	}
+	if now == nil {
+		now = time.Now
+	}
 	hubKey, err := hubclient.ReadHubKey(o.KeyFile)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
@@ -116,8 +126,18 @@ func openHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
 	}
-	return &Hub{Client: c, Store: st, Instance: o.Instance}, nil
+	return &Hub{Client: c, Store: st, Instance: o.Instance, lock: p.Name, now: now}, nil
 }
+
+// Approver is the hub approver: requests (a Decision with a Screen) go to
+// the hub, the console's own decisions to base.
+func (h *Hub) Approver(base Approver) AsyncApprover {
+	return &hubApprover{Approver: base, hub: h, lock: h.lock, now: h.now}
+}
+
+// Watch delivers the hub's decisions until ctx ends, printing its errors
+// on io (hubclient.Client.Watch).
+func (h *Hub) Watch(ctx context.Context, io IO) { h.Client.Watch(ctx, h.Store, watchReport(io)) }
 
 // hubApprover hands requests to the hub; the console's own decisions (a
 // policy change, unmask) stay with the terminal approver it wraps.

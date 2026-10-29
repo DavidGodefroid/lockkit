@@ -362,7 +362,10 @@ risk class and the `render.MaskedScreen`; a screen without one is refused
 in hub mode, never asked here. The run of a decided ticket is the
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
 matched, still usable, binding unchanged, nonce consumed), the effect,
-then `h.Client.Finish`. A product also wires `<lock> hub-key --instance
+then `h.Client.Finish`. A product with its own console lifecycle
+calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
+for its `Asker` (base keeps the console's own decisions), and
+`hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
 for `lock up` to pin.
 

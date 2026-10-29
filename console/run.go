@@ -177,7 +177,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	var hub *Hub
 	if o.Hub.Enabled() {
-		if hub, err = openHub(p, o.Hub, o.StateDir, o.Now); err != nil {
+		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
 			return err
 		}
 	}
@@ -277,7 +277,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	var serverAppr Approver = appr
 	if hub != nil {
-		serverAppr = &hubApprover{Approver: appr, hub: hub, lock: p.Name, now: o.Now}
+		serverAppr = hub.Approver(appr)
 	}
 	s, err := NewServer(ServerConfig{
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
@@ -303,7 +303,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		watched := make(chan struct{})
 		go func() {
 			defer close(watched)
-			hub.Client.Watch(wctx, hub.Store, watchReport(o.IO))
+			hub.Watch(wctx, o.IO)
 		}()
 		defer func() { stopWatch(); <-watched }()
 	}
