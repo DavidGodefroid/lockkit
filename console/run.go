@@ -191,14 +191,19 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	pr := approved.Profile()
 	st.profile = pr
-	if hardenErr != nil && pr.Production {
-		err := fmt.Errorf("console: refused: core dumps could not be disabled (%v) and the profile is production; the secret would be exposed in a dump", hardenErr)
-		st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
-		return err
+	// The start-up refusals of a production profile, applied again by the
+	// server when the policy in force becomes production.
+	refuseProduction := func() error {
+		if hardenErr != nil {
+			return fmt.Errorf("console: refused: core dumps could not be disabled (%v) and the profile is production; the secret would be exposed in a dump", hardenErr)
+		}
+		return iso.RefuseX11IfProduction(true)
 	}
-	if err := iso.RefuseX11IfProduction(pr.Production); err != nil {
-		st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
-		return err
+	if pr.Production {
+		if err := refuseProduction(); err != nil {
+			st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
+			return err
+		}
 	}
 
 	// 2. Production banner and typed profile name.
@@ -258,6 +263,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		IO: o.IO, Approver: appr, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		Reconnect: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
+		RefuseProduction: refuseProduction,
 	})
 	if err != nil {
 		ln.Close()
@@ -310,7 +316,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		for _, line := range cur.Describe() {
 			io.Println("  " + sanitize.Terminal(line, false))
 		}
-		if r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y"}); r.Outcome != Approved {
+		if r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"}); r.Outcome != Approved {
 			reason, errText := noFingerFields(r)
 			st.audit(audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 			return nil, "", errors.New("console: the policy was not approved")
@@ -340,7 +346,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	for _, line := range FormatChanges(changes) {
 		io.Println(line)
 	}
-	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y"})
+	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
 	if ctx.Err() != nil {
 		return nil, "", ctx.Err()
 	}
@@ -441,7 +447,7 @@ func (st *starter) connectSecret(ctx context.Context, p Profile, open func(Crede
 }
 
 func (st *starter) offerSave(ctx context.Context, secret []byte, prompt string) {
-	if r := st.decide(ctx, Decision{Prompt: prompt, Expected: "y"}); r.Outcome != Approved {
+	if r := st.decide(ctx, Decision{Prompt: prompt, Expected: "y", For: "to save the password in the keychain"}); r.Outcome != Approved {
 		return
 	}
 	if err := st.keychain.Set(st.profile.Name, st.profile.Host, st.profile.Port, secret); err != nil {
@@ -511,7 +517,7 @@ func (st *starter) checks(ctx context.Context, sess Session) error {
 	if refuse {
 		return fmt.Errorf("console: refused by the checks of the connection: %s", findings[0].Text)
 	}
-	if r := st.decide(ctx, Decision{Prompt: `Type "continue" to proceed: `, Expected: "continue", Production: true}); r.Outcome != Approved {
+	if r := st.decide(ctx, Decision{Prompt: `Type "continue" to proceed: `, Expected: "continue", Production: true, For: "to continue past the checks"}); r.Outcome != Approved {
 		return errors.New("console: stopped at the checks of the connection")
 	}
 	return nil

@@ -2,7 +2,7 @@
 
 lockkit is the product-neutral half of locksql: everything that keeps a
 secret-holding console separate from an AI agent, asks the human, and
-records what happened. A product (locksql, lockmq, lockfile) supplies its
+records what happened. A product (locksql, lockmq, lockfile, lockhttp) supplies its
 names and its operations; lockkit supplies the rest. This guide is the
 contract between lockkit and the products built on it.
 

@@ -403,6 +403,83 @@ func TestLevel2Widening(t *testing.T) {
 	}
 }
 
+// keyApprover presses keys while the first decision is asked, then answers
+// it.
+type keyApprover struct {
+	Approver
+	during func()
+}
+
+func (a *keyApprover) Approve(ctx context.Context, d Decision) Result {
+	if f := a.during; f != nil {
+		a.during = nil
+		f()
+	}
+	return a.Approver.Approve(ctx, d)
+}
+
+// A control key pressed while a prompt waits never widens a switch: at
+// level 2 no second finger prompt nests in the pending one.
+func TestNoWideningWhilePromptWaits(t *testing.T) {
+	v := &fingerprint.Fake{}
+	var h *harness
+	h = newHarness(t, uat(), func(c *ServerConfig) {
+		c.Level = 2
+		c.Approver = &keyApprover{Approver: NewFingerprintApprover(c.IO, v, "left-index-finger", time.Second), during: func() { h.s.Key(KeyShiftTab) }}
+	})
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q"}); r.Error != nil {
+		t.Fatalf("request: %+v", r.Error)
+	}
+	if h.s.Auto() || v.Calls != 1 || !strings.Contains(h.io.plain(), "auto mode: not while a prompt waits") {
+		t.Fatalf("auto %v, finger calls %d:\n%s", h.s.Auto(), v.Calls, h.io.plain())
+	}
+	if !strings.Contains(h.io.plain(), "Place your left index finger on the reader to approve the request above") {
+		t.Fatalf("the finger prompt does not name its decision:\n%s", h.io.plain())
+	}
+
+	var h0 *harness
+	h0 = newHarness(t, uat(), func(c *ServerConfig) {
+		c.Approver = &keyApprover{Approver: NewTypedApprover(c.IO), during: func() {
+			h0.s.Key(KeyShiftTab)
+			h0.s.Key(KeyCtrlO)
+			h0.s.Command(context.Background(), ":unmask")
+		}}
+	})
+	h0.io.answers = []string{"y"}
+	if r := h0.call(t, context.Background(), "op.read", map[string]any{"queue": "q"}); r.Error != nil {
+		t.Fatalf("request: %+v", r.Error)
+	}
+	if h0.s.Auto() || h0.s.ShowResults() || h0.s.UnmaskAllowed() {
+		t.Fatalf("widened during a prompt: auto %v results %v unmask %v", h0.s.Auto(), h0.s.ShowResults(), h0.s.UnmaskAllowed())
+	}
+	if n := strings.Count(h0.io.plain(), "not while a prompt waits"); n != 3 {
+		t.Fatalf("refusal printed %d times:\n%s", n, h0.io.plain())
+	}
+	// Between prompts the keys work again.
+	h0.s.Key(KeyShiftTab)
+	if !h0.s.Auto() {
+		t.Fatal("auto mode refused with no prompt waiting")
+	}
+}
+
+// Narrowing stays allowed while a prompt waits: auto mode can be switched
+// off during a request that asks for a human every time.
+func TestNarrowingWhilePromptWaits(t *testing.T) {
+	var h *harness
+	h = newHarness(t, uat(), func(c *ServerConfig) {
+		c.Auto = true
+		c.Approver = &keyApprover{Approver: NewTypedApprover(c.IO), during: func() { h.s.Key(KeyShiftTab) }}
+	})
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q", "never_auto": true}); r.Error != nil {
+		t.Fatalf("request: %+v", r.Error)
+	}
+	if h.s.Auto() {
+		t.Fatal("auto mode not switched off during a prompt")
+	}
+}
+
 // At level 1 the agent's account can read the console window: Ctrl-O and
 // :results leave the results masked, with nothing audited, while auto mode
 // and :unmask still work as at level 0.
@@ -591,6 +668,25 @@ func TestBecomingProductionRunsChecks(t *testing.T) {
 	}
 }
 
+// A profile turned production re-applies the start-up refusals before
+// the checks: the session ends.
+func TestBecomingProductionReappliesStartRefusals(t *testing.T) {
+	iso := &Isolation{Display: sysconf.Display{Kind: sysconf.DisplayX11}}
+	h := newHarness(t, uat(), func(c *ServerConfig) {
+		c.RefuseProduction = func() error { return iso.RefuseX11IfProduction(true) }
+	})
+	p := uat()
+	p.Production = true
+	h.b.policy = p
+	h.s.CheckPolicy()
+	if reason, ended := h.s.Ended(); !ended || reason != "refused after the profile became production" {
+		t.Fatalf("ended %v %q", ended, reason)
+	}
+	if !strings.Contains(h.io.plain(), "X11 session") {
+		t.Fatalf("no refusal shown:\n%s", h.io.plain())
+	}
+}
+
 func TestTickTimeouts(t *testing.T) {
 	now := time.Now()
 	clock := now
@@ -744,6 +840,54 @@ func TestRunProductionRefusesFindings(t *testing.T) {
 	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", IO: &fakeIO{answers: []string{"y"}}, StateDir: t.TempDir(), Isolation: env,
 		Harden: func() error { return errors.New("no rlimit") }}); err == nil || !strings.Contains(err.Error(), "core dumps could not be disabled") {
 		t.Fatalf("production without hardening: %v", err)
+	}
+}
+
+// A console started on a non-production profile ends when the profile
+// becomes production in an X11 session or without core-dump hardening.
+func TestRunBecomingProductionReappliesStartRefusals(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		display string
+		harden  error
+		want    string
+	}{
+		{"x11", sysconf.DisplayX11, nil, "X11 session"},
+		{"core dumps", sysconf.DisplayWayland, errors.New("no rlimit"), "core dumps could not be disabled"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			env := runEnv(t)
+			env.Display = func() sysconf.Display { return sysconf.Display{Kind: tc.display} }
+			b := &fakeBackend{policy: uat()}
+			io := &fakeIO{answers: []string{"y"}, secrets: []string{"pw"}}
+			ready := make(chan string, 1)
+			done := make(chan error, 1)
+			go func() {
+				done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+					Harden: func() error { return tc.harden }, Quantum: -1, Ready: func(s string) { ready <- s }})
+			}()
+			select {
+			case <-ready:
+			case err := <-done:
+				t.Fatalf("Run: %v\n%s", err, io.plain())
+			case <-time.After(10 * time.Second):
+				t.Fatal("no socket")
+			}
+			p := uat()
+			p.Production = true
+			b.mu.Lock()
+			b.policy = p
+			b.mu.Unlock()
+			select {
+			case <-done:
+			case <-time.After(3*PolicyPoll + 5*time.Second):
+				t.Fatal("the console kept serving a production profile")
+			}
+			out := io.plain()
+			if !strings.Contains(out, "session ended: refused after the profile became production") || !strings.Contains(out, tc.want) {
+				t.Fatalf("output:\n%s", out)
+			}
+		})
 	}
 }
 

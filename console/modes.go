@@ -43,15 +43,29 @@ func (s *Server) Key(k Key) {
 	}
 }
 
+// widenRefused refuses a switch that widens while a decision is being
+// asked: the answer or the finger meant for that decision must not decide
+// another one nested in it. Narrowing stays allowed.
+func (s *Server) widenRefused(what string) bool {
+	if s.prompting == 0 {
+		return false
+	}
+	s.println(Paint.Warn(what + ": not while a prompt waits; answer it first"))
+	return true
+}
+
 func (s *Server) toggleMode() {
 	if s.profile.Production {
 		s.println(Paint.Warn("auto mode is not available on a production profile: every request is prompted"))
 		return
 	}
+	if !s.auto && s.widenRefused("auto mode") {
+		return
+	}
 	if !s.auto && s.fingerprintLevel() {
 		// Level 2: auto mode widens what runs unprompted, so a typed
 		// answer alone, which the agent could type too, never turns it on.
-		if r := s.decide(context.Background(), Decision{Prompt: "Switch to auto mode? [y/N] ", Expected: "y"}); r.Outcome != Approved {
+		if r := s.decide(context.Background(), Decision{Prompt: "Switch to auto mode? [y/N] ", Expected: "y", For: "to switch to auto mode"}); r.Outcome != Approved {
 			if reason, errText := noFingerFields(r); reason != "" {
 				s.record(context.Background(),audit.Base{Event: audit.EventMode, Decision: "refused", Reason: reason, Error: errText})
 			}
@@ -82,6 +96,9 @@ func (s *Server) toggleResults() {
 		}
 		return
 	}
+	if !s.showResults && s.widenRefused("clear results") {
+		return
+	}
 	s.showResults = !s.showResults
 	decision := "hidden"
 	if s.showResults {
@@ -109,12 +126,15 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 		s.refreshStatus()
 		return
 	}
+	if s.widenRefused("unmask") {
+		return
+	}
 	warn := "allow clients to ask for unmasked output? Each such request is still approved here, never auto-approved"
 	if s.profile.Production {
 		warn += " (PRODUCTION data)"
 	}
 	s.println(red + ui.MarkWarn + " " + warn + reset)
-	if r := s.decide(ctx, Decision{Prompt: "Allow unmasked output? [y/N] ", Expected: "y"}); r.Outcome != Approved {
+	if r := s.decide(ctx, Decision{Prompt: "Allow unmasked output? [y/N] ", Expected: "y", For: "to allow unmasked output"}); r.Outcome != Approved {
 		if reason, errText := noFingerFields(r); reason != "" {
 			s.record(context.Background(),audit.Base{Event: audit.EventUnmask, Decision: "refused", Reason: reason, Error: errText})
 		}

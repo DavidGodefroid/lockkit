@@ -72,6 +72,10 @@ type ServerConfig struct {
 	// Refused is the fingerprint of a loosening the human refused at start,
 	// not announced again until the files change.
 	Refused string
+	// RefuseProduction re-applies the start-up refusals of a production
+	// profile (an X11 session, core dumps that could not be disabled) when
+	// the policy in force becomes production; nil refuses nothing.
+	RefuseProduction func() error
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -98,6 +102,9 @@ type Server struct {
 	requests []string
 	// lastLoadErr avoids repeating the same config error every poll.
 	lastLoadErr string
+	// prompting counts the decisions being asked: a control key pressed
+	// meanwhile never widens a switch (widenRefused).
+	prompting int
 
 	ended  bool
 	reason string
@@ -184,7 +191,9 @@ func (s *Server) write(rec audit.Record) {
 // decide asks the approver and explains a missing finger. Too many
 // non-matching fingers end the console.
 func (s *Server) decide(ctx context.Context, d Decision) Result {
+	s.prompting++
 	r := s.approver.Approve(ctx, d)
+	s.prompting--
 	if r.Outcome == NoFinger {
 		s.println(Paint.Fail("denied: " + sanitize.Terminal(r.Err.Error(), false)))
 		if errors.Is(r.Err, ErrTooManyNoMatch) {
@@ -531,7 +540,7 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		prompt = "(" + sc.Retype + " to retype) " + prompt
 	}
 	Bell(s.cfg.IO)
-	d := Decision{Prompt: Paint.Paint(frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: production}
+	d := Decision{Prompt: Paint.Paint(frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: production, For: "to approve the request above"}
 	if canRetype {
 		d.Retype = sc.Retype
 	}
@@ -663,6 +672,13 @@ func (s *Server) adopt(p Policy, decision string) error {
 	}
 	s.record(context.Background(),b)
 	n := s.profile
+	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
+		if err := s.cfg.RefuseProduction(); err != nil {
+			s.println(red + "the profile is now production: " + sanitize.Terminal(err.Error(), false) + "; the session ends" + reset)
+			s.End("refused after the profile became production")
+			return nil
+		}
+	}
 	if n.Production && !old.Production && s.sess != nil {
 		// The start-up checks accepted findings with a typed "continue"; a
 		// production profile refuses them.
@@ -734,7 +750,7 @@ func (s *Server) review(ctx context.Context) {
 		s.println(red + "auto mode is on: once applied, requests run without a prompt" + reset)
 	}
 	Bell(s.cfg.IO)
-	r := s.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y"})
+	r := s.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
 	s.pending = nil
 	if r.Outcome != Approved {
 		s.refused = config.Fingerprint(next)
