@@ -321,6 +321,13 @@ Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
 
+A product that draws its own approval screen, and prompts inside it (a
+value to type before the decision), closes it with a `console.Asker`
+rather than `env.Approve`: `Asker.Ask` rings the bell, prompts (typed
+profile name on production, an optional retype answer), takes the finger
+and returns the same `Approval`, handing each outcome to a record callback.
+`Server.Approve` is built on it, so both decide the same way.
+
 A minimal product:
 
 ```go
