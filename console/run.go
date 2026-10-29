@@ -316,7 +316,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		for _, line := range cur.Describe() {
 			io.Println("  " + sanitize.Terminal(line, false))
 		}
-		if r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y"}); r.Outcome != Approved {
+		if r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"}); r.Outcome != Approved {
 			reason, errText := noFingerFields(r)
 			st.audit(audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 			return nil, "", errors.New("console: the policy was not approved")
@@ -346,7 +346,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	for _, line := range FormatChanges(changes) {
 		io.Println(line)
 	}
-	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y"})
+	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
 	if ctx.Err() != nil {
 		return nil, "", ctx.Err()
 	}
@@ -447,7 +447,7 @@ func (st *starter) connectSecret(ctx context.Context, p Profile, open func(Crede
 }
 
 func (st *starter) offerSave(ctx context.Context, secret []byte, prompt string) {
-	if r := st.decide(ctx, Decision{Prompt: prompt, Expected: "y"}); r.Outcome != Approved {
+	if r := st.decide(ctx, Decision{Prompt: prompt, Expected: "y", For: "to save the password in the keychain"}); r.Outcome != Approved {
 		return
 	}
 	if err := st.keychain.Set(st.profile.Name, st.profile.Host, st.profile.Port, secret); err != nil {
@@ -517,7 +517,7 @@ func (st *starter) checks(ctx context.Context, sess Session) error {
 	if refuse {
 		return fmt.Errorf("console: refused by the checks of the connection: %s", findings[0].Text)
 	}
-	if r := st.decide(ctx, Decision{Prompt: `Type "continue" to proceed: `, Expected: "continue", Production: true}); r.Outcome != Approved {
+	if r := st.decide(ctx, Decision{Prompt: `Type "continue" to proceed: `, Expected: "continue", Production: true, For: "to continue past the checks"}); r.Outcome != Approved {
 		return errors.New("console: stopped at the checks of the connection")
 	}
 	return nil

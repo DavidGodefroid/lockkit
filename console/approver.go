@@ -22,6 +22,9 @@ type Decision struct {
 	// Retype is the typed answer that asks to retype placeholders ("" when
 	// not offered).
 	Retype string
+	// For names the decision in the fingerprint prompt ("to approve the
+	// request"): a finger is never offered without saying what it decides.
+	For string
 }
 
 // Outcome of an approval.
@@ -124,6 +127,14 @@ func fingerLabel(name string) string {
 	return strings.ReplaceAll(name, "-", " ")
 }
 
+// decisionFor is the decision a finger prompt names.
+func decisionFor(d Decision) string {
+	if d.For == "" {
+		return "to confirm the answer above"
+	}
+	return d.For
+}
+
 func (a *fingerprintApprover) Approve(ctx context.Context, d Decision) Result {
 	// Once tripped the lockout holds for good: whatever the caller does
 	// with the earlier refusal, no later decision is asked or verified.
@@ -139,7 +150,7 @@ func (a *fingerprintApprover) Approve(ctx context.Context, d Decision) Result {
 	// The prompt appears only once the reader is claimed and listening:
 	// the human never offers the finger to a reader another process holds.
 	err := a.v.Verify(fctx, func() {
-		a.io.Println(bold + "Place your " + fingerLabel(a.finger) + " on the reader…" + reset)
+		a.io.Println(bold + "Place your " + fingerLabel(a.finger) + " on the reader " + decisionFor(d) + "…" + reset)
 	})
 	switch {
 	case err == nil:
