@@ -33,6 +33,11 @@ const (
 	EventTimeout   = "timeout"   // approval timed out
 	EventAbandoned = "abandoned" // the client left while its approval was pending
 	EventAuto      = "auto"      // auto-approved under auto mode
+	// EventPending is a request handed to the hub (Ticket set): decided
+	// there, later. It is written before the requester is told pending:
+	// a request whose pending record fails is refused, and its ticket
+	// withdrawn.
+	EventPending = "pending"
 	// EventRun is the outcome of an approved or auto-approved request
 	// (Decision ok or failed). It follows the approval record, which is
 	// written before anything runs.
