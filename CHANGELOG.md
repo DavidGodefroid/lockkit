@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.2.1 (2026-10-28)
 
 - `pii` (locksql#18): `LooksPersonalColumn` also reports `mail`,
   `e_mail`, `login` (unless the column is a date or time, as Django's
