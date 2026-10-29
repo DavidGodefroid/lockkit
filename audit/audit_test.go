@@ -200,9 +200,9 @@ func TestBaseFieldSet(t *testing.T) {
 	}
 }
 
-// A product record with its own fields: the timestamp and the chain come
-// first, then the record's fields in their declared order, HTML characters
-// unescaped.
+// A product record with its own fields: the timestamp first, then the
+// record's fields in their declared order, HTML characters unescaped, and
+// the chain last: the line before the chain is a prefix of it.
 type productRecord struct {
 	Event string `json:"event"`
 	Queue string `json:"queue,omitempty"`
@@ -225,7 +225,7 @@ func TestProductRecordLine(t *testing.T) {
 	}
 	line := string(raw)
 	i := strings.Index(line, `",`)
-	if !strings.HasPrefix(line, `{"ts":"`) || i < 0 || line[i+1:] != `,"prev_hash":"genesis","event":"read","queue":"orders","note":"a <b> & c"}`+"\n" {
+	if !strings.HasPrefix(line, `{"ts":"`) || i < 0 || line[i+1:] != `,"event":"read","queue":"orders","note":"a <b> & c","prev_hash":"genesis"}`+"\n" {
 		t.Fatalf("line = %q", line)
 	}
 }

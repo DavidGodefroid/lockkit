@@ -66,7 +66,7 @@ func TestChainLinksRecords(t *testing.T) {
 			t.Errorf("line %d: prev_hash = %v, want %s", i+1, got[i]["prev_hash"], want)
 		}
 	}
-	if !bytes.HasPrefix(lines[1], []byte(`{"ts":"`)) || !bytes.Contains(lines[1], []byte(`","prev_hash":"sha256:`)) {
+	if !bytes.HasPrefix(lines[1], []byte(`{"ts":"`)) || !bytes.HasSuffix(lines[1], []byte(`,"prev_hash":"`+LineHash(lines[0])+`"}`)) {
 		t.Errorf("line layout: %s", lines[1])
 	}
 	s, err := verifyFile(t, l.Path())
@@ -342,3 +342,56 @@ func TestPendingRecord(t *testing.T) {
 		t.Fatalf("pending record: %v", got)
 	}
 }
+
+// A reader opening the log while a writer holds the lock reads it: the
+// lock covers no byte of the log (mandatory locks on Windows).
+func TestReadWhileLocked(t *testing.T) {
+	l, err := Open(testProduct, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	appendAll(t, l, EventLogin)
+	f, err := l.open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := lockFile(f); err != nil {
+		t.Fatal(err)
+	}
+	if b, err := os.ReadFile(l.Path()); err != nil || !bytes.Contains(b, []byte(`"event":"login"`)) {
+		t.Fatalf("read while locked: %v %q", err, b)
+	}
+}
+
+// The chain is additive at the end: a line without its prev_hash member
+// is the line written before the chain existed, byte for byte, so a
+// product's pinned format stays its prefix.
+func TestChainIsASuffix(t *testing.T) {
+	l, err := Open(testProduct, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := productRecord{Event: "read", Queue: "orders", Note: "a <b> & c"}
+	appendAll(t, l, EventLogin)
+	if err := l.Append(rec); err != nil {
+		t.Fatal(err)
+	}
+	line := string(rawLines(t, l.Path())[1])
+	before, chain, ok := strings.Cut(line, `,"prev_hash":"`)
+	ts := before[:len(`{"ts":"2006-01-02T15:04:05.000Z"`)]
+	if !ok || before[len(ts):] != `,"event":"read","queue":"orders","note":"a <b> & c"` || !strings.HasSuffix(chain, `"}`) {
+		t.Fatalf("line = %q", line)
+	}
+	// A record may not set the chain itself.
+	if err := l.Append(forgedRecord{Event: "x", PrevHash: Genesis}); err == nil {
+		t.Fatal("a record carrying prev_hash was accepted")
+	}
+}
+
+type forgedRecord struct {
+	Event    string `json:"event"`
+	PrevHash string `json:"prev_hash"`
+}
+
+func (r forgedRecord) AuditEvent() string { return r.Event }
