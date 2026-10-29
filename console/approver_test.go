@@ -58,8 +58,13 @@ func TestFingerprintApproverTypedYesThenFinger(t *testing.T) {
 	if a.Mode() != "desktop+fingerprint" {
 		t.Fatalf("mode = %q", a.Mode())
 	}
-	if !containsLine(io, "Place your left index finger on the reader") {
+	if !containsLine(io, "Place your left index finger on the reader to confirm the answer above") {
 		t.Fatalf("no finger prompt in %q", io.out)
+	}
+	io2 := &fakeIO{answers: []string{"y"}}
+	NewFingerprintApprover(io2, &fingerprint.Fake{}, "left-index-finger", time.Second).Approve(context.Background(), Decision{Prompt: "Approve? ", Expected: "y", For: "to switch to auto mode"})
+	if !containsLine(io2, "Place your left index finger on the reader to switch to auto mode") {
+		t.Fatalf("the finger prompt does not name its decision: %q", io2.out)
 	}
 }
 

@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console` (#2): while a prompt waits, a control key or command never
+  widens a switch (auto mode on, clear results shown, unmasked output
+  allowed): it is refused with a line saying to answer the prompt first;
+  narrowing stays allowed. `Decision.For` names the decision, and the level
+  2 finger prompt says it ("… on the reader to approve the request above").
+
 ## v0.2.1 (2026-10-28)
 
 - `console` (#3): a policy that becomes production while the console runs
