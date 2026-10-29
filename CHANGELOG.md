@@ -7,6 +7,31 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 
 
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
+- `hubclient` (new, #29): a lock's client for lockhub. Requests signed
+  with the instance key (`Lock-Instance`, `Lock-Time`, `Lock-Nonce`,
+  `Lock-Sig`), decisions verified under a pinned hub key only (`New`
+  refuses a config without one; no discovery). `Submit` takes a
+  `render.MaskedScreen` (an unmasked one is refused), signs the ticket,
+  records it in the plan store and pushes it; it is idempotent (same plan,
+  same ticket) and dedupes by plan hash, with a pending cap (20) and a rate
+  limit (10 new tickets / 5 min). A hub that cannot be reached leaves the
+  plan pending (`ErrUnreachable`), never a fallback; `Sync` resends.
+  `Poll`/`Watch` long-poll decisions with a cursor kept in a 0600 state
+  file with the decisions not yet acted on; `Begin` checks `Match`,
+  `Usable` and the plan's binding, then consumes the decision nonce and
+  returns the verified decision (approver, facade, signature for the audit);
+  `Finish` and `Withdraw` tell the hub.
+
 - `audit`: `EventPending`, the record of a request handed to the hub
   (`ticket` set), written before the requester is told pending; a failed
   write refuses the request and withdraws its ticket (GUIDE §5).
