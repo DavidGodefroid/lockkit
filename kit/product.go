@@ -137,3 +137,10 @@ func (p Product) SharedSocketDir() string {
 	}
 	return "/run/" + p.Name
 }
+
+// LauncherHint tells how to get the separated setup of p: the product runs
+// in its image, which the launcher on the host sets up; the image refuses
+// the former host install.
+func (p Product) LauncherHint() string {
+	return "run " + p.Name + " through the launcher, which runs it in its image (scripts/install.sh, docs/docker.md)"
+}

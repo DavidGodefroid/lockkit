@@ -29,6 +29,23 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `Usable` and the plan's binding, then consumes the decision nonce;
   `Finish` and `Withdraw` tell the hub.
 
+- `audit` (#30): hash chain and hub fields, additive. Every record now
+  carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
+  `Genesis` on the first line of an empty log; `Verify` checks a log and
+  returns a `*ChainError` at the first broken line (a record edited,
+  removed, inserted or reordered). Old logs stay readable: their records
+  count as legacy, and the first chained record links to the last of
+  them. `Base` gains `ticket`, `approver`, `facade` and `hub_sig`, written
+  in hub mode only. A cut last line is left alone and the next record
+  starts a line of its own. Every append holds a lock on the file
+  (flock, LockFileEx), so that two processes writing one log (a console
+  and a product command beside it) keep one chain.
+
+- `kit`, `console`, `ipc`: the same-user refusal, the client-group and
+  socket-directory errors no longer tell the human to run `sudo <name>
+  install`, which the products' images refuse: they point to the launcher
+  (`Product.LauncherHint`).
+
 - `plans` (new, #27): a lock's persisted plan store, one 0600 file per
   plan in a 0700 directory (wider modes and symlinks refused). A plan is
   bound to the peer UID, the requesting agent's token (stored hashed),

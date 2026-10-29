@@ -102,14 +102,27 @@ it. Wipe every secret you are done with (`secrets.Wipe`).
 
 ```go
 log, err := audit.Open(P, stateBase) // <stateBase>/<P.Name>/audit.log, dir 0700, file 0600, O_APPEND
-err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, then rec's fields in order}
+err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, "prev_hash", then rec's fields in order}
+sum, err := audit.Verify(file)      // checks the chain; *audit.ChainError names the broken line
 ```
 
 A record is any value implementing `audit.Record` (`AuditEvent() string`)
 whose JSON is an object. `audit.Base` holds the product-neutral fields
 (event, profile, decision, error, code, span, warnings, intent, reason,
-approval, peer uid/pid/user); a product with fields of its own declares its
-own struct with the same JSON names. Never put a secret, a row, a message
+approval, peer uid/pid/user, and in hub mode ticket, approver, facade and
+hub_sig from the hub's signed decision); a product with fields of its own
+declares its own struct with the same JSON names. Do not name a field
+`ts` or `prev_hash`: `Append` writes them.
+
+Each line carries `prev_hash`, the `audit.LineHash` of the line before it
+(`audit.Genesis` on the first line of an empty log). `audit.Verify` refuses
+a record edited, removed, inserted or reordered; records written before the
+chain (without `prev_hash`) are read as legacy at the start of the log.
+A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
+elsewhere (the hub's own log). Appends hold a lock on the file, so a product
+command may write the console's log while the console runs. When `Append`
+returns an error, the event is not audited: in hub mode, refuse the
+execution. Never put a secret, a row, a message
 body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.

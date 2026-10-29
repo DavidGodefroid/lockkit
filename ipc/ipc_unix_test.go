@@ -356,10 +356,13 @@ func TestListenSharedSetgidDir(t *testing.T) {
 
 func TestSharedChownErrorNamesTheFix(t *testing.T) {
 	err := sharedChownError(testProduct, "/run/locksql", 990, &os.PathError{Op: "chown", Path: "/run/locksql/x.sock", Err: syscall.EPERM})
-	for _, want := range []string{"/run/locksql", "setgid", "2710", "sudo locksql install", "/etc/tmpfiles.d/locksql.conf"} {
+	for _, want := range []string{"/run/locksql", "setgid", "2710", "through the launcher", "/etc/tmpfiles.d/locksql.conf"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error %q lacks %q", err, want)
 		}
+	}
+	if strings.Contains(err.Error(), "locksql install") {
+		t.Errorf("error %q names the host install the image refuses", err)
 	}
 	if !errors.Is(err, syscall.EPERM) {
 		t.Error("EPERM not wrapped")
