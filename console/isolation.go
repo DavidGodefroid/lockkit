@@ -120,8 +120,8 @@ func RealIsolationEnv(p kit.Product, tty *os.File) IsolationEnv {
 
 // SameUserRefusal is the one text of the same-user refusal of p.
 func SameUserRefusal(p kit.Product) string {
-	return "console: refused: the console must run in a separate account, apart from the agent's, or the agent could read its terminal and type into it; run `" +
-		p.Name + " doctor`, then `sudo " + p.Name + " install`"
+	return "console: refused: the console must run in a separate account, apart from the agent's, or the agent could read its terminal and type into it; " +
+		p.LauncherHint() + "; `" + p.Name + " doctor` checks the setup"
 }
 
 // SameUserRefused is the refusal of a console of p without a separated
@@ -197,7 +197,7 @@ func CheckIsolation(p kit.Product, io IO, env IsolationEnv) (*Isolation, error) 
 	}
 	gid, err := env.ClientGID(sys)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v (run %s install)", ErrConfig, err, p.Name)
+		return nil, fmt.Errorf("%w: %v (%s)", ErrConfig, err, p.LauncherHint())
 	}
 	iso.GID = gid
 	iso.allowed = func(uid int) bool { return env.ClientAllowed(sys, uid) }
@@ -252,7 +252,7 @@ func (iso *Isolation) desktopShape(io IO, env IsolationEnv, name string) (*Isola
 	}
 	gid, err := env.ClientGID(sys)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v (run %s install)", ErrConfig, err, iso.Product.Name)
+		return nil, fmt.Errorf("%w: %v (%s)", ErrConfig, err, iso.Product.LauncherHint())
 	}
 	iso.GID, iso.Desktop = gid, true
 	iso.allowed = func(uid int) bool { return env.ClientAllowed(sys, uid) }

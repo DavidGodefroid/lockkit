@@ -59,7 +59,7 @@ func ListenShared(p kit.Product, path string, gid int) (net.Listener, error) {
 	dir := filepath.Dir(path)
 	fi, err := os.Lstat(dir)
 	if err != nil {
-		return nil, fmt.Errorf("ipc: shared socket dir: %w (run %s install)", err, p.Name)
+		return nil, fmt.Errorf("ipc: shared socket dir: %w (%s)", err, p.LauncherHint())
 	}
 	st, ok := fi.Sys().(*syscall.Stat_t)
 	switch {
@@ -104,7 +104,7 @@ func ListenShared(p kit.Product, path string, gid int) (net.Listener, error) {
 // is its own primary group.
 func sharedChownError(p kit.Product, dir string, gid int, err error) error {
 	if errors.Is(err, syscall.EPERM) {
-		return fmt.Errorf("ipc: cannot give the socket to the client group (gid %d): %s lacks the setgid bit (want mode 2710); run sudo %s install again, which also fixes /etc/tmpfiles.d/%s.conf: %w", gid, dir, p.Name, p.Name, err)
+		return fmt.Errorf("ipc: cannot give the socket to the client group (gid %d): %s lacks the setgid bit (want mode 2710, also in /etc/tmpfiles.d/%s.conf); %s: %w", gid, dir, p.Name, p.LauncherHint(), err)
 	}
 	return fmt.Errorf("ipc: %w", err)
 }

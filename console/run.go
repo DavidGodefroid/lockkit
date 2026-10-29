@@ -98,6 +98,13 @@ func (st *starter) audit(b audit.Base) error {
 	return nil
 }
 
+// failed records that an approved policy, already on record, was not
+// saved, and returns err.
+func (st *starter) failed(err error) error {
+	_ = st.audit(audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+	return err
+}
+
 // errApprovalUnrecorded: the human approved a policy at start, but the
 // record could not be written; nothing is saved and the console stops.
 var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
@@ -333,7 +340,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 			return nil, "", errApprovalUnrecorded
 		}
 		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-			return nil, "", err
+			return nil, "", st.failed(err)
 		}
 		return cur, "", nil
 	}
@@ -370,7 +377,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		return nil, "", errApprovalUnrecorded
 	}
 	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-		return nil, "", err
+		return nil, "", st.failed(err)
 	}
 	return cur, "", nil
 }

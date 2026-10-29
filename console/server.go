@@ -656,6 +656,10 @@ func (s *Server) adopt(p Policy, decision string) error {
 	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
 		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
+			if decision == "applied" {
+				// The approval is on record: record that it did not happen.
+				_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+			}
 			return err
 		}
 	}

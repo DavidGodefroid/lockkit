@@ -1083,3 +1083,29 @@ func TestStartPolicyAuditFailure(t *testing.T) {
 		t.Error("policy saved without a record")
 	}
 }
+
+// An approval on record whose save fails gets a "failed" record: the log
+// never claims a change that did not happen.
+func TestAdoptAppliedSaveFailureRecorded(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	dir := filepath.Join(h.state, testProduct.Name, "approved")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only directory")
+	}
+	if err := os.Chmod(dir, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	next := uat()
+	next.MaxRows = 1000
+	if err := h.s.adopt(next, "applied"); err == nil {
+		t.Fatal("adopted although the save failed")
+	}
+	recs := h.records(t)
+	if len(recs) < 2 || recs[len(recs)-2]["decision"] != "applied" || recs[len(recs)-1]["decision"] != "failed" || recs[len(recs)-1]["error"] == "" {
+		t.Fatalf("records %v", recs)
+	}
+}
