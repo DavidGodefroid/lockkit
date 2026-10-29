@@ -499,7 +499,9 @@ may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
 
 **Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
-`LEA_AGENT` and `LEA_AGENT_TOKEN`, empty outside lea) in the params of
+`LEA_AGENT` and the hash of `LEA_AGENT_TOKEN`, so the raw token never
+reaches the console; empty outside lea; never write `Token` to the audit
+log, a screen or an error) in the params of
 your plan and run calls; the console binds the plan to the token and
 answers another agent's run with `ipc.CodeWrongRequester` (a guard against
 mistakes, not a boundary: agents of one UID can read each other's token).

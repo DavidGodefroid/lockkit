@@ -13,6 +13,10 @@ prompts, with stricter rules: audit writes and widenings fail closed, no
 widening while a prompt waits, and production refusals re-applied when
 the policy becomes production. Audit lines gain `prev_hash` at the end.
 
+- `mcpkit`: `RequesterFromEnv` sends the hash of `LEA_AGENT_TOKEN`
+  (`plans.HashToken`), not the token: the raw token stays in the agent's
+  process. The console's binding compares the same (#61).
+
 - `hubclient`: the hub key file and the instance key are read through one
   descriptor opened without waiting, checked regular and small: a FIFO,
   a device or a directory is refused at once instead of blocking the

@@ -6,6 +6,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/DavidGodefroid/lockkit/ipc"
+	"github.com/DavidGodefroid/lockkit/plans"
 )
 
 // StatusPending is the status of a request waiting for the human on the
@@ -55,10 +56,12 @@ const (
 )
 
 // RequesterFromEnv is the requester the MCP server reports in its plan and
-// run requests: the agent's name and token from lea's environment, empty
-// outside lea.
+// run requests: the agent's name from lea's environment and the hash of its
+// token (plans.HashToken), empty outside lea. The raw token never leaves the
+// agent's process: the console only compares tokens, and a hash compares the
+// same (it is just as replayable; the binding is no security boundary).
 func RequesterFromEnv() ipc.Requester { return requesterFrom(os.Getenv) }
 
 func requesterFrom(getenv func(string) string) ipc.Requester {
-	return ipc.Requester{Agent: getenv(EnvAgent), Token: getenv(EnvAgentToken)}
+	return ipc.Requester{Agent: getenv(EnvAgent), Token: plans.HashToken(getenv(EnvAgentToken))}
 }
