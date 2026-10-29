@@ -5,6 +5,15 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `plans` (new, #27): a lock's persisted plan store, one 0600 file per
+  plan in a 0700 directory (wider modes and symlinks refused). A plan is
+  bound to the peer UID, the requesting agent's token (stored hashed),
+  the policy fingerprint and the plan hash; `Check` marks it stale when
+  either hash moved, `Begin` runs it once under a decision nonce recorded
+  durably (`ErrReplay`, `ErrUsed`). `FindPending` dedupes a repeated run
+  onto the existing ticket. Plans survive restarts; one executing at the
+  stop comes back failed.
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
