@@ -11,6 +11,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `ipc.CodeInternal`, and the human sees why; three failed writes in a
   row end the session. Denials stay denials.
 
+- `console`: widenings take effect only once recorded. Auto mode on,
+  clear results shown, unmask allowed and a loosened policy approved (at
+  `:review` or at start) write their audit record first; if it cannot be
+  written they stay off (the policy is neither saved nor applied; at start
+  the console does not start), and the console says so.
+
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 

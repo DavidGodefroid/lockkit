@@ -1014,3 +1014,72 @@ func TestRunKeychainAndVault(t *testing.T) {
 		t.Fatalf("out:\n%s", io.plain())
 	}
 }
+
+func readOnlyAudit(t *testing.T, path string) {
+	t.Helper()
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only file")
+	}
+	if err := os.Chmod(path, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(path, 0o600) })
+}
+
+// A widening takes effect only once recorded: auto mode, clear results,
+// unmask and a loosened policy stay off when the audit write fails.
+func TestWideningAuditFailureKeepsSwitchesOff(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	readOnlyAudit(t, h.log)
+	h.s.toggleMode()
+	if h.s.auto {
+		t.Error("auto mode on without a record")
+	}
+	h.s.toggleResults()
+	if h.s.showResults {
+		t.Error("clear results shown without a record")
+	}
+	h.io.answers = []string{"y"}
+	h.s.toggleUnmask(context.Background())
+	if h.s.allowUnmask {
+		t.Error("unmask allowed without a record")
+	}
+	if !strings.Contains(h.io.plain(), "not recorded in the audit log, so it stays off") {
+		t.Fatalf("the human was not told:\n%s", h.io.plain())
+	}
+}
+
+func TestAdoptAppliedAuditFailure(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	readOnlyAudit(t, h.log)
+	next := uat()
+	next.MaxRows = 1000
+	if err := h.s.adopt(next, "applied"); err == nil {
+		t.Fatal("loosening adopted without a record")
+	}
+	if h.s.approved.(fakePolicy).MaxRows == 1000 {
+		t.Error("loosening applied without a record")
+	}
+	var got fakePolicy
+	if ok, _ := config.LoadApproved(testProduct, h.state, "user-uat", &got); ok {
+		t.Error("loosening saved without a record")
+	}
+}
+
+func TestStartPolicyAuditFailure(t *testing.T) {
+	state := t.TempDir()
+	log, err := audit.Open(testProduct, state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	readOnlyAudit(t, log.Path())
+	io := &fakeIO{answers: []string{"y"}}
+	st := &starter{p: testProduct, b: &fakeBackend{policy: uat()}, io: io, log: log, profile: uat().Profile(), approver: NewTypedApprover(io)}
+	if _, _, err := st.startPolicy(context.Background(), state, "user-uat", uat()); err == nil {
+		t.Fatal("first-start policy approved without a record")
+	}
+	var got fakePolicy
+	if ok, _ := config.LoadApproved(testProduct, state, "user-uat", &got); ok {
+		t.Error("policy saved without a record")
+	}
+}

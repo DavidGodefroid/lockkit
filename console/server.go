@@ -645,6 +645,15 @@ func Loosens(changes []config.Change) bool {
 // where the backend is ends the session: the open connection no longer
 // matches the policy.
 func (s *Server) adopt(p Policy, decision string) error {
+	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
+	if decision == "applied" {
+		// A loosening takes effect only once recorded: the record comes
+		// first, and a failed write leaves the last approved policy.
+		b.Approval = s.approver.Mode()
+		if err := s.record(context.Background(), b); err != nil {
+			return fmt.Errorf("the approval could not be recorded in the audit log: %w", err)
+		}
+	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
 		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
 			return err
@@ -652,11 +661,9 @@ func (s *Server) adopt(p Policy, decision string) error {
 	}
 	old := s.profile
 	s.apply(p)
-	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
-	if decision == "applied" {
-		b.Approval = s.approver.Mode()
+	if decision != "applied" {
+		_ = s.record(context.Background(), b)
 	}
-	s.record(context.Background(), b)
 	n := s.profile
 	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
 		if err := s.cfg.RefuseProduction(); err != nil {
