@@ -102,3 +102,12 @@ func TestProductValidate(t *testing.T) {
 		}
 	}
 }
+
+// The image refuses the former host install: the hint points to the
+// launcher instead.
+func TestLauncherHint(t *testing.T) {
+	h := Product{Name: "lockmq"}.LauncherHint()
+	if !strings.Contains(h, "run lockmq through the launcher") || !strings.Contains(h, "scripts/install.sh") || strings.Contains(h, "lockmq install") {
+		t.Fatalf("hint = %q", h)
+	}
+}

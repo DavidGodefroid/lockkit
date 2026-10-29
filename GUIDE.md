@@ -101,14 +101,27 @@ it. Wipe every secret you are done with (`secrets.Wipe`).
 
 ```go
 log, err := audit.Open(P, stateBase) // <stateBase>/<P.Name>/audit.log, dir 0700, file 0600, O_APPEND
-err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, then rec's fields in order}
+err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, "prev_hash", then rec's fields in order}
+sum, err := audit.Verify(file)      // checks the chain; *audit.ChainError names the broken line
 ```
 
 A record is any value implementing `audit.Record` (`AuditEvent() string`)
 whose JSON is an object. `audit.Base` holds the product-neutral fields
 (event, profile, decision, error, code, span, warnings, intent, reason,
-approval, peer uid/pid/user); a product with fields of its own declares its
-own struct with the same JSON names. Never put a secret, a row, a message
+approval, peer uid/pid/user, and in hub mode ticket, approver, facade and
+hub_sig from the hub's signed decision); a product with fields of its own
+declares its own struct with the same JSON names. Do not name a field
+`ts` or `prev_hash`: `Append` writes them.
+
+Each line carries `prev_hash`, the `audit.LineHash` of the line before it
+(`audit.Genesis` on the first line of an empty log). `audit.Verify` refuses
+a record edited, removed, inserted or reordered; records written before the
+chain (without `prev_hash`) are read as legacy at the start of the log.
+A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
+elsewhere (the hub's own log). Appends hold a lock on the file, so a product
+command may write the console's log while the console runs. When `Append`
+returns an error, the event is not audited: in hub mode, refuse the
+execution. Never put a secret, a row, a message
 body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.
@@ -341,6 +354,13 @@ Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
 
+A product that draws its own approval screen, and prompts inside it (a
+value to type before the decision), closes it with a `console.Asker`
+rather than `env.Approve`: `Asker.Ask` rings the bell, prompts (typed
+profile name on production, an optional retype answer), takes the finger
+and returns the same `Approval`, handing each outcome to a record callback.
+`Server.Approve` is built on it, so both decide the same way.
+
 A minimal product:
 
 ```go
@@ -484,7 +504,7 @@ body, _ := t.Marshal() // canonical JSON
 
 d, err := ticket.VerifyDecision(pinnedHubKey, data) // schema + signature
 err = d.Match(t)                                   // same ticket, instance, key, plan hash
-err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
+err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unless approved
 // then consume d.Nonce once, recompute the plan hash, execute
 ```
 
@@ -499,8 +519,9 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
   sign other bytes with `SignBytes`/`VerifyBytes` and a context of their
   own. Verification decodes strictly (unknown members, duplicate members,
   lone surrogates and trailing data are refused), so what verifies is
-  exactly what you read. `KeyID` names a key; it never replaces the key you
-  pinned.
+  exactly what you read, and only its exact canonical bytes verify.
+  `KeyID` names a key; it never replaces the key you pinned. Dedupe and
+  refuse replays on the ticket id and the decision nonce, not on bytes.
 - **Sealed boxes** (`Seal`/`Open`: X25519, HKDF-SHA256,
   XChaCha20-Poly1305) carry what the hub must not read: an `unlock`
   secret, a clear screen for a device, a reveal. The associated data binds
