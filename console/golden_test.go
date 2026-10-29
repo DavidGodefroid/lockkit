@@ -47,7 +47,7 @@ func checkGolden(t *testing.T, name string, io *fakeIO, replace ...string) {
 }
 
 // goldenPeer is the requester line, which names this test process.
-var goldenPeer = regexp.MustCompile(`requested by uid \d+ \([^)]*\) · pid \d+ · exe [^\\"]+`)
+var goldenPeer = regexp.MustCompile(`requested by uid \d+ \([^)]*\) · pid \d+(?: · exe [^\\"]+)?`)
 
 // lineDiff names the first line that differs.
 func lineDiff(want, got string) string {
