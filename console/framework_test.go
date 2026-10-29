@@ -591,6 +591,25 @@ func TestBecomingProductionRunsChecks(t *testing.T) {
 	}
 }
 
+// A profile turned production re-applies the start-up refusals before
+// the checks: the session ends.
+func TestBecomingProductionReappliesStartRefusals(t *testing.T) {
+	iso := &Isolation{Display: sysconf.Display{Kind: sysconf.DisplayX11}}
+	h := newHarness(t, uat(), func(c *ServerConfig) {
+		c.RefuseProduction = func() error { return iso.RefuseX11IfProduction(true) }
+	})
+	p := uat()
+	p.Production = true
+	h.b.policy = p
+	h.s.CheckPolicy()
+	if reason, ended := h.s.Ended(); !ended || reason != "refused after the profile became production" {
+		t.Fatalf("ended %v %q", ended, reason)
+	}
+	if !strings.Contains(h.io.plain(), "X11 session") {
+		t.Fatalf("no refusal shown:\n%s", h.io.plain())
+	}
+}
+
 func TestTickTimeouts(t *testing.T) {
 	now := time.Now()
 	clock := now
@@ -744,6 +763,54 @@ func TestRunProductionRefusesFindings(t *testing.T) {
 	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", IO: &fakeIO{answers: []string{"y"}}, StateDir: t.TempDir(), Isolation: env,
 		Harden: func() error { return errors.New("no rlimit") }}); err == nil || !strings.Contains(err.Error(), "core dumps could not be disabled") {
 		t.Fatalf("production without hardening: %v", err)
+	}
+}
+
+// A console started on a non-production profile ends when the profile
+// becomes production in an X11 session or without core-dump hardening.
+func TestRunBecomingProductionReappliesStartRefusals(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		display string
+		harden  error
+		want    string
+	}{
+		{"x11", sysconf.DisplayX11, nil, "X11 session"},
+		{"core dumps", sysconf.DisplayWayland, errors.New("no rlimit"), "core dumps could not be disabled"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			env := runEnv(t)
+			env.Display = func() sysconf.Display { return sysconf.Display{Kind: tc.display} }
+			b := &fakeBackend{policy: uat()}
+			io := &fakeIO{answers: []string{"y"}, secrets: []string{"pw"}}
+			ready := make(chan string, 1)
+			done := make(chan error, 1)
+			go func() {
+				done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+					Harden: func() error { return tc.harden }, Quantum: -1, Ready: func(s string) { ready <- s }})
+			}()
+			select {
+			case <-ready:
+			case err := <-done:
+				t.Fatalf("Run: %v\n%s", err, io.plain())
+			case <-time.After(10 * time.Second):
+				t.Fatal("no socket")
+			}
+			p := uat()
+			p.Production = true
+			b.mu.Lock()
+			b.policy = p
+			b.mu.Unlock()
+			select {
+			case <-done:
+			case <-time.After(3*PolicyPoll + 5*time.Second):
+				t.Fatal("the console kept serving a production profile")
+			}
+			out := io.plain()
+			if !strings.Contains(out, "session ended: refused after the profile became production") || !strings.Contains(out, tc.want) {
+				t.Fatalf("output:\n%s", out)
+			}
+		})
 	}
 }
 

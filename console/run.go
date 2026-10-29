@@ -191,14 +191,19 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	pr := approved.Profile()
 	st.profile = pr
-	if hardenErr != nil && pr.Production {
-		err := fmt.Errorf("console: refused: core dumps could not be disabled (%v) and the profile is production; the secret would be exposed in a dump", hardenErr)
-		st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
-		return err
+	// The start-up refusals of a production profile, applied again by the
+	// server when the policy in force becomes production.
+	refuseProduction := func() error {
+		if hardenErr != nil {
+			return fmt.Errorf("console: refused: core dumps could not be disabled (%v) and the profile is production; the secret would be exposed in a dump", hardenErr)
+		}
+		return iso.RefuseX11IfProduction(true)
 	}
-	if err := iso.RefuseX11IfProduction(pr.Production); err != nil {
-		st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
-		return err
+	if pr.Production {
+		if err := refuseProduction(); err != nil {
+			st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
+			return err
+		}
 	}
 
 	// 2. Production banner and typed profile name.
@@ -258,6 +263,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		IO: o.IO, Approver: appr, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		Reconnect: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
+		RefuseProduction: refuseProduction,
 	})
 	if err != nil {
 		ln.Close()

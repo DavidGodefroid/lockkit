@@ -72,6 +72,10 @@ type ServerConfig struct {
 	// Refused is the fingerprint of a loosening the human refused at start,
 	// not announced again until the files change.
 	Refused string
+	// RefuseProduction re-applies the start-up refusals of a production
+	// profile (an X11 session, core dumps that could not be disabled) when
+	// the policy in force becomes production; nil refuses nothing.
+	RefuseProduction func() error
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -663,6 +667,13 @@ func (s *Server) adopt(p Policy, decision string) error {
 	}
 	s.record(context.Background(),b)
 	n := s.profile
+	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
+		if err := s.cfg.RefuseProduction(); err != nil {
+			s.println(red + "the profile is now production: " + sanitize.Terminal(err.Error(), false) + "; the session ends" + reset)
+			s.End("refused after the profile became production")
+			return nil
+		}
+	}
 	if n.Production && !old.Production && s.sess != nil {
 		// The start-up checks accepted findings with a typed "continue"; a
 		// production profile refuses them.
