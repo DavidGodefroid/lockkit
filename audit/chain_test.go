@@ -327,3 +327,18 @@ func TestChainAcrossProcesses(t *testing.T) {
 		t.Fatalf("Verify = %+v, %v", s, err)
 	}
 }
+
+// A pending record names its ticket and chains like any other.
+func TestPendingRecord(t *testing.T) {
+	l, err := Open(testProduct, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Append(Base{Event: EventPending, Decision: "pending", Approval: "hub", Ticket: "01JB0000000000000000000000"}); err != nil {
+		t.Fatal(err)
+	}
+	got := readLines(t, l.Path())[0]
+	if got["event"] != "pending" || got["ticket"] != "01JB0000000000000000000000" || got["prev_hash"] != Genesis {
+		t.Fatalf("pending record: %v", got)
+	}
+}
