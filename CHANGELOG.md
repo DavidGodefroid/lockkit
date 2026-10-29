@@ -12,6 +12,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   the structure of the request kept. `Screen()` is the `ticket.Screen`,
   `Touched()` the kinds masked; the zero value is not `Valid` and does not
   encode (`ErrUnmasked`).
+
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 
