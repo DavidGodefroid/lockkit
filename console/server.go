@@ -565,6 +565,12 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
 		b := base
 		b.Event, b.Decision, b.Reason, b.Error, b.Approval, b.Ticket = d.Event, d.Decision, d.Reason, d.Error, d.Approval, d.Ticket
+
+	q := Ask{Frame: frame, Production: production, Retype: sc.Retype}
+	var recErr error
+	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
+		b := base
+		b.Event, b.Decision, b.Reason, b.Error, b.Approval = d.Event, d.Decision, d.Reason, d.Error, d.Approval
 		recErr = rec(b) // a denial stays a denial either way
 	})
 	if a.Approved && recErr != nil {

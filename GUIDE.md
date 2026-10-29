@@ -497,6 +497,19 @@ what to ask of the user; `NoConsoleLine` for the text). Run integers that
 may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
 
+**Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
+`LEA_AGENT` and `LEA_AGENT_TOKEN`, empty outside lea) in the params of
+your plan and run calls; the console binds the plan to the token and
+answers another agent's run with `ipc.CodeWrongRequester` (a guard against
+mistakes, not a boundary: agents of one UID can read each other's token).
+When the console answers that the run waits on a hub ticket, return
+`mcpkit.Pending(P.Name, ticketID)`: not an error, the fixed text "Pending
+human approval: ticket … on <lock>. Do not retry. End your turn; you will
+be told when it is decided." and the structured
+`{"status":"pending","ticket":…,"lock":…}` that lea's hook reads to
+suspend the agent. A typed run tool embeds `mcpkit.PendingResult` in its
+output.
+
 **Agent wiring.** Declare your texts once:
 
 ```go

@@ -21,6 +21,9 @@ const (
 	CodeNoSuchPlan    = -32004 // unknown, used or expired plan id
 	CodeConnLost      = -32005 // the backend connection was lost
 	CodePolicyPending = -32006 // a policy change awaits the human
+	// CodeWrongRequester: in hub mode, a plan or ticket presented by
+	// another agent than the one that made it (Requester.Token).
+	CodeWrongRequester = -32007
 
 	CodeParseError     = -32700
 	CodeInvalidRequest = -32600
@@ -28,6 +31,17 @@ const (
 	CodeInvalidParams  = -32602
 	CodeInternal       = -32603
 )
+
+// Requester is the agent behind a request, as its MCP server reports it
+// (mcpkit.RequesterFromEnv): the agent's name and its lea token. A product
+// carries it in the params of its plan and run methods; in hub mode the
+// console binds a plan to the token (stored hashed) and refuses it to
+// another token with CodeWrongRequester. Agents of one UID can read each
+// other's token: this catches mistakes, it is no security boundary.
+type Requester struct {
+	Agent string `json:"agent,omitempty"`
+	Token string `json:"token,omitempty"`
+}
 
 // HelloParams opens a session; Client is a free-form name and version.
 type HelloParams struct {
