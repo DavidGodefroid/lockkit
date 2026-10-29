@@ -118,8 +118,9 @@ Each line carries `prev_hash`, the `audit.LineHash` of the line before it
 (`audit.Genesis` on the first line of an empty log). `audit.Verify` refuses
 a record edited, removed, inserted or reordered; records written before the
 chain (without `prev_hash`) are read as legacy at the start of the log.
-A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
-elsewhere (the hub's own log). Appends hold a lock on the file, so a product
+A cut tail, or a chain stripped of every `prev_hash` (read as legacy),
+leaves a log that verifies: keep `Summary.Anchor()` elsewhere (the hub's
+own log) and check with `audit.VerifyAnchored`. Appends hold a lock on the file, so a product
 command may write the console's log while the console runs. When `Append`
 returns an error, the event is not audited: in hub mode, refuse the
 execution. A request handed to the hub is recorded as `audit.EventPending`

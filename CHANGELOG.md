@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `audit` (#59): `VerifyAnchored(r, Anchor)` checks a log against an
+  anchor kept elsewhere (the hub's): a log cut before it, or whose chain
+  was stripped (every `prev_hash` removed, which `Verify` alone reads as
+  legacy), is a `*ChainError`. `Summary.Anchor()` makes the anchor.
+
 - `render` (#58): `MaskScreen` with no detectors runs every detector
   (`pii.AllDetectors`: all but the opt-in `phone_loose`), never none: a
   product that forgets `pii.Detectors` sends no header, note or structure
