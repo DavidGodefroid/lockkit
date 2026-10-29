@@ -453,6 +453,9 @@ func (t *Ticket) Expired(now time.Time) bool { return t.Expires != nil && !now.B
 // ErrMismatch: a verified decision is not for this ticket.
 var ErrMismatch = errors.New("ticket: decision does not match the ticket")
 
+// ErrDenied: the decision is not an approval.
+var ErrDenied = errors.New("ticket: not approved")
+
 // ErrExpired: the ticket or the approval is past its TTL.
 var ErrExpired = errors.New("ticket: expired")
 
@@ -476,10 +479,13 @@ func (d *Decision) Match(t *Ticket) error {
 // Usable checks that an approval of t can still be acted on at now: it
 // came before the ticket expired, and it is younger than ttl (the
 // instance's ClampTTL for t.Risk; 0 never ages). A decision dated in the
-// future by more than a minute is refused too.
+// future by more than a minute is refused too, and anything but an
+// approval is ErrDenied.
 func (d *Decision) Usable(t *Ticket, now time.Time, ttl time.Duration) error {
 	const skew = time.Minute
 	switch {
+	case d.Decision != Approved:
+		return fmt.Errorf("%w: %s", ErrDenied, d.Decision)
 	case d.At.After(now.Add(skew)):
 		return fmt.Errorf("%w: decision dated %s, in the future", ErrExpired, d.At.Format(time.RFC3339))
 	case d.At.Before(t.Created.Add(-skew)):

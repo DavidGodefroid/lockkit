@@ -36,6 +36,8 @@ contract between lockkit and the products built on it.
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
 | `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
+| `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
+| `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 
 ## 2. `kit.Product`
@@ -100,14 +102,30 @@ it. Wipe every secret you are done with (`secrets.Wipe`).
 
 ```go
 log, err := audit.Open(P, stateBase) // <stateBase>/<P.Name>/audit.log, dir 0700, file 0600, O_APPEND
-err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, then rec's fields in order}
+err = log.Append(rec)               // one JSON line: {"ts": RFC 3339 ms, rec's fields in order, "prev_hash" last}
+sum, err := audit.Verify(file)      // checks the chain; *audit.ChainError names the broken line
 ```
 
 A record is any value implementing `audit.Record` (`AuditEvent() string`)
 whose JSON is an object. `audit.Base` holds the product-neutral fields
 (event, profile, decision, error, code, span, warnings, intent, reason,
-approval, peer uid/pid/user); a product with fields of its own declares its
-own struct with the same JSON names. Never put a secret, a row, a message
+approval, peer uid/pid/user, and in hub mode ticket, approver, facade and
+hub_sig from the hub's signed decision); a product with fields of its own
+declares its own struct with the same JSON names. Do not name a field
+`ts` or `prev_hash`: `Append` writes them.
+
+Each line carries `prev_hash`, the `audit.LineHash` of the line before it
+(`audit.Genesis` on the first line of an empty log). `audit.Verify` refuses
+a record edited, removed, inserted or reordered; records written before the
+chain (without `prev_hash`) are read as legacy at the start of the log.
+A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
+elsewhere (the hub's own log). Appends hold a lock on the file, so a product
+command may write the console's log while the console runs. When `Append`
+returns an error, the event is not audited: in hub mode, refuse the
+execution. A request handed to the hub is recorded as `audit.EventPending`
+with its `Ticket` before the requester hears `pending`; when that record
+fails, refuse the request and withdraw the ticket (`hubclient.Withdraw`),
+never answer pending for an unrecorded ticket. Never put a secret, a row, a message
 body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.
@@ -210,6 +228,24 @@ and cut at `MaxCellChars` characters, numbers/booleans/nulls kept, the
 whole at most `MaxOutputBytes` (else `render.ErrOutputCap`, nothing
 written: page or narrow your result). `render.Table` + `render.Render(w,
 t, caps, "tsv"|"json")` is one helper among others, for tabular results.
+
+**Approval screens that leave the lock** (to lockhub, in a ticket) are
+`render.MaskedScreen` values, built only by `render.MaskScreen`: draw the
+screen as `render.ScreenSource` with each body line in `render.Part`s,
+structure apart from values, and name the column of each value you know.
+
+```go
+src := render.ScreenSource{Header: "db / shop · tier read", Note: note, Body: []render.Line{{
+	{Text: "SELECT id FROM customers WHERE email = "}, {Text: "'" + email + "'", Value: true, Column: "email"},
+}}}
+ms := render.MaskScreen(src, render.Masking{Detectors: ds}) // ds: pii.Detectors(policy's names)
+t.Screen, t.PII.Touched = ms.Screen(), ms.Touched()
+```
+
+A value whose column looks personal (`pii.LooksPersonalColumn`, or your
+`Masking.Personal`) is masked whole; the detectors run over everything
+else, structure included, which otherwise stays visible. The zero
+`MaskedScreen` is not valid and does not encode.
 
 **Errors.** Every error text that leaves the console (client, audit log)
 goes through a `sanitize.Sanitizer`:
@@ -314,13 +350,46 @@ if !a.Approved {
 The console frames the screen (red on production), asks `y` or, on
 production, the typed profile name, takes a finger at level 2, times out
 after 5 minutes, and audits the decision (`approved`, `denied`, `timeout`,
-`abandoned`, `auto`) before `Approve` returns. Use `Screen.Record` to write
-the decision as your own audit record type. `env.Session(ctx)` gives the
+`abandoned`, `auto`) before `Approve` returns. An approval it cannot
+record (the log unwritable, `Screen.Record` returning no valid record) is
+refused with `ipc.CodeInternal` and told to the human; three failed
+writes in a row end the session. Use `Screen.Record` to write the
+decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
 Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
 `env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches;
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
+
+A product that draws its own approval screen, and prompts inside it (a
+value to type before the decision), closes it with a `console.Asker`
+rather than `env.Approve`: `Asker.Ask` rings the bell, prompts (typed
+profile name on production, an optional retype answer), takes the finger
+and returns the same `Approval`, handing each outcome to a record callback.
+`Server.Approve` is built on it, so both decide the same way.
+
+**Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
+writes: `--hub URL --hub-key-file PATH --instance NAME` (all three or
+none; `--auto` is refused with them). Pass them as `Options.Hub`: `Run`
+then reads the pinned hub key, the instance key (`hubclient.InstanceKey`
+in the home volume) and opens the plans and the hub state under the
+product's state directory. Requests are no longer asked on the terminal:
+`env.Approve` pushes a ticket and answers `pending` (a result, with the
+ticket id). For that the product puts a `console.HubTicket` on the
+screen: the plan (made in `console.HubOf(env).Store`), its caller, the
+risk class and the `render.MaskedScreen`; a screen without one is refused
+in hub mode, never asked here. The run of a decided ticket is the
+product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
+matched, still usable, binding unchanged, nonce consumed; it returns
+the decision, whose approver, facade and signature go in the audit
+record), the effect, then `h.Client.Finish`. A pending answer is
+audited (`audit.EventPending`, approval `hub`, the ticket); one that
+cannot be recorded is withdrawn and refused. A product with its own console lifecycle
+calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
+for its `Asker` (base keeps the console's own decisions), and
+`hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance
+NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
+for `lock up` to pin.
 
 A minimal product:
 
@@ -428,6 +497,19 @@ what to ask of the user; `NoConsoleLine` for the text). Run integers that
 may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
 
+**Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
+`LEA_AGENT` and `LEA_AGENT_TOKEN`, empty outside lea) in the params of
+your plan and run calls; the console binds the plan to the token and
+answers another agent's run with `ipc.CodeWrongRequester` (a guard against
+mistakes, not a boundary: agents of one UID can read each other's token).
+When the console answers that the run waits on a hub ticket, return
+`mcpkit.Pending(P.Name, ticketID)`: not an error, the fixed text "Pending
+human approval: ticket … on <lock>. Do not retry. End your turn; you will
+be told when it is decided." and the structured
+`{"status":"pending","ticket":…,"lock":…}` that lea's hook reads to
+suspend the agent. A typed run tool embeds `mcpkit.PendingResult` in its
+output.
+
 **Agent wiring.** Declare your texts once:
 
 ```go
@@ -465,7 +547,7 @@ body, _ := t.Marshal() // canonical JSON
 
 d, err := ticket.VerifyDecision(pinnedHubKey, data) // schema + signature
 err = d.Match(t)                                   // same ticket, instance, key, plan hash
-err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
+err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unless approved
 // then consume d.Nonce once, recompute the plan hash, execute
 ```
 
@@ -480,8 +562,9 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
   sign other bytes with `SignBytes`/`VerifyBytes` and a context of their
   own. Verification decodes strictly (unknown members, duplicate members,
   lone surrogates and trailing data are refused), so what verifies is
-  exactly what you read. `KeyID` names a key; it never replaces the key you
-  pinned.
+  exactly what you read, and only its exact canonical bytes verify.
+  `KeyID` names a key; it never replaces the key you pinned. Dedupe and
+  refuse replays on the ticket id and the decision nonce, not on bytes.
 - **Sealed boxes** (`Seal`/`Open`: X25519, HKDF-SHA256,
   XChaCha20-Poly1305) carry what the hub must not read: an `unlock`
   secret, a clear screen for a device, a reveal. The associated data binds
@@ -489,6 +572,35 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
   Ed25519 key you pinned.
 - `HashOf(v)` is the plan hash or policy fingerprint of any value:
   `sha256:` over its canonical JSON.
+
+`plans` keeps the plans themselves, in the lock's volume (one 0600 file
+per plan in a 0700 directory, refused if wider), so a pending plan
+survives a restart:
+
+```go
+st, err := plans.Open(filepath.Join(home, "plans"))
+caller := plans.Caller{UID: peer.UID, Token: requesterToken}
+p, err := st.Create(plans.Binding{UID: peer.UID, Agent: agent, TokenHash: plans.HashToken(requesterToken),
+	PolicyFP: fp, PlanHash: hash}, body, 10*time.Minute)
+// run(plan_id) in hub mode:
+if q, ok := st.FindPending(caller, hash); ok { /* answer q.Ticket again */ }
+err = st.MarkPending(p.ID, caller, t) // the signed ticket, kept for Match
+// run(ticket): q, _ := st.ByTicket(id, caller); own, _ := q.LockTicket(lockPub)
+// then VerifyDecision, d.Match(own), d.Usable(own, ...), and:
+err = st.Check(p.ID, caller, recomputedFP, recomputedHash) // ErrStale: new plan, new ticket
+err = st.Begin(p.ID, caller, d.Nonce)                      // single use; ErrReplay, ErrUsed
+// ... execute ...
+err = st.Finish(p.ID, caller, ok, reason)
+```
+
+Another peer UID gets `ErrWrongPeer`, another agent token
+`ErrWrongRequester` (this catches mistakes; agents of one UID can read
+each other's token, so it is no security boundary). The token itself is
+never written, only its hash. A plan executing when the lock stopped
+comes back `Failed` and never runs again. `End` records a denial,
+withdrawal or staleness, `WithdrawAll` withdraws every pending plan (a
+lock started without its hub), `Prune` expires and removes final plans
+after `Retention`; consumed nonces are kept.
 
 ## 14. Asking for a lockkit change
 

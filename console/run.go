@@ -50,6 +50,9 @@ type Options struct {
 	Keychain *secrets.Keychain
 	// Ready, when set, is told the socket path once the console listens.
 	Ready func(socket string)
+	// Hub, when enabled, decides requests on lockhub (HubOptions); --auto
+	// is refused with it.
+	Hub HubOptions
 }
 
 // connectTimeout bounds one connection attempt.
@@ -83,7 +86,9 @@ func (st *starter) decide(ctx context.Context, d Decision) Result {
 	return r
 }
 
-func (st *starter) audit(b audit.Base) {
+// audit writes b; a failure is told and returned: an approval at start is
+// not saved without its record.
+func (st *starter) audit(b audit.Base) error {
 	b.Profile = st.profile.Name
 	var rec audit.Record = b
 	if ar, ok := st.b.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
@@ -91,8 +96,21 @@ func (st *starter) audit(b audit.Base) {
 	}
 	if err := st.log.Append(rec); err != nil {
 		st.io.Println("audit log write failed: " + err.Error())
+		return err
 	}
+	return nil
 }
+
+// failed records that an approved policy, already on record, was not
+// saved, and returns err.
+func (st *starter) failed(err error) error {
+	_ = st.audit(audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+	return err
+}
+
+// errApprovalUnrecorded: the human approved a policy at start, but the
+// record could not be written; nothing is saved and the console stops.
+var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
 
 // Run is a product's `console` command: the isolation checks, the policy
 // review, the production confirmation, the credentials and the connection,
@@ -120,6 +138,14 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	if iso.Verifier != nil && (o.Auto || o.AllowUnmask || o.ShowResults) {
 		return fmt.Errorf("%w: level 2 does not accept --auto, --allow-unmask or --show-results", ErrConfig)
+	}
+	if o.Hub.Enabled() {
+		if err := o.Hub.check(); err != nil {
+			return err
+		}
+		if o.Auto {
+			return fmt.Errorf("%w: --auto does not go with --hub: the hub decides", ErrConfig)
+		}
 	}
 	if iso.Level() == 1 && o.ShowResults {
 		return fmt.Errorf("%w: level 1 does not accept --show-results: %s", ErrConfig, level1Window)
@@ -163,6 +189,12 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	log, err := audit.Open(p, o.StateDir)
 	if err != nil {
 		return err
+	}
+	var hub *Hub
+	if o.Hub.Enabled() {
+		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
+			return err
+		}
 	}
 	appr := NewTypedApprover(o.IO)
 	if iso.Desktop {
@@ -258,9 +290,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if quantum == 0 {
 		quantum = ResponseQuantum
 	}
+	var serverAppr Approver = appr
+	if hub != nil {
+		serverAppr = hub.Approver(appr)
+	}
 	s, err := NewServer(ServerConfig{
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
-		IO: o.IO, Approver: appr, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
+		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		Reconnect: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
 		RefuseProduction: refuseProduction,
@@ -270,11 +306,21 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		_ = sess.Close()
 		return err
 	}
-	s.record(context.Background(),audit.Base{Event: audit.EventLogin, Decision: "ok"})
+	s.record(context.Background(), audit.Base{Event: audit.EventLogin, Decision: "ok"})
 	o.IO.Println("")
 	o.IO.Println(Paint.Step("Listening on " + sanitize.Terminal(path, false)))
 	if o.Ready != nil {
 		o.Ready(path)
+	}
+	if hub != nil {
+		o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(o.Hub.URL, false) + " as " + hub.Instance))
+		wctx, stopWatch := context.WithCancel(ctx)
+		watched := make(chan struct{})
+		go func() {
+			defer close(watched)
+			hub.Watch(wctx, o.IO)
+		}()
+		defer func() { stopWatch(); <-watched }()
 	}
 	var lines <-chan string
 	if ls, ok := o.IO.(LineSource); ok {
@@ -283,7 +329,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	serveErr := s.Loop().Serve(ctx, ln, lines)
 	s.Close()
 	reason, _ := s.Ended()
-	s.record(context.Background(),audit.Base{Event: audit.EventLogout, Decision: reason})
+	s.record(context.Background(), audit.Base{Event: audit.EventLogout, Decision: reason})
 	o.IO.Println(Paint.Step("session ended: " + reason))
 	return serveErr
 }
@@ -321,10 +367,12 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 			st.audit(audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 			return nil, "", errors.New("console: the policy was not approved")
 		}
-		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-			return nil, "", err
+		if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
+			return nil, "", errApprovalUnrecorded
 		}
-		st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()})
+		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+			return nil, "", st.failed(err)
+		}
 		return cur, "", nil
 	}
 	changes := cur.Diff(ap)
@@ -356,10 +404,12 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		io.Println("changes refused: the last approved policy applies")
 		return ap, config.Fingerprint(cur), nil
 	}
-	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
-		return nil, "", err
+	if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
+		return nil, "", errApprovalUnrecorded
 	}
-	st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()})
+	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+		return nil, "", st.failed(err)
+	}
 	return cur, "", nil
 }
 

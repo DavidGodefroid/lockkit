@@ -10,6 +10,127 @@ instead of its own console window (`ticket`, `render` masked screens,
 `plans`, the asynchronous console, `hubclient`, the audit chain, the
 `mcpkit` pending answer). Standalone consoles behave as in v0.2.1.
 
+- `console` hub mode (#28): `HubOptions` (`--hub`, `--hub-key-file`,
+  `--instance`, all three or none, `--auto` refused with them) put `Run`
+  in hub mode: requests with a `Screen.Hub` (`HubTicket`: plan, caller,
+  risk, `render.MaskedScreen`) are pushed to lockhub and answered pending;
+  one without is refused, never asked on the terminal. `HubOf(env)` gives
+  the product the plans and the client to run a decided ticket.
+  `hubclient.InstanceKey` / `HubKeyCommand` (`<lock> hub-key --instance
+  NAME`) make and print the instance key; `hubclient/hubtest` is a fake
+  hub for tests.
+
+- `audit`: `prev_hash` is now the last member of a line, not the second:
+  the chain is additive at the end, so a product's pinned record format
+  (locksql's 0.8 lines) stays a byte-identical prefix. A record naming
+  `prev_hash` itself is refused. On Windows the append lock covers one
+  byte far past the log (LockFileEx locks are mandatory), so a reader is
+  never refused; CI runs the audit tests on Windows.
+
+
+
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
+- `hubclient` (new, #29): a lock's client for lockhub. Requests signed
+  with the instance key (`Lock-Instance`, `Lock-Time`, `Lock-Nonce`,
+  `Lock-Sig`), decisions verified under a pinned hub key only (`New`
+  refuses a config without one; no discovery). `Submit` takes a
+  `render.MaskedScreen` (an unmasked one is refused), signs the ticket,
+  records it in the plan store and pushes it; it is idempotent (same plan,
+  same ticket) and dedupes by plan hash, with a pending cap (20) and a rate
+  limit (10 new tickets / 5 min). A hub that cannot be reached leaves the
+  plan pending (`ErrUnreachable`), never a fallback; `Sync` resends.
+  `Poll`/`Watch` long-poll decisions with a cursor kept in a 0600 state
+  file with the decisions not yet acted on; `Begin` checks `Match`,
+  `Usable` and the plan's binding, then consumes the decision nonce and
+  returns the verified decision (approver, facade, signature for the audit);
+  `Finish` and `Withdraw` tell the hub.
+
+- `audit`: `EventPending`, the record of a request handed to the hub
+  (`ticket` set), written before the requester is told pending; a failed
+  write refuses the request and withdraws its ticket (GUIDE §5).
+
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
+
+- `console`: widenings take effect only once recorded. Auto mode on,
+  clear results shown, unmask allowed and a loosened policy approved (at
+  `:review` or at start) write their audit record first; if it cannot be
+  written they stay off (the policy is neither saved nor applied; at start
+  the console does not start), and the console says so.
+
+- `mcpkit` (#31): `Pending(lock, ticket)` is the shared answer of a run
+  waiting on a hub ticket: not an error, a fixed "do not retry, end your
+  turn" text and the structured `PendingResult`
+  `{"status":"pending","ticket":…,"lock":…}`. `RequesterFromEnv` reads
+  lea's `LEA_AGENT` and `LEA_AGENT_TOKEN` into the new `ipc.Requester`,
+  carried in plan and run params; `ipc.CodeWrongRequester` refuses a plan
+  or ticket to another agent's token.
+
+- `audit` (#30): hash chain and hub fields, additive. Every record now
+  carries `prev_hash`, the `LineHash` of the line before it,
+  `Genesis` on the first line of an empty log; `Verify` checks a log and
+  returns a `*ChainError` at the first broken line (a record edited,
+  removed, inserted or reordered). Old logs stay readable: their records
+  count as legacy, and the first chained record links to the last of
+  them. `Base` gains `ticket`, `approver`, `facade` and `hub_sig`, written
+  in hub mode only. A cut last line is left alone and the next record
+  starts a line of its own. Every append holds a lock on the file
+  (flock, LockFileEx), so that two processes writing one log (a console
+  and a product command beside it) keep one chain.
+
+- `kit`, `console`, `ipc`: the same-user refusal, the client-group and
+  socket-directory errors no longer tell the human to run `sudo <name>
+  install`, which the products' images refuse: they point to the launcher
+  (`Product.LauncherHint`).
+
+- `plans` (new, #27): a lock's persisted plan store, one 0600 file per
+  plan in a 0700 directory (wider modes and symlinks refused). A plan is
+  bound to the peer UID, the requesting agent's token (stored hashed),
+  the policy fingerprint and the plan hash; `Check` marks it stale when
+  either hash moved, `Begin` runs it once under a decision nonce recorded
+  durably (`ErrReplay`, `ErrUsed`). `FindPending` dedupes a repeated run
+  onto the existing ticket. Plans survive restarts; one executing at the
+  stop comes back failed.
+
+- `render` (#26): `MaskedScreen`, the only form in which an approval
+  screen leaves the lock, built only by `MaskScreen(ScreenSource,
+  Masking)`: values in personal columns (`pii.LooksPersonalColumn` or
+  `Masking.Personal`) masked whole, the detectors over everything else,
+  the structure of the request kept. `Screen()` is the `ticket.Screen`,
+  `Touched()` the kinds masked; the zero value is not `Valid` and does not
+  encode (`ErrUnmasked`).
+
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
+
+- `ticket`: `Decision.Usable` refuses a decision that is not an approval
+  (`ErrDenied`).
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
@@ -25,6 +146,13 @@ instead of its own console window (`ticket`, `render` masked screens,
   Signed fixtures under `ticket/testdata` for lockhub's
   compatibility tests.
 
+- `console`: `Asker` takes a console's human decisions: `Ask` closes an
+  approval screen with the prompt (typed profile name on production, retype
+  answer, fingerprint) and returns the `Approval`, its outcome recorded
+  through a callback; `Decide` asks for any other decision. `Server.Approve`
+  runs on it, unchanged, and a product that draws its own approval screen
+  (prompting inside it) uses it too, so every approval is decided in one
+  place.
 - `console` (#2): while a prompt waits, a control key or command never
   widens a switch (auto mode on, clear results shown, unmasked output
   allowed): it is refused with a line saying to answer the prompt first;

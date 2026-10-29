@@ -102,6 +102,8 @@ func (b *fakeBackend) Methods() map[string]Handler {
 			Queue     string `json:"queue"`
 			Note      string `json:"note"`
 			NeverAuto bool   `json:"never_auto"`
+			// BadRecord makes the screen's Record return no record.
+			BadRecord bool `json:"bad_record"`
 		}
 		if r := Decode(req, &p); r != nil {
 			return *r
@@ -109,8 +111,12 @@ func (b *fakeBackend) Methods() map[string]Handler {
 		if _, err := env.Session(ctx); err != nil {
 			return ErrResp(req.ID, ipc.CodeConnLost, err.Error())
 		}
-		a := env.Approve(ctx, req.ID, Screen{Header: "broker.example.com / orders", Note: p.Note,
-			Body: []string{"READ " + p.Queue}, NeverAuto: p.NeverAuto, Warnings: []string{"not read-only"}})
+		sc := Screen{Header: "broker.example.com / orders", Note: p.Note,
+			Body: []string{"READ " + p.Queue}, NeverAuto: p.NeverAuto, Warnings: []string{"not read-only"}}
+		if p.BadRecord {
+			sc.Record = func(audit.Base) audit.Record { return nil }
+		}
+		a := env.Approve(ctx, req.ID, sc)
 		if !a.Approved {
 			return a.Refusal
 		}
@@ -293,6 +299,54 @@ func TestApproveDeniedWithReasonTimeoutAndGone(t *testing.T) {
 	}
 	if rec := h.lastRecord(t); rec["event"] != "abandoned" {
 		t.Fatalf("audit: %v", rec)
+	}
+}
+
+// An approval that cannot be audited is refused (fail closed); three
+// failed writes in a row end the session.
+func TestApproveAuditFailureRefuses(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only file")
+	}
+	h := newHarness(t, uat(), nil)
+	// A product record that is no record.
+	h.io.answers = []string{"y"}
+	r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q", "bad_record": true})
+	if r.Error == nil || r.Error.Code != ipc.CodeInternal || !strings.Contains(r.Error.Message, "could not record the approval") {
+		t.Fatalf("bad record approved: %s %+v", r.Result, r.Error)
+	}
+	if !strings.Contains(h.io.plain(), "audit log write failed") || !strings.Contains(h.io.plain(), "refused: the approval could not be recorded") {
+		t.Fatalf("the human was not told:\n%s", h.io.plain())
+	}
+	// A write that succeeds resets the count.
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error != nil {
+		t.Fatal(r.Error)
+	}
+	// An unwritable log: manual and auto approvals are refused.
+	if err := os.Chmod(h.log, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(h.log, 0o600)
+	h.io.answers = []string{"y"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
+		t.Fatalf("unwritable log approved: %s %+v", r.Result, r.Error)
+	}
+	h.s.auto = true
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
+		t.Fatalf("unwritable log auto-approved: %s %+v", r.Result, r.Error)
+	}
+	if _, ended := h.s.Ended(); ended {
+		t.Fatal("ended after two failures")
+	}
+	// A denial stays a denial; the third failure in a row ends the session.
+	h.s.auto = false
+	h.io.answers = []string{"n"}
+	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeDenied {
+		t.Fatalf("denial: %+v", r.Error)
+	}
+	if reason, ended := h.s.Ended(); !ended || reason != "the audit log cannot be written" {
+		t.Fatalf("session not ended: %q %v", reason, ended)
 	}
 }
 
@@ -958,5 +1012,100 @@ func TestRunKeychainAndVault(t *testing.T) {
 	}
 	if !strings.Contains(io.plain(), "credentials from Vault: rabbitmq/creds/ro · user vault-user") {
 		t.Fatalf("out:\n%s", io.plain())
+	}
+}
+
+func readOnlyAudit(t *testing.T, path string) {
+	t.Helper()
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only file")
+	}
+	if err := os.Chmod(path, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(path, 0o600) })
+}
+
+// A widening takes effect only once recorded: auto mode, clear results,
+// unmask and a loosened policy stay off when the audit write fails.
+func TestWideningAuditFailureKeepsSwitchesOff(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	readOnlyAudit(t, h.log)
+	h.s.toggleMode()
+	if h.s.auto {
+		t.Error("auto mode on without a record")
+	}
+	h.s.toggleResults()
+	if h.s.showResults {
+		t.Error("clear results shown without a record")
+	}
+	h.io.answers = []string{"y"}
+	h.s.toggleUnmask(context.Background())
+	if h.s.allowUnmask {
+		t.Error("unmask allowed without a record")
+	}
+	if !strings.Contains(h.io.plain(), "not recorded in the audit log, so it stays off") {
+		t.Fatalf("the human was not told:\n%s", h.io.plain())
+	}
+}
+
+func TestAdoptAppliedAuditFailure(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	readOnlyAudit(t, h.log)
+	next := uat()
+	next.MaxRows = 1000
+	if err := h.s.adopt(next, "applied"); err == nil {
+		t.Fatal("loosening adopted without a record")
+	}
+	if h.s.approved.(fakePolicy).MaxRows == 1000 {
+		t.Error("loosening applied without a record")
+	}
+	var got fakePolicy
+	if ok, _ := config.LoadApproved(testProduct, h.state, "user-uat", &got); ok {
+		t.Error("loosening saved without a record")
+	}
+}
+
+func TestStartPolicyAuditFailure(t *testing.T) {
+	state := t.TempDir()
+	log, err := audit.Open(testProduct, state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	readOnlyAudit(t, log.Path())
+	io := &fakeIO{answers: []string{"y"}}
+	st := &starter{p: testProduct, b: &fakeBackend{policy: uat()}, io: io, log: log, profile: uat().Profile(), approver: NewTypedApprover(io)}
+	if _, _, err := st.startPolicy(context.Background(), state, "user-uat", uat()); err == nil {
+		t.Fatal("first-start policy approved without a record")
+	}
+	var got fakePolicy
+	if ok, _ := config.LoadApproved(testProduct, state, "user-uat", &got); ok {
+		t.Error("policy saved without a record")
+	}
+}
+
+// An approval on record whose save fails gets a "failed" record: the log
+// never claims a change that did not happen.
+func TestAdoptAppliedSaveFailureRecorded(t *testing.T) {
+	h := newHarness(t, uat(), nil)
+	dir := filepath.Join(h.state, testProduct.Name, "approved")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only directory")
+	}
+	if err := os.Chmod(dir, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	next := uat()
+	next.MaxRows = 1000
+	if err := h.s.adopt(next, "applied"); err == nil {
+		t.Fatal("adopted although the save failed")
+	}
+	recs := h.records(t)
+	if len(recs) < 2 || recs[len(recs)-2]["decision"] != "applied" || recs[len(recs)-1]["decision"] != "failed" || recs[len(recs)-1]["error"] == "" {
+		t.Fatalf("records %v", recs)
 	}
 }

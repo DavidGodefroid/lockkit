@@ -25,6 +25,41 @@ type Decision struct {
 	// For names the decision in the fingerprint prompt ("to approve the
 	// request"): a finger is never offered without saying what it decides.
 	For string
+	// Screen is the approval screen the decision is about (nil for the
+	// console's own decisions). A terminal approver ignores it: the screen
+	// is already on the terminal; an AsyncApprover sends it on.
+	Screen *Screen
+}
+
+// AsyncApprover is an Approver whose decisions are taken elsewhere (by
+// lockhub): Submit hands the request over and returns at once, and the
+// request is answered "pending" instead of waiting for a human here. The
+// decision comes back later, through the hub, never through this console.
+// Approve still takes the console's own decisions (a policy change, unmask)
+// and the console's auto mode is off: the hub has its own.
+type AsyncApprover interface {
+	Approver
+	// Submit hands d over. Pending.Ticket is set even when err is not nil
+	// (the hub refused it or is unreachable): the request stays pending,
+	// is never asked on the terminal instead, and the approver pushes the
+	// ticket again.
+	Submit(ctx context.Context, d Decision) (Pending, error)
+}
+
+// HubApproval is the audit approval of a request handed to an
+// AsyncApprover.
+const HubApproval = "hub"
+
+// Withdrawer is an AsyncApprover that can take back a ticket it submitted:
+// a pending request the console could not record is withdrawn.
+type Withdrawer interface {
+	Withdraw(ctx context.Context, d Decision, ticket, reason string) error
+}
+
+// Pending is a request handed to an AsyncApprover.
+type Pending struct {
+	// Ticket is the id the agent presents to run the request once decided.
+	Ticket string
 }
 
 // Outcome of an approval.

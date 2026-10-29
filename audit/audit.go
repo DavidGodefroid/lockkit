@@ -2,8 +2,10 @@
 // event, never secrets and never row data. The file is opened O_APPEND,
 // mode 0600 in a 0700 directory of the console account's state: the agent
 // account cannot read or alter it, while the console account and root
-// can. There is no hash chain; on Linux, chattr +a makes it append-only for
-// the console account too.
+// can. Each record carries prev_hash, the hash of the line before it, so
+// that Verify detects a record edited, removed, inserted or reordered;
+// records written before the chain stay readable (see Verify). On Linux,
+// chattr +a makes the file append-only for the console account too.
 package audit
 
 import (
@@ -18,6 +20,7 @@ import (
 
 	"github.com/DavidGodefroid/lockkit/kit"
 	"github.com/DavidGodefroid/lockkit/refusal"
+	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
 // Events of the console.
@@ -30,6 +33,11 @@ const (
 	EventTimeout   = "timeout"   // approval timed out
 	EventAbandoned = "abandoned" // the client left while its approval was pending
 	EventAuto      = "auto"      // auto-approved under auto mode
+	// EventPending is a request handed to the hub (Ticket set): decided
+	// there, later. It is written before the requester is told pending:
+	// a request whose pending record fails is refused, and its ticket
+	// withdrawn.
+	EventPending = "pending"
 	// EventRun is the outcome of an approved or auto-approved request
 	// (Decision ok or failed). It follows the approval record, which is
 	// written before anything runs.
@@ -81,6 +89,14 @@ type Base struct {
 	PeerUID  *int   `json:"peer_uid,omitempty"`
 	PeerPID  int    `json:"peer_pid,omitempty"`
 	PeerUser string `json:"peer_user,omitempty"`
+	// The hub's decision behind a record, in hub mode only: the ticket
+	// ID, who answered it and on which facade (from the signed decision),
+	// and the hub's signature of that decision, so that the record can be
+	// checked against the hub's key later.
+	Ticket   string           `json:"ticket,omitempty"`
+	Approver *ticket.Approver `json:"approver,omitempty"`
+	Facade   string           `json:"facade,omitempty"`
+	HubSig   string           `json:"hub_sig,omitempty"`
 }
 
 // AuditEvent implements Record.
@@ -88,10 +104,16 @@ func (b Base) AuditEvent() string { return b.Event }
 
 // Log appends records to <stateDir>/<product>/audit.log. The file is opened in
 // append mode for each record, so it is never truncated and never held open.
+// Logs of one file in one process share a lock, and every append holds a
+// lock on the file itself, so that each record links to the line written
+// just before it, whatever process writes it.
 type Log struct {
 	path string
-	mu   sync.Mutex
+	mu   *sync.Mutex
 }
+
+// fileLocks holds one lock per audit file path of this process.
+var fileLocks sync.Map // string -> *sync.Mutex
 
 // Open prepares the audit log of p under stateDir (kit.StateBase() in
 // production): the directory <stateDir>/<p.Name> is 0700 and the file
@@ -107,7 +129,9 @@ func Open(p kit.Product, stateDir string) (*Log, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, fmt.Errorf("audit: %w", err)
 	}
-	l := &Log{path: filepath.Join(dir, "audit.log")}
+	path := filepath.Join(dir, "audit.log")
+	mu, _ := fileLocks.LoadOrStore(path, new(sync.Mutex))
+	l := &Log{path: path, mu: mu.(*sync.Mutex)}
 	f, err := l.open()
 	if err != nil {
 		return nil, err
@@ -122,7 +146,7 @@ func Open(p kit.Product, stateDir string) (*Log, error) {
 }
 
 func (l *Log) open() (*os.File, error) {
-	f, err := os.OpenFile(l.path, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(l.path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0o600)
 	if err != nil {
 		return nil, fmt.Errorf("audit: %w", err)
 	}
@@ -148,10 +172,16 @@ func (l *Log) open() (*os.File, error) {
 func (l *Log) Path() string { return l.path }
 
 // Append writes rec as one JSON line: {"ts": the current time in RFC 3339
-// with milliseconds, then rec's fields in their encoding order}.
+// with milliseconds, then rec's fields in their encoding order, then
+// "prev_hash": the LineHash of the file's last line (Genesis in an empty
+// file)}. The chain comes last, so that a product's line keeps its format
+// before the chain as a prefix; a record may not name prev_hash itself.
+// A last line cut short is left as it is and the record starts a line of
+// its own. An error means nothing was written, or the write failed: the
+// caller must not treat the event as audited.
 func (l *Log) Append(rec Record) error {
 	if rec == nil || rec.AuditEvent() == "" {
-		return errors.New("audit: record without an event")
+		return errNoEvent
 	}
 	var body bytes.Buffer
 	enc := json.NewEncoder(&body)
@@ -163,21 +193,45 @@ func (l *Log) Append(rec Record) error {
 	if len(obj) < 2 || obj[0] != '{' || obj[len(obj)-1] != '}' {
 		return errors.New("audit: a record must encode to a JSON object")
 	}
-	var buf bytes.Buffer
-	buf.WriteString(`{"ts":"`)
-	buf.WriteString(time.Now().Format("2006-01-02T15:04:05.000Z07:00"))
-	buf.WriteByte('"')
-	if len(obj) > 2 {
-		buf.WriteByte(',')
+	// Quotes inside a JSON string are escaped: this is a member name.
+	if bytes.Contains(obj, []byte(`"prev_hash":`)) {
+		return errors.New("audit: a record may not carry prev_hash")
 	}
-	buf.Write(obj[1:])
-	buf.WriteByte('\n')
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	f, err := l.open()
 	if err != nil {
 		return err
 	}
+	// Another process (a product command beside its console) may append
+	// to the same log: read the last line and write under the file lock.
+	if err := lockFile(f); err != nil {
+		f.Close()
+		return fmt.Errorf("audit: lock: %w", err)
+	}
+	last, cut, err := lastLine(f)
+	if err != nil {
+		f.Close()
+		return fmt.Errorf("audit: %w", err)
+	}
+	prev := Genesis
+	if last != nil {
+		prev = LineHash(last)
+	}
+	var buf bytes.Buffer
+	if cut {
+		buf.WriteByte('\n')
+	}
+	buf.WriteString(`{"ts":"`)
+	buf.WriteString(time.Now().Format("2006-01-02T15:04:05.000Z07:00"))
+	buf.WriteByte('"')
+	if len(obj) > 2 {
+		buf.WriteByte(',')
+		buf.Write(obj[1 : len(obj)-1])
+	}
+	buf.WriteString(`,"prev_hash":"`)
+	buf.WriteString(prev)
+	buf.WriteString("\"}\n")
 	// One write call per record: with O_APPEND the line lands whole.
 	if _, err := f.Write(buf.Bytes()); err != nil {
 		f.Close()

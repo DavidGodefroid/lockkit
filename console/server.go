@@ -76,6 +76,8 @@ type ServerConfig struct {
 	// profile (an X11 session, core dumps that could not be disabled) when
 	// the policy in force becomes production; nil refuses nothing.
 	RefuseProduction func() error
+	// Hub is the hub mode (Run with HubOptions); nil standalone.
+	Hub *Hub
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -105,6 +107,9 @@ type Server struct {
 	// prompting counts the decisions being asked: a control key pressed
 	// meanwhile never widens a switch (widenRefused).
 	prompting int
+	// auditFails counts consecutive audit write failures; maxAuditFails
+	// ends the session.
+	auditFails int
 
 	ended  bool
 	reason string
@@ -172,36 +177,51 @@ const level1Window = "the agent's account can read this window"
 
 // record writes the console's own records, through the backend's
 // AuditRecord when it has one.
-func (s *Server) record(ctx context.Context, b audit.Base) {
+func (s *Server) record(ctx context.Context, b audit.Base) error {
 	b.Profile = s.profile.Name
 	StampPeer(ctx, &b)
 	var rec audit.Record = b
 	if ar, ok := s.cfg.Backend.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
 		rec = ar.AuditRecord(b)
 	}
-	s.write(rec)
+	return s.write(rec)
 }
 
-func (s *Server) write(rec audit.Record) {
-	if err := s.cfg.Audit.Append(rec); err != nil {
-		s.println("audit log write failed: " + err.Error())
+// maxAuditFails consecutive audit write failures end the session: a
+// console that cannot record its decisions stops taking requests.
+const maxAuditFails = 3
+
+// write appends rec to the audit log. A failure is told to the human and
+// returned; the caller of an approval refuses the request (fail closed).
+func (s *Server) write(rec audit.Record) error {
+	err := s.cfg.Audit.Append(rec)
+	if err == nil {
+		s.auditFails = 0
+		return nil
 	}
+	s.auditFails++
+	s.println(Paint.Fail("audit log write failed: " + sanitize.Terminal(err.Error(), false)))
+	if s.auditFails >= maxAuditFails {
+		s.End("the audit log cannot be written")
+	}
+	return err
+}
+
+// asker takes the human decisions of s.
+func (s *Server) asker() Asker {
+	return Asker{IO: s.cfg.IO, Approver: s.approver, Profile: s.profile.Name, Lock: s.cfg.Product.Name, End: s.End,
+		Waiting: func(on bool) {
+			if on {
+				s.prompting++
+			} else {
+				s.prompting--
+			}
+		}}
 }
 
 // decide asks the approver and explains a missing finger. Too many
 // non-matching fingers end the console.
-func (s *Server) decide(ctx context.Context, d Decision) Result {
-	s.prompting++
-	r := s.approver.Approve(ctx, d)
-	s.prompting--
-	if r.Outcome == NoFinger {
-		s.println(Paint.Fail("denied: " + sanitize.Terminal(r.Err.Error(), false)))
-		if errors.Is(r.Err, ErrTooManyNoMatch) {
-			s.End("fingerprint: three non-matching fingers")
-		}
-	}
-	return r
-}
+func (s *Server) decide(ctx context.Context, d Decision) Result { return s.asker().Decide(ctx, d) }
 
 // noFingerFields is the audit text of a refusal for want of a finger.
 func noFingerFields(r Result) (reason, errText string) {
@@ -417,11 +437,14 @@ func (s *Server) UnmaskAllowed() bool { return s.allowUnmask }
 // Policy implements Env.
 func (s *Server) Policy() Policy { return s.approved }
 
+// Hub is the console's hub mode, nil standalone (HubOf).
+func (s *Server) Hub() *Hub { return s.cfg.Hub }
+
 // Audit implements Env.
-func (s *Server) Audit(rec audit.Record) { s.write(rec) }
+func (s *Server) Audit(rec audit.Record) { _ = s.write(rec) }
 
 // AuditBase implements Env.
-func (s *Server) AuditBase(ctx context.Context, b audit.Base) { s.record(ctx, b) }
+func (s *Server) AuditBase(ctx context.Context, b audit.Base) { _ = s.record(ctx, b) }
 
 // Println implements Env.
 func (s *Server) Println(line string) { s.println(line) }
@@ -512,14 +535,19 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		s.println(bar + red + "▲ " + sanitize.Terminal(w, false) + reset)
 	}
 	base := audit.Base{Intent: sc.Note, Warnings: sc.Warnings}
-	rec := func(b audit.Base) {
+	rec := func(b audit.Base) error {
 		b.Profile = s.profile.Name
 		StampPeer(ctx, &b)
 		if sc.Record != nil {
-			s.write(sc.Record(b))
-			return
+			return s.write(sc.Record(b))
 		}
-		s.record(context.Background(),b)
+		return s.record(context.Background(), b)
+	}
+	// An approval runs only once it is recorded: a failed write refuses
+	// the request.
+	unrecorded := func() Approval {
+		s.println(Paint.Fail("refused: the approval could not be recorded in the audit log"))
+		return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "the console could not record the approval in its audit log, so the request was refused; ask the user to check the console")}
 	}
 
 	production := s.profile.Production || sc.Production
@@ -527,59 +555,32 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		s.println(Paint.Paint(frame, "╰─ ") + Paint.Yellow("auto-approved") + Paint.Dim(" (auto mode)"))
 		b := base
 		b.Event, b.Decision = audit.EventAuto, "auto"
-		rec(b)
+		if rec(b) != nil {
+			return unrecorded()
+		}
 		return Approval{Approved: true, Auto: true}
 	}
-	expected, prompt := "y", "Approve? [y/N] "
-	if production {
-		expected = s.profile.Name
-		prompt = fmt.Sprintf("Type the profile name %q to approve: ", s.profile.Name)
+	q := Ask{Frame: frame, Production: production, Retype: sc.Retype, Screen: &sc}
+	var recErr error
+	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
+		b := base
+		b.Event, b.Decision, b.Reason, b.Error, b.Approval, b.Ticket = d.Event, d.Decision, d.Reason, d.Error, d.Approval, d.Ticket
+		recErr = rec(b) // a denial stays a denial either way
+	})
+	if a.Approved && recErr != nil {
+		return unrecorded()
 	}
-	canRetype := sc.Retype != "" && sc.Retype != expected
-	if canRetype {
-		prompt = "(" + sc.Retype + " to retype) " + prompt
-	}
-	Bell(s.cfg.IO)
-	d := Decision{Prompt: Paint.Paint(frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: production, For: "to approve the request above"}
-	if canRetype {
-		d.Retype = sc.Retype
-	}
-	r := s.decide(ctx, d)
-	b := base
-	switch r.Outcome {
-	case RetypeRequested:
-		return Approval{Retype: true}
-	case Approved:
-		b.Event, b.Decision, b.Approval = audit.EventApproved, "approved", s.approver.Mode()
-		rec(b)
-		return Approval{Approved: true}
-	case Unanswered:
-		if ctx.Err() != nil {
-			b.Event, b.Decision = audit.EventAbandoned, "abandoned"
-			rec(b)
-			s.println(Paint.Fail("client gone: request cancelled"))
-			return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "the request was cancelled")}
+	// A pending request runs once decided: unrecorded, its ticket is
+	// withdrawn and the request refused.
+	if a.Pending != nil && recErr != nil {
+		if w, ok := s.approver.(Withdrawer); ok {
+			if err := w.Withdraw(ctx, Decision{Screen: &sc}, a.Pending.Ticket, "the console could not record the request"); err != nil {
+				s.println(Paint.Fail("ticket " + sanitize.Terminal(a.Pending.Ticket, false) + " not withdrawn: " + sanitize.Terminal(err.Error(), false)))
+			}
 		}
-		b.Event, b.Decision = audit.EventTimeout, "timeout"
-		rec(b)
-		s.println(Paint.Fail("no answer: denied"))
-		return Approval{Refusal: ErrResp(id, ipc.CodeTimeout, "no answer from the human within the approval timeout; do not retry unless asked")}
-	case NoFinger:
-		b.Event, b.Decision, b.Reason, b.Error, b.Approval = audit.EventDenied, "denied", "no fingerprint", r.Err.Error(), s.approver.Mode()
-		rec(b)
-		return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "denied by the human: no fingerprint; do not retry unless asked")}
+		return unrecorded()
 	}
-	b.Event, b.Decision = audit.EventDenied, "denied"
-	msg := "denied by the human; do not retry unless asked"
-	if reason := DenyReason(r.Answer); reason != "" {
-		b.Reason = reason
-		msg = "denied by the human: " + reason + "; do not retry unless asked"
-		s.println(Paint.Fail("denied: " + reason))
-	} else {
-		s.println(Paint.Fail("denied"))
-	}
-	rec(b)
-	return Approval{Refusal: ErrResp(id, ipc.CodeDenied, msg)}
+	return a
 }
 
 // maxDenyReason bounds the reason given with a denial.
@@ -659,18 +660,29 @@ func Loosens(changes []config.Change) bool {
 // where the backend is ends the session: the open connection no longer
 // matches the policy.
 func (s *Server) adopt(p Policy, decision string) error {
+	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
+	if decision == "applied" {
+		// A loosening takes effect only once recorded: the record comes
+		// first, and a failed write leaves the last approved policy.
+		b.Approval = s.approver.Mode()
+		if err := s.record(context.Background(), b); err != nil {
+			return fmt.Errorf("the approval could not be recorded in the audit log: %w", err)
+		}
+	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
 		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
+			if decision == "applied" {
+				// The approval is on record: record that it did not happen.
+				_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+			}
 			return err
 		}
 	}
 	old := s.profile
 	s.apply(p)
-	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
-	if decision == "applied" {
-		b.Approval = s.approver.Mode()
+	if decision != "applied" {
+		_ = s.record(context.Background(), b)
 	}
-	s.record(context.Background(),b)
 	n := s.profile
 	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
 		if err := s.cfg.RefuseProduction(); err != nil {
@@ -755,7 +767,7 @@ func (s *Server) review(ctx context.Context) {
 	if r.Outcome != Approved {
 		s.refused = config.Fingerprint(next)
 		reason, errText := noFingerFields(r)
-		s.record(context.Background(),audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
+		s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 		s.println("policy change refused: the last approved policy stays in force")
 		return
 	}
