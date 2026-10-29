@@ -20,6 +20,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
   returns the verified decision (approver, facade, signature for the audit);
   `Finish` and `Withdraw` tell the hub.
 
+- `audit`: `EventPending`, the record of a request handed to the hub
+  (`ticket` set), written before the requester is told pending; a failed
+  write refuses the request and withdraws its ticket (GUIDE §5).
+
 - `console` (#5): audit writes fail closed. An approval (typed or auto)
   whose record cannot be written, the log being unwritable or
   `Screen.Record` returning no valid record, is refused with
