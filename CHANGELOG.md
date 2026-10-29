@@ -20,6 +20,20 @@ GUIDE.md is the contract between lockkit and the products built on it.
   returns the verified decision (approver, facade, signature for the audit);
   `Finish` and `Withdraw` tell the hub.
 
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
+
+- `mcpkit` (#31): `Pending(lock, ticket)` is the shared answer of a run
+  waiting on a hub ticket: not an error, a fixed "do not retry, end your
+  turn" text and the structured `PendingResult`
+  `{"status":"pending","ticket":…,"lock":…}`. `RequesterFromEnv` reads
+  lea's `LEA_AGENT` and `LEA_AGENT_TOKEN` into the new `ipc.Requester`,
+  carried in plan and run params; `ipc.CodeWrongRequester` refuses a plan
+  or ticket to another agent's token.
+
 - `audit` (#30): hash chain and hub fields, additive. Every record now
   carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
   `Genesis` on the first line of an empty log; `Verify` checks a log and

@@ -346,8 +346,11 @@ if !a.Approved {
 The console frames the screen (red on production), asks `y` or, on
 production, the typed profile name, takes a finger at level 2, times out
 after 5 minutes, and audits the decision (`approved`, `denied`, `timeout`,
-`abandoned`, `auto`) before `Approve` returns. Use `Screen.Record` to write
-the decision as your own audit record type. `env.Session(ctx)` gives the
+`abandoned`, `auto`) before `Approve` returns. An approval it cannot
+record (the log unwritable, `Screen.Record` returning no valid record) is
+refused with `ipc.CodeInternal` and told to the human; three failed
+writes in a row end the session. Use `Screen.Record` to write the
+decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
 Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
 `env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches;
@@ -466,6 +469,19 @@ dial fails, `mcpkit.NoConsole(P, profile, err)` (the exact start command and
 what to ask of the user; `NoConsoleLine` for the text). Run integers that
 may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
+
+**Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
+`LEA_AGENT` and `LEA_AGENT_TOKEN`, empty outside lea) in the params of
+your plan and run calls; the console binds the plan to the token and
+answers another agent's run with `ipc.CodeWrongRequester` (a guard against
+mistakes, not a boundary: agents of one UID can read each other's token).
+When the console answers that the run waits on a hub ticket, return
+`mcpkit.Pending(P.Name, ticketID)`: not an error, the fixed text "Pending
+human approval: ticket … on <lock>. Do not retry. End your turn; you will
+be told when it is decided." and the structured
+`{"status":"pending","ticket":…,"lock":…}` that lea's hook reads to
+suspend the agent. A typed run tool embeds `mcpkit.PendingResult` in its
+output.
 
 **Agent wiring.** Declare your texts once:
 
