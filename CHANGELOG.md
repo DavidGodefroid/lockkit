@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `console` (#5): audit writes fail closed. An approval (typed or auto)
+  whose record cannot be written, the log being unwritable or
+  `Screen.Record` returning no valid record, is refused with
+  `ipc.CodeInternal`, and the human sees why; three failed writes in a
+  row end the session. Denials stay denials.
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for

@@ -105,6 +105,9 @@ type Server struct {
 	// prompting counts the decisions being asked: a control key pressed
 	// meanwhile never widens a switch (widenRefused).
 	prompting int
+	// auditFails counts consecutive audit write failures; maxAuditFails
+	// ends the session.
+	auditFails int
 
 	ended  bool
 	reason string
@@ -172,20 +175,34 @@ const level1Window = "the agent's account can read this window"
 
 // record writes the console's own records, through the backend's
 // AuditRecord when it has one.
-func (s *Server) record(ctx context.Context, b audit.Base) {
+func (s *Server) record(ctx context.Context, b audit.Base) error {
 	b.Profile = s.profile.Name
 	StampPeer(ctx, &b)
 	var rec audit.Record = b
 	if ar, ok := s.cfg.Backend.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
 		rec = ar.AuditRecord(b)
 	}
-	s.write(rec)
+	return s.write(rec)
 }
 
-func (s *Server) write(rec audit.Record) {
-	if err := s.cfg.Audit.Append(rec); err != nil {
-		s.println("audit log write failed: " + err.Error())
+// maxAuditFails consecutive audit write failures end the session: a
+// console that cannot record its decisions stops taking requests.
+const maxAuditFails = 3
+
+// write appends rec to the audit log. A failure is told to the human and
+// returned; the caller of an approval refuses the request (fail closed).
+func (s *Server) write(rec audit.Record) error {
+	err := s.cfg.Audit.Append(rec)
+	if err == nil {
+		s.auditFails = 0
+		return nil
 	}
+	s.auditFails++
+	s.println(Paint.Fail("audit log write failed: " + sanitize.Terminal(err.Error(), false)))
+	if s.auditFails >= maxAuditFails {
+		s.End("the audit log cannot be written")
+	}
+	return err
 }
 
 // decide asks the approver and explains a missing finger. Too many
@@ -418,10 +435,10 @@ func (s *Server) UnmaskAllowed() bool { return s.allowUnmask }
 func (s *Server) Policy() Policy { return s.approved }
 
 // Audit implements Env.
-func (s *Server) Audit(rec audit.Record) { s.write(rec) }
+func (s *Server) Audit(rec audit.Record) { _ = s.write(rec) }
 
 // AuditBase implements Env.
-func (s *Server) AuditBase(ctx context.Context, b audit.Base) { s.record(ctx, b) }
+func (s *Server) AuditBase(ctx context.Context, b audit.Base) { _ = s.record(ctx, b) }
 
 // Println implements Env.
 func (s *Server) Println(line string) { s.println(line) }
@@ -512,14 +529,19 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		s.println(bar + red + "▲ " + sanitize.Terminal(w, false) + reset)
 	}
 	base := audit.Base{Intent: sc.Note, Warnings: sc.Warnings}
-	rec := func(b audit.Base) {
+	rec := func(b audit.Base) error {
 		b.Profile = s.profile.Name
 		StampPeer(ctx, &b)
 		if sc.Record != nil {
-			s.write(sc.Record(b))
-			return
+			return s.write(sc.Record(b))
 		}
-		s.record(context.Background(),b)
+		return s.record(context.Background(), b)
+	}
+	// An approval runs only once it is recorded: a failed write refuses
+	// the request.
+	unrecorded := func() Approval {
+		s.println(Paint.Fail("refused: the approval could not be recorded in the audit log"))
+		return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "the console could not record the approval in its audit log, so the request was refused; ask the user to check the console")}
 	}
 
 	production := s.profile.Production || sc.Production
@@ -527,7 +549,9 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		s.println(Paint.Paint(frame, "╰─ ") + Paint.Yellow("auto-approved") + Paint.Dim(" (auto mode)"))
 		b := base
 		b.Event, b.Decision = audit.EventAuto, "auto"
-		rec(b)
+		if rec(b) != nil {
+			return unrecorded()
+		}
 		return Approval{Approved: true, Auto: true}
 	}
 	expected, prompt := "y", "Approve? [y/N] "
@@ -551,22 +575,24 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 		return Approval{Retype: true}
 	case Approved:
 		b.Event, b.Decision, b.Approval = audit.EventApproved, "approved", s.approver.Mode()
-		rec(b)
+		if rec(b) != nil {
+			return unrecorded()
+		}
 		return Approval{Approved: true}
 	case Unanswered:
 		if ctx.Err() != nil {
 			b.Event, b.Decision = audit.EventAbandoned, "abandoned"
-			rec(b)
+			_ = rec(b) // refused either way
 			s.println(Paint.Fail("client gone: request cancelled"))
 			return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "the request was cancelled")}
 		}
 		b.Event, b.Decision = audit.EventTimeout, "timeout"
-		rec(b)
+		_ = rec(b) // refused either way
 		s.println(Paint.Fail("no answer: denied"))
 		return Approval{Refusal: ErrResp(id, ipc.CodeTimeout, "no answer from the human within the approval timeout; do not retry unless asked")}
 	case NoFinger:
 		b.Event, b.Decision, b.Reason, b.Error, b.Approval = audit.EventDenied, "denied", "no fingerprint", r.Err.Error(), s.approver.Mode()
-		rec(b)
+		_ = rec(b) // refused either way
 		return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "denied by the human: no fingerprint; do not retry unless asked")}
 	}
 	b.Event, b.Decision = audit.EventDenied, "denied"
@@ -578,7 +604,7 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	} else {
 		s.println(Paint.Fail("denied"))
 	}
-	rec(b)
+	_ = rec(b) // refused either way
 	return Approval{Refusal: ErrResp(id, ipc.CodeDenied, msg)}
 }
 
@@ -670,7 +696,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 	if decision == "applied" {
 		b.Approval = s.approver.Mode()
 	}
-	s.record(context.Background(),b)
+	s.record(context.Background(), b)
 	n := s.profile
 	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {
 		if err := s.cfg.RefuseProduction(); err != nil {
@@ -755,7 +781,7 @@ func (s *Server) review(ctx context.Context) {
 	if r.Outcome != Approved {
 		s.refused = config.Fingerprint(next)
 		reason, errText := noFingerFields(r)
-		s.record(context.Background(),audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
+		s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 		s.println("policy change refused: the last approved policy stays in force")
 		return
 	}
