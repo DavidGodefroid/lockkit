@@ -15,6 +15,7 @@ import (
 
 	"github.com/DavidGodefroid/lockkit/kit"
 	"github.com/DavidGodefroid/lockkit/refusal"
+	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
 func readLines(t *testing.T, path string) []map[string]any {
@@ -165,8 +166,8 @@ func TestConcurrentWritesStayWholeLines(t *testing.T) {
 // here.
 func TestBaseFieldSet(t *testing.T) {
 	want := []string{
-		"approval", "code", "decision", "error", "event", "intent", "peer_pid", "peer_uid", "peer_user",
-		"profile", "reason", "span", "ts", "warnings",
+		"approval", "approver", "code", "decision", "error", "event", "facade", "hub_sig", "intent", "peer_pid", "peer_uid", "peer_user",
+		"prev_hash", "profile", "reason", "span", "ticket", "ts", "warnings",
 	}
 	l, err := Open(testProduct, t.TempDir())
 	if err != nil {
@@ -176,6 +177,7 @@ func TestBaseFieldSet(t *testing.T) {
 		Event: EventApproved, Profile: "p", Decision: "y", Error: "e", Warnings: []string{"w"}, Intent: "i", Reason: "r",
 		Approval: "session", PeerUID: new(int), PeerPID: 4, PeerUser: "agent",
 		Code: "E_NO_LIMIT", Span: &refusal.Span{Line: 1, Col: 2, Token: "FROM"},
+		Ticket: "t", Approver: &ticket.Approver{ID: "u", Display: "d"}, Facade: "tty", HubSig: "s",
 	}
 	if err := l.Append(full); err != nil {
 		t.Fatal(err)
@@ -193,13 +195,14 @@ func TestBaseFieldSet(t *testing.T) {
 		t.Errorf("peer uid 0 (root) not recorded: %v", got["peer_uid"])
 	}
 	rt := reflect.TypeOf(Base{})
-	if rt.NumField() != len(want)-1 { // ts is added by Append
-		t.Fatalf("Base has %d fields, want %d", rt.NumField(), len(want)-1)
+	if rt.NumField() != len(want)-2 { // ts and prev_hash are added by Append
+		t.Fatalf("Base has %d fields, want %d", rt.NumField(), len(want)-2)
 	}
 }
 
-// A product record with its own fields: the timestamp comes first, then
-// the record's fields in their declared order, HTML characters unescaped.
+// A product record with its own fields: the timestamp and the chain come
+// first, then the record's fields in their declared order, HTML characters
+// unescaped.
 type productRecord struct {
 	Event string `json:"event"`
 	Queue string `json:"queue,omitempty"`
@@ -222,7 +225,7 @@ func TestProductRecordLine(t *testing.T) {
 	}
 	line := string(raw)
 	i := strings.Index(line, `",`)
-	if !strings.HasPrefix(line, `{"ts":"`) || i < 0 || line[i+1:] != `,"event":"read","queue":"orders","note":"a <b> & c"}`+"\n" {
+	if !strings.HasPrefix(line, `{"ts":"`) || i < 0 || line[i+1:] != `,"prev_hash":"genesis","event":"read","queue":"orders","note":"a <b> & c"}`+"\n" {
 		t.Fatalf("line = %q", line)
 	}
 }

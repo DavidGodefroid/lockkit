@@ -5,6 +5,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `audit` (#30): hash chain and hub fields, additive. Every record now
+  carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
+  `Genesis` on the first line of an empty log; `Verify` checks a log and
+  returns a `*ChainError` at the first broken line (a record edited,
+  removed, inserted or reordered). Old logs stay readable: their records
+  count as legacy, and the first chained record links to the last of
+  them. `Base` gains `ticket`, `approver`, `facade` and `hub_sig`, written
+  in hub mode only. A cut last line is left alone and the next record
+  starts a line of its own. Logs of one file in one process share a lock.
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
