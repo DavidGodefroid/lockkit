@@ -4,7 +4,7 @@
 // credentials, and the agent's account reaches it through a socket that a
 // group grants access to. The kernel enforces the boundary.
 //
-// The file is written by the product's `install` and must be owned by root and
+// The file is set up by the product's image and must be owned by root and
 // writable by root only: an agent that could edit it could point clients
 // at a console of its own or widen the socket's access.
 package sysconf

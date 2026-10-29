@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `kit`, `console`, `ipc`: the same-user refusal, the client-group and
+  socket-directory errors no longer tell the human to run `sudo <name>
+  install`, which the products' images refuse: they point to the launcher
+  (`Product.LauncherHint`).
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
