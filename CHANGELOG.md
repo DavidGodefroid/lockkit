@@ -5,6 +5,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `console` (#28, part 1): `Decision.Screen` carries the approval screen
+  to the approver (a terminal approver ignores it). An `AsyncApprover`
+  (lockhub) takes requests with `Submit`: the request is answered
+  pending (`PendingResp`: `{"status":"pending","ticket":…,"lock":…}`, a
+  result, not an error), set as `Approval.Pending` and as
+  `Approval.Refusal` so that a product returning the refusal answers
+  pending. A hub that refuses or cannot be reached keeps the request
+  pending, never asked on the terminal instead; no ticket at all fails
+  the request. The console's auto mode is off with an AsyncApprover.
+
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 

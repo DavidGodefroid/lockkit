@@ -20,6 +20,8 @@ type Asker struct {
 	Approver Approver
 	// Profile is the profile name, typed to approve on production.
 	Profile string
+	// Lock names the product in a pending answer (kit.Product.Name).
+	Lock string
 	// End ends the session (too many non-matching fingers); nil: ignored.
 	End func(reason string)
 	// Waiting, when set, is told when a decision starts (true) and ends
@@ -41,6 +43,8 @@ type Ask struct {
 	// For names the decision in the fingerprint prompt (Decision.For); ""
 	// is "to approve the request above".
 	For string
+	// Screen is the approval screen (Decision.Screen).
+	Screen *Screen
 }
 
 // Decide asks the approver and explains a missing finger. Too many
@@ -82,11 +86,14 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 	if q.For == "" {
 		q.For = "to approve the request above"
 	}
-	Bell(a.IO)
-	d := Decision{Prompt: Paint.Paint(q.Frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: q.Production, For: q.For}
+	d := Decision{Prompt: Paint.Paint(q.Frame, "╰─ ") + Paint.Bold(prompt), Expected: expected, Production: q.Production, For: q.For, Screen: q.Screen}
 	if canRetype {
 		d.Retype = q.Retype
 	}
+	if aa, ok := a.Approver.(AsyncApprover); ok {
+		return a.submit(ctx, id, q.Frame, aa, d)
+	}
+	Bell(a.IO)
 	r := a.Decide(ctx, d)
 	var b audit.Base
 	switch r.Outcome {
@@ -123,4 +130,24 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 	}
 	record(b)
 	return Approval{Refusal: ErrResp(id, ipc.CodeDenied, msg)}
+}
+
+// submit hands d to an asynchronous approver. Whatever the approver
+// answers, the request is pending: a hub that refuses the ticket or cannot
+// be reached never turns into a prompt here.
+func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncApprover, d Decision) Approval {
+	p, err := aa.Submit(ctx, d)
+	if p.Ticket == "" {
+		if err == nil {
+			err = errors.New("no ticket")
+		}
+		a.IO.Println(Paint.Fail("not submitted: " + sanitize.Terminal(err.Error(), false)))
+		return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "the request could not be submitted for approval; do not retry unless asked")}
+	}
+	line := Paint.Paint(frame, "╰─ ") + "pending: ticket " + sanitize.Terminal(p.Ticket, false)
+	if err != nil {
+		line += Paint.Dim(" (not delivered yet: " + sanitize.Terminal(err.Error(), false) + ")")
+	}
+	a.IO.Println(line)
+	return Approval{Pending: &p, Refusal: PendingResp(id, a.Lock, p)}
 }

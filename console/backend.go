@@ -191,6 +191,16 @@ type Approval struct {
 	Retype bool
 	// Refusal is the answer to send when neither Approved nor Retype: the
 	// human denied (with the reason they typed after "n"), the approval
-	// timed out, the client left, or no finger matched.
+	// timed out, the client left, or no finger matched. For a Pending
+	// request it is the pending answer (PendingResp).
 	Refusal ipc.Response
+	// Pending: an AsyncApprover took the request; it is decided elsewhere.
+	Pending *Pending
+}
+
+// PendingResp is the answer to a request waiting for a decision taken
+// elsewhere: a result, not an error, so that the agent stops and waits
+// rather than retries.
+func PendingResp(id int64, lock string, p Pending) ipc.Response {
+	return OKResp(id, map[string]string{"status": "pending", "ticket": p.Ticket, "lock": lock})
 }
