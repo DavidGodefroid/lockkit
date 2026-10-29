@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `kit`, `console`, `ipc`: the same-user refusal, the client-group and
+  socket-directory errors no longer tell the human to run `sudo <name>
+  install`, which the products' images refuse: they point to the launcher
+  (`Product.LauncherHint`).
+
 - `plans` (new, #27): a lock's persisted plan store, one 0600 file per
   plan in a 0700 directory (wider modes and symlinks refused). A plan is
   bound to the peer UID, the requesting agent's token (stored hashed),
