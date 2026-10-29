@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/ipc"
+	"github.com/DavidGodefroid/lockkit/sanitize"
 )
 
 // Loop is the console's request loop: it accepts clients, checks their
@@ -112,7 +113,7 @@ func (l *Loop) Serve(ctx context.Context, ln net.Listener, lines <-chan string) 
 				j.resp <- ErrResp(j.req.ID, ipc.CodeDenied, "client gone")
 				continue
 			}
-			j.resp <- l.Handle(j.ctx, j.req)
+			j.resp <- l.handle(j.ctx, j.req)
 		case line, ok := <-lines:
 			if !ok {
 				lines = nil
@@ -136,6 +137,18 @@ func (l *Loop) Serve(ctx context.Context, ln net.Listener, lines <-chan string) 
 		}
 		l.refresh()
 	}
+}
+
+// handle is l.Handle, recovered: a panic answers an internal error and
+// the loop goes on serving, and stopping.
+func (l *Loop) handle(ctx context.Context, req ipc.Request) (resp ipc.Response) {
+	defer func() {
+		if v := recover(); v != nil {
+			l.IO.Println(Paint.Fail("internal error: " + sanitize.Terminal(req.Method, false) + " panicked"))
+			resp = ErrResp(req.ID, ipc.CodeInternal, "internal error in the console; the request did not complete")
+		}
+	}()
+	return l.Handle(ctx, req)
 }
 
 // waitFor waits for wg, at most d.

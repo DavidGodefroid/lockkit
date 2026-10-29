@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console` (#63): a product handler that panics no longer takes the
+  console down: its client gets an internal error with a generic text,
+  the console prints one line, the audit records a failed run, and the
+  session goes on (and stops when its context ends). `Loop` recovers a
+  panicking `Handle` too.
+
 ## v0.3.0 (2026-10-30)
 
 Hub support: the packages a lock needs to ask the human through lockhub

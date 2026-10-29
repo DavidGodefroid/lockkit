@@ -289,9 +289,28 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 		return OKResp(req.ID, map[string]bool{"ok": true})
 	}
 	if h, ok := s.methods[req.Method]; ok {
-		return h(ctx, req, s)
+		return s.call(ctx, req, h)
 	}
 	return ErrResp(req.ID, ipc.CodeMethodNotFound, fmt.Sprintf("unknown method %q", req.Method))
+}
+
+// call runs the product's handler h. A handler that panics answers its
+// client an internal error with a generic text, is told on the console and
+// audited as a failed run, and the session goes on: the panic's text (it
+// may hold data) goes nowhere but the sanitised console line.
+func (s *Server) call(ctx context.Context, req ipc.Request, h Handler) (resp ipc.Response) {
+	defer func() {
+		v := recover()
+		if v == nil {
+			return
+		}
+		s.println(Paint.Fail("internal error: the handler of " + sanitize.Terminal(req.Method, false) +
+			" panicked: " + sanitize.Terminal(s.san.Clean(fmt.Sprint(v)), false)))
+		b := audit.Base{Event: audit.EventRun, Decision: "failed", Error: "the handler of " + req.Method + " panicked"}
+		_ = s.record(ctx, b)
+		resp = ErrResp(req.ID, ipc.CodeInternal, "internal error in the console; the request did not complete")
+	}()
+	return h(ctx, req, s)
 }
 
 // Decode decodes the params of req into v, refusing unknown fields; nil
