@@ -14,6 +14,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
   onto the existing ticket. Plans survive restarts; one executing at the
   stop comes back failed.
 
+- `render` (#26): `MaskedScreen`, the only form in which an approval
+  screen leaves the lock, built only by `MaskScreen(ScreenSource,
+  Masking)`: values in personal columns (`pii.LooksPersonalColumn` or
+  `Masking.Personal`) masked whole, the detectors over everything else,
+  the structure of the request kept. `Screen()` is the `ticket.Screen`,
+  `Touched()` the kinds masked; the zero value is not `Valid` and does not
+  encode (`ErrUnmasked`).
+
 - `ticket`: `Decision.Usable` refuses a decision that is not an approval
   (`ErrDenied`).
 
