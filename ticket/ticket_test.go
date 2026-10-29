@@ -290,6 +290,9 @@ func TestDecisionUsable(t *testing.T) {
 	if err := early.Usable(tk, d.At, ttl); err == nil {
 		t.Error("decided before the ticket")
 	}
+	if err := sampleDecision(t, tk, Denied).Usable(tk, d.At, ttl); !errors.Is(err, ErrDenied) {
+		t.Errorf("denial usable: %v", err)
+	}
 	if tk.Expired(t0.Add(time.Hour)) || !tk.Expired(t0.Add(4*time.Hour)) {
 		t.Error("Ticket.Expired")
 	}

@@ -22,8 +22,13 @@ import (
 // single key.
 
 // autoApprove reports whether auto mode is in effect: never on a
-// production profile.
-func (s *Server) autoApprove() bool { return s.auto && !s.profile.Production }
+// production profile, nor with an AsyncApprover (the hub has its own).
+func (s *Server) autoApprove() bool {
+	if _, async := s.approver.(AsyncApprover); async {
+		return false
+	}
+	return s.auto && !s.profile.Production
+}
 
 func (s *Server) modeName() string {
 	if s.autoApprove() {
