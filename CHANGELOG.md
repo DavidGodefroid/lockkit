@@ -5,6 +5,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `audit`: `EventPending`, the record of a request handed to the hub
+  (`ticket` set), written before the requester is told pending; a failed
+  write refuses the request and withdraws its ticket (GUIDE §5).
+
 - `audit` (#30): hash chain and hub fields, additive. Every record now
   carries `prev_hash` (after `ts`), the `LineHash` of the line before it,
   `Genesis` on the first line of an empty log; `Verify` checks a log and

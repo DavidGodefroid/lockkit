@@ -121,7 +121,10 @@ A cut tail leaves a valid chain: compare `Summary.Last` with an anchor kept
 elsewhere (the hub's own log). Appends hold a lock on the file, so a product
 command may write the console's log while the console runs. When `Append`
 returns an error, the event is not audited: in hub mode, refuse the
-execution. Never put a secret, a row, a message
+execution. A request handed to the hub is recorded as `audit.EventPending`
+with its `Ticket` before the requester hears `pending`; when that record
+fails, refuse the request and withdraw the ticket (`hubclient.Withdraw`),
+never answer pending for an unrecorded ticket. Never put a secret, a row, a message
 body or a file's content in a record; sanitise `Error` first. The event
 names (`audit.EventLogin`, `EventApproved`, ...) are shared by every
 product.
