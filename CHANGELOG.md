@@ -5,6 +5,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `mcpkit` (#31): `Pending(lock, ticket)` is the shared answer of a run
+  waiting on a hub ticket: not an error, a fixed "do not retry, end your
+  turn" text and the structured `PendingResult`
+  `{"status":"pending","ticket":…,"lock":…}`. `RequesterFromEnv` reads
+  lea's `LEA_AGENT` and `LEA_AGENT_TOKEN` into the new `ipc.Requester`,
+  carried in plan and run params; `ipc.CodeWrongRequester` refuses a plan
+  or ticket to another agent's token.
+
 - `ticket` (new, #25): the contract between a lock and lockhub. Signed
   `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
   instance, lock key id and plan hash: `Match` refuses a decision for
