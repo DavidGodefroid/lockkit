@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -27,12 +28,15 @@ type fakeIO struct {
 	bells int
 	// status is the last status line set (StatusLine).
 	status string
+	// trace is every call in order, colours kept (golden tests).
+	trace []string
 }
 
 func (f *fakeIO) SetStatus(s string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.status = s
+	f.trace = append(f.trace, "status "+strconv.Quote(s))
 }
 
 func (f *fakeIO) statusLine() string {
@@ -45,17 +49,20 @@ func (f *fakeIO) Bell() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.bells++
+	f.trace = append(f.trace, "bell")
 }
 
 func (f *fakeIO) Println(s string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.out = append(f.out, s)
+	f.trace = append(f.trace, "print  "+strconv.Quote(s))
 }
 
 func (f *fakeIO) Ask(ctx context.Context, prompt string, _ time.Duration) (string, bool) {
 	f.mu.Lock()
 	f.prompts = append(f.prompts, prompt)
+	f.trace = append(f.trace, "ask    "+strconv.Quote(prompt))
 	if f.block {
 		ch := f.blocked
 		f.mu.Unlock()
@@ -73,10 +80,12 @@ func (f *fakeIO) Ask(ctx context.Context, prompt string, _ time.Duration) (strin
 		f.onAsk()
 	}
 	if f.timeout || len(f.answers) == 0 {
+		f.trace = append(f.trace, "answer (none)")
 		return "", false
 	}
 	a := f.answers[0]
 	f.answers = f.answers[1:]
+	f.trace = append(f.trace, "answer "+strconv.Quote(a))
 	return a, true
 }
 
@@ -84,6 +93,7 @@ func (f *fakeIO) AskSecret(_ context.Context, prompt string) ([]byte, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.prompts = append(f.prompts, prompt)
+	f.trace = append(f.trace, "secret "+strconv.Quote(prompt))
 	if len(f.secrets) == 0 {
 		return nil, errors.New("no answer")
 	}
