@@ -195,6 +195,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
 			return err
 		}
+		defer hub.Close()
 	}
 	appr := NewTypedApprover(o.IO)
 	if iso.Desktop {

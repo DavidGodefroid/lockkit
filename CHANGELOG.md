@@ -10,6 +10,17 @@ GUIDE.md is the contract between lockkit and the products built on it.
   a device or a directory is refused at once instead of blocking the
   console. `pii.AllDetectors` panics rather than return none.
 
+- `plans` (#60): `Open` locks the store directory (flock, LockFileEx),
+  without waiting: a second store on the same directory (two consoles on
+  one volume) fails with `ErrLocked`, so a decision nonce is accepted
+  once. `Store.Close` releases it; `console.Hub.Close` too, and `Run`
+  closes its hub when it returns.
+
+- `audit` (#59): `VerifyAnchored(r, Anchor)` checks a log against an
+  anchor kept elsewhere (the hub's): a log cut before it, or whose chain
+  was stripped (every `prev_hash` removed, which `Verify` alone reads as
+  legacy), is a `*ChainError`. `Summary.Anchor()` makes the anchor.
+
 - `render` (#58): `MaskScreen` with no detectors runs every detector
   (`pii.AllDetectors`: all but the opt-in `phone_loose`), never none: a
   product that forgets `pii.Detectors` sends no header, note or structure

@@ -84,49 +84,97 @@ func (e *ChainError) Error() string {
 // (the format before the chain); from there, each prev_hash is the
 // LineHash of the line before it, and Genesis only on the first line. A
 // record edited, removed, inserted or reordered breaks the chain. Records
-// cut from the end leave a valid chain: compare Summary.Last with an anchor
-// kept elsewhere. It returns a *ChainError for a break.
+// cut from the end, or a chain stripped of every prev_hash, leave a log
+// that verifies: VerifyAnchored checks it against an anchor kept
+// elsewhere. It returns a *ChainError for a break.
 func Verify(r io.Reader) (Summary, error) {
+	s, _, err := verify(r, 0)
+	return s, err
+}
+
+// Anchor is a chained line of a log, kept apart from it (by the hub):
+// the 1-based Line and its LineHash. Summary.Anchor makes one.
+type Anchor struct {
+	Line int
+	Hash string
+}
+
+// Anchor is the anchor of the log as read: its last line, when chained.
+func (s Summary) Anchor() Anchor {
+	if s.Last == "" {
+		return Anchor{}
+	}
+	return Anchor{Line: s.Records, Hash: s.Last}
+}
+
+// VerifyAnchored is Verify for a log anchored at a: the log reaches line
+// a.Line, that line is chained and hashes to a.Hash. A log cut before the
+// anchor, or whose chain was stripped (lines without prev_hash up to the
+// anchor: a log that Verify alone reads as legacy) is a *ChainError.
+func VerifyAnchored(r io.Reader, a Anchor) (Summary, error) {
+	if a.Line < 1 || a.Hash == "" {
+		return Summary{}, errors.New("audit: empty anchor")
+	}
+	s, at, err := verify(r, a.Line)
+	switch {
+	case err != nil:
+		return s, err
+	case s.Records < a.Line:
+		return s, &ChainError{s.Records + 1, fmt.Sprintf("the log ends before its anchor at line %d", a.Line)}
+	case s.Legacy >= a.Line:
+		return s, &ChainError{a.Line, "the anchored line has no prev_hash: the chain was stripped"}
+	case LineHash(at) != a.Hash:
+		return s, &ChainError{a.Line, "the anchored line does not match its anchor"}
+	}
+	return s, nil
+}
+
+// verify is Verify, also returning line number at (0: none).
+func verify(r io.Reader, at int) (Summary, []byte, error) {
 	var s Summary
+	var atLine []byte
 	br := bufio.NewReader(r)
 	var prev []byte
 	chained := false
 	for n := 1; ; n++ {
 		line, err := br.ReadBytes('\n')
 		if len(line) == 0 && err == io.EOF {
-			return s, nil
+			return s, atLine, nil
 		}
 		if err != nil && err != io.EOF {
-			return s, fmt.Errorf("audit: %w", err)
+			return s, nil, fmt.Errorf("audit: %w", err)
 		}
 		if err == io.EOF {
-			return s, &ChainError{n, "the last line has no newline (a write cut short)"}
+			return s, nil, &ChainError{n, "the last line has no newline (a write cut short)"}
 		}
 		line = bytes.TrimSuffix(line, []byte("\n"))
 		var head struct {
 			PrevHash *string `json:"prev_hash"`
 		}
 		if err := json.Unmarshal(line, &head); err != nil || len(line) == 0 || line[0] != '{' {
-			return s, &ChainError{n, "not a JSON object"}
+			return s, nil, &ChainError{n, "not a JSON object"}
 		}
 		s.Records++
 		switch {
 		case head.PrevHash == nil && !chained:
 			s.Legacy++
 		case head.PrevHash == nil:
-			return s, &ChainError{n, "a record without prev_hash after the chain started"}
+			return s, nil, &ChainError{n, "a record without prev_hash after the chain started"}
 		default:
 			want := Genesis
 			if prev != nil {
 				want = LineHash(prev)
 			}
 			if *head.PrevHash != want {
-				return s, &ChainError{n, "prev_hash does not match the line before it"}
+				return s, nil, &ChainError{n, "prev_hash does not match the line before it"}
 			}
 			chained = true
 			s.Last = LineHash(line)
 		}
 		prev = bytes.Clone(line)
+		if n == at {
+			atLine = prev
+		}
 	}
 }
 

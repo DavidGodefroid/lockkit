@@ -7,8 +7,10 @@
 // recomputes the plan hash from it before running (Check), and runs
 // nothing whose binding moved.
 //
-// One process owns a store directory; a Store is safe for concurrent use
-// within it.
+// One Store owns a store directory: Open locks it (a second Open fails
+// with ErrLocked until Close), so that a decision nonce is accepted once
+// whatever the number of consoles on a volume. A Store is safe for
+// concurrent use.
 package plans
 
 import (
@@ -79,6 +81,9 @@ var (
 	// ErrUnsafe: the store directory or a file in it has unsafe
 	// permissions; nothing is loaded.
 	ErrUnsafe = errors.New("plans: unsafe permissions")
+	// ErrLocked: another Store (another console on the same volume) has
+	// the directory open.
+	ErrLocked = errors.New("plans: the store is open in another process")
 )
 
 // HashToken is the stored form of an agent token: hex SHA-256. The token
@@ -156,6 +161,8 @@ type Store struct {
 	dir string
 	now func() time.Time
 
+	lock *os.File // the directory lock, held until Close
+
 	mu     sync.Mutex
 	plans  map[string]*Plan
 	nonces map[string]bool
@@ -170,6 +177,7 @@ func WithClock(now func() time.Time) Option { return func(s *Store) { s.now = no
 const (
 	planExt   = ".json"
 	nonceFile = "nonces"
+	lockFile  = ".lock"
 )
 
 // Open opens or creates the store in dir (created 0700). It refuses a
@@ -186,6 +194,24 @@ func Open(dir string, opts ...Option) (*Store, error) {
 	if err := checkPerm(dir, true); err != nil {
 		return nil, err
 	}
+	lf, err := os.OpenFile(filepath.Join(dir, lockFile), os.O_RDWR|os.O_CREATE, 0o600)
+	if err != nil {
+		return nil, fmt.Errorf("plans: %w", err)
+	}
+	if ok, err := tryLock(lf); err != nil || !ok {
+		lf.Close()
+		if err != nil {
+			return nil, fmt.Errorf("plans: lock: %w", err)
+		}
+		return nil, ErrLocked
+	}
+	s.lock = lf
+	opened := false
+	defer func() {
+		if !opened {
+			s.Close()
+		}
+	}()
 	ents, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("plans: %w", err)
@@ -223,7 +249,21 @@ func Open(dir string, opts ...Option) (*Store, error) {
 			}
 		}
 	}
+	opened = true
 	return s, nil
+}
+
+// Close releases the store directory for another Open. The Store must
+// not be used after it.
+func (s *Store) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.lock == nil {
+		return nil
+	}
+	err := s.lock.Close()
+	s.lock = nil
+	return err
 }
 
 // checkPerm refuses a path whose mode lets group or others in, or that is

@@ -395,3 +395,60 @@ type forgedRecord struct {
 }
 
 func (r forgedRecord) AuditEvent() string { return r.Event }
+
+// Once anchored, a log whose chain was stripped (every prev_hash removed:
+// an all-legacy log) or cut before the anchor is a break (#59).
+func TestVerifyAnchored(t *testing.T) {
+	l, err := Open(testProduct, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	appendAll(t, l, EventLogin, EventApproved, EventRun)
+	f, err := os.Open(l.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := Verify(f)
+	f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	anchor := s.Anchor()
+	if anchor.Line != 3 || anchor.Hash == "" {
+		t.Fatalf("anchor %+v", anchor)
+	}
+	orig := rawLines(t, l.Path())
+	join := func(lines [][]byte) string { return string(bytes.Join(lines, []byte("\n"))) + "\n" }
+
+	// The intact log, and one with records after the anchor, verify.
+	if _, err := VerifyAnchored(strings.NewReader(join(orig)), anchor); err != nil {
+		t.Fatalf("intact: %v", err)
+	}
+	appendAll(t, l, EventLogout)
+	if _, err := VerifyAnchored(strings.NewReader(join(rawLines(t, l.Path()))), anchor); err != nil {
+		t.Fatalf("grown: %v", err)
+	}
+
+	var stripped [][]byte
+	for _, b := range orig {
+		i := bytes.Index(b, []byte(`,"prev_hash":"`))
+		stripped = append(stripped, append(bytes.Clone(b[:i]), '}'))
+	}
+	if s, err := Verify(strings.NewReader(join(stripped))); err != nil || s.Legacy != s.Records {
+		t.Fatalf("precondition: a stripped log verifies unanchored as all legacy: %+v %v", s, err)
+	}
+	var ce *ChainError
+	for name, log := range map[string]string{
+		"stripped": join(stripped),
+		"cut":      join(orig[:2]),
+		"empty":    "",
+		"edited":   join(append(append([][]byte{}, orig[:2]...), bytes.Replace(orig[2], []byte(`"run"`), []byte(`"xxx"`), 1))),
+	} {
+		if _, err := VerifyAnchored(strings.NewReader(log), anchor); !errors.As(err, &ce) {
+			t.Errorf("%s: %v, want a ChainError", name, err)
+		}
+	}
+	if _, err := VerifyAnchored(strings.NewReader(join(orig)), Anchor{}); err == nil {
+		t.Error("an empty anchor was accepted")
+	}
+}
