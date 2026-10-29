@@ -151,8 +151,8 @@ func New(cfg Config) (*Client, error) {
 	switch {
 	case cfg.URL == "":
 		return nil, errors.New("hubclient: no hub URL")
-	case cfg.Instance == "":
-		return nil, errors.New("hubclient: no instance")
+	case !ValidInstance(cfg.Instance):
+		return nil, fmt.Errorf("hubclient: invalid instance name %q", cfg.Instance)
 	case len(cfg.Key) != ed25519.PrivateKeySize:
 		return nil, errors.New("hubclient: no lock key")
 	case len(cfg.HubKey) != ed25519.PublicKeySize:

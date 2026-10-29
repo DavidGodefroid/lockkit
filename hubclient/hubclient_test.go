@@ -83,12 +83,13 @@ func TestNewRefusesUnpinnedHub(t *testing.T) {
 	_, priv, _ := ed25519.GenerateKey(rand.Reader)
 	pub, _, _ := ed25519.GenerateKey(rand.Reader)
 	for name, cfg := range map[string]hubclient.Config{
-		"no hub key":  {URL: "http://hub", Instance: inst, Key: priv, StateFile: "s"},
-		"bad hub key": {URL: "http://hub", Instance: inst, Key: priv, HubKey: pub[:8], StateFile: "s"},
-		"no lock key": {URL: "http://hub", Instance: inst, HubKey: pub, StateFile: "s"},
-		"no url":      {Instance: inst, Key: priv, HubKey: pub, StateFile: "s"},
-		"no instance": {URL: "http://hub", Key: priv, HubKey: pub, StateFile: "s"},
-		"no state":    {URL: "http://hub", Instance: inst, Key: priv, HubKey: pub},
+		"no hub key":   {URL: "http://hub", Instance: inst, Key: priv, StateFile: "s"},
+		"bad hub key":  {URL: "http://hub", Instance: inst, Key: priv, HubKey: pub[:8], StateFile: "s"},
+		"no lock key":  {URL: "http://hub", Instance: inst, HubKey: pub, StateFile: "s"},
+		"no url":       {Instance: inst, Key: priv, HubKey: pub, StateFile: "s"},
+		"no instance":  {URL: "http://hub", Key: priv, HubKey: pub, StateFile: "s"},
+		"bad instance": {URL: "http://hub", Instance: "../x", Key: priv, HubKey: pub, StateFile: "s"},
+		"no state":     {URL: "http://hub", Instance: inst, Key: priv, HubKey: pub},
 	} {
 		if _, err := hubclient.New(cfg); err == nil {
 			t.Errorf("%s: New accepted the config", name)
