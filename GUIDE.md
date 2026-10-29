@@ -211,6 +211,24 @@ whole at most `MaxOutputBytes` (else `render.ErrOutputCap`, nothing
 written: page or narrow your result). `render.Table` + `render.Render(w,
 t, caps, "tsv"|"json")` is one helper among others, for tabular results.
 
+**Approval screens that leave the lock** (to lockhub, in a ticket) are
+`render.MaskedScreen` values, built only by `render.MaskScreen`: draw the
+screen as `render.ScreenSource` with each body line in `render.Part`s,
+structure apart from values, and name the column of each value you know.
+
+```go
+src := render.ScreenSource{Header: "db / shop · tier read", Note: note, Body: []render.Line{{
+	{Text: "SELECT id FROM customers WHERE email = "}, {Text: "'" + email + "'", Value: true, Column: "email"},
+}}}
+ms := render.MaskScreen(src, render.Masking{Detectors: ds}) // ds: pii.Detectors(policy's names)
+t.Screen, t.PII.Touched = ms.Screen(), ms.Touched()
+```
+
+A value whose column looks personal (`pii.LooksPersonalColumn`, or your
+`Masking.Personal`) is masked whole; the detectors run over everything
+else, structure included, which otherwise stays visible. The zero
+`MaskedScreen` is not valid and does not encode.
+
 **Errors.** Every error text that leaves the console (client, audit log)
 goes through a `sanitize.Sanitizer`:
 
