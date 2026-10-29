@@ -46,13 +46,7 @@ type Ask struct {
 // Decide asks the approver and explains a missing finger. Too many
 // non-matching fingers end the console.
 func (a Asker) Decide(ctx context.Context, d Decision) Result {
-	if a.Waiting != nil {
-		a.Waiting(true)
-	}
-	r := a.Approver.Approve(ctx, d)
-	if a.Waiting != nil {
-		a.Waiting(false)
-	}
+	r := a.approve(ctx, d)
 	if r.Outcome == NoFinger {
 		a.IO.Println(Paint.Fail("denied: " + sanitize.Terminal(r.Err.Error(), false)))
 		if errors.Is(r.Err, ErrTooManyNoMatch) && a.End != nil {
@@ -60,6 +54,15 @@ func (a Asker) Decide(ctx context.Context, d Decision) Result {
 		}
 	}
 	return r
+}
+
+// approve asks the approver, telling Waiting around it.
+func (a Asker) approve(ctx context.Context, d Decision) Result {
+	if a.Waiting != nil {
+		a.Waiting(true)
+		defer a.Waiting(false)
+	}
+	return a.Approver.Approve(ctx, d)
 }
 
 // Ask rings the bell, prompts and decides. Every outcome but a retype is
