@@ -35,6 +35,7 @@ contract between lockkit and the products built on it.
 | `update` | cosign keyless signature check of a release artifact, checksums |
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
+| `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 
 ## 2. `kit.Product`
@@ -454,7 +455,49 @@ then `Wiring.Init(agentwire.ProjectRoot(P, cwd), agent)` for `<name> init
 `Wiring.Unwired(env)` for your doctor's "agent wiring" line. Only list in
 `ClaudeAllow` calls that never touch data without the console's approval.
 
-## 13. Asking for a lockkit change
+## 13. Hub tickets (`ticket`)
+
+In hub mode a lock does not ask the human itself: it pushes a signed
+`ticket.Ticket` to lockhub and acts only on a `ticket.Decision` signed by
+the hub key it pinned. The package is the contract with lockhub; its
+`testdata` fixtures are verified by lockhub's CI and do not change within a
+`ticket.Version`.
+
+```go
+t := ticket.NewTicket(ticket.Source{Lock: "locksql", Instance: "crm-prod"},
+	ticket.RiskProdWrite, planHash, policyFP, time.Now(), ticket.ClampTTL(ticket.RiskProdWrite, cfgTTL))
+t.Screen = masked // built by render, never by hand
+if err := t.Sign(lockKey); err != nil { ... }
+body, _ := t.Marshal() // canonical JSON
+
+d, err := ticket.VerifyDecision(pinnedHubKey, data) // schema + signature
+err = d.Match(t)                                   // same ticket, instance, key, plan hash
+err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL))
+// then consume d.Nonce once, recompute the plan hash, execute
+```
+
+- **Risk classes** are closed: `read`, `read-pii`, `write`, `prod-write`,
+  `policy-loosen`, `unlock`. Map each operation onto one; an unknown name
+  does not decode. `Risk.TTL()`: reads never expire, `write` and
+  `policy-loosen` 24 h, `prod-write` and `unlock` 4 h; `ClampTTL` lets an
+  instance shorten it, never lengthen it.
+- **Signatures** are Ed25519 over `Context` + NUL + the canonical JSON
+  without `sig`. Contexts keep a ticket, a decision, a key certificate, a
+  hub request (`ContextRequest`, for `Lock-Sig`) and a reveal key apart:
+  sign other bytes with `SignBytes`/`VerifyBytes` and a context of their
+  own. Verification decodes strictly (unknown members, duplicate members,
+  lone surrogates and trailing data are refused), so what verifies is
+  exactly what you read. `KeyID` names a key; it never replaces the key you
+  pinned.
+- **Sealed boxes** (`Seal`/`Open`: X25519, HKDF-SHA256,
+  XChaCha20-Poly1305) carry what the hub must not read: an `unlock`
+  secret, a clear screen for a device, a reveal. The associated data binds
+  a box to its ticket. Seal only to a key whose `KeyCert` verifies under an
+  Ed25519 key you pinned.
+- `HashOf(v)` is the plan hash or policy fingerprint of any value:
+  `sha256:` over its canonical JSON.
+
+## 14. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the

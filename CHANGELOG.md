@@ -5,6 +5,21 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `ticket` (new, #25): the contract between a lock and lockhub. Signed
+  `Ticket` (lock key) and `Decision` (hub key, carrying the ticket's
+  instance, lock key id and plan hash: `Match` refuses a decision for
+  another instance or plan), closed `Risk` classes with their TTL
+  (reads none, write and policy-loosen 24 h, prod-write and unlock 4 h;
+  `ClampTTL` only shortens), RFC 8785 canonical JSON (`Canonical`,
+  `CanonicalizeJSON`), Ed25519 signatures with domain separation
+  (`SignBytes`/`VerifyBytes` and `Context`), strict verification, X25519
+  sealed boxes (`Seal`/`Open`) and signed X25519 keys (`KeyCert`), ULID ids,
+  nonces, `HashOf`, `RequestMessage` (what `Lock-Sig` signs). Only the
+  exact canonical form verifies; `Canonical` refuses integers a double
+  cannot hold and invalid UTF-8 rather than encode them with a loss.
+  Signed fixtures under `ticket/testdata` for lockhub's
+  compatibility tests.
+
 - `console`: `Asker` takes a console's human decisions: `Ask` closes an
   approval screen with the prompt (typed profile name on production, retype
   answer, fingerprint) and returns the `Approval`, its outcome recorded
