@@ -57,6 +57,19 @@ func Detectors(names []string) ([]Detector, error) {
 	return out, nil
 }
 
+// AllDetectors is every detector but the opt-in ones (phone_loose), in
+// their run order: what masking falls back to when it was given none.
+func AllDetectors() []Detector {
+	var names []string
+	for _, n := range detectorOrder {
+		if n != "phone_loose" {
+			names = append(names, n)
+		}
+	}
+	ds, _ := Detectors(names)
+	return ds
+}
+
 type finderDetector struct {
 	name string
 	find func(string) []span

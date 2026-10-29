@@ -44,6 +44,23 @@ func TestHandlerPanicRecovered(t *testing.T) {
 	}
 }
 
+// A panic answers on the response-time quantum like any request: its
+// timing does not tell where the handler stopped.
+func TestHandlerPanicLeveled(t *testing.T) {
+	const q = 300 * time.Millisecond
+	h := newHarness(t, uat(), func(c *ServerConfig) {
+		c.Backend = &panicBackend{fakeBackend{policy: uat()}}
+		c.Quantum = q
+	})
+	start := time.Now()
+	if r := h.call(t, context.Background(), "op.panic", nil); r.Error == nil {
+		t.Fatal("no error")
+	}
+	if el := time.Since(start); el < q {
+		t.Fatalf("panic answered after %s, before the %s quantum", el, q)
+	}
+}
+
 // The loop itself survives a panicking Handle: the client gets an internal
 // error, another client is served, and Serve returns when its context ends.
 func TestLoopSurvivesPanicAndStops(t *testing.T) {

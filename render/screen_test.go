@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -245,5 +246,24 @@ func TestMaskScreenNoPII(t *testing.T) {
 		if !strings.Contains(out, "UPDATE customers SET full_name = ") || !strings.Contains(out, " WHERE contact = ") {
 			t.Fatalf("case %d: structure lost:\n%s", i, out)
 		}
+	}
+}
+
+// A Masking without detectors is not "no detection": every detector runs
+// (#58), so a product that forgets pii.Detectors sends nothing in clear.
+func TestMaskScreenNoDetectorsMeansAll(t *testing.T) {
+	m := MaskScreen(ScreenSource{Header: "db / crm", Note: "mail jane.doe@example.com about IBAN BE71 0961 2345 6769",
+		Body: []Line{Structure("SELECT * FROM t WHERE x = 'john@example.org'")}}, Masking{})
+	b, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, clear := range []string{"jane.doe@example.com", "john@example.org", "BE71 0961 2345 6769"} {
+		if strings.Contains(string(b), clear) {
+			t.Errorf("%q in clear: %s", clear, b)
+		}
+	}
+	if !slices.Contains(m.Touched(), "email") || !slices.Contains(m.Touched(), "iban") {
+		t.Errorf("touched %v", m.Touched())
 	}
 }

@@ -297,13 +297,18 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 // call runs the product's handler h. A handler that panics answers its
 // client an internal error with a generic text, is told on the console and
 // audited as a failed run, and the session goes on: the panic's text (it
-// may hold data) goes nowhere but the sanitised console line.
+// may hold data) goes nowhere but the sanitised console line. The answer
+// is leveled on the response-time quantum.
 func (s *Server) call(ctx context.Context, req ipc.Request, h Handler) (resp ipc.Response) {
+	start := time.Now()
 	defer func() {
 		v := recover()
 		if v == nil {
 			return
 		}
+		// Leveled like any answer: the handler may have panicked before its
+		// own Level, and the time would tell where it stopped.
+		defer s.Level(ctx, start)
 		s.println(Paint.Fail("internal error: the handler of " + sanitize.Terminal(req.Method, false) +
 			" panicked: " + sanitize.Terminal(s.san.Clean(fmt.Sprint(v)), false)))
 		b := audit.Base{Event: audit.EventRun, Decision: "failed", Error: "the handler of " + req.Method + " panicked"}
