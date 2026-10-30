@@ -24,6 +24,10 @@ const (
 	// CodeWrongRequester: in hub mode, a plan or ticket presented by
 	// another agent than the one that made it (Requester.Token).
 	CodeWrongRequester = -32007
+	// CodeWithdrawn: a hub ticket presented to a lock that now runs
+	// without its hub (standalone): its tickets were withdrawn. Plan again;
+	// the human approves on the lock's own terminal.
+	CodeWithdrawn = -32008
 
 	CodeParseError     = -32700
 	CodeInvalidRequest = -32600
