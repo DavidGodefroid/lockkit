@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -22,7 +24,10 @@ type hookBackend struct {
 	*fakeBackend
 	applied  []fakePolicy
 	applyErr error
-	checked  []Session
+	// failAfter applies that many policies, then refuses the next ones.
+	failAfter int
+	failNext  bool
+	checked   []Session
 }
 
 func (b *hookBackend) StatusAnswer(c StatusResult, s Session) any {
@@ -54,6 +59,14 @@ func (b *hookBackend) ConnectionChanged(old, next Policy) bool {
 func (b *hookBackend) ApplyPolicy(p Policy) error {
 	if b.applyErr != nil {
 		return b.applyErr
+	}
+	if b.failAfter > 0 {
+		b.failAfter--
+		if b.failAfter == 0 {
+			b.failNext = true
+		}
+	} else if b.failNext {
+		return errors.New("rollback refused")
 	}
 	b.applied = append(b.applied, p.(fakePolicy))
 	return nil
@@ -172,20 +185,6 @@ func TestHooksPolicy(t *testing.T) {
 	if !strings.Contains(h.io.plain(), "policy tightened:\n  * limits.max_rows") || len(hb.applied) != 2 {
 		t.Fatalf("tightened:\n%s\n%+v", h.io.plain(), hb.applied)
 	}
-	// A policy the backend refuses is neither applied nor saved.
-	hb.applyErr = errors.New("bad rules")
-	worse := tighter
-	worse.MaxRows = 5
-	h.b.policy = worse
-	h.s.CheckPolicy()
-	if h.s.Policy().(fakePolicy).MaxRows != 10 || !strings.Contains(h.io.plain(), "policy change not applied: bad rules") {
-		t.Fatalf("refused policy applied:\n%s", h.io.plain())
-	}
-	var saved fakePolicy
-	if ok, _ := config.LoadApproved(testProduct, h.state, "user-uat", &saved); !ok || saved.MaxRows != 10 {
-		t.Fatalf("saved %+v", saved)
-	}
-	hb.applyErr = nil
 	// :review: the backend's diff and wording.
 	looser := tighter
 	looser.Tier = "peek"
@@ -400,3 +399,119 @@ func TestWriteAudit(t *testing.T) {
 		t.Fatalf("ended %v %q", ended, reason)
 	}
 }
+
+// A tightening the backend cannot apply is neither saved nor applied, is
+// audited, and ends the session: serving on under the looser policy would
+// fail open. A refused loosening (at :review) only stays out.
+func TestHooksRefusedPolicy(t *testing.T) {
+	h, hb := newHookHarness(t, uat(), nil)
+	hb.applyErr = errors.New("bad rules")
+	worse := uat()
+	worse.MaxRows = 5
+	h.b.policy = worse
+	h.s.CheckPolicy()
+	if h.s.Policy().(fakePolicy).MaxRows != 20 {
+		t.Fatal("refused tightening in force")
+	}
+	if reason, ended := h.s.Ended(); !ended || reason != "a tightened policy could not be applied" {
+		t.Fatalf("ended %v %q", ended, reason)
+	}
+	if rec := h.lastRecord(t); rec["event"] != "policy" || rec["decision"] != "failed" || !strings.Contains(rec["error"].(string), "bad rules") {
+		t.Fatalf("audit %v", rec)
+	}
+	if ok, _ := config.LoadApproved(testProduct, h.state, "user-uat", &fakePolicy{}); ok {
+		t.Fatal("refused tightening saved")
+	}
+	// pii.add goes the same way: the rule is in the file, so the session
+	// cannot serve without it.
+	pb := &piiApplyBackend{piiBackend: &piiBackend{pol: piiUAT()}}
+	p := newHarness(t, uat(), func(c *ServerConfig) { c.Backend, c.Policy = pb, piiUAT() })
+	pb.err = errors.New("bad rules")
+	if r := p.call(t, context.Background(), ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "orders.phone"}); r.Error == nil {
+		t.Fatal("pii.add answered ok")
+	}
+	if reason, ended := p.s.Ended(); !ended || reason != "a tightened policy could not be applied" {
+		t.Fatalf("pii.add: ended %v %q", ended, reason)
+	}
+	// A loosening refused by the backend at :review stays out; the session goes on.
+	l, lb := newHookHarness(t, uat(), nil)
+	looser := uat()
+	looser.Tier = "peek"
+	l.b.policy = looser
+	l.s.CheckPolicy()
+	lb.applyErr = errors.New("bad rules")
+	l.io.answers = []string{"y"}
+	l.s.Command(context.Background(), ":review")
+	if l.s.Policy().(fakePolicy).Tier != "read" || !strings.Contains(l.io.plain(), "policy change not applied: bad rules") {
+		t.Fatalf("loosening:\n%s", l.io.plain())
+	}
+	if _, ended := l.s.Ended(); ended {
+		t.Fatal("a refused loosening ended the session")
+	}
+	if rec := l.lastRecord(t); rec["decision"] != "failed" {
+		t.Fatalf("audit %v", rec)
+	}
+}
+
+// A failed save applies the policy in force back to the backend; when that
+// fails too, the session ends.
+func TestHooksSaveFailureRollback(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only directory")
+	}
+	for _, rollbackFails := range []bool{false, true} {
+		h, hb := newHookHarness(t, uat(), nil)
+		dir := filepath.Join(h.state, testProduct.Name, "approved")
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chmod(dir, 0o500); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+		looser := uat()
+		looser.Tier = "peek"
+		h.b.policy = looser
+		h.s.CheckPolicy()
+		if rollbackFails {
+			hb.failAfter = 1 // the new policy applies, the rollback fails
+		}
+		h.io.answers = []string{"y"}
+		h.s.Command(context.Background(), ":review")
+		if h.s.Policy().(fakePolicy).Tier != "read" {
+			t.Fatal("unsaved loosening in force")
+		}
+		last := hb.applied[len(hb.applied)-1]
+		_, ended := h.s.Ended()
+		if rollbackFails {
+			if !ended || last.Tier != "peek" {
+				t.Fatalf("rollback failed: ended %v, backend on %+v", ended, last)
+			}
+		} else if ended || last.Tier != "read" {
+			t.Fatalf("rollback: ended %v, backend on %+v", ended, last)
+		}
+	}
+}
+
+// A ConnectionComparer adds to the console's check: a host change ends the
+// session whatever it says.
+func TestHooksComparerAddsToHostCheck(t *testing.T) {
+	h, _ := newHookHarness(t, uat(), nil)
+	moved := uat()
+	moved.Host = "other.example.com" // MaxRows stays 20: the comparer says no change
+	h.b.policy = moved
+	h.s.CheckPolicy()
+	h.io.answers = []string{"y"}
+	h.s.Command(context.Background(), ":review")
+	if reason, ended := h.s.Ended(); !ended || reason != "connection settings changed" {
+		t.Fatalf("ended %v %q", ended, reason)
+	}
+}
+
+// piiApplyBackend is a PII backend that refuses policies once err is set.
+type piiApplyBackend struct {
+	*piiBackend
+	err error
+}
+
+func (b *piiApplyBackend) ApplyPolicy(Policy) error { return b.err }

@@ -19,9 +19,13 @@ lockfile and lockmq see no change; the console goldens are unchanged.
   row parts; `StatusView`, `StatusModeRow`, `StatusResultsRow`,
   `StatusUnmaskRow`, `StatusPendingRow`, `StatusBoundaryRow`),
   `ChangeFormatter` (policy diffs at start, on a tightening, at
-  `:review`), `ConnectionComparer` (which change of the policy ends the
-  session), `PolicyApplier` (prepares the backend for a policy before it
-  is in force; an error refuses the policy, at `NewServer` too), `Worder`
+  `:review`), `ConnectionComparer` (more changes of the policy that end
+  the session, on top of where/user/host/port), `PolicyApplier` (prepares
+  the backend for a policy before it is in force; a refused loosening
+  stays out, a refused tightening is audited and ends the session, a
+  failed save applies the policy in force back, and ends the session if
+  that fails; `NewServer` refuses a start policy it refuses, audited by
+  `Run`), `Worder`
   (`Words`: the console's lines in the product's terms; an empty field
   keeps the console's, `NoAutoHub` refuses auto mode in hub mode).
 - `EndError`: a `Reconnect` error that ends the session with its reason.

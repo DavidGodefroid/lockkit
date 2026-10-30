@@ -16,7 +16,9 @@ import (
 // StatusView is what the console knows when it draws :status or the status
 // row, for the product hooks that draw them.
 type StatusView struct {
-	// Status is the console's part of the status answer.
+	// Status is the console's part of the status answer (Product unset:
+	// the status row is drawn every second, Backend.Status is not called
+	// for it).
 	Status StatusResult
 	// Profile and Policy are the approved policy in force.
 	Profile Profile
@@ -66,15 +68,20 @@ type ChangeFormatter interface {
 // ConnectionComparer is implemented by a backend whose connection depends
 // on more than Profile's Where, User, Host and Port (a TLS setting, a
 // tunnel): a policy change for which ConnectionChanged reports true ends
-// the session, as the open connection no longer matches the policy.
+// the session, as the open connection no longer matches the policy. It
+// adds to the console's own check, which a change of those four fields
+// always trips.
 type ConnectionComparer interface {
 	ConnectionChanged(old, next Policy) bool
 }
 
 // PolicyApplier is implemented by a backend that prepares itself for a
-// policy before it is in force (compiles its rules): an error refuses the
-// policy, which then is neither saved nor applied. NewServer calls it with
-// the start policy.
+// policy before it is in force (compiles its rules). While the console
+// runs, an error refuses the policy, which then is neither saved nor
+// applied: a loosening stays out, and a tightening the backend cannot
+// apply ends the session (it would otherwise serve under the looser one).
+// NewServer calls it with the start policy and fails on an error (Run has
+// then saved the start policy already, and stops before serving).
 type PolicyApplier interface {
 	ApplyPolicy(p Policy) error
 }
@@ -87,7 +94,10 @@ type Worder interface {
 }
 
 // Words are the console lines a product may word itself. Each is the whole
-// line, colours excepted; an empty one keeps the console's text.
+// line, colours excepted; an empty one keeps the console's text. The
+// console prints them as they are: a line built from config or server
+// text (a finding, a credentials mode, a change) must be escaped by the
+// product (sanitize.Terminal), as the console's own lines are.
 type Words struct {
 	// AutoStart is printed when the console starts in auto mode.
 	AutoStart string
@@ -192,18 +202,19 @@ func (s *Server) Asker() Asker { return s.asker() }
 
 // statusView is what the status hooks see.
 func (s *Server) statusView() StatusView {
-	return StatusView{Status: s.Status(), Profile: s.profile, Policy: s.approved, Auto: s.autoApprove(),
+	return StatusView{Status: s.consoleStatus(), Profile: s.profile, Policy: s.approved, Auto: s.autoApprove(),
 		ShowResults: s.showResults, AllowUnmask: s.allowUnmask, Pending: s.pending != nil, Requests: len(s.requests),
 		Boundary: s.cfg.Boundary, Level: s.cfg.Level, Session: s.sess}
 }
 
 // connectionChanged reports a change of the connection settings.
 func (s *Server) connectionChanged(old Profile, oldP, next Policy) bool {
-	if c, ok := s.cfg.Backend.(ConnectionComparer); ok {
-		return c.ConnectionChanged(oldP, next)
-	}
 	n := next.Profile()
-	return old.Where != n.Where || old.User != n.User || old.Host != n.Host || old.Port != n.Port
+	if old.Where != n.Where || old.User != n.User || old.Host != n.Host || old.Port != n.Port {
+		return true
+	}
+	c, ok := s.cfg.Backend.(ConnectionComparer)
+	return ok && c.ConnectionChanged(oldP, next)
 }
 
 // Unwrap returns the backend's own session behind s: the console wraps a

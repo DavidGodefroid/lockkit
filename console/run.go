@@ -318,6 +318,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if err != nil {
 		ln.Close()
 		_ = sess.Close()
+		st.audit(audit.Base{Event: audit.EventLogin, Decision: "refused", Error: err.Error()})
 		return err
 	}
 	s.record(context.Background(), audit.Base{Event: audit.EventLogin, Decision: "ok"})

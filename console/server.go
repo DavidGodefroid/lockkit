@@ -498,7 +498,9 @@ func (s *Server) Hub() *Hub { return s.cfg.Hub }
 // Audit implements Env.
 func (s *Server) Audit(rec audit.Record) { _ = s.write(rec) }
 
-// WriteAudit writes rec as is, like Env.Audit, and returns the failure:
+// WriteAudit writes rec as is, like Env.Audit (no profile, peer or
+// AuditRecord stamping: rec is the product's own record), and returns the
+// failure:
 // a product that records an approval itself refuses the request when it
 // cannot be written (fail closed). Failures count towards ending the
 // session as for the console's own records.
@@ -760,13 +762,28 @@ func (s *Server) adopt(p Policy, decision string) error {
 	pa, applier := s.cfg.Backend.(PolicyApplier)
 	if applier {
 		if err := pa.ApplyPolicy(p); err != nil {
+			if decision != "applied" {
+				// The files demand a stricter policy the backend cannot
+				// enforce: serving on under the looser one would fail open.
+				_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "tightening refused by the backend: " + err.Error()})
+				s.println(red + "the tightened policy cannot be applied: " + sanitize.Terminal(err.Error(), false) + "; the session ends" + reset)
+				s.End("a tightened policy could not be applied")
+				return err
+			}
 			return failed(err)
 		}
 	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
 		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
 			if applier {
-				_ = pa.ApplyPolicy(s.approved) // back to the policy in force
+				// Back to the policy in force; a backend left on p (a
+				// loosening never saved) would enforce what the console
+				// does not: the session ends.
+				if rerr := pa.ApplyPolicy(s.approved); rerr != nil {
+					_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "rollback refused by the backend: " + rerr.Error()})
+					s.println(red + "the policy in force could not be restored: " + sanitize.Terminal(rerr.Error(), false) + "; the session ends" + reset)
+					s.End("the policy in force could not be restored")
+				}
 			}
 			return failed(err)
 		}
@@ -870,11 +887,12 @@ func (s *Server) review(ctx context.Context) {
 		return
 	}
 	s.refused = ""
+	wasEnded := s.ended
 	if err := s.adopt(next, "applied"); err != nil {
 		s.println("policy change not applied: " + sanitize.Terminal(err.Error(), false))
 		return
 	}
-	if s.ended {
+	if s.ended && !wasEnded {
 		// Applied, and the session ends (the connection settings changed,
 		// a refusal of production): the console said why.
 		return

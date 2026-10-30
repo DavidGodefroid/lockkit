@@ -205,41 +205,19 @@ func (s *Server) statusLines() []string {
 		return keyValues(r.StatusRows(s.statusView()))
 	}
 	st := s.Status()
-	mode := "manual: every request is prompted"
-	switch {
-	case s.autoApprove():
-		mode = Paint.Yellow("auto: requests run without a prompt unless they ask for a human every time")
-	case s.profile.Production:
-		mode += " (production: auto mode unavailable)"
-	}
-	results := "masked (the agent's view)"
-	if s.showResults {
-		results = Paint.Yellow("shown here in clear, personal data included")
-	}
-	unmask := "refused (:unmask allows it)"
-	if s.allowUnmask {
-		unmask = Paint.Red("allowed: clients may ask for unmasked output, approved here each time")
-	}
-	pending := "none"
-	if s.pending != nil {
-		pending = Paint.Red("a loosening awaits :review")
-	}
+	v := s.statusView()
 	rows := [][2]string{
 		{"profile", fmt.Sprintf("%s · %s · production %t", st.Profile, sanitize.Terminal(s.profile.Where, false), st.Production)},
-		{"mode", mode + Paint.Dim(" (Shift+Tab or :mode)")},
-		{"results", results + Paint.Dim(" (Ctrl-O or :results)")},
-		{"unmask", unmask + Paint.Dim(" (:unmask)")},
+		{"mode", StatusModeRow(v, Words{})},
+		{"results", StatusResultsRow(v, Words{})},
+		{"unmask", StatusUnmaskRow(v)},
 		{"session", fmt.Sprintf("ends in %d min (max_session %s) · idle_timeout %s", st.SessionEndsInS/60, s.profile.MaxSession, s.profile.IdleTimeout)},
-		{"policy change", pending},
+		{"policy change", StatusPendingRow(v)},
 	}
 	for _, l := range s.approved.Describe() {
 		rows = append(rows, [2]string{"policy", sanitize.Terminal(l, false)})
 	}
-	if s.cfg.Boundary != "" {
-		b := s.cfg.Boundary
-		if !s.fingerprintLevel() {
-			b = Paint.Red(b)
-		}
+	if b := StatusBoundaryRow(v); b != "" {
 		rows = append(rows, [2]string{"boundary", b})
 	}
 	return keyValues(rows)
