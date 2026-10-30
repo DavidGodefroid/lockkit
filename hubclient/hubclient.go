@@ -606,7 +606,9 @@ func (c *Client) verify(e entry) (*ticket.Decision, error) {
 	}
 	if d.Device != nil || d.Facade == ticket.FacadeMobile {
 		// The assertion is checked against the lock's own ticket in Begin;
-		// here only that it names a device this lock pins.
+		// here only that it names a device this lock pins (a bad one
+		// replaces an earlier decision in the inbox until Begin drops it:
+		// a delay the hub could cause anyway by withholding).
 		if _, err := c.device(d); err != nil {
 			return nil, fmt.Errorf("%w: ticket %s: %v", ErrBadDecision, e.Ticket, err)
 		}
@@ -628,13 +630,9 @@ func (c *Client) device(d *ticket.Decision) (*ticket.Device, error) {
 }
 
 // verifyDevice checks d's device signature under the pinned device it
-// names, over the lock's own signed ticket own.
-func (c *Client) verifyDevice(d *ticket.Decision, own *ticket.Ticket) error {
+// names, over the lock's own signed ticket, as it pushed it.
+func (c *Client) verifyDevice(d *ticket.Decision, signed []byte) error {
 	dev, err := c.device(d)
-	if err != nil {
-		return err
-	}
-	signed, err := own.Marshal()
 	if err != nil {
 		return err
 	}
@@ -731,7 +729,7 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 		return nil, nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
 	}
 	if d.Device != nil || d.Facade == ticket.FacadeMobile {
-		if err := c.verifyDevice(d, own); err != nil {
+		if err := c.verifyDevice(d, p.SignedTicket); err != nil {
 			c.drop(ticketID)
 			return nil, nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
 		}

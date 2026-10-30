@@ -21,7 +21,9 @@ to the device while they are shown (hence sealing is a separate opt-in).
   on, the approver's display name and `TicketHash` of the signed ticket,
   under `ContextDeviceDecision`), present only with facade `mobile`;
   `VerifyAssertion` (ES256, user present and verified, origin, rp id) and
-  `VerifyDevice(dev, decision, signedTicket)`. A decision without a device
+  `VerifyDevice(dev, decision, signedTicket)`. The hub relays the lock's
+  ticket bytes to the device unchanged: the device hashes exactly what the
+  lock signed. A decision without a device
   member is unchanged on the wire; locks on older lockkit refuse one with
   it (unknown member).
 - `ticket`: `SealGCM` (`SealAlgGCM`: X25519, HKDF-SHA256, AES-256-GCM), a

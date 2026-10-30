@@ -25,11 +25,21 @@ type deviceVectors struct {
 		Plaintext string `json:"plaintext"`
 		Box       Sealed `json:"box"`
 	} `json:"seal_gcm"`
-	Statement struct {
-		Statement    DeviceStatement `json:"statement"`
-		CanonicalHex string          `json:"canonical_hex"`
-		Challenge    string          `json:"challenge"`
-	} `json:"device_statement"`
+	Statement     stmtVector `json:"device_statement"`
+	StatementMS   stmtVector `json:"device_statement_ms"`
+	TimeNote      string     `json:"time_note"`
+}
+
+type stmtVector struct {
+	Statement    DeviceStatement `json:"statement"`
+	CanonicalHex string          `json:"canonical_hex"`
+	Challenge    string          `json:"challenge"`
+}
+
+func stmtOf(st DeviceStatement) stmtVector {
+	c, _ := Canonical(st)
+	ch, _ := st.Challenge()
+	return stmtVector{st, hex.EncodeToString(c), enc.EncodeToString(ch)}
 }
 
 func makeDeviceVectors(t *testing.T) deviceVectors {
@@ -52,9 +62,10 @@ func makeDeviceVectors(t *testing.T) deviceVectors {
 		PlanHash: "sha256:" + strings.Repeat("1", 64), Decision: Approved, Reason: "", Approver: dev, Display: "phone",
 		Facade: FacadeMobile, At: time.Date(2026, 10, 30, 12, 0, 0, 0, time.UTC), Nonce: "AAECAwQFBgcICQoLDA0ODw",
 		HubKeyID: KeyID(hubPub), Device: dev, TicketHash: "sha256:" + strings.Repeat("2", 64)}
-	c, _ := Canonical(st)
-	ch, _ := st.Challenge()
-	v.Statement.Statement, v.Statement.CanonicalHex, v.Statement.Challenge = st, hex.EncodeToString(c), enc.EncodeToString(ch)
+	v.Statement = stmtOf(st)
+	st.At = time.Date(2026, 10, 30, 12, 0, 0, 120e6, time.UTC)
+	v.StatementMS = stmtOf(st)
+	v.TimeNote = "at is RFC 3339 in UTC with trailing zeros of the fraction trimmed (Go's time.Time JSON): 12:00:00.12Z, not .120Z; an implementation copies the hub's at string, never re-formats it"
 	return v
 }
 
@@ -81,11 +92,22 @@ func TestDeviceVectors(t *testing.T) {
 	if pt, err := Open(rk, &got.Seal.Box, aad); err != nil || string(pt) != got.Seal.Plaintext {
 		t.Fatalf("vector box: %q %v", pt, err)
 	}
-	// Keys are separated between the algorithms: the same inputs under
-	// SealAlg, with a nonce of its size, give another ciphertext.
-	ek, _ := ecdh.X25519().NewPrivateKey(bytes.Repeat([]byte{0x66}, 32))
-	x, _ := sealWith(SealAlg, ek, bytes.Repeat([]byte{0x77}, 24), rk.PublicKey(), []byte(got.Seal.Plaintext), aad)
-	if x.CT[:20] == got.Seal.Box.CT[:20] {
-		t.Fatal("same keystream under both algorithms")
+	if !strings.Contains(string(mustCanon(got.StatementMS.Statement)), `"at":"2026-10-30T12:00:00.12Z"`) {
+		t.Fatal("time format of the statement changed")
 	}
+	// Keys are separated between the algorithms (HKDF info).
+	shared := bytes.Repeat([]byte{1}, 32)
+	k1, _ := sealKey(SealAlg, shared, shared, shared)
+	k2, _ := sealKey(SealAlgGCM, shared, shared, shared)
+	if bytes.Equal(k1, k2) {
+		t.Fatal("same key under both algorithms")
+	}
+}
+
+func mustCanon(v any) []byte {
+	b, err := Canonical(v)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
