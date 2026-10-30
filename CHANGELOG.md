@@ -32,6 +32,10 @@ lockfile and lockmq see no change; the console goldens are unchanged.
 - `AskerOf(env)` and `PolicyPendingOf(env)` for a handler that paints its
   own approval screen; `Server.Asker`, `Server.WriteAudit` (returns the
   write failure, counted like the console's own), `Server.PolicyRefused`.
+- A tightening that cannot be saved as the approved policy now applies
+  anyway (audited `policy`/`failed`, told on the console): before, the
+  looser policy stayed in force (fail open). A loosening that cannot be
+  saved still stays out.
 - `:review` no longer says "policy change applied" when applying it ended
   the session (connection settings changed, production refused): the
   console already said why.

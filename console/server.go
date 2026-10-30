@@ -774,7 +774,16 @@ func (s *Server) adopt(p Policy, decision string) error {
 		}
 	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
-		if err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p); err != nil {
+		err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p)
+		if err != nil && decision != "applied" {
+			// A tightening is enforced even when it cannot be saved: going
+			// back to the looser policy would fail open. The next start
+			// reads the stricter files again.
+			_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "tightened policy not saved: " + err.Error()})
+			s.println(Paint.Warn("the tightened policy applies, but could not be saved: " + sanitize.Terminal(err.Error(), false)))
+			err = nil
+		}
+		if err != nil {
 			if applier {
 				// Back to the policy in force; a backend left on p (a
 				// loosening never saved) would enforce what the console

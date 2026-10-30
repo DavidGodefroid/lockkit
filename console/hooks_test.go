@@ -515,3 +515,64 @@ type piiApplyBackend struct {
 }
 
 func (b *piiApplyBackend) ApplyPolicy(Policy) error { return b.err }
+
+// A tightening that cannot be saved still applies (going back to the
+// looser policy would fail open), with or without a PolicyApplier, and is
+// audited; a loosening that cannot be saved stays out.
+func TestTighteningSaveFailureStaysInForce(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes a read-only directory")
+	}
+	for _, hooks := range []bool{false, true} {
+		var h *harness
+		var hb *hookBackend
+		if hooks {
+			h, hb = newHookHarness(t, uat(), nil)
+		} else {
+			h = newHarness(t, uat(), nil)
+		}
+		dir := filepath.Join(h.state, testProduct.Name, "approved")
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chmod(dir, 0o500); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+		tighter := uat()
+		tighter.MaxRows = 10
+		h.b.policy = tighter
+		h.s.CheckPolicy()
+		if h.s.Policy().(fakePolicy).MaxRows != 10 {
+			t.Fatalf("hooks %v: unsaved tightening not in force", hooks)
+		}
+		if hooks && hb.applied[len(hb.applied)-1].MaxRows != 10 {
+			t.Fatal("backend not on the tightened policy")
+		}
+		if _, ended := h.s.Ended(); ended {
+			t.Fatalf("hooks %v: session ended", hooks)
+		}
+		found := false
+		for _, r := range h.records(t) {
+			if r["decision"] == "failed" && strings.Contains(fmt.Sprint(r["error"]), "tightened policy not saved") {
+				found = true
+			}
+		}
+		if !found || !strings.Contains(h.io.plain(), "the tightened policy applies, but could not be saved") {
+			t.Fatalf("hooks %v: not told or audited:\n%s", hooks, h.io.plain())
+		}
+		// The loosening that follows cannot be saved: it stays out.
+		looser := tighter
+		looser.Tier = "peek"
+		h.b.policy = looser
+		h.s.CheckPolicy()
+		h.io.answers = []string{"y"}
+		h.s.Command(context.Background(), ":review")
+		if h.s.Policy().(fakePolicy).Tier != "read" {
+			t.Fatalf("hooks %v: unsaved loosening in force", hooks)
+		}
+		if hooks && hb.applied[len(hb.applied)-1].Tier != "read" {
+			t.Fatal("backend left on the unsaved loosening")
+		}
+	}
+}
