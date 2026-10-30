@@ -400,7 +400,8 @@ reveal (`Hub.Requests`). When `Begin` answers `ticket.ErrExpired`, answer
 `h.RenewResp(ctx, id, ticket, caller)`: the ticket is asked again and
 the agent gets pending with the new ticket. Record the plan-hash inputs
 at plan time (`Binding.Inputs = ticket.InputDigests(inputs)`) and give
-`h.Client.SetRecompute` the same digests recomputed now: the human then
+`h.Client.SetRecompute` (from `Options.OnHub` under `Run`) the same
+digests recomputed now: the human then
 sees which inputs moved, and an unchanged non-production renewal is one
 click.
 
