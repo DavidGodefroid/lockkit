@@ -28,6 +28,9 @@ type HubOptions struct {
 	KeyFile string
 	// Instance is the lock instance's name (hubclient.ValidInstance).
 	Instance string
+	// PlainHTTP lets URL be http:// to a hub on a network of its own
+	// (--hub-plain-http, hubclient.Config.PlainHTTP).
+	PlainHTTP bool
 	// Home is the lock's home volume, where the instance key lives
 	// (hubclient.InstanceKey, made by `hub-key`); "" is the user's home.
 	Home string
@@ -38,10 +41,13 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 	fs.StringVar(&h.URL, "hub", "", "decide requests on lockhub at this URL instead of this terminal (with --hub-key-file and --instance)")
 	fs.StringVar(&h.KeyFile, "hub-key-file", "", "the pinned public key of the hub (base64, one line)")
 	fs.StringVar(&h.Instance, "instance", "", "the lock instance name the hub knows this console by")
+	fs.BoolVar(&h.PlainHTTP, "hub-plain-http", false, "allow an http:// hub URL on a network of its own (a service name without a dot or a private address)")
 }
 
 // Enabled reports whether any hub flag is set.
-func (h HubOptions) Enabled() bool { return h.URL != "" || h.KeyFile != "" || h.Instance != "" }
+func (h HubOptions) Enabled() bool {
+	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP
+}
 
 func (h HubOptions) check() error {
 	switch {
@@ -121,7 +127,7 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 	if err != nil {
 		return nil, err
 	}
-	c, err := hubclient.New(hubclient.Config{URL: o.URL, Instance: o.Instance, Key: key, HubKey: hubKey,
+	c, err := hubclient.New(hubclient.Config{URL: o.URL, Instance: o.Instance, Key: key, HubKey: hubKey, PlainHTTP: o.PlainHTTP,
 		StateFile: filepath.Join(dir, "state.json"), Now: now})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
