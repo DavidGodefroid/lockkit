@@ -201,11 +201,11 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		// and a run of their tickets is refused (Server.Handle).
 		ws, err := WithdrawStandalone(p, o.StateDir)
 		for _, w := range ws {
-			o.IO.Println(Paint.Warn(fmt.Sprintf("hub mode is off: %d pending ticket(s) of %s withdrawn; the hub hears of it at the next start with --hub",
-				len(w.Tickets), sanitize.Terminal(w.Instance, false))))
+			o.IO.Println(Paint.Warn(fmt.Sprintf("hub mode is off: %d pending ticket(s) of %s withdrawn; the hub hears of it at the next start with --hub --instance %s",
+				len(w.Tickets), sanitize.Terminal(w.Instance, false), sanitize.Terminal(w.Instance, false))))
 		}
 		if err != nil {
-			o.IO.Println(Paint.Warn("hub mode is off, and its pending plans could not all be withdrawn: " + sanitize.Terminal(err.Error(), false)))
+			o.IO.Println(Paint.Warn("hub mode is off, and its pending plans could not all be withdrawn (they stay pending and could run after a restart with --hub; deny them in lockhub): " + sanitize.Terminal(err.Error(), false)))
 		}
 	}
 	appr := NewTypedApprover(o.IO)

@@ -398,9 +398,12 @@ after running with them withdraws the plans its hub mode left pending
 marked untold; the next start with `--hub` withdraws their tickets at the
 hub, `hubclient.Client.Sync`) and answers any request naming a `ticket`
 param with `ipc.CodeWithdrawn` (`console.WithdrawnResp`), before the
-product sees it. `Run` does both; a product with its own console
-lifecycle calls `WithdrawStandalone` at its standalone start and refuses
-a run by ticket with `WithdrawnResp`.
+product sees it: `ticket` is therefore a reserved param name of product
+methods. `Run` does both, and any `console.Server` without a hub refuses
+tickets itself; a product with its own console lifecycle calls
+`WithdrawStandalone` at its standalone start, and one that does not serve
+through `console.Server` (a gate) refuses a run by ticket with
+`WithdrawnResp`.
 
 A minimal product:
 

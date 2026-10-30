@@ -11,7 +11,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   (`console.WithdrawnResp`, `console.TicketParam`) before the product
   sees it. `plans.Store.WithdrawAll` marks the plans `Untold` (kept past
   the retention until told); `hubclient.Client.Sync` withdraws them at the
-  hub on the next start in hub mode (`Untold`, `MarkTold`, `Tickets`).
+  hub on the next start in hub mode (`Untold`, `MarkTold`).
   `hubtest.Hub.SetWithdrawStatus` for tests.
 
 ## v0.3.1 (2026-10-30)

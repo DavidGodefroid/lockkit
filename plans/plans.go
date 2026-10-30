@@ -726,21 +726,6 @@ func (s *Store) MarkTold(id string) error {
 	return nil
 }
 
-// Tickets lists the tickets of the store's plans, in any state: what a
-// lock started without its hub refuses explicitly.
-func (s *Store) Tickets() []string {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	var out []string
-	for _, p := range s.plans {
-		if p.Ticket != "" {
-			out = append(out, p.Ticket)
-		}
-	}
-	sort.Strings(out)
-	return out
-}
-
 // setState writes p in state st. Locked.
 func (s *Store) setState(p *Plan, st State, reason string) error {
 	u := clone(p)

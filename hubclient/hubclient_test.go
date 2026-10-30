@@ -448,6 +448,13 @@ func TestSyncWithdrawsUntold(t *testing.T) {
 		t.Fatal(err)
 	}
 	e.hub.SetWithdrawStatus(id2, http.StatusNotFound)
+	r, tk3 := e.plan(t, "sha256:"+strings.Repeat("4", 64))
+	id3, _ := e.client.Submit(ctx, e.store, r.ID, caller, tk3, screen())
+	q4, tk4 := e.plan(t, "sha256:"+strings.Repeat("5", 64))
+	id4, _ := e.client.Submit(ctx, e.store, q4.ID, caller, tk4, screen())
+	_, _ = e.store.WithdrawAll("standalone")
+	e.hub.SetWithdrawStatus(id3, http.StatusConflict)
+	e.hub.SetWithdrawStatus(id4, http.StatusGone)
 	if err := e.client.Sync(ctx, e.store); err != nil {
 		t.Fatal(err)
 	}

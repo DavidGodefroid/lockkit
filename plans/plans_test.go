@@ -434,9 +434,6 @@ func TestWithdrawAllUntoldUntilTold(t *testing.T) {
 	if _, err := s.WithdrawAll("started without the hub"); err != nil {
 		t.Fatal(err)
 	}
-	if got := s.Tickets(); len(got) != 1 || got[0] != tk1 {
-		t.Fatalf("tickets %v", got)
-	}
 	// Survives a restart, and Prune keeps it past the retention.
 	_ = s.Close()
 	s2, err := Open(dir, WithClock(clock.now))
