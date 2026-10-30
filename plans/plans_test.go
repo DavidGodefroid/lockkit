@@ -424,3 +424,44 @@ func TestOpenLocksTheDirectory(t *testing.T) {
 		t.Fatalf("nonce reused across stores: %v", err)
 	}
 }
+
+func TestWithdrawAllUntoldUntilTold(t *testing.T) {
+	s, dir, clock := newStore(t)
+	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
+	if err := s.MarkPending(p.ID, agent3, tkt(t, p, nil)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WithdrawAll("started without the hub"); err != nil {
+		t.Fatal(err)
+	}
+	if got := s.Tickets(); len(got) != 1 || got[0] != tk1 {
+		t.Fatalf("tickets %v", got)
+	}
+	// Survives a restart, and Prune keeps it past the retention.
+	_ = s.Close()
+	s2, err := Open(dir, WithClock(clock.now))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s2.Close()
+	u := s2.Untold()
+	if len(u) != 1 || u[0].ID != p.ID || u[0].State != Withdrawn || u[0].Reason != "started without the hub" {
+		t.Fatalf("untold %+v", u)
+	}
+	clock.add(Retention + time.Hour)
+	if n, err := s2.Prune(); err != nil || n != 0 {
+		t.Fatalf("pruned an untold plan: %d %v", n, err)
+	}
+	if err := s2.MarkTold(p.ID); err != nil {
+		t.Fatal(err)
+	}
+	if len(s2.Untold()) != 0 {
+		t.Fatal("still untold")
+	}
+	if n, err := s2.Prune(); err != nil || n != 1 {
+		t.Fatalf("told plan not pruned: %d %v", n, err)
+	}
+	if err := s2.MarkTold(p.ID); !errors.Is(err, ErrNoSuchPlan) {
+		t.Fatalf("MarkTold of a pruned plan: %v", err)
+	}
+}

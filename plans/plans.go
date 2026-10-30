@@ -128,7 +128,11 @@ type Plan struct {
 	Nonce string `json:"nonce,omitempty"`
 	// Reason says why the plan reached its final state (denial reason,
 	// failure, what went stale).
-	Reason  string     `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty"`
+	// Untold: the plan's ticket was withdrawn here (WithdrawAll, a start
+	// without the hub) and the hub has not been told yet; the next start
+	// in hub mode tells it (hubclient.Client.Sync), then MarkTold.
+	Untold  bool       `json:"untold,omitempty"`
 	Created time.Time  `json:"created"`
 	Updated time.Time  `json:"updated"`
 	Expires *time.Time `json:"expires,omitempty"`
@@ -663,21 +667,78 @@ func (s *Store) End(id string, c Caller, st State, reason string) error {
 	return s.setState(p, st, reason)
 }
 
-// WithdrawAll ends every pending plan as Withdrawn (a lock starting
-// without its hub) and returns them.
+// WithdrawAll ends every pending plan as Withdrawn, as a lock starting
+// without its hub does, and returns them, oldest first. They are marked
+// Untold: the hub still shows their ticket until a start in hub mode
+// withdraws it there (Untold, MarkTold).
 func (s *Store) WithdrawAll(reason string) ([]*Plan, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var out []*Plan
 	for _, p := range s.plans {
-		if p.State == Pending {
-			if err := s.setState(p, Withdrawn, reason); err != nil {
-				return out, err
-			}
-			out = append(out, clone(s.plans[p.ID]))
+		if p.State != Pending {
+			continue
+		}
+		u := clone(p)
+		u.State, u.Reason, u.Updated, u.Untold = Withdrawn, reason, s.now().UTC(), true
+		if err := s.write(u); err != nil {
+			return out, err
+		}
+		s.plans[p.ID] = u
+		out = append(out, clone(u))
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Created.Before(out[j].Created) })
+	return out, nil
+}
+
+// Untold lists the withdrawn plans whose ticket the hub was not told
+// about, oldest first.
+func (s *Store) Untold() []*Plan {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []*Plan
+	for _, p := range s.plans {
+		if p.Untold {
+			out = append(out, clone(p))
 		}
 	}
-	return out, nil
+	sort.Slice(out, func(i, j int) bool { return out[i].Created.Before(out[j].Created) })
+	return out
+}
+
+// MarkTold records that the hub was told plan id's ticket is withdrawn.
+func (s *Store) MarkTold(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, ok := s.plans[id]
+	if !ok {
+		return ErrNoSuchPlan
+	}
+	if !p.Untold {
+		return nil
+	}
+	u := clone(p)
+	u.Untold = false // Updated stays the withdrawal's: the retention counts from it
+	if err := s.write(u); err != nil {
+		return err
+	}
+	s.plans[id] = u
+	return nil
+}
+
+// Tickets lists the tickets of the store's plans, in any state: what a
+// lock started without its hub refuses explicitly.
+func (s *Store) Tickets() []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []string
+	for _, p := range s.plans {
+		if p.Ticket != "" {
+			out = append(out, p.Ticket)
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
 // setState writes p in state st. Locked.
@@ -705,7 +766,9 @@ func (s *Store) Prune() (int, error) {
 			}
 			p = s.plans[id]
 		}
-		if p.State.Final() && now.Sub(p.Updated) >= Retention {
+		// An untold plan stays until the hub hears of it: its ticket would
+		// wait there for nothing otherwise.
+		if p.State.Final() && !p.Untold && now.Sub(p.Updated) >= Retention {
 			if err := os.Remove(filepath.Join(s.dir, id+planExt)); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return n, fmt.Errorf("plans: %w", err)
 			}
