@@ -196,6 +196,12 @@ func TestRenewalInTicket(t *testing.T) {
 	if gone := DiffInputs(after, before); len(gone) != 2 || gone[0].Change != ChangeGone {
 		t.Fatalf("%+v", gone)
 	}
+	if u := DiffInputs(before, map[string]string{"sql": before["sql"], "schema": UncheckedInput}); len(u) != 1 || u[0].Change != ChangeUnchecked {
+		t.Fatalf("unchecked: %+v", u)
+	}
+	if r := (&Renewal{Checked: true, Changes: []Change{{Input: "schema", Change: ChangeUnchecked}}}); r.Unchanged() {
+		t.Fatal("an unchecked input is no unchanged renewal")
+	}
 	if DiffInputs(before, before) != nil {
 		t.Fatal("no change expected")
 	}

@@ -499,3 +499,62 @@ func TestRenewRequestAgedApprovalNeedsDevice(t *testing.T) {
 		t.Fatalf("plan is %s", sp.State)
 	}
 }
+
+// A renewal whose plan already ran is not renewable; one whose renewal
+// expired too is renewed in turn.
+func TestRenewOfARenewal(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.add(25 * time.Hour) // the renewal expires undecided
+	n2, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil || n2 == n || n2 == id {
+		t.Fatalf("chain: %q %v", n2, err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n2))
+	if rt.Renews.Of != n {
+		t.Fatalf("renews %s, want %s", rt.Renews.Of, n)
+	}
+	e.hub.DecideWith(n2, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = c.now() })
+	_, _ = e.client.Poll(ctx, 0)
+	run, _, err := e.client.Begin(e.store, n2, caller, recheck(policyFP, planHash))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = e.client.Finish(ctx, e.store, run.ID, caller, true, "")
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrNotRenewable) {
+		t.Fatalf("renewed a plan that ran: %v", err)
+	}
+}
+
+// An input Recompute could not check shows as unchecked: never one click.
+func TestRenewUncheckedInput(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	before := map[string]string{"queue": "sha256:" + strings.Repeat("a", 64)}
+	p, err := e.store.Create(plans.Binding{UID: caller.UID, TokenHash: plans.HashToken(caller.Token),
+		PolicyFP: policyFP, PlanHash: planHash, Inputs: before}, json.RawMessage(`{}`), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tk := ticket.NewTicket(ticket.Source{Lock: "lockmq"}, ticket.RiskWrite, planHash, policyFP, c.now(), time.Hour)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return policyFP, planHash, map[string]string{"queue": ticket.UncheckedInput}, nil
+	})
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
+	if rt.Renews.Unchanged() || len(rt.Renews.Changes) != 1 || rt.Renews.Changes[0].Change != ticket.ChangeUnchecked {
+		t.Fatalf("%+v", rt.Renews)
+	}
+}

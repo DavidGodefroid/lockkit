@@ -15,7 +15,10 @@ import (
 
 // Recompute gives, for a stored plan, its policy fingerprint, plan hash
 // and plan-hash inputs (ticket.InputDigests) as the lock sees them now: a
-// renewal shows the human what moved since the expired ticket. A product
+// renewal shows the human what moved since the expired ticket. An input it
+// cannot check now (no session) is ticket.UncheckedInput, never its stored
+// digest: the renewal then says so, and is not one click; keep the stored
+// plan hash in that case (the run checks it). A product
 // sets it with SetRecompute; without one, a renewal keeps the plan's hash
 // and says it was not checked (the run checks it anyway).
 type Recompute func(p *plans.Plan) (policyFP, planHash string, inputs map[string]string, err error)
@@ -230,6 +233,10 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 	// race on the same expired plan.
 	c.renewMu.Lock()
 	defer c.renewMu.Unlock()
+	return c.renewLocked(ctx, st, old, caller)
+}
+
+func (c *Client) renewLocked(ctx context.Context, st *plans.Store, old *plans.Plan, caller plans.Caller) (string, error) {
 	if old.State != plans.Expired {
 		return "", fmt.Errorf("%w: ticket %s is %s", ErrNotRenewable, old.Ticket, old.State)
 	}
@@ -261,11 +268,27 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 	if err != nil {
 		return "", err
 	}
-	if n.State != plans.Planned {
+	if n.Ticket != "" {
+		// Through a lookup: a renewal past its own expiry reads Expired.
+		if x, err := st.TicketPlan(n.Ticket); err == nil {
+			n = x
+		}
+	}
+	switch n.State {
+	case plans.Planned:
+	case plans.Pending:
+		return n.Ticket, nil
+	case plans.Expired:
+		// The renewal expired too: renew it in turn (a chain, one link at
+		// a time; renewMu is held, so call the unlocked body).
 		if n.Ticket == "" {
 			return "", fmt.Errorf("%w: renewal plan %s is %s", ErrNotRenewable, n.ID, n.State)
 		}
-		return n.Ticket, nil
+		// Same binding as old: the same caller.
+		return c.renewLocked(ctx, st, n, caller)
+	default:
+		// Ran, denied, withdrawn, stale: nothing left to ask again.
+		return "", fmt.Errorf("%w: its renewal %s is %s", ErrNotRenewable, n.Ticket, n.State)
 	}
 	// Planned: new, or a renewal whose submission failed (hub limits). Its
 	// changes come from the stored bindings, whichever call submits it.
