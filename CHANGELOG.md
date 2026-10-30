@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.7.0 (2026-10-30)
 
 Console product hooks (locksql#96: locksql's console runs on this one).
 A backend that implements none of them keeps the console's behaviour, so
