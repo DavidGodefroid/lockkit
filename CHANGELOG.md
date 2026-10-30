@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.4.0 (2026-10-30)
 
 Approval devices (lockhub's mobile facade): a decision taken on a phone is
 signed by the phone itself, over the lock's own signed ticket, and the
