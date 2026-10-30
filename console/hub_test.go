@@ -486,7 +486,12 @@ func TestRunOnHub(t *testing.T) {
 	go func() {
 		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
 			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
-			OnHub: func(h *Hub) { got <- h },
+			OnHub: func(h *Hub) {
+				if len(ready) != 0 {
+					t.Error("OnHub after the socket listened")
+				}
+				got <- h
+			},
 			Hub:   HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
 	}()
 	select {

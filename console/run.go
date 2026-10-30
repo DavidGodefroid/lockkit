@@ -55,7 +55,9 @@ type Options struct {
 	Hub HubOptions
 	// OnHub, when set, is called with the console's hub once it is open,
 	// before any request is served: where a product registers its
-	// hubclient.Recompute (hub.Client.SetRecompute).
+	// hubclient.Recompute (hub.Client.SetRecompute). It runs before the
+	// policy review, so Run may still fail and close the hub; Run sets the
+	// client's OnRequest itself (Hub.Requests), replacing any set here.
 	OnHub func(*Hub)
 }
 
