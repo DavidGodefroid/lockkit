@@ -3,11 +3,13 @@ package mcpkit
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/DavidGodefroid/lockkit/ipc"
+	"github.com/DavidGodefroid/lockkit/plans"
 )
 
 func TestPending(t *testing.T) {
@@ -82,7 +84,8 @@ func TestPendingOverMCP(t *testing.T) {
 
 func TestRequesterFromEnv(t *testing.T) {
 	env := map[string]string{"LEA_AGENT": "dev-3", "LEA_AGENT_TOKEN": "tok"}
-	if got := requesterFrom(func(k string) string { return env[k] }); got != (ipc.Requester{Agent: "dev-3", Token: "tok"}) {
+	got := requesterFrom(func(k string) string { return env[k] })
+	if got != (ipc.Requester{Agent: "dev-3", Token: plans.HashToken("tok")}) || strings.Contains(got.Token, "tok") {
 		t.Fatalf("%+v", got)
 	}
 	if got := requesterFrom(func(string) string { return "" }); got != (ipc.Requester{}) {
@@ -94,7 +97,7 @@ func TestRequesterFromEnv(t *testing.T) {
 	}
 	t.Setenv("LEA_AGENT", "dev-9")
 	t.Setenv("LEA_AGENT_TOKEN", "t9")
-	if got := RequesterFromEnv(); got.Agent != "dev-9" || got.Token != "t9" {
+	if got := RequesterFromEnv(); got.Agent != "dev-9" || got.Token != plans.HashToken("t9") {
 		t.Fatalf("%+v", got)
 	}
 }
