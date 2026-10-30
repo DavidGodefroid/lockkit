@@ -38,6 +38,9 @@ type HubOptions struct {
 	// RequireDevice lists the risk classes whose approvals must be signed
 	// by a pinned device (--require-device, comma-separated).
 	RequireDevice string
+	// SealClear seals the clear screen to the pinned devices
+	// (--seal-clear, hubclient.Config.SealClear).
+	SealClear bool
 	// Home is the lock's home volume, where the instance key lives
 	// (hubclient.InstanceKey, made by `hub-key`); "" is the user's home.
 	Home string
@@ -51,6 +54,7 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 	fs.BoolVar(&h.PlainHTTP, "hub-plain-http", false, "allow an http:// hub URL on a network of its own (a service name without a dot or a private address)")
 	fs.StringVar(&h.DevicesFile, "devices-file", "", "the approval devices this lock pins (JSON, written by lock up): device decisions must carry their signature")
 	fs.StringVar(&h.RequireDevice, "require-device", "", "risk classes (comma-separated) whose approvals must be signed by a pinned device, from any facade")
+	fs.BoolVar(&h.SealClear, "seal-clear", false, "send the clear screen sealed to the pinned devices (end to end; the hub relays ciphertext)")
 }
 
 // Args are the flags of h, as Register reads them back: what a product
@@ -75,12 +79,15 @@ func (h HubOptions) Args() []string {
 	if h.RequireDevice != "" {
 		out = append(out, "--require-device", h.RequireDevice)
 	}
+	if h.SealClear {
+		out = append(out, "--seal-clear")
+	}
 	return out
 }
 
 // Enabled reports whether any hub flag is set.
 func (h HubOptions) Enabled() bool {
-	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != ""
+	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != "" || h.SealClear
 }
 
 func (h HubOptions) check() error {
@@ -91,6 +98,8 @@ func (h HubOptions) check() error {
 		return fmt.Errorf("%w: invalid instance name %q", ErrConfig, h.Instance)
 	case h.RequireDevice != "" && h.DevicesFile == "":
 		return fmt.Errorf("%w: --require-device needs --devices-file", ErrConfig)
+	case h.SealClear && h.DevicesFile == "":
+		return fmt.Errorf("%w: --seal-clear needs --devices-file", ErrConfig)
 	}
 	if _, err := hubclient.ParseRisks(h.RequireDevice); err != nil {
 		return fmt.Errorf("%w: --require-device: %v", ErrConfig, err)
@@ -165,7 +174,7 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 		}
 	}
 	require, _ := hubclient.ParseRisks(o.RequireDevice) // checked by o.check
-	if len(require) > 0 && len(devices) == 0 {
+	if (len(require) > 0 || o.SealClear) && len(devices) == 0 {
 		return nil, fmt.Errorf("%w: --require-device, and %s pins no device", ErrConfig, o.DevicesFile)
 	}
 	dir := filepath.Join(stateDir, p.Name, "hub", o.Instance)
@@ -177,7 +186,7 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 		return nil, err
 	}
 	c, err := hubclient.New(hubclient.Config{URL: o.URL, Instance: o.Instance, Key: key, HubKey: hubKey, PlainHTTP: o.PlainHTTP,
-		StateFile: filepath.Join(dir, "state.json"), Now: now, Devices: devices, RequireDevice: require})
+		StateFile: filepath.Join(dir, "state.json"), Now: now, Devices: devices, RequireDevice: require, SealClear: o.SealClear})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
 	}

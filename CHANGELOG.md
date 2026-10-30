@@ -6,29 +6,39 @@ GUIDE.md is the contract between lockkit and the products built on it.
 ## Unreleased
 
 Approval devices (lockhub's mobile facade): a decision taken on a phone is
-signed by the phone itself, and the lock checks that signature, so the hub
-alone cannot make an approval pass for one taken on the device.
+signed by the phone itself, over the lock's own signed ticket, and the
+lock checks that signature: the hub's key alone cannot make an approval
+pass for one taken on the device, nor get one for a ticket the lock did
+not sign. Limits: the device runs a web app the hub serves, so a hub that
+serves malicious code can still ask the human to verify themselves for
+another pending ticket of the same lock, and read the clear screens sealed
+to the device while they are shown (hence sealing is a separate opt-in).
 
 - `ticket`: `Device` (a WebAuthn credential and an X25519 sealing key,
-  pinned by the lock; `DeviceSet`, `ParseDevices`, `Fingerprint`);
-  `Decision.Device`, an optional WebAuthn assertion over
-  `Decision.Statement` (every field a lock acts on, under
-  `ContextDeviceDecision`), present only with facade `mobile`;
+  pinned by the lock; `DeviceSet`, `ParseDevices` in canonical JSON,
+  `MarshalDevices`, `Fingerprint`); `Decision.Device`, an optional
+  WebAuthn assertion over `Decision.Statement` (every field a lock acts
+  on, the approver's display name and `TicketHash` of the signed ticket,
+  under `ContextDeviceDecision`), present only with facade `mobile`;
   `VerifyAssertion` (ES256, user present and verified, origin, rp id) and
-  `VerifyDevice`. A decision without a device member is unchanged on the
-  wire; locks on older lockkit refuse one with it (unknown member).
+  `VerifyDevice(dev, decision, signedTicket)`. A decision without a device
+  member is unchanged on the wire; locks on older lockkit refuse one with
+  it (unknown member).
 - `ticket`: `SealGCM` (`SealAlgGCM`: X25519, HKDF-SHA256, AES-256-GCM), a
   sealed box WebCrypto opens; `Open` reads both algorithms.
   `PII.SealedFor` carries the clear screen sealed to each pinned device
-  (`SealClearScreen`, `OpenClearScreen`), omitted without devices.
+  (`SealClearScreen`, up to `MaxClearScreen`; `OpenClearScreen`), omitted
+  otherwise. Fixed vectors in `testdata/device-v1.json`.
 - `hubclient`: `Config.Devices`: a decision with a device signature, or
-  from the `mobile` facade, is kept only if it verifies under a pinned
-  device. `Config.RequireDevice`: approvals of those risk classes without
-  a device signature end the plan Denied. `SubmitClear` seals the clear
-  screen to the devices. `ReadDevices`, `ParseRisks`.
-- `console` hub mode: `--devices-file`, `--require-device`; the console's
-  screen is sealed to the pinned devices. `HubOptions.Args` renders the
-  hub flags back, for products that start their console again.
+  from the `mobile` facade, runs only if it verifies under a pinned
+  device over the lock's own ticket (checked in `Begin`; the decision is
+  dropped otherwise). `Config.RequireDevice`: approvals of those risk
+  classes without a device signature end the plan Denied.
+  `Config.SealClear` with `SubmitClear` seals the clear screen to the
+  devices. `ReadDevices`, `ParseRisks`.
+- `console` hub mode: `--devices-file`, `--require-device`, `--seal-clear`.
+  `HubOptions.Args` renders the hub flags back, for products that start
+  their console again.
 - `ticket/devicetest`: a virtual WebAuthn authenticator for tests.
 
 ## v0.3.1 (2026-10-30)

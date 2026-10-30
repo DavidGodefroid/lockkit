@@ -78,7 +78,9 @@ type PII struct {
 	// key, for a facade able to show it; nil otherwise.
 	ClearSealed *Sealed `json:"clear_sealed"`
 	// SealedFor is the clear screen sealed to each device the lock pins
-	// (SealClearScreen); absent without devices.
+	// (SealClearScreen), when the lock is set to seal it; absent
+	// otherwise. ClearSealed (one recipient, any facade key) is not used
+	// for devices.
 	SealedFor []DeviceBox `json:"sealed_for,omitempty"`
 }
 

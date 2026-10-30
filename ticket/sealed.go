@@ -70,7 +70,8 @@ func (s *Sealed) validate() error {
 	if len(s.CT) > maxSealed {
 		return invalid("sealed: ciphertext longer than %d bytes", maxSealed)
 	}
-	if b, err := enc.DecodeString(s.CT); err != nil || len(b) < chacha20poly1305.Overhead {
+	// Both AEADs have a 16-byte tag.
+	if b, err := enc.DecodeString(s.CT); err != nil || len(b) < 16 {
 		return invalid("sealed: ct")
 	}
 	return nil
@@ -111,12 +112,18 @@ func SealGCM(to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
 }
 
 func seal(alg string, to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
-	if to.Curve() != ecdh.X25519() {
-		return nil, errors.New("ticket: Seal needs an X25519 key")
-	}
 	eph, err := ecdh.X25519().GenerateKey(rand.Reader)
 	if err != nil {
 		return nil, err
+	}
+	return sealWith(alg, eph, nil, to, plaintext, aad)
+}
+
+// sealWith seals with the ephemeral key eph and nonce (nil: random); the
+// fixed vectors of the tests use it.
+func sealWith(alg string, eph *ecdh.PrivateKey, nonce []byte, to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
+	if to.Curve() != ecdh.X25519() {
+		return nil, errors.New("ticket: Seal needs an X25519 key")
 	}
 	shared, err := eph.ECDH(to)
 	if err != nil {
@@ -131,9 +138,13 @@ func seal(alg string, to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error
 	if err != nil {
 		return nil, err
 	}
-	nonce := make([]byte, aead.NonceSize())
-	if _, err := rand.Read(nonce); err != nil {
-		return nil, err
+	if nonce == nil {
+		nonce = make([]byte, aead.NonceSize())
+		if _, err := rand.Read(nonce); err != nil {
+			return nil, err
+		}
+	} else if len(nonce) != aead.NonceSize() {
+		return nil, errors.New("ticket: nonce size")
 	}
 	ct := aead.Seal(nil, nonce, plaintext, aad)
 	return &Sealed{Alg: alg, EPK: enc.EncodeToString(epk), Nonce: enc.EncodeToString(nonce), CT: enc.EncodeToString(ct)}, nil

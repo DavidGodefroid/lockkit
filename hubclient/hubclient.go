@@ -124,10 +124,14 @@ type Config struct {
 	PlainHTTP bool
 	// Devices are the approval devices the lock pins (--devices-file): a
 	// decision that carries a device signature, or that names the mobile
-	// facade, is kept only if it verifies under one of them
-	// (ticket.VerifyDevice). The clear screen of each ticket is sealed to
-	// each of them (SubmitClear).
+	// facade, is kept only if it verifies under one of them, over the
+	// lock's own signed ticket (ticket.VerifyDevice).
 	Devices []ticket.Device
+	// SealClear (--seal-clear) seals each ticket's clear screen to every
+	// pinned device (SubmitClear). Off, clear screens never leave the
+	// lock. The device's code comes from the hub: see the ticket package
+	// on what a hub that serves malicious code can read.
+	SealClear bool
 	// RequireDevice lists the risk classes whose approvals must be signed
 	// by a pinned device, whatever facade the hub says they came from
 	// (--require-device): an approval without one ends the plan Denied.
@@ -181,6 +185,8 @@ func New(cfg Config) (*Client, error) {
 		return nil, fmt.Errorf("hubclient: more than %d devices", ticket.MaxDevices)
 	case len(cfg.RequireDevice) > 0 && len(cfg.Devices) == 0:
 		return nil, errors.New("hubclient: approvals must be signed by a device, and no device is pinned")
+	case cfg.SealClear && len(cfg.Devices) == 0:
+		return nil, errors.New("hubclient: clear screens to seal, and no device is pinned")
 	}
 	seen := map[string]bool{}
 	for i := range cfg.Devices {
@@ -412,10 +418,11 @@ func (c *Client) Submit(ctx context.Context, st *plans.Store, planID string, cal
 	return c.SubmitClear(ctx, st, planID, caller, t, screen, nil)
 }
 
-// SubmitClear is Submit with the clear screen of the request: with pinned
-// devices, it is sealed to each of them (ticket.SealClearScreen) in the
-// ticket, which the hub relays without being able to read it; without
-// devices, or with clear nil, it is not sent at all.
+// SubmitClear is Submit with the clear screen of the request: with
+// Config.SealClear, it is sealed to each pinned device
+// (ticket.SealClearScreen) in the ticket, which the hub relays without
+// being able to read it; otherwise, with clear nil, or a clear screen over
+// ticket.MaxClearScreen, it is not sent at all.
 func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string, caller plans.Caller, t *ticket.Ticket, screen render.MaskedScreen, clear *ticket.Screen) (string, error) {
 	if !screen.Valid() {
 		return "", render.ErrUnmasked
@@ -433,6 +440,19 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 	}
 	if other, ok := st.FindPending(caller, p.Binding.PlanHash); ok {
 		return c.resend(ctx, st, other, caller)
+	}
+	var boxes []ticket.DeviceBox
+	if c.cfg.SealClear && clear != nil {
+		for i := range c.cfg.Devices {
+			box, err := ticket.SealClearScreen(&c.cfg.Devices[i], t.ID, *clear)
+			if errors.Is(err, ticket.ErrTooLarge) {
+				boxes = nil // the masked screen only
+				break
+			} else if err != nil {
+				return "", err
+			}
+			boxes = append(boxes, *box)
+		}
 	}
 
 	c.mu.Lock()
@@ -457,16 +477,7 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 
 	t.Source.Instance, t.Source.KeyID = c.cfg.Instance, ticket.KeyID(c.pub)
 	t.Screen, t.PII.Touched = screen.Screen(), screen.Touched()
-	t.PII.SealedFor = nil
-	if clear != nil {
-		for i := range c.cfg.Devices {
-			box, err := ticket.SealClearScreen(&c.cfg.Devices[i], t.ID, *clear)
-			if err != nil {
-				return "", err
-			}
-			t.PII.SealedFor = append(t.PII.SealedFor, *box)
-		}
-	}
+	t.PII.SealedFor = boxes
 	if err := t.Sign(c.cfg.Key); err != nil {
 		return "", err
 	}
@@ -572,7 +583,8 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 // verify checks a decision as the hub sent it: signed by the pinned hub
 // key, for this instance and this lock key, for the ticket it is filed
 // under; and, taken on a device (a device signature, or the mobile
-// facade), signed by a device this lock pins.
+// facade), naming a device this lock pins (Begin verifies the device's
+// signature over the lock's own ticket).
 func (c *Client) verify(e entry) (*ticket.Decision, error) {
 	d, err := ticket.VerifyDecision(c.cfg.HubKey, e.Decision)
 	switch {
@@ -582,25 +594,40 @@ func (c *Client) verify(e entry) (*ticket.Decision, error) {
 		return nil, fmt.Errorf("%w: ticket %s: not for this instance", ErrBadDecision, e.Ticket)
 	}
 	if d.Device != nil || d.Facade == ticket.FacadeMobile {
-		if err := c.verifyDevice(d); err != nil {
+		// The assertion is checked against the lock's own ticket in Begin;
+		// here only that it names a device this lock pins.
+		if _, err := c.device(d); err != nil {
 			return nil, fmt.Errorf("%w: ticket %s: %v", ErrBadDecision, e.Ticket, err)
 		}
 	}
 	return d, nil
 }
 
-// verifyDevice checks d's device signature under the pinned device it
-// names.
-func (c *Client) verifyDevice(d *ticket.Decision) error {
+// device is the pinned device d names.
+func (c *Client) device(d *ticket.Decision) (*ticket.Device, error) {
 	if d.Device == nil {
-		return fmt.Errorf("%w: a decision of the mobile facade without a device signature", ticket.ErrDevice)
+		return nil, fmt.Errorf("%w: a decision of the mobile facade without a device signature", ticket.ErrDevice)
 	}
 	for i := range c.cfg.Devices {
 		if c.cfg.Devices[i].ID == d.Device.Device {
-			return ticket.VerifyDevice(&c.cfg.Devices[i], d)
+			return &c.cfg.Devices[i], nil
 		}
 	}
-	return fmt.Errorf("%w: device %s is not pinned by this lock", ticket.ErrDevice, d.Device.Device)
+	return nil, fmt.Errorf("%w: device %s is not pinned by this lock", ticket.ErrDevice, d.Device.Device)
+}
+
+// verifyDevice checks d's device signature under the pinned device it
+// names, over the lock's own signed ticket own.
+func (c *Client) verifyDevice(d *ticket.Decision, own *ticket.Ticket) error {
+	dev, err := c.device(d)
+	if err != nil {
+		return err
+	}
+	signed, err := own.Marshal()
+	if err != nil {
+		return err
+	}
+	return ticket.VerifyDevice(dev, d, signed)
 }
 
 // needsDevice reports whether approvals of risk must be device-signed.
@@ -658,6 +685,10 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 // approved, on which facade, the hub's signature), with the plan or with
 // the error of a decision that was matched but not acted on.
 //
+// A decision taken on a device (facade mobile) must carry the signature of
+// a pinned device over the lock's own signed ticket (ticket.VerifyDevice),
+// and with Config.RequireDevice an approval of those risk classes must.
+//
 // No decision yet is ErrPending; a denial ends the plan Denied and is
 // ErrDenied with the human's reason; a decision too old or past the
 // ticket ends it Expired.
@@ -687,6 +718,12 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 	if err := d.Match(own); err != nil {
 		c.drop(ticketID)
 		return nil, nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
+	}
+	if d.Device != nil || d.Facade == ticket.FacadeMobile {
+		if err := c.verifyDevice(d, own); err != nil {
+			c.drop(ticketID)
+			return nil, nil, fmt.Errorf("%w: %v", ErrBadDecision, err)
+		}
 	}
 	if d.Decision == ticket.Denied {
 		if err := st.End(p.ID, caller, plans.Denied, d.Reason); err != nil {
