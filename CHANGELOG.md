@@ -3,6 +3,13 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `hubclient`: a hub `renew` request for a pending ticket whose approval
+  aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`
+  would at the agent's run) and renews it: the hub can offer an aged
+  approval for re-approval before the agent comes back.
+
 ## v0.5.0 (2026-10-30)
 
 Reveal and re-approval (lockhub's local facades): a human at the host's

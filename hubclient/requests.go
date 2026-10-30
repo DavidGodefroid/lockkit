@@ -120,6 +120,9 @@ func (c *Client) handle(ctx context.Context, st *plans.Store, raw json.RawMessag
 		var p *plans.Plan
 		p, err = st.TicketPlan(q.Ticket)
 		if err == nil {
+			p, err = c.ageOut(st, p)
+		}
+		if err == nil {
 			renewal, err = c.renew(ctx, st, p, plans.OwnerOf(p))
 		}
 		if err == nil {
@@ -297,4 +300,52 @@ func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Pl
 	// The expired ticket's screen is the masked one the lock signed
 	// (LockTicket verified it): it leaves again as it left.
 	return c.submit(ctx, st, n.ID, caller, t, own.Screen, own.PII.Touched, n.Clear)
+}
+
+// ageOut ends Expired a pending plan whose approval is too old to be used
+// (what Begin would do at the agent's run), so that the human can renew it
+// before the agent comes back. Any other plan comes back as it is.
+func (c *Client) ageOut(st *plans.Store, p *plans.Plan) (*plans.Plan, error) {
+	if p.State != plans.Pending {
+		return p, nil
+	}
+	c.mu.Lock()
+	e, ok := c.inbox[p.Ticket]
+	c.mu.Unlock()
+	if !ok {
+		return p, nil
+	}
+	d, err := c.verify(e)
+	if err != nil || d.Decision != ticket.Approved {
+		return p, nil
+	}
+	own, err := p.LockTicket(c.pub)
+	if err != nil || d.Match(own) != nil {
+		return p, nil
+	}
+	// Every check Begin makes before it would expire the approval: only
+	// an approval Begin would have honoured may age into a renewal that
+	// says it was approved.
+	if d.Device != nil || d.Facade == ticket.FacadeMobile {
+		if c.verifyDevice(d, p.SignedTicket) != nil {
+			return p, nil
+		}
+	}
+	if d.Device == nil && c.needsDevice(own.Risk) {
+		return p, nil
+	}
+	uerr := d.Usable(own, c.cfg.Now(), ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
+	if !errors.Is(uerr, ticket.ErrExpired) {
+		return p, nil
+	}
+	owner := plans.OwnerOf(p)
+	if err := st.ExpireApproval(p.ID, owner, d.At, uerr.Error()); err != nil {
+		if !errors.Is(err, plans.ErrState) {
+			return nil, err
+		}
+		// Moved meanwhile (the agent's run, another request): as it is now.
+		return st.TicketPlan(p.Ticket)
+	}
+	c.drop(p.Ticket)
+	return st.TicketPlan(p.Ticket)
 }
