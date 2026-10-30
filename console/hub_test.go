@@ -5,6 +5,7 @@ package console
 import (
 	"context"
 	"crypto/ed25519"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -293,6 +294,81 @@ func TestRunReleasesHub(t *testing.T) {
 		}
 		cancel()
 		<-done
+	}
+}
+
+// Reveal (Ctrl-O) end to end through Run: a facade the lock pins gets the
+// clear screen sealed to its ephemeral key, the hub only relays
+// ciphertext, and the reveal is audited. The agent's socket has no decide
+// and no reveal method (I5).
+func TestRunHubReveal(t *testing.T) {
+	env := runEnv(t)
+	home, state := t.TempDir(), t.TempDir()
+	key, _ := hubclient.InstanceKey(home, hubInstance)
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	fpub, fkey, _ := ed25519.GenerateKey(rand.Reader)
+	ff := filepath.Join(t.TempDir(), "facades.json")
+	fb, _ := json.Marshal(ticket.FacadeSet{V: 1, Facades: []ticket.FacadeKey{{Facade: "tty", Key: base64.StdEncoding.EncodeToString(fpub)}}})
+	if err := os.WriteFile(ff, fb, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
+			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home, FacadeKeysFile: ff}})
+	}()
+	var socket string
+	select {
+	case socket = <-ready:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, io.plain())
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	m := pendingOf(t, dialAndCall(t, socket, "op.write", map[string]bool{"hub": true}).Result)
+	id := m["ticket"]
+	for _, method := range []string{"ticket.decide", "decide", "reveal", "ticket.reveal", "hub.reveal", "renew", "ticket.renew"} {
+		r := dialAndCall(t, socket, method, map[string]string{"ticket": id, "decision": "approved"})
+		if r.Error == nil || r.Error.Code != ipc.CodeMethodNotFound {
+			t.Fatalf("%s on the agent socket: %+v %s", method, r.Error, r.Result)
+		}
+	}
+	tk, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), hub.Ticket(id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rk, priv, _ := ticket.NewRevealKey(fkey, ticket.FacadeTTY, tk, time.Now())
+	rid := hub.Request(id, ticket.RequestReveal, rk, nil)
+	deadline := time.Now().Add(15 * time.Second)
+	for hub.Answer(rid) == nil {
+		if time.Now().After(deadline) {
+			t.Fatalf("no answer\n%s", io.plain())
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	ans := hub.Answer(rid)
+	if strings.Contains(string(ans), "jane.doe") || strings.Contains(string(hub.Ticket(id)), "jane.doe") {
+		t.Fatal("clear value at the hub")
+	}
+	var a struct {
+		Reveal json.RawMessage `json:"reveal"`
+	}
+	_ = json.Unmarshal(ans, &a)
+	s, err := ticket.OpenReveal(key.Public().(ed25519.PublicKey), priv, rk, a.Reveal)
+	if err != nil || len(s.Body) != 1 || s.Body[0] != "WRITE jane.doe@example.com" {
+		t.Fatalf("%+v %v (%s)", s, err, ans)
+	}
+	cancel()
+	<-done
+	raw, _ := os.ReadFile(filepath.Join(state, testProduct.Name, "audit.log"))
+	if !strings.Contains(string(raw), `"event":"reveal"`) || !strings.Contains(string(raw), `"decision":"sealed"`) || strings.Contains(string(raw), "jane.doe") {
+		t.Fatalf("audit:\n%s", raw)
 	}
 }
 

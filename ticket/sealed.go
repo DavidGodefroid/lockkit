@@ -183,8 +183,8 @@ func Open(priv *ecdh.PrivateKey, s *Sealed, aad []byte) ([]byte, error) {
 }
 
 // KeyCert is an X25519 public key signed by an Ed25519 key: a lock's
-// sealing key (ContextKeyCert), or a facade's ephemeral key for one reveal
-// (ContextReveal, Bind = the ticket id). Whoever seals to it checks the
+// sealing key (ContextKeyCert), or a one-use key bound to a ticket
+// (ContextReveal, Bind = the ticket id; a reveal uses RevealKey). Whoever seals to it checks the
 // signature under the Ed25519 key they pinned: a hub cannot substitute its
 // own key.
 type KeyCert struct {

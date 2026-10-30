@@ -211,3 +211,18 @@ func ParseRisks(s string) ([]ticket.Risk, error) {
 	}
 	return out, nil
 }
+
+// ReadFacades reads the facade keys a lock pins: a ticket.FacadeSet (the
+// file `lock up` mounts at /run/lockfamily/facades.json, written from the
+// facade keys the human reviewed at the host's terminal).
+func ReadFacades(path string) ([]ticket.PinnedFacade, error) {
+	b, err := readSmallRegular(path, 64<<10)
+	if err != nil {
+		return nil, fmt.Errorf("hubclient: facades: %w", err)
+	}
+	fs, err := ticket.ParseFacades(b)
+	if err != nil {
+		return nil, fmt.Errorf("hubclient: %s: %w", path, err)
+	}
+	return fs, nil
+}

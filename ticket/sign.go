@@ -29,7 +29,9 @@ const (
 	ContextKeyCert Context = "lockkit/x25519-key/v1"
 	// ContextRequest signs a lock's HTTP request to the hub (Lock-Sig).
 	ContextRequest Context = "lockkit/request/v1"
-	// ContextReveal signs a facade's ephemeral key for a reveal.
+	// ContextReveal is a KeyCert context for a one-use key bound to a
+	// ticket. Reveals do not use it: a RevealKey is signed under
+	// ContextRevealKey.
 	ContextReveal Context = "lockkit/reveal/v1"
 )
 

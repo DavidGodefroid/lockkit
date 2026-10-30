@@ -392,6 +392,18 @@ for its `Asker` (base keeps the console's own decisions), and
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
 for `lock up` to pin.
 
+**Reveal and re-approval.** In hub mode pass the console's clear screen
+to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
+and a local facade the lock pins (`--facade-keys-file`) can ask for it
+(Ctrl-O); `Watch` seals it to the facade's ephemeral key and audits the
+reveal (`Hub.Requests`). When `Begin` answers `ticket.ErrExpired`, answer
+`h.RenewResp(ctx, id, ticket, caller)`: the ticket is asked again and
+the agent gets pending with the new ticket. Record the plan-hash inputs
+at plan time (`Binding.Inputs = ticket.InputDigests(inputs)`) and give
+`h.Client.SetRecompute` the same digests recomputed now: the human then
+sees which inputs moved, and an unchanged non-production renewal is one
+click.
+
 **Hub mode off (rollback).** A console started without the hub flags
 after running with them withdraws the plans its hub mode left pending
 (`console.WithdrawStandalone`: `plans.Store.WithdrawAll`, the plans

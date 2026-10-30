@@ -36,6 +36,9 @@ type Hub struct {
 	wstatus   map[string]int
 	consumed  map[string]bool
 	decisions []item
+	requests  map[string][]byte // open hub requests, by id
+	answers   map[string][]byte // the lock's answers, by request id
+	sent      map[string][]byte // every request queued, by id
 	sinces    []string
 	status    int
 }
@@ -52,7 +55,8 @@ func New(t testing.TB, instance string, lockPub ed25519.PublicKey) *Hub {
 	t.Helper()
 	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
 	h := &Hub{t: t, instance: instance, lockPub: lockPub, Pub: pub, Priv: priv,
-		nonces: map[string]bool{}, tickets: map[string][]byte{}, withdrawn: map[string]string{}, wstatus: map[string]int{}, consumed: map[string]bool{}}
+		nonces: map[string]bool{}, tickets: map[string][]byte{}, withdrawn: map[string]string{}, wstatus: map[string]int{}, consumed: map[string]bool{},
+		requests: map[string][]byte{}, answers: map[string][]byte{}, sent: map[string][]byte{}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/hello", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 200, map[string]any{"name": "lockhub", "version": "test", "api": 1})
@@ -73,6 +77,16 @@ func New(t testing.TB, instance string, lockPub ed25519.PublicKey) *Hub {
 		w.WriteHeader(204)
 	}))
 	mux.HandleFunc("GET /v1/decisions", h.auth(h.list))
+	mux.HandleFunc("POST /v1/requests/{id}/answer", h.auth(func(w http.ResponseWriter, r *http.Request, body []byte) {
+		id := r.PathValue("id")
+		if _, ok := h.requests[id]; !ok {
+			writeJSON(w, 404, map[string]string{"error": "not_found", "message": "no such request"})
+			return
+		}
+		delete(h.requests, id)
+		h.answers[id] = body
+		w.WriteHeader(204)
+	}))
 	h.srv = httptest.NewServer(mux)
 	t.Cleanup(h.srv.Close)
 	return h
@@ -157,9 +171,13 @@ func (h *Hub) list(w http.ResponseWriter, r *http.Request, _ []byte) {
 	h.sinces = append(h.sinces, r.URL.Query().Get("since"))
 	since, _ := strconv.ParseInt(r.URL.Query().Get("since"), 10, 64)
 	res := struct {
-		Decisions []item `json:"decisions"`
-		Cursor    int64  `json:"cursor"`
+		Decisions []item            `json:"decisions"`
+		Cursor    int64             `json:"cursor"`
+		Requests  []json.RawMessage `json:"requests,omitempty"`
 	}{Decisions: []item{}, Cursor: since}
+	for _, q := range h.requests {
+		res.Requests = append(res.Requests, q)
+	}
 	for _, d := range h.decisions {
 		if d.Seq > since {
 			res.Decisions = append(res.Decisions, d)
@@ -238,4 +256,51 @@ func (h *Hub) Sinces() []string {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	return append([]string(nil), h.sinces...)
+}
+
+// Request queues a hub request about ticket id, signed with the hub's key
+// after mod (nil: none), for the lock's next poll, and returns its id. A
+// reveal carries rk.
+func (h *Hub) Request(id string, kind ticket.RequestKind, rk *ticket.RevealKey, mod func(*ticket.HubRequest)) string {
+	h.t.Helper()
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	var tk ticket.Ticket
+	if err := json.Unmarshal(h.tickets[id], &tk); err != nil {
+		h.t.Fatalf("hubtest: no ticket %s", id)
+	}
+	now := time.Now().UTC().Truncate(time.Millisecond)
+	q := &ticket.HubRequest{V: ticket.Version, ID: ticket.NewID(now), Kind: kind, Ticket: id, Instance: tk.Source.Instance,
+		KeyID: tk.Source.KeyID, Approver: ticket.Approver{ID: "host:uid:1000"}, Facade: "tty", At: now, Reveal: rk}
+	if rk != nil {
+		q.Facade = rk.Facade
+	}
+	if mod != nil {
+		mod(q)
+	}
+	if err := q.Sign(h.Priv); err != nil {
+		h.t.Fatal(err)
+	}
+	b, _ := q.Marshal()
+	h.requests[q.ID], h.sent[q.ID] = b, b
+	return q.ID
+}
+
+// RawRequest queues raw as a hub request under id, as it is (forged or
+// malformed requests).
+func (h *Hub) RawRequest(id string, raw []byte) {
+	h.mu.Lock()
+	h.requests[id] = raw
+	h.mu.Unlock()
+}
+
+// Answer is the lock's answer to request id, nil before it answered.
+func (h *Hub) Answer(id string) []byte { h.mu.Lock(); defer h.mu.Unlock(); return h.answers[id] }
+
+// Requeue queues request id again, as it was first sent (a replay).
+func (h *Hub) Requeue(id string) {
+	h.mu.Lock()
+	h.requests[id] = h.sent[id]
+	delete(h.answers, id)
+	h.mu.Unlock()
 }

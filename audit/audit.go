@@ -50,6 +50,15 @@ const (
 	EventResults = "results"
 	EventUnmask  = "unmask"
 	EventLogout  = "logout"
+	// EventReveal is a hub request to show a ticket's clear screen on a
+	// local facade (Ctrl-O): Decision sealed or refused, with the ticket,
+	// the approver and the facade. EventRenew is a request to ask again
+	// for an expired ticket (Decision renewed or refused).
+	EventReveal = "reveal"
+	EventRenew  = "renew"
+	// EventHubRequest is a hub request refused before its kind is known
+	// (it did not verify).
+	EventHubRequest = "hub-request"
 )
 
 // Record is one audit event of a product. Its JSON encoding must be an
