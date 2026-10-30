@@ -3,7 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.6.0 (2026-10-30)
+
+Renewal hardening, from wiring v0.5.0 into the locks: an input a lock
+cannot check now is named `unchecked` (never one click); a chain of
+renewals diffs against the human's last approval; an aged approval can
+be renewed from the hub before the agent's run; `console.Options.OnHub`
+registers the recompute before any request. Hubs and facades must run
+v0.6.0 before locks send `unchecked`.
 
 - `ticket.UncheckedInput` / `ChangeUnchecked`: a Recompute marks an input
   it cannot check now (no session) instead of passing its stored digest;
@@ -16,14 +23,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
   undecided link (`plans.Store.PlanByID`); a pruned link makes it
   unchecked. A renewal denied at the hub, or whose approval aged, is
   handled before the agent's run. Facades and hubs must run lockkit with
-  `unchecked` (this release) before locks send it.
-
+  `unchecked` (this release) before locks send it (#84).
 - `hubclient`: a hub `renew` request for a pending ticket whose approval
   aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`
   would at the agent's run) and renews it: the hub can offer an aged
-  approval for re-approval before the agent comes back.
+  approval for re-approval before the agent comes back (#81).
 - `console.Options.OnHub`: called with the hub once `Run` opened it,
-  before any request: where a product registers `SetRecompute`.
+  before any request: where a product registers `SetRecompute` (#82).
 
 ## v0.5.0 (2026-10-30)
 
