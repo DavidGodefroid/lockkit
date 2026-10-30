@@ -392,6 +392,19 @@ for its `Asker` (base keeps the console's own decisions), and
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
 for `lock up` to pin.
 
+**Hub mode off (rollback).** A console started without the hub flags
+after running with them withdraws the plans its hub mode left pending
+(`console.WithdrawStandalone`: `plans.Store.WithdrawAll`, the plans
+marked untold; the next start with `--hub` withdraws their tickets at the
+hub, `hubclient.Client.Sync`) and answers any request naming a `ticket`
+param with `ipc.CodeWithdrawn` (`console.WithdrawnResp`), before the
+product sees it: `ticket` is therefore a reserved param name of product
+methods. `Run` does both, and any `console.Server` without a hub refuses
+tickets itself; a product with its own console lifecycle calls
+`WithdrawStandalone` at its standalone start, and one that does not serve
+through `console.Server` (a gate) refuses a run by ticket with
+`WithdrawnResp`.
+
 A minimal product:
 
 ```go

@@ -33,6 +33,7 @@ type Hub struct {
 	tickets   map[string][]byte
 	pushes    int
 	withdrawn map[string]string
+	wstatus   map[string]int
 	consumed  map[string]bool
 	decisions []item
 	sinces    []string
@@ -51,13 +52,17 @@ func New(t testing.TB, instance string, lockPub ed25519.PublicKey) *Hub {
 	t.Helper()
 	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
 	h := &Hub{t: t, instance: instance, lockPub: lockPub, Pub: pub, Priv: priv,
-		nonces: map[string]bool{}, tickets: map[string][]byte{}, withdrawn: map[string]string{}, consumed: map[string]bool{}}
+		nonces: map[string]bool{}, tickets: map[string][]byte{}, withdrawn: map[string]string{}, wstatus: map[string]int{}, consumed: map[string]bool{}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/hello", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 200, map[string]any{"name": "lockhub", "version": "test", "api": 1})
 	})
 	mux.HandleFunc("POST /v1/tickets", h.auth(h.push))
 	mux.HandleFunc("POST /v1/tickets/{id}/withdraw", h.auth(func(w http.ResponseWriter, r *http.Request, body []byte) {
+		if code := h.wstatus[r.PathValue("id")]; code != 0 {
+			writeJSON(w, code, map[string]string{"error": "test", "message": "status set by the test"})
+			return
+		}
 		var req struct{ Reason string }
 		_ = json.Unmarshal(body, &req)
 		h.withdrawn[r.PathValue("id")] = req.Reason
@@ -71,6 +76,14 @@ func New(t testing.TB, instance string, lockPub ed25519.PublicKey) *Hub {
 	h.srv = httptest.NewServer(mux)
 	t.Cleanup(h.srv.Close)
 	return h
+}
+
+// SetWithdrawStatus makes a withdrawal of ticket id answer code (0: the
+// normal 204, recorded).
+func (h *Hub) SetWithdrawStatus(id string, code int) {
+	h.mu.Lock()
+	h.wstatus[id] = code
+	h.mu.Unlock()
 }
 
 // URL is the hub's base URL.

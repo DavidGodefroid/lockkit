@@ -491,9 +491,20 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 }
 
 // Sync pushes every pending ticket the hub has not acknowledged since
-// this client started: after a restart of the lock or of the hub.
+// this client started: after a restart of the lock or of the hub. It also
+// withdraws at the hub the tickets of plans withdrawn while the lock ran
+// without it (plans.Store.WithdrawAll, Untold).
 func (c *Client) Sync(ctx context.Context, st *plans.Store) error {
 	var errs []error
+	for _, p := range st.Untold() {
+		if err := c.withdrawAtHub(ctx, p.Ticket, p.Reason); err != nil {
+			errs = append(errs, fmt.Errorf("ticket %s: %w", p.Ticket, err))
+			continue
+		}
+		if err := st.MarkTold(p.ID); err != nil {
+			errs = append(errs, err)
+		}
+	}
 	for _, p := range st.Pending() {
 		c.mu.Lock()
 		acked := c.acked[p.Ticket]
@@ -819,6 +830,27 @@ func (c *Client) Withdraw(ctx context.Context, st *plans.Store, planID string, c
 		Reason string `json:"reason,omitempty"`
 	}{reason})
 	return c.do(ctx, http.MethodPost, "/v1/tickets/"+url.PathEscape(p.Ticket)+"/withdraw", body, true, nil)
+}
+
+// withdrawAtHub withdraws ticket id at the hub. A hub that does not know
+// it, or has it in a final state already (404, 409, 410), has nothing
+// left to withdraw: that is done too.
+func (c *Client) withdrawAtHub(ctx context.Context, id, reason string) error {
+	if len(reason) > 512 {
+		reason = strings.ToValidUTF8(reason[:512], "")
+	}
+	body, _ := json.Marshal(struct {
+		Reason string `json:"reason,omitempty"`
+	}{reason})
+	err := c.do(ctx, http.MethodPost, "/v1/tickets/"+url.PathEscape(id)+"/withdraw", body, true, nil)
+	var he *HubError
+	if errors.As(err, &he) {
+		switch he.Status {
+		case http.StatusNotFound, http.StatusConflict, http.StatusGone:
+			return nil
+		}
+	}
+	return err
 }
 
 // loopback reports a loopback host name or address.

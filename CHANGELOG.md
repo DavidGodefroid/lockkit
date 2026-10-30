@@ -41,6 +41,15 @@ to the device while they are shown (hence sealing is a separate opt-in).
   their console again.
 - `ticket/devicetest`: a virtual WebAuthn authenticator for tests.
 
+- Hub mode rollback: a console started without `--hub` withdraws the
+  plans its hub mode left pending (`console.WithdrawStandalone`) and
+  answers a run of a hub ticket with the new `ipc.CodeWithdrawn`
+  (`console.WithdrawnResp`, `console.TicketParam`) before the product
+  sees it. `plans.Store.WithdrawAll` marks the plans `Untold` (kept past
+  the retention until told); `hubclient.Client.Sync` withdraws them at the
+  hub on the next start in hub mode (`Untold`, `MarkTold`).
+  `hubtest.Hub.SetWithdrawStatus` for tests.
+
 ## v0.3.1 (2026-10-30)
 
 Fixes to hub mode found after v0.3.0. A lock reaching its hub over plain
