@@ -8,9 +8,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - A policy change that ends the session when applied (a tightening read
   from the files: production refused, connection settings changed, the
   backend refusing it; a loosening at `:review` whose policy in force
-  could not be restored) no longer prints "policy tightened:", "policy
-  change not applied" or "policy change applied" after the line that ends
-  the session (#89).
+  could not be restored) no longer prints "policy tightened:" or "policy
+  change not applied" after the line that ends the session (#89).
 
 ## v0.7.0 (2026-10-30)
 
