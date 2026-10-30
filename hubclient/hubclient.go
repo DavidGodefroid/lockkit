@@ -558,6 +558,11 @@ func (c *Client) pushRaw(ctx context.Context, id string, raw []byte) error {
 // decisions after the cursor, keeps those that verify under the pinned hub
 // key for this instance, and advances and saves the cursor. It returns
 // how many decisions it kept; decisions it dropped make ErrBadDecision.
+// A decision taken on a device is kept once it names a device this lock
+// pins: the device's signature over the lock's own ticket is checked
+// later, by Begin and by a renewal's age-out, never by Poll, so a kept
+// decision is not yet one the lock will act on. Poll also queues the
+// hub's requests (reveal, renew) it carries, at most MaxRequests.
 func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 	c.pollMu.Lock()
 	defer c.pollMu.Unlock()
