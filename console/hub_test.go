@@ -469,3 +469,46 @@ func TestTicketParam(t *testing.T) {
 		}
 	}
 }
+
+// OnHub is told the hub before any request is served.
+func TestRunOnHub(t *testing.T) {
+	env := runEnv(t)
+	home := t.TempDir()
+	key, _ := hubclient.InstanceKey(home, hubInstance)
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+	got := make(chan *Hub, 1)
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
+			OnHub: func(h *Hub) {
+				if len(ready) != 0 {
+					t.Error("OnHub after the socket listened")
+				}
+				got <- h
+			},
+			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
+	}()
+	select {
+	case h := <-got:
+		if h == nil || h.Client == nil || h.Instance != hubInstance {
+			t.Fatalf("hub %+v", h)
+		}
+	case err := <-done:
+		t.Fatalf("Run: %v", err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("OnHub not called")
+	}
+	select {
+	case <-ready:
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	cancel()
+	<-done
+}

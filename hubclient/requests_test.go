@@ -16,6 +16,7 @@ import (
 	"github.com/DavidGodefroid/lockkit/hubclient/hubtest"
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/ticket"
+	"github.com/DavidGodefroid/lockkit/ticket/devicetest"
 )
 
 type clk struct {
@@ -433,5 +434,212 @@ func TestRenewConcurrent(t *testing.T) {
 		if g == "" || g != got[0] {
 			t.Fatalf("renewals %v", got)
 		}
+	}
+}
+
+// An approval that aged while the agent was away is renewed on the human's
+// request, before the agent runs it again.
+func TestRenewRequestAgesOutApproval(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	tk.Expires = nil
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	at := c.now()
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = at })
+	if _, err := e.client.Poll(ctx, 0); err != nil {
+		t.Fatal(err)
+	}
+	// Still usable: not renewed.
+	rid := e.hub.Request(id, ticket.RequestRenew, nil, func(q *ticket.HubRequest) { q.At = c.now() })
+	if err := poll(t, e); err == nil || !strings.Contains(string(e.hub.Answer(rid)), hubclient.CodeNotRenewable) {
+		t.Fatalf("renewed a usable approval: %v %s", err, e.hub.Answer(rid))
+	}
+	c.add(25 * time.Hour)
+	rid = e.hub.Request(id, ticket.RequestRenew, nil, func(q *ticket.HubRequest) { q.At = c.now() })
+	if err := poll(t, e); err != nil {
+		t.Fatal(err)
+	}
+	var a struct{ Ticket string }
+	_ = json.Unmarshal(e.hub.Answer(rid), &a)
+	rt, err := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(a.Ticket))
+	if err != nil || rt.Renews.Reason != ticket.RenewApprovalExpired || !rt.Renews.ApprovedAt.Equal(at) {
+		t.Fatalf("%+v %v", rt, err)
+	}
+	// The agent's run of the old ticket now points at the renewal.
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, ticket.ErrExpired) {
+		t.Fatalf("begin: %v", err)
+	}
+	if n, err := e.client.Renew(ctx, e.store, id, caller); err != nil || n != a.Ticket {
+		t.Fatalf("%q %v", n, err)
+	}
+}
+
+// An aged approval that Begin would not honour (no device signature for a
+// risk that needs one) is not turned into an approval-expired renewal.
+func TestRenewRequestAgedApprovalNeedsDevice(t *testing.T) {
+	phone := devicetest.New(rpID, origin, "phone")
+	e, c := newClockEnv(t, func(cfg *hubclient.Config) {
+		cfg.Devices, cfg.RequireDevice = []ticket.Device{phone.Device()}, []ticket.Risk{ticket.RiskWrite}
+	})
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	tk.Expires = nil
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	at := c.now()
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = at })
+	_, _ = e.client.Poll(ctx, 0)
+	c.add(25 * time.Hour)
+	rid := e.hub.Request(id, ticket.RequestRenew, nil, func(q *ticket.HubRequest) { q.At = c.now() })
+	_ = poll(t, e)
+	if !strings.Contains(string(e.hub.Answer(rid)), hubclient.CodeNotRenewable) {
+		t.Fatalf("renewed a hub-only approval of a device risk: %s", e.hub.Answer(rid))
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Pending {
+		t.Fatalf("plan is %s", sp.State)
+	}
+}
+
+// A renewal whose plan already ran is not renewable; one whose renewal
+// expired too is renewed in turn.
+func TestRenewOfARenewal(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.add(25 * time.Hour) // the renewal expires undecided
+	n2, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil || n2 == n || n2 == id {
+		t.Fatalf("chain: %q %v", n2, err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n2))
+	if rt.Renews.Of != n {
+		t.Fatalf("renews %s, want %s", rt.Renews.Of, n)
+	}
+	e.hub.DecideWith(n2, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = c.now() })
+	_, _ = e.client.Poll(ctx, 0)
+	run, _, err := e.client.Begin(e.store, n2, caller, recheck(policyFP, planHash))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = e.client.Finish(ctx, e.store, run.ID, caller, true, "")
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrNotRenewable) {
+		t.Fatalf("renewed a plan that ran: %v", err)
+	}
+}
+
+// An input Recompute could not check shows as unchecked: never one click.
+func TestRenewUncheckedInput(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	before := map[string]string{"queue": "sha256:" + strings.Repeat("a", 64)}
+	p, err := e.store.Create(plans.Binding{UID: caller.UID, TokenHash: plans.HashToken(caller.Token),
+		PolicyFP: policyFP, PlanHash: planHash, Inputs: before}, json.RawMessage(`{}`), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tk := ticket.NewTicket(ticket.Source{Lock: "lockmq"}, ticket.RiskWrite, planHash, policyFP, c.now(), time.Hour)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return policyFP, planHash, map[string]string{"queue": ticket.UncheckedInput}, nil
+	})
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
+	if rt.Renews.Unchanged() || len(rt.Renews.Changes) != 1 || rt.Renews.Changes[0].Change != ticket.ChangeUnchecked {
+		t.Fatalf("%+v", rt.Renews)
+	}
+}
+
+// A chain of renewals diffs against what the human last approved: a link
+// with changes that was never approved does not make the next one
+// "unchanged".
+func TestRenewChainDiffsAgainstLastApproval(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	v1 := map[string]string{"schema": "sha256:" + strings.Repeat("a", 64)}
+	v2 := map[string]string{"schema": "sha256:" + strings.Repeat("b", 64)}
+	p, err := e.store.Create(plans.Binding{UID: caller.UID, TokenHash: plans.HashToken(caller.Token),
+		PolicyFP: policyFP, PlanHash: planHash, Inputs: v1}, json.RawMessage(`{}`), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tk := ticket.NewTicket(ticket.Source{Lock: "locksql"}, ticket.RiskWrite, planHash, policyFP, c.now(), 0)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	// A: approved, the approval ages.
+	at := c.now()
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = at })
+	_, _ = e.client.Poll(ctx, 0)
+	c.add(25 * time.Hour)
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, ticket.ErrExpired) {
+		t.Fatal(err)
+	}
+	// B: the schema moved; never decided.
+	h2 := "sha256:" + strings.Repeat("9", 64)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) { return policyFP, h2, v2, nil })
+	b, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rb, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(b))
+	if len(rb.Renews.Changes) != 1 {
+		t.Fatalf("B %+v", rb.Renews)
+	}
+	c.add(25 * time.Hour) // B expires undecided
+	// C: nothing moved since B, but B was never approved.
+	c2, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil || c2 == b {
+		t.Fatalf("C %q %v", c2, err)
+	}
+	rc, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(c2))
+	if rc.Renews.Of != b || rc.Renews.Unchanged() || len(rc.Renews.Changes) != 1 || rc.Renews.Changes[0].Input != "schema" {
+		t.Fatalf("C %+v", rc.Renews)
+	}
+}
+
+// Without stored inputs, an unchecked input still makes the renewal
+// unchecked, never one click.
+func TestRenewUncheckedWithoutStoredInputs(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return policyFP, planHash, map[string]string{"queue": ticket.UncheckedInput}, nil
+	})
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
+	if rt.Renews.Unchanged() || len(rt.Renews.Changes) != 1 || rt.Renews.Changes[0] != (ticket.Change{Input: "queue", Change: ticket.ChangeUnchecked}) {
+		t.Fatalf("%+v", rt.Renews)
+	}
+}
+
+// A renewal the hub denied is not handed back before the agent's run.
+func TestRenewDeniedRenewal(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.hub.DecideWith(n, ticket.Denied, "no", nil, func(d *ticket.Decision) { d.At = c.now() })
+	_, _ = e.client.Poll(ctx, 0)
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrNotRenewable) {
+		t.Fatalf("handed back a denied renewal: %v", err)
 	}
 }

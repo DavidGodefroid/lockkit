@@ -860,6 +860,18 @@ func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]st
 	return clone(n), nil
 }
 
+// PlanByID returns plan id whatever its caller and state: for the lock
+// itself (walking a renewal chain), never for a client.
+func (s *Store) PlanByID(id string) (*Plan, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, ok := s.plans[id]
+	if !ok {
+		return nil, ErrNoSuchPlan
+	}
+	return clone(p), nil
+}
+
 // RenewalOf returns the plan that renews expired plan id.
 func (s *Store) RenewalOf(id string) (*Plan, error) {
 	s.mu.Lock()
