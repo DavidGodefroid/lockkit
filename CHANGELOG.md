@@ -3,15 +3,10 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## v0.3.0 (2026-10-30)
+## v0.3.1 (2026-10-30)
 
-Hub support: the packages a lock needs to ask the human through lockhub
-instead of its own console window (`ticket`, `render` masked screens,
-`plans`, the asynchronous console and its hub mode, `hubclient`, the audit
-chain, the `mcpkit` pending answer). Standalone consoles keep their
-prompts, with stricter rules: audit writes and widenings fail closed, no
-widening while a prompt waits, and production refusals re-applied when
-the policy becomes production. Audit lines gain `prev_hash` at the end.
+Fixes to hub mode found after v0.3.0. A lock reaching its hub over plain
+http on the hub's own network must now pass `--hub-plain-http`.
 
 - `mcpkit`: `RequesterFromEnv` sends the hash of `LEA_AGENT_TOKEN`
   (`plans.HashToken`), not the token: the raw token stays in the agent's
@@ -23,6 +18,19 @@ the policy becomes production. Audit lines gain `prev_hash` at the end.
   private address; redirects are refused (a 3xx is an error, the `Lock-*`
   headers are never sent elsewhere); the state file must be a plain file
   with no group or other access.
+
+- `plans`: a test that the store's directory lock dies with a killed
+  holder (#73).
+
+## v0.3.0 (2026-10-30)
+
+Hub support: the packages a lock needs to ask the human through lockhub
+instead of its own console window (`ticket`, `render` masked screens,
+`plans`, the asynchronous console and its hub mode, `hubclient`, the audit
+chain, the `mcpkit` pending answer). Standalone consoles keep their
+prompts, with stricter rules: audit writes and widenings fail closed, no
+widening while a prompt waits, and production refusals re-applied when
+the policy becomes production. Audit lines gain `prev_hash` at the end.
 
 - `hubclient`: the hub key file and the instance key are read through one
   descriptor opened without waiting, checked regular and small: a FIFO,
