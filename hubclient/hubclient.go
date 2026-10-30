@@ -23,9 +23,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -112,8 +114,14 @@ type Config struct {
 	RateN      int
 	RateWindow time.Duration
 	// HTTP is the HTTP client (nil: one without a global timeout; long
-	// polls are bounded by MaxWait).
+	// polls are bounded by MaxWait). Redirects are refused unless it sets
+	// its own CheckRedirect.
 	HTTP *http.Client
+	// PlainHTTP (the flag --hub-plain-http) allows an http:// URL to a hub
+	// on a network of its own (lock up's): a service name without a dot or
+	// a private address only. Off, http is refused but to a loopback
+	// address; use https. Requests and decisions are signed either way.
+	PlainHTTP bool
 	// Now is the clock (nil: time.Now).
 	Now func() time.Time
 }
@@ -164,6 +172,16 @@ func New(cfg Config) (*Client, error) {
 	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" {
 		return nil, fmt.Errorf("hubclient: bad hub URL %q", cfg.URL)
 	}
+	// Signatures protect integrity, not privacy: tickets carry masked
+	// screens and the kinds of personal data touched.
+	if base.Scheme == "http" && !loopback(base.Hostname()) {
+		switch {
+		case !cfg.PlainHTTP:
+			return nil, fmt.Errorf("hubclient: hub URL %q: use https; plain http only to a loopback address, or with --hub-plain-http to a hub on a network of its own", cfg.URL)
+		case !internalHost(base.Hostname()):
+			return nil, fmt.Errorf("hubclient: hub URL %q: --hub-plain-http is only for a service name without a dot or a private address; use https", cfg.URL)
+		}
+	}
 	if cfg.MaxPending <= 0 {
 		cfg.MaxPending = MaxPending
 	}
@@ -175,6 +193,13 @@ func New(cfg Config) (*Client, error) {
 	}
 	if cfg.HTTP == nil {
 		cfg.HTTP = &http.Client{}
+	}
+	if cfg.HTTP.CheckRedirect == nil {
+		// A redirect would send the Lock-* headers again, elsewhere: a 3xx
+		// is the answer, an error like any other non-2xx.
+		h := *cfg.HTTP
+		h.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+		cfg.HTTP = &h
 	}
 	if cfg.Now == nil {
 		cfg.Now = time.Now
@@ -188,10 +213,22 @@ func New(cfg Config) (*Client, error) {
 }
 
 func (c *Client) load() error {
-	b, err := os.ReadFile(c.cfg.StateFile)
+	fi, err := os.Lstat(c.cfg.StateFile)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	} else if err != nil {
+		return fmt.Errorf("hubclient: %w", err)
+	}
+	// The cursor and the decisions not yet acted on: a file another account
+	// could write, or a link to one, is not the lock's.
+	if !fi.Mode().IsRegular() {
+		return fmt.Errorf("hubclient: state file %s is not a plain file", c.cfg.StateFile)
+	}
+	if runtime.GOOS != "windows" && fi.Mode().Perm()&0o077 != 0 {
+		return fmt.Errorf("hubclient: state file %s is mode %v (want no group or other access)", c.cfg.StateFile, fi.Mode().Perm())
+	}
+	b, err := os.ReadFile(c.cfg.StateFile)
+	if err != nil {
 		return fmt.Errorf("hubclient: %w", err)
 	}
 	var s state
@@ -658,4 +695,22 @@ func (c *Client) Withdraw(ctx context.Context, st *plans.Store, planID string, c
 		Reason string `json:"reason,omitempty"`
 	}{reason})
 	return c.do(ctx, http.MethodPost, "/v1/tickets/"+url.PathEscape(p.Ticket)+"/withdraw", body, true, nil)
+}
+
+// loopback reports a loopback host name or address.
+func loopback(host string) bool {
+	if host == "localhost" {
+		return true
+	}
+	ip, err := netip.ParseAddr(host)
+	return err == nil && ip.Unmap().IsLoopback()
+}
+
+// internalHost reports a host plain http may reach with PlainHTTP: a name
+// without a dot (a compose service name) or a private address.
+func internalHost(host string) bool {
+	if ip, err := netip.ParseAddr(host); err == nil {
+		return ip.Unmap().IsPrivate()
+	}
+	return host != "" && !strings.Contains(host, ".")
 }
