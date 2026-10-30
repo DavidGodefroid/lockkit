@@ -296,9 +296,12 @@ func (h *Hub) Requests(io IO, rec func(audit.Base)) {
 	h.Client.OnRequest(func(q *ticket.HubRequest, renewal string, err error) {
 		if q == nil {
 			io.Println(Paint.Warn("hub: " + sanitize.Terminal(err.Error(), false)))
+			rec(audit.Base{Event: audit.EventHubRequest, Decision: "refused", Error: err.Error(), Approval: "hub"})
 			return
 		}
-		b := audit.Base{Ticket: q.Ticket, Approver: &ticket.Approver{ID: q.Approver.ID, Display: q.Approver.Display}, Facade: q.Facade, Approval: "hub"}
+		// The approver is the hub's word (a reveal's facade key is what
+		// the lock checked): audited as claimed by the hub.
+		b := audit.Base{Ticket: q.Ticket, Approver: &ticket.Approver{ID: q.Approver.ID, Display: q.Approver.Display}, Facade: q.Facade, Approval: "hub-claimed"}
 		who := sanitize.Terminal(q.Approver.ID+" on "+q.Facade, false)
 		switch q.Kind {
 		case ticket.RequestReveal:

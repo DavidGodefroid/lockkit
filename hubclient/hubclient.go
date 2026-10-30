@@ -88,6 +88,8 @@ const (
 	MaxWait = 60 * time.Second
 	// MaxInbox bounds the decisions kept for plans not yet run.
 	MaxInbox = plans.MaxPlans
+	// MaxRequests bounds the hub requests waiting to be handled.
+	MaxRequests = 64
 	// maxAnswer bounds an answer of the hub.
 	maxAnswer = 8 << 20
 )
@@ -161,6 +163,7 @@ type Client struct {
 	seen      map[string]time.Time // hub requests handled, by id
 	requests  []json.RawMessage    // hub requests polled, not handled yet
 	recompute Recompute
+	renewMu   sync.Mutex // one renewal at a time
 	onRequest func(*ticket.HubRequest, string, error)
 }
 
@@ -603,8 +606,12 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 	if err := c.save(); err != nil {
 		return kept, err
 	}
-	if len(res.Requests) > 0 {
-		c.requests = append(c.requests, res.Requests...)
+	for _, q := range res.Requests {
+		if len(c.requests) >= MaxRequests {
+			bad = append(bad, fmt.Errorf("%w: more than %d requests waiting", ErrBadRequest, MaxRequests))
+			break
+		}
+		c.requests = append(c.requests, q)
 	}
 	return kept, errors.Join(bad...)
 }

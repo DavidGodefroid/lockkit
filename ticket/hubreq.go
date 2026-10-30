@@ -20,9 +20,10 @@ import (
 const (
 	// ContextHubRequest signs a HubRequest with the hub's key.
 	ContextHubRequest Context = "lockkit/hub-request/v1"
-	// ContextRevealKey signs a RevealKey with a facade's key, and is the
-	// associated data of a reveal's box (RevealAAD).
+	// ContextRevealKey signs a RevealKey with a facade's key.
 	ContextRevealKey Context = "lockkit/reveal-key/v1"
+	// ContextRevealBox is the associated data of a reveal's box.
+	ContextRevealBox Context = "lockkit/reveal-box/v1"
 	// ContextRevealAnswer signs a RevealAnswer with the lock's key.
 	ContextRevealAnswer Context = "lockkit/reveal-answer/v1"
 )
@@ -206,7 +207,8 @@ const (
 )
 
 // HubRequest is a human's request to a lock about one of its tickets,
-// signed by the hub. The lock checks it like a decision (pinned hub key,
+// signed by the hub. Approver and Facade are the hub's word: for a reveal
+// the facade's own signature (Reveal) is what the lock checks. The lock checks it like a decision (pinned hub key,
 // its own instance and key, fresh) and, for a reveal, the facade's own
 // signature on Reveal.
 type HubRequest struct {
@@ -346,9 +348,10 @@ type RevealAnswer struct {
 	Sig      string  `json:"sig,omitempty"`
 }
 
-// RevealAAD is the associated data of a reveal's box.
+// RevealAAD is the associated data of a reveal's box: the reveal, its
+// ticket, instance and lock key.
 func RevealAAD(r *RevealKey) []byte {
-	return ContextRevealKey.message([]byte(r.ID + "\x00" + r.Ticket + "\x00" + r.Instance))
+	return ContextRevealBox.message([]byte(r.ID + "\x00" + r.Ticket + "\x00" + r.Instance + "\x00" + r.KeyID))
 }
 
 // SealReveal seals clear to the facade key of q (verified by the caller,

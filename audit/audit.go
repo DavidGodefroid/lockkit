@@ -56,6 +56,9 @@ const (
 	// for an expired ticket (Decision renewed or refused).
 	EventReveal = "reveal"
 	EventRenew  = "renew"
+	// EventHubRequest is a hub request refused before its kind is known
+	// (it did not verify).
+	EventHubRequest = "hub-request"
 )
 
 // Record is one audit event of a product. Its JSON encoding must be an

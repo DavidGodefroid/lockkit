@@ -36,14 +36,21 @@ const (
 	RenewApprovalExpired = "approval-expired"
 )
 
-// Change is one plan-hash input that moved: its name and its digest
-// before and after ("" when the input is new or gone). Digests only, never
-// values: a change shows what moved, not what it holds.
+// Change is one plan-hash input that moved: its name and how. Names
+// only: a digest of a short value (a name, an id) would let a hub confirm
+// a guess, so neither values nor digests leave the lock.
 type Change struct {
-	Input  string `json:"input"`
-	Before string `json:"before"`
-	After  string `json:"after"`
+	Input string `json:"input"`
+	// Change is ChangeChanged, ChangeNew or ChangeGone.
+	Change string `json:"change"`
 }
+
+// Kinds of Change.
+const (
+	ChangeChanged = "changed"
+	ChangeNew     = "new"
+	ChangeGone    = "gone"
+)
 
 // MaxChanges bounds Renewal.Changes.
 const MaxChanges = 64
@@ -65,6 +72,12 @@ func (r *Renewal) validate() error {
 	case !r.Checked && len(r.Changes) > 0:
 		return invalid("renews.changes without checked")
 	}
+	switch {
+	case r.Reason == RenewApprovalExpired && r.ApprovedAt == nil:
+		return invalid("renews: approval-expired without approved_at")
+	case r.Reason == RenewExpired && r.ApprovedAt != nil:
+		return invalid("renews: expired with approved_at")
+	}
 	for i, c := range r.Changes {
 		if err := checkSet("renews.changes.input", c.Input); err != nil {
 			return err
@@ -72,13 +85,8 @@ func (r *Renewal) validate() error {
 		if i > 0 && r.Changes[i-1].Input >= c.Input {
 			return invalid("renews.changes: not sorted by input, or an input twice")
 		}
-		for _, d := range []string{c.Before, c.After} {
-			if d != "" && !validHash(d) {
-				return invalid("renews.changes.%s: digest %q", c.Input, d)
-			}
-		}
-		if c.Before == c.After {
-			return invalid("renews.changes.%s: did not change", c.Input)
+		if c.Change != ChangeChanged && c.Change != ChangeNew && c.Change != ChangeGone {
+			return invalid("renews.changes.%s: change %q", c.Input, c.Change)
 		}
 	}
 	return nil
@@ -87,6 +95,8 @@ func (r *Renewal) validate() error {
 // InputDigests names the inputs of a plan hash: for each member of the
 // JSON object v encodes to, the HashOf its value. What a product hashes
 // into its plan hash (a struct, a map) gives its inputs by field name.
+// The digests stay in the lock (plans.Binding.Inputs): DiffInputs sends
+// only the names of those that moved.
 func InputDigests(v any) (map[string]string, error) {
 	b, err := Canonical(v)
 	if err != nil {
@@ -124,12 +134,19 @@ func DiffInputs(before, after map[string]string) []Change {
 	slices.Sort(names)
 	var out []Change
 	for _, k := range names {
-		if before[k] != after[k] {
-			out = append(out, Change{Input: k, Before: before[k], After: after[k]})
+		b, inB := before[k]
+		a, inA := after[k]
+		switch {
+		case !inB:
+			out = append(out, Change{Input: k, Change: ChangeNew})
+		case !inA:
+			out = append(out, Change{Input: k, Change: ChangeGone})
+		case a != b:
+			out = append(out, Change{Input: k, Change: ChangeChanged})
 		}
 	}
 	if len(out) > MaxChanges {
-		out = append(out[:MaxChanges-1], Change{Input: "￿ more", Before: "", After: hashPrefix + "0000000000000000000000000000000000000000000000000000000000000000"})
+		out = out[:MaxChanges]
 	}
 	return out
 }

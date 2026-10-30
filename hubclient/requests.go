@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/ticket"
@@ -82,8 +83,17 @@ func (c *Client) handle(ctx context.Context, st *plans.Store, raw json.RawMessag
 	}
 	c.mu.Lock()
 	_, dup := c.seen[q.ID]
+	if q.Reveal != nil {
+		// A reveal key is one use, whatever request carries it.
+		if _, ok := c.seen["reveal:"+q.Reveal.ID]; ok {
+			dup = true
+		}
+	}
 	if !dup {
 		c.seen[q.ID] = c.cfg.Now()
+		if q.Reveal != nil {
+			c.seen["reveal:"+q.Reveal.ID] = c.cfg.Now()
+		}
 	}
 	c.mu.Unlock()
 	if dup {
@@ -139,6 +149,7 @@ const (
 	CodeNoClear       = "no_clear_screen"
 	CodeNotRenewable  = "not_renewable" // not expired, or gone
 	CodeRecheckFailed = "recheck_failed"
+	CodePolicyChanged = "policy_changed" // plan again
 	CodeLimited       = "rate_limited"
 	CodeFailed        = "failed"
 )
@@ -149,6 +160,8 @@ func AnswerCode(err error) string {
 	switch {
 	case errors.Is(err, errRecheck):
 		return CodeRecheckFailed
+	case errors.Is(err, errPolicyChanged):
+		return CodePolicyChanged
 	case errors.Is(err, ErrBadRequest), errors.Is(err, ticket.ErrFacade):
 		return CodeFacadeRefused
 	case errors.Is(err, errNotPending):
@@ -210,75 +223,75 @@ func (c *Client) Renew(ctx context.Context, st *plans.Store, ticketID string, ca
 }
 
 func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, caller plans.Caller) (string, error) {
-	if old.State != plans.Expired && old.RenewedBy == "" {
+	// One renewal at a time: the agent's run and the human's request may
+	// race on the same expired plan.
+	c.renewMu.Lock()
+	defer c.renewMu.Unlock()
+	if old.State != plans.Expired {
 		return "", fmt.Errorf("%w: ticket %s is %s", ErrNotRenewable, old.Ticket, old.State)
 	}
 	own, err := old.LockTicket(c.pub)
 	if err != nil {
 		return "", err
 	}
-	c.mu.Lock()
-	rc := c.recompute
-	c.mu.Unlock()
-	fp, hash := old.Binding.PolicyFP, old.Binding.PlanHash
-	var inputs map[string]string
-	checked := rc != nil
-	if rc != nil {
-		if fp, hash, inputs, err = rc(old); err != nil {
-			return "", fmt.Errorf("%w: %w: %v", ErrNotRenewable, errRecheck, err)
+	if old.RenewedBy == "" {
+		c.mu.Lock()
+		rc := c.recompute
+		c.mu.Unlock()
+		fp, hash := old.Binding.PolicyFP, old.Binding.PlanHash
+		var inputs map[string]string
+		if rc != nil {
+			if fp, hash, inputs, err = rc(old); err != nil {
+				return "", fmt.Errorf("%w: %w: %v", ErrNotRenewable, errRecheck, err)
+			}
+			if fp != old.Binding.PolicyFP {
+				// The risk class and the flags came from the old policy:
+				// a new one may ask more of the human. Plan again.
+				return "", fmt.Errorf("%w: %w: the policy changed since the plan", ErrNotRenewable, errPolicyChanged)
+			}
+		}
+		if _, err := st.Renew(old.ID, fp, hash, inputs, rc != nil); err != nil && !errors.Is(err, plans.ErrRenewed) {
+			return "", err
 		}
 	}
-	n, err := st.Renew(old.ID, fp, hash, inputs)
-	if errors.Is(err, plans.ErrRenewed) {
-		if n.State == plans.Planned {
-			// A renewal that did not reach the pending state: submit it now.
-			return c.submitRenewal(ctx, st, n, caller, own, old, nil, checked)
-		}
+	n, err := st.RenewalOf(old.ID) // the renewal, as stored
+	if err != nil {
+		return "", err
+	}
+	if n.State != plans.Planned {
 		if n.Ticket == "" {
 			return "", fmt.Errorf("%w: renewal plan %s is %s", ErrNotRenewable, n.ID, n.State)
 		}
 		return n.Ticket, nil
 	}
-	if err != nil {
-		return "", err
-	}
-	var changes []ticket.Change
-	if checked {
-		before, after := old.Binding.Inputs, inputs
-		if before == nil || after == nil {
-			before, after = map[string]string{"plan_hash": old.Binding.PlanHash}, map[string]string{"plan_hash": hash}
-		}
-		before, after = with(before, "policy_fp", old.Binding.PolicyFP), with(after, "policy_fp", fp)
-		changes = ticket.DiffInputs(before, after)
-	}
-	return c.submitRenewal(ctx, st, n, caller, own, old, changes, checked)
+	// Planned: new, or a renewal whose submission failed (hub limits). Its
+	// changes come from the stored bindings, whichever call submits it.
+	return c.submitRenewal(ctx, st, n, caller, own, old)
 }
 
-// with is m with k set to v unless m has k.
-func with(m map[string]string, k, v string) map[string]string {
-	if _, ok := m[k]; ok {
-		return m
+var errPolicyChanged = errors.New("policy changed")
+
+// renewalChanges are the plan-hash inputs that moved from old to n, by
+// name; nil when n was not checked.
+func renewalChanges(old, n *plans.Plan) []ticket.Change {
+	if !n.RenewChecked {
+		return nil
 	}
-	out := make(map[string]string, len(m)+1)
-	for a, b := range m {
-		out[a] = b
+	before, after := old.Binding.Inputs, n.Binding.Inputs
+	if before == nil || after == nil {
+		before, after = map[string]string{"plan_hash": old.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
 	}
-	out[k] = v
-	return out
+	return ticket.DiffInputs(before, after)
 }
 
-func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Plan, caller plans.Caller, own *ticket.Ticket, old *plans.Plan, changes []ticket.Change, checked bool) (string, error) {
+func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Plan, caller plans.Caller, own *ticket.Ticket, old *plans.Plan) (string, error) {
 	t := ticket.NewTicket(ticket.Source{Lock: own.Source.Lock}, own.Risk, n.Binding.PlanHash, n.Binding.PolicyFP, c.cfg.Now(),
 		ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
 	t.Workspace, t.Requester, t.Flags = own.Workspace, own.Requester, own.Flags
-	reason := ticket.RenewExpired
+	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: n.RenewChecked, Changes: renewalChanges(old, n)}
 	if old.ApprovedAt != nil {
-		reason = ticket.RenewApprovalExpired
-	}
-	r := &ticket.Renewal{Of: own.ID, Reason: reason, Checked: checked, Changes: changes}
-	if old.ApprovedAt != nil {
-		a := old.ApprovedAt.UTC().Truncate(1e6)
-		r.ApprovedAt = &a
+		a := old.ApprovedAt.UTC().Truncate(time.Millisecond)
+		r.Reason, r.ApprovedAt = ticket.RenewApprovalExpired, &a
 	}
 	t.Renews = r
 	// The expired ticket's screen is the masked one the lock signed

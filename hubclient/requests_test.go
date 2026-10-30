@@ -236,7 +236,7 @@ func TestRenewAgedApproval(t *testing.T) {
 	}
 	r := rt.Renews
 	if r == nil || r.Of != id || r.Reason != ticket.RenewApprovalExpired || r.ApprovedAt == nil || !r.ApprovedAt.Equal(at) ||
-		!r.Checked || len(r.Changes) != 1 || r.Changes[0].Input != "plan_hash" || r.Changes[0].After != newHash || rt.PlanHash != newHash {
+		!r.Checked || len(r.Changes) != 1 || r.Changes[0].Input != "plan_hash" || r.Changes[0].Change != ticket.ChangeChanged || rt.PlanHash != newHash {
 		t.Fatalf("renewal %+v", r)
 	}
 	if rt.Screen.Header != tk.Screen.Header || strings.Contains(string(e.hub.Ticket(n)), "jane.doe") {
@@ -344,5 +344,94 @@ func TestRequestErrorIsACodeOnly(t *testing.T) {
 	}
 	if local == nil || !strings.Contains(local.Error(), "CANARY") {
 		t.Fatalf("the lock lost the detail: %v", local)
+	}
+}
+
+// A renewal whose first submission failed (rate limit) is submitted again
+// with the changes of the stored bindings: never "nothing changed" for a
+// plan whose inputs moved. Changes name inputs only: the hub never gets a
+// value, nor a digest it could test guesses against.
+func TestRenewRetryKeepsChanges(t *testing.T) {
+	e, c := newClockEnv(t, func(cfg *hubclient.Config) { cfg.RateN = 1 })
+	ctx := context.Background()
+	before := map[string]string{"user": "sha256:" + strings.Repeat("a", 64)}
+	p, err := e.store.Create(plans.Binding{UID: caller.UID, TokenHash: plans.HashToken(caller.Token),
+		PolicyFP: policyFP, PlanHash: planHash, Inputs: before}, json.RawMessage(`{}`), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tk := ticket.NewTicket(ticket.Source{Lock: "locksql"}, ticket.RiskWrite, planHash, policyFP, c.now(), time.Hour)
+	id, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.add(2 * time.Hour)
+	digest, _ := ticket.HashOf("jane.doe")
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return policyFP, "sha256:" + strings.Repeat("7", 64), map[string]string{"user": digest}, nil
+	})
+	// Fill the rate window with another ticket, then renew: limited.
+	q, tk2 := e.plan(t, "sha256:"+strings.Repeat("6", 64))
+	tk2.Created, tk2.Expires = c.now(), nil
+	if _, err := e.client.Submit(ctx, e.store, q.ID, caller, tk2, screen()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrRateLimited) {
+		t.Fatalf("first renewal: %v", err)
+	}
+	// The retry, from a recompute that now says nothing moved.
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) { return policyFP, planHash, before, nil })
+	c.add(hubclient.RateWindow)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := e.hub.Ticket(n)
+	rt, _ := ticket.VerifyTicket(e.lockPub, raw)
+	if rt.Renews.Unchanged() || len(rt.Renews.Changes) != 1 || rt.Renews.Changes[0].Input != "user" {
+		t.Fatalf("retry lost the changes: %+v", rt.Renews)
+	}
+	if strings.Contains(string(raw), digest) || strings.Contains(string(raw), "jane.doe") {
+		t.Fatal("the hub can test a guess against the ticket")
+	}
+}
+
+// A policy that changed since the plan is no renewal: the risk class came
+// from the old one.
+func TestRenewRefusesChangedPolicy(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return "sha256:" + strings.Repeat("5", 64), planHash, nil, nil
+	})
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrNotRenewable) || hubclient.AnswerCode(err) != hubclient.CodePolicyChanged {
+		t.Fatalf("%v", err)
+	}
+}
+
+// Concurrent renewals of one expired ticket give one renewal.
+func TestRenewConcurrent(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	var wg sync.WaitGroup
+	got := make([]string, 8)
+	for i := range got {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			got[i], _ = e.client.Renew(ctx, e.store, id, caller)
+		}()
+	}
+	wg.Wait()
+	for _, g := range got {
+		if g == "" || g != got[0] {
+			t.Fatalf("renewals %v", got)
+		}
 	}
 }

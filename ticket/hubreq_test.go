@@ -186,8 +186,15 @@ func TestRenewalInTicket(t *testing.T) {
 	}
 	after, _ := InputDigests(map[string]any{"sql": "UPDATE t SET a = 1", "schema": "v2", "pins": []string{"x"}})
 	ch := DiffInputs(before, after)
-	if len(ch) != 2 || ch[0].Input != "pins" || ch[0].Before != "" || ch[1].Input != "schema" || ch[1].Before != before["schema"] {
+	if len(ch) != 2 || ch[0].Input != "pins" || ch[0].Change != ChangeNew || ch[1].Input != "schema" || ch[1].Change != ChangeChanged {
 		t.Fatalf("%+v", ch)
+	}
+	// Names only: no value and no digest a hub could test guesses against.
+	if b, _ := json.Marshal(ch); strings.Contains(string(b), "sha256") || strings.Contains(string(b), "v2") {
+		t.Fatalf("change holds a value or digest: %s", b)
+	}
+	if gone := DiffInputs(after, before); len(gone) != 2 || gone[0].Change != ChangeGone {
+		t.Fatalf("%+v", gone)
 	}
 	if DiffInputs(before, before) != nil {
 		t.Fatal("no change expected")
@@ -213,8 +220,9 @@ func TestRenewalInTicket(t *testing.T) {
 		"self":       func(x *Renewal) { x.Of = r.ID },
 		"reason":     func(x *Renewal) { x.Reason = "later" },
 		"unsorted":   func(x *Renewal) { x.Changes = []Change{ch[1], ch[0]} },
-		"same":       func(x *Renewal) { x.Changes = []Change{{Input: "a", Before: ch[1].Before, After: ch[1].Before}} },
-		"not digest": func(x *Renewal) { x.Changes = []Change{{Input: "a", Before: "jane.doe@example.com", After: ""}} },
+		"kind":       func(x *Renewal) { x.Changes = []Change{{Input: "a", Change: "jane.doe@example.com"}} },
+		"no at":      func(x *Renewal) { x.ApprovedAt = nil },
+		"at expired": func(x *Renewal) { x.Reason = RenewExpired },
 		"unchecked":  func(x *Renewal) { x.Checked = false },
 	} {
 		c := *r

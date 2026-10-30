@@ -66,13 +66,17 @@ to the device while they are shown (hence sealing is a separate opt-in).
   `MarkPendingClear`), the one both reveals and devices see.
 - Re-approval of expired tickets (H1): `Ticket.Renews` (`Renewal`: the
   expired ticket, `expired` or `approval-expired` with `approved_at`,
-  `checked`, `changes` of plan-hash input digests, never values;
-  `InputDigests`, `DiffInputs`, `Unchanged`). `hubclient.Client.Renew`
+  `checked`, `changes`: the names of the plan-hash inputs that moved
+  (`changed`/`new`/`gone`), never values nor digests; `InputDigests`
+  stays in the lock, `DiffInputs`, `Unchanged`). A changed policy
+  fingerprint is no renewal (`policy_changed`: plan again). `hubclient.Client.Renew`
   (agent path) and the hub's `renew` request make a new ticket for the
   same plan, re-checked through `SetRecompute`; `Begin` answers an
   expired ticket `ticket.ErrExpired` and records an aged approval
   (`plans.Store.ExpireApproval`). `plans`: `Binding.Inputs`, `Renew`,
-  `ExpiredByTicket`, `TicketPlan`, `OwnerOf`, `ErrRenewed`. Console:
+  `ExpiredByTicket`, `TicketPlan`, `RenewalOf`, `OwnerOf`, `ErrRenewed`.
+  Failed requests are answered with a fixed code (`hubclient.AnswerCode`),
+  never the error text. Console:
   `Hub.RenewResp`, `Hub.Requests` (audit events `reveal`, `renew`).
   `hubtest`: `Request`, `RawRequest`, `Requeue`, `Answer`.
 

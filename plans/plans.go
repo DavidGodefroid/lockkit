@@ -109,8 +109,10 @@ type Caller struct {
 }
 
 // OwnerOf is the caller a plan is bound to, for the lock itself acting on
-// the plan for its agent (a renewal the human asked for on the hub). Only
-// this package makes one: a product builds callers from its clients.
+// the plan for its agent (a renewal the human asked for on the hub). It
+// is a capability of code holding the store, which can act on any plan
+// anyway: never build a caller for a client with it (a product builds
+// those from its clients' credentials).
 func OwnerOf(p *Plan) Caller {
 	return Caller{UID: p.Binding.UID, owner: true, hash: p.Binding.TokenHash}
 }
@@ -172,6 +174,9 @@ type Plan struct {
 	// an expired plan, the plan that renews it.
 	Renews    string `json:"renews,omitempty"`
 	RenewedBy string `json:"renewed_by,omitempty"`
+	// RenewChecked: a renewal whose binding the lock computed again (its
+	// Inputs and hashes are the lock's current view).
+	RenewChecked bool `json:"renew_checked,omitempty"`
 }
 
 // LockTicket decodes the signed ticket of a pending plan, verified under
@@ -803,7 +808,7 @@ func (s *Store) TicketPlan(ticketID string) (*Plan, error) {
 // hash and inputs the lock computed now. The expired plan records it
 // (RenewedBy); a plan already renewed returns its renewal with
 // ErrRenewed.
-func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]string) (*Plan, error) {
+func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]string, checked bool) (*Plan, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	old, ok := s.plans[id]
@@ -837,7 +842,7 @@ func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]st
 		}
 	}
 	n := &Plan{ID: ticket.NewID(now), State: Planned, Binding: b, Created: now, Updated: now,
-		Body: append(json.RawMessage(nil), old.Body...), Renews: old.ID}
+		Body: append(json.RawMessage(nil), old.Body...), Renews: old.ID, RenewChecked: checked}
 	if old.Clear != nil {
 		cl := cloneScreen(*old.Clear)
 		n.Clear = &cl
@@ -852,6 +857,21 @@ func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]st
 		return nil, err
 	}
 	s.plans[n.ID], s.plans[id] = n, u
+	return clone(n), nil
+}
+
+// RenewalOf returns the plan that renews expired plan id.
+func (s *Store) RenewalOf(id string) (*Plan, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	old, ok := s.plans[id]
+	if !ok || old.RenewedBy == "" {
+		return nil, ErrNoSuchPlan
+	}
+	n, ok := s.plans[old.RenewedBy]
+	if !ok {
+		return nil, ErrNoSuchPlan
+	}
 	return clone(n), nil
 }
 
