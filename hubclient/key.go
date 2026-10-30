@@ -13,6 +13,8 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+
+	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
 // instanceRE is the name of a lock instance, as lockhub (keys.ValidInstance)
@@ -176,4 +178,36 @@ func HubKeyCommand(w io.Writer, home string, args []string) error {
 	}
 	_, err = fmt.Fprintln(w, base64.StdEncoding.EncodeToString(k.Public().(ed25519.PublicKey)))
 	return err
+}
+
+// ReadDevices reads the pinned approval devices: a ticket.DeviceSet (the
+// file `lock up` mounts at /run/lockfamily/devices.json, written from the
+// devices the human confirmed at the host's terminal).
+func ReadDevices(path string) ([]ticket.Device, error) {
+	b, err := readSmallRegular(path, 64<<10)
+	if err != nil {
+		return nil, fmt.Errorf("hubclient: devices: %w", err)
+	}
+	devs, err := ticket.ParseDevices(b)
+	if err != nil {
+		return nil, fmt.Errorf("hubclient: %s: %w", path, err)
+	}
+	return devs, nil
+}
+
+// ParseRisks reads a comma-separated list of risk classes ("" is none),
+// as --require-device takes it.
+func ParseRisks(s string) ([]ticket.Risk, error) {
+	if s == "" {
+		return nil, nil
+	}
+	var out []ticket.Risk
+	for _, f := range strings.Split(s, ",") {
+		r, err := ticket.ParseRisk(strings.TrimSpace(f))
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, nil
 }

@@ -1,6 +1,8 @@
 package ticket
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/ecdh"
 	"crypto/ed25519"
 	"crypto/hkdf"
@@ -17,8 +19,20 @@ import (
 // the recipient public key), XChaCha20-Poly1305 with a random nonce.
 const SealAlg = "x25519-hkdf-sha256-xchacha20poly1305"
 
-// sealInfo is the HKDF info of SealAlg.
-const sealInfo = "lockkit/sealed/v1"
+// SealAlgGCM is the same construction with AES-256-GCM and a 12-byte
+// random nonce, for a recipient that has WebCrypto and no XChaCha20 (a
+// device's browser). Each box has its own ephemeral key, so its AES key
+// encrypts one message only.
+const SealAlgGCM = "x25519-hkdf-sha256-aes256gcm"
+
+// sealInfo is the HKDF info of SealAlg, sealInfoGCM of SealAlgGCM.
+const (
+	sealInfo    = "lockkit/sealed/v1"
+	sealInfoGCM = "lockkit/sealed-gcm/v1"
+)
+
+// gcmNonceSize is the nonce size of SealAlgGCM.
+const gcmNonceSize = 12
 
 // ErrOpen: a sealed box does not open with this key and associated data.
 var ErrOpen = errors.New("ticket: sealed box does not open")
@@ -38,13 +52,19 @@ type Sealed struct {
 const maxSealed = 2 << 20
 
 func (s *Sealed) validate() error {
-	if s.Alg != SealAlg {
+	var nonceSize int
+	switch s.Alg {
+	case SealAlg:
+		nonceSize = chacha20poly1305.NonceSizeX
+	case SealAlgGCM:
+		nonceSize = gcmNonceSize
+	default:
 		return invalid("sealed: alg %q", s.Alg)
 	}
 	if b, err := enc.DecodeString(s.EPK); err != nil || len(b) != 32 {
 		return invalid("sealed: epk")
 	}
-	if b, err := enc.DecodeString(s.Nonce); err != nil || len(b) != chacha20poly1305.NonceSizeX {
+	if b, err := enc.DecodeString(s.Nonce); err != nil || len(b) != nonceSize {
 		return invalid("sealed: nonce")
 	}
 	if len(s.CT) > maxSealed {
@@ -56,15 +76,41 @@ func (s *Sealed) validate() error {
 	return nil
 }
 
-func sealKey(shared, epk, rpk []byte) ([]byte, error) {
+func sealKey(alg string, shared, epk, rpk []byte) ([]byte, error) {
 	salt := append(append([]byte(nil), epk...), rpk...)
-	return hkdf.Key(sha256.New, shared, salt, sealInfo, chacha20poly1305.KeySize)
+	info := sealInfo
+	if alg == SealAlgGCM {
+		info = sealInfoGCM
+	}
+	return hkdf.Key(sha256.New, shared, salt, info, 32)
+}
+
+// aeadOf is the AEAD of alg under key.
+func aeadOf(alg string, key []byte) (cipher.AEAD, error) {
+	if alg == SealAlgGCM {
+		b, err := aes.NewCipher(key)
+		if err != nil {
+			return nil, err
+		}
+		return cipher.NewGCM(b)
+	}
+	return chacha20poly1305.NewX(key)
 }
 
 // Seal encrypts plaintext to the X25519 key to. aad is bound to the box
 // and must be given again to Open (a ticket id, a context): a box sealed
 // for one ticket does not open as another's.
 func Seal(to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
+	return seal(SealAlg, to, plaintext, aad)
+}
+
+// SealGCM is Seal with SealAlgGCM, for a recipient that opens boxes with
+// WebCrypto.
+func SealGCM(to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
+	return seal(SealAlgGCM, to, plaintext, aad)
+}
+
+func seal(alg string, to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
 	if to.Curve() != ecdh.X25519() {
 		return nil, errors.New("ticket: Seal needs an X25519 key")
 	}
@@ -77,23 +123,24 @@ func Seal(to *ecdh.PublicKey, plaintext, aad []byte) (*Sealed, error) {
 		return nil, err
 	}
 	epk := eph.PublicKey().Bytes()
-	key, err := sealKey(shared, epk, to.Bytes())
+	key, err := sealKey(alg, shared, epk, to.Bytes())
 	if err != nil {
 		return nil, err
 	}
-	aead, err := chacha20poly1305.NewX(key)
+	aead, err := aeadOf(alg, key)
 	if err != nil {
 		return nil, err
 	}
-	nonce := make([]byte, chacha20poly1305.NonceSizeX)
+	nonce := make([]byte, aead.NonceSize())
 	if _, err := rand.Read(nonce); err != nil {
 		return nil, err
 	}
 	ct := aead.Seal(nil, nonce, plaintext, aad)
-	return &Sealed{Alg: SealAlg, EPK: enc.EncodeToString(epk), Nonce: enc.EncodeToString(nonce), CT: enc.EncodeToString(ct)}, nil
+	return &Sealed{Alg: alg, EPK: enc.EncodeToString(epk), Nonce: enc.EncodeToString(nonce), CT: enc.EncodeToString(ct)}, nil
 }
 
-// Open decrypts s with priv and aad. Any failure is ErrOpen.
+// Open decrypts s (SealAlg or SealAlgGCM) with priv and aad. Any failure
+// is ErrOpen.
 func Open(priv *ecdh.PrivateKey, s *Sealed, aad []byte) ([]byte, error) {
 	if priv.Curve() != ecdh.X25519() || s.validate() != nil {
 		return nil, ErrOpen
@@ -109,11 +156,11 @@ func Open(priv *ecdh.PrivateKey, s *Sealed, aad []byte) ([]byte, error) {
 	if err != nil {
 		return nil, ErrOpen
 	}
-	key, err := sealKey(shared, epkRaw, priv.PublicKey().Bytes())
+	key, err := sealKey(s.Alg, shared, epkRaw, priv.PublicKey().Bytes())
 	if err != nil {
 		return nil, ErrOpen
 	}
-	aead, err := chacha20poly1305.NewX(key)
+	aead, err := aeadOf(s.Alg, key)
 	if err != nil {
 		return nil, ErrOpen
 	}

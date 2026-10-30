@@ -31,6 +31,13 @@ type HubOptions struct {
 	// PlainHTTP lets URL be http:// to a hub on a network of its own
 	// (--hub-plain-http, hubclient.Config.PlainHTTP).
 	PlainHTTP bool
+	// DevicesFile holds the approval devices this lock pins
+	// (--devices-file, hubclient.ReadDevices): decisions taken on a device
+	// must carry its signature, and the clear screen is sealed to each.
+	DevicesFile string
+	// RequireDevice lists the risk classes whose approvals must be signed
+	// by a pinned device (--require-device, comma-separated).
+	RequireDevice string
 	// Home is the lock's home volume, where the instance key lives
 	// (hubclient.InstanceKey, made by `hub-key`); "" is the user's home.
 	Home string
@@ -42,11 +49,38 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 	fs.StringVar(&h.KeyFile, "hub-key-file", "", "the pinned public key of the hub (base64, one line)")
 	fs.StringVar(&h.Instance, "instance", "", "the lock instance name the hub knows this console by")
 	fs.BoolVar(&h.PlainHTTP, "hub-plain-http", false, "allow an http:// hub URL on a network of its own (a service name without a dot or a private address)")
+	fs.StringVar(&h.DevicesFile, "devices-file", "", "the approval devices this lock pins (JSON, written by lock up): device decisions must carry their signature")
+	fs.StringVar(&h.RequireDevice, "require-device", "", "risk classes (comma-separated) whose approvals must be signed by a pinned device, from any facade")
+}
+
+// Args are the flags of h, as Register reads them back: what a product
+// that starts its console again (a handoff) passes on.
+func (h HubOptions) Args() []string {
+	var out []string
+	if h.URL != "" {
+		out = append(out, "--hub", h.URL)
+	}
+	if h.KeyFile != "" {
+		out = append(out, "--hub-key-file", h.KeyFile)
+	}
+	if h.Instance != "" {
+		out = append(out, "--instance", h.Instance)
+	}
+	if h.PlainHTTP {
+		out = append(out, "--hub-plain-http")
+	}
+	if h.DevicesFile != "" {
+		out = append(out, "--devices-file", h.DevicesFile)
+	}
+	if h.RequireDevice != "" {
+		out = append(out, "--require-device", h.RequireDevice)
+	}
+	return out
 }
 
 // Enabled reports whether any hub flag is set.
 func (h HubOptions) Enabled() bool {
-	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP
+	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != ""
 }
 
 func (h HubOptions) check() error {
@@ -55,6 +89,11 @@ func (h HubOptions) check() error {
 		return fmt.Errorf("%w: --hub, --hub-key-file and --instance go together", ErrConfig)
 	case !hubclient.ValidInstance(h.Instance):
 		return fmt.Errorf("%w: invalid instance name %q", ErrConfig, h.Instance)
+	case h.RequireDevice != "" && h.DevicesFile == "":
+		return fmt.Errorf("%w: --require-device needs --devices-file", ErrConfig)
+	}
+	if _, err := hubclient.ParseRisks(h.RequireDevice); err != nil {
+		return fmt.Errorf("%w: --require-device: %v", ErrConfig, err)
 	}
 	return nil
 }
@@ -119,6 +158,16 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 	if err != nil {
 		return nil, err
 	}
+	var devices []ticket.Device
+	if o.DevicesFile != "" {
+		if devices, err = hubclient.ReadDevices(o.DevicesFile); err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrConfig, err)
+		}
+	}
+	require, _ := hubclient.ParseRisks(o.RequireDevice) // checked by o.check
+	if len(require) > 0 && len(devices) == 0 {
+		return nil, fmt.Errorf("%w: --require-device, and %s pins no device", ErrConfig, o.DevicesFile)
+	}
 	dir := filepath.Join(stateDir, p.Name, "hub", o.Instance)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, fmt.Errorf("console: %w", err)
@@ -128,7 +177,7 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 		return nil, err
 	}
 	c, err := hubclient.New(hubclient.Config{URL: o.URL, Instance: o.Instance, Key: key, HubKey: hubKey, PlainHTTP: o.PlainHTTP,
-		StateFile: filepath.Join(dir, "state.json"), Now: now})
+		StateFile: filepath.Join(dir, "state.json"), Now: now, Devices: devices, RequireDevice: require})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
 	}
@@ -174,7 +223,11 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	t := ticket.NewTicket(ticket.Source{Lock: a.lock}, h.Risk, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
 	t.Workspace, t.Requester = h.Workspace, h.Requester
 	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: d.Screen.NeverAuto, Retype: d.Retype}
-	id, err := a.hub.Client.Submit(ctx, a.hub.Store, h.PlanID, h.Caller, t, h.Masked)
+	// The screen this console would show: sealed to the pinned devices
+	// only (SubmitClear), never sent as it is.
+	s := d.Screen
+	clear := &ticket.Screen{Header: s.Header, Note: s.Note, Body: s.Body, Warnings: s.Warnings, Red: s.Red}
+	id, err := a.hub.Client.SubmitClear(ctx, a.hub.Store, h.PlanID, h.Caller, t, h.Masked, clear)
 	return Pending{Ticket: id, Instance: a.hub.Instance}, err
 }
 

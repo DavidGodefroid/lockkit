@@ -3,6 +3,34 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+Approval devices (lockhub's mobile facade): a decision taken on a phone is
+signed by the phone itself, and the lock checks that signature, so the hub
+alone cannot make an approval pass for one taken on the device.
+
+- `ticket`: `Device` (a WebAuthn credential and an X25519 sealing key,
+  pinned by the lock; `DeviceSet`, `ParseDevices`, `Fingerprint`);
+  `Decision.Device`, an optional WebAuthn assertion over
+  `Decision.Statement` (every field a lock acts on, under
+  `ContextDeviceDecision`), present only with facade `mobile`;
+  `VerifyAssertion` (ES256, user present and verified, origin, rp id) and
+  `VerifyDevice`. A decision without a device member is unchanged on the
+  wire; locks on older lockkit refuse one with it (unknown member).
+- `ticket`: `SealGCM` (`SealAlgGCM`: X25519, HKDF-SHA256, AES-256-GCM), a
+  sealed box WebCrypto opens; `Open` reads both algorithms.
+  `PII.SealedFor` carries the clear screen sealed to each pinned device
+  (`SealClearScreen`, `OpenClearScreen`), omitted without devices.
+- `hubclient`: `Config.Devices`: a decision with a device signature, or
+  from the `mobile` facade, is kept only if it verifies under a pinned
+  device. `Config.RequireDevice`: approvals of those risk classes without
+  a device signature end the plan Denied. `SubmitClear` seals the clear
+  screen to the devices. `ReadDevices`, `ParseRisks`.
+- `console` hub mode: `--devices-file`, `--require-device`; the console's
+  screen is sealed to the pinned devices. `HubOptions.Args` renders the
+  hub flags back, for products that start their console again.
+- `ticket/devicetest`: a virtual WebAuthn authenticator for tests.
+
 ## v0.3.1 (2026-10-30)
 
 Fixes to hub mode found after v0.3.0. A lock reaching its hub over plain
