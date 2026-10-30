@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/DavidGodefroid/lockkit/audit"
 	"github.com/DavidGodefroid/lockkit/hubclient"
+	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/kit"
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/render"
@@ -38,6 +40,10 @@ type HubOptions struct {
 	// RequireDevice lists the risk classes whose approvals must be signed
 	// by a pinned device (--require-device, comma-separated).
 	RequireDevice string
+	// FacadeKeysFile holds the facade keys this lock pins
+	// (--facade-keys-file, hubclient.ReadFacades): a reveal (Ctrl-O on a
+	// local facade) is sealed only to a key one of them signed.
+	FacadeKeysFile string
 	// Home is the lock's home volume, where the instance key lives
 	// (hubclient.InstanceKey, made by `hub-key`); "" is the user's home.
 	Home string
@@ -50,6 +56,7 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 	fs.StringVar(&h.Instance, "instance", "", "the lock instance name the hub knows this console by")
 	fs.BoolVar(&h.PlainHTTP, "hub-plain-http", false, "allow an http:// hub URL on a network of its own (a service name without a dot or a private address)")
 	fs.StringVar(&h.DevicesFile, "devices-file", "", "the approval devices this lock pins (JSON, written by lock up): device decisions must carry their signature")
+	fs.StringVar(&h.FacadeKeysFile, "facade-keys-file", "", "the facade keys this lock pins (JSON, written by lock up): reveals are sealed only to them")
 	fs.StringVar(&h.RequireDevice, "require-device", "", "risk classes (comma-separated) whose approvals must be signed by a pinned device, from any facade")
 }
 
@@ -75,12 +82,15 @@ func (h HubOptions) Args() []string {
 	if h.RequireDevice != "" {
 		out = append(out, "--require-device", h.RequireDevice)
 	}
+	if h.FacadeKeysFile != "" {
+		out = append(out, "--facade-keys-file", h.FacadeKeysFile)
+	}
 	return out
 }
 
 // Enabled reports whether any hub flag is set.
 func (h HubOptions) Enabled() bool {
-	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != ""
+	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != "" || h.FacadeKeysFile != ""
 }
 
 func (h HubOptions) check() error {
@@ -168,6 +178,12 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 	if len(require) > 0 && len(devices) == 0 {
 		return nil, fmt.Errorf("%w: --require-device, and %s pins no device", ErrConfig, o.DevicesFile)
 	}
+	var facades []ticket.PinnedFacade
+	if o.FacadeKeysFile != "" {
+		if facades, err = hubclient.ReadFacades(o.FacadeKeysFile); err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrConfig, err)
+		}
+	}
 	dir := filepath.Join(stateDir, p.Name, "hub", o.Instance)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, fmt.Errorf("console: %w", err)
@@ -177,7 +193,7 @@ func OpenHub(p kit.Product, o HubOptions, stateDir string, now func() time.Time)
 		return nil, err
 	}
 	c, err := hubclient.New(hubclient.Config{URL: o.URL, Instance: o.Instance, Key: key, HubKey: hubKey, PlainHTTP: o.PlainHTTP,
-		StateFile: filepath.Join(dir, "state.json"), Now: now, Devices: devices, RequireDevice: require})
+		StateFile: filepath.Join(dir, "state.json"), Now: now, Devices: devices, RequireDevice: require, Facades: facades})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfig, err)
 	}
@@ -249,4 +265,47 @@ func (a *hubApprover) Withdraw(ctx context.Context, d Decision, _ string, reason
 		return errNoHubTicket
 	}
 	return a.hub.Client.Withdraw(ctx, a.hub.Store, d.Screen.Hub.PlanID, d.Screen.Hub.Caller, reason)
+}
+
+// RenewResp answers the run of expired ticket tk (Client.Begin returned
+// ticket.ErrExpired): the ticket is renewed (Client.Renew, decision H1)
+// and the agent hears pending with the new ticket, which it runs once
+// decided. A ticket that cannot be renewed answers CodeTimeout.
+func (h *Hub) RenewResp(ctx context.Context, id int64, tk string, caller plans.Caller) ipc.Response {
+	n, err := h.Client.Renew(ctx, h.Store, tk, caller)
+	if err != nil && n == "" {
+		return ErrResp(id, ipc.CodeTimeout, "ticket expired, and could not be asked again: plan the request again")
+	}
+	// Pushed or not (hub down), the renewal is pending: it goes out later.
+	return PendingResp(id, h.lock, Pending{Ticket: n, Instance: h.Instance})
+}
+
+// Requests audits and prints the hub requests the lock acts on (reveals
+// and renewals) through rec and io. Run sets it; a product with its own
+// console lifecycle calls it with its own audit.
+func (h *Hub) Requests(io IO, rec func(audit.Base)) {
+	h.Client.OnRequest(func(q *ticket.HubRequest, renewal string, err error) {
+		if q == nil {
+			io.Println(Paint.Warn("hub: " + sanitize.Terminal(err.Error(), false)))
+			return
+		}
+		b := audit.Base{Ticket: q.Ticket, Approver: &ticket.Approver{ID: q.Approver.ID, Display: q.Approver.Display}, Facade: q.Facade, Approval: "hub"}
+		who := sanitize.Terminal(q.Approver.ID+" on "+q.Facade, false)
+		switch q.Kind {
+		case ticket.RequestReveal:
+			b.Event, b.Decision = audit.EventReveal, "sealed"
+		default:
+			b.Event, b.Decision = audit.EventRenew, "renewed"
+		}
+		if err != nil {
+			b.Decision, b.Error = "refused", err.Error()
+			io.Println(Paint.Warn(fmt.Sprintf("ticket %s: %s by %s refused: %s", q.Ticket, q.Kind, who, sanitize.Terminal(err.Error(), false))))
+		} else if q.Kind == ticket.RequestReveal {
+			io.Println(Paint.Step(fmt.Sprintf("ticket %s: clear screen sealed to %s", q.Ticket, who)))
+		} else {
+			b.Reason = "renewed by ticket " + renewal
+			io.Println(Paint.Step(fmt.Sprintf("ticket %s: asked again by %s as ticket %s", q.Ticket, who, renewal)))
+		}
+		rec(b)
+	})
 }

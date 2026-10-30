@@ -132,6 +132,9 @@ type Config struct {
 	// by a pinned device, whatever facade the hub says they came from
 	// (--require-device): an approval without one ends the plan Denied.
 	RequireDevice []ticket.Risk
+	// Facades are the facade keys the lock pins (--facade-keys-file): a
+	// reveal is sealed only to a key one of them signed.
+	Facades []ticket.PinnedFacade
 	// Now is the clock (nil: time.Now).
 	Now func() time.Time
 }
@@ -150,6 +153,11 @@ type Client struct {
 	inbox  map[string]entry // by ticket id
 	acked  map[string]bool  // tickets the hub acknowledged, this process
 	recent []time.Time      // new tickets in the rate window
+
+	seen      map[string]time.Time // hub requests handled, by id
+	requests  []json.RawMessage    // hub requests polled, not handled yet
+	recompute Recompute
+	onRequest func(*ticket.HubRequest, string, error)
 }
 
 // entry is a decision kept until its plan runs.
@@ -234,7 +242,7 @@ func New(cfg Config) (*Client, error) {
 		cfg.Now = time.Now
 	}
 	c := &Client{cfg: cfg, base: base, pub: cfg.Key.Public().(ed25519.PublicKey),
-		inbox: map[string]entry{}, acked: map[string]bool{}}
+		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}}
 	if err := c.load(); err != nil {
 		return nil, err
 	}
@@ -420,6 +428,12 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 	if !screen.Valid() {
 		return "", render.ErrUnmasked
 	}
+	return c.submit(ctx, st, planID, caller, t, screen.Screen(), screen.Touched(), clear)
+}
+
+// submit is SubmitClear with the masked screen and its touched kinds: from
+// a MaskedScreen, or from the lock's own signed ticket for a renewal.
+func (c *Client) submit(ctx context.Context, st *plans.Store, planID string, caller plans.Caller, t *ticket.Ticket, masked ticket.Screen, touched []string, clear *ticket.Screen) (string, error) {
 	p, err := st.Get(planID, caller)
 	if err != nil {
 		return "", err
@@ -456,7 +470,7 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 	c.mu.Unlock()
 
 	t.Source.Instance, t.Source.KeyID = c.cfg.Instance, ticket.KeyID(c.pub)
-	t.Screen, t.PII.Touched = screen.Screen(), screen.Touched()
+	t.Screen, t.PII.Touched = masked, touched
 	t.PII.SealedFor = nil
 	if clear != nil {
 		for i := range c.cfg.Devices {
@@ -470,7 +484,7 @@ func (c *Client) SubmitClear(ctx context.Context, st *plans.Store, planID string
 	if err := t.Sign(c.cfg.Key); err != nil {
 		return "", err
 	}
-	if err := st.MarkPending(planID, caller, t); err != nil {
+	if err := st.MarkPendingClear(planID, caller, t, clear); err != nil {
 		return "", err
 	}
 	if p, err = st.Get(planID, caller); err != nil {
@@ -527,8 +541,9 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 	since := c.cursor
 	c.mu.Unlock()
 	var res struct {
-		Decisions []entry `json:"decisions"`
-		Cursor    int64   `json:"cursor"`
+		Decisions []entry           `json:"decisions"`
+		Cursor    int64             `json:"cursor"`
+		Requests  []json.RawMessage `json:"requests"`
 	}
 	q := "/v1/decisions?since=" + strconv.FormatInt(since, 10) + "&wait=" + strconv.Itoa(int(wait/time.Second))
 	if err := c.do(ctx, http.MethodGet, q, nil, true, &res); err != nil {
@@ -565,6 +580,9 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 	c.cursor = res.Cursor
 	if err := c.save(); err != nil {
 		return kept, err
+	}
+	if len(res.Requests) > 0 {
+		c.requests = append(c.requests, res.Requests...)
 	}
 	return kept, errors.Join(bad...)
 }
@@ -625,6 +643,9 @@ func (c *Client) Watch(ctx context.Context, st *plans.Store, report func(error))
 			}
 		}
 		_, err := c.Poll(ctx, MaxWait/2)
+		if herr := c.HandleRequests(ctx, st); herr != nil && report != nil {
+			report(herr)
+		}
 		down = errors.Is(err, ErrUnreachable)
 		if err != nil && ctx.Err() == nil && report != nil {
 			report(err)
@@ -660,9 +681,16 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 //
 // No decision yet is ErrPending; a denial ends the plan Denied and is
 // ErrDenied with the human's reason; a decision too old or past the
-// ticket ends it Expired.
+// ticket ends it Expired. An expired ticket is ticket.ErrExpired: the
+// product renews it (Renew) and answers pending with the new ticket.
 func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, *ticket.Decision, error) {
 	p, err := st.ByTicket(ticketID, caller)
+	if errors.Is(err, plans.ErrNoSuchPlan) {
+		if xp, xerr := st.ExpiredByTicket(ticketID, caller); xerr == nil {
+			// Renewable: the product answers with Renew.
+			return nil, nil, fmt.Errorf("%w: ticket %s (%s)", ticket.ErrExpired, ticketID, xp.Reason)
+		}
+	}
 	if err != nil {
 		return nil, nil, err
 	}
@@ -710,7 +738,7 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 	}
 	if err := d.Usable(own, c.cfg.Now(), ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL)); err != nil {
 		if errors.Is(err, ticket.ErrExpired) {
-			_ = st.End(p.ID, caller, plans.Expired, err.Error())
+			_ = st.ExpireApproval(p.ID, caller, d.At, err.Error())
 		}
 		c.drop(ticketID)
 		return nil, d, err

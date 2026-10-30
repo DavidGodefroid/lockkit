@@ -314,6 +314,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		o.Ready(path)
 	}
 	if hub != nil {
+		hub.Requests(o.IO, func(b audit.Base) { _ = s.record(context.Background(), b) })
 		o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(o.Hub.URL, false) + " as " + hub.Instance))
 		wctx, stopWatch := context.WithCancel(ctx)
 		watched := make(chan struct{})

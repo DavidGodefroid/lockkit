@@ -100,7 +100,10 @@ type Ticket struct {
 	Created  time.Time `json:"created"`
 	// Expires is when a pending ticket expires; nil never.
 	Expires *time.Time `json:"expires"`
-	Sig     string     `json:"sig,omitempty"`
+	// Renews, when set, makes this ticket the renewal of an expired one
+	// (Renewal); absent otherwise.
+	Renews *Renewal `json:"renews,omitempty"`
+	Sig    string   `json:"sig,omitempty"`
 }
 
 // Outcome is the closed set of decisions.
@@ -272,6 +275,14 @@ func (t *Ticket) Validate() error {
 		seen[b.Device] = true
 		if err := b.Box.validate(); err != nil {
 			return err
+		}
+	}
+	if t.Renews != nil {
+		if err := t.Renews.validate(); err != nil {
+			return err
+		}
+		if t.Renews.Of == t.ID {
+			return invalid("renews: a ticket renewing itself")
 		}
 	}
 	if !validHash(t.PlanHash) {

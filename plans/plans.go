@@ -101,6 +101,26 @@ type Caller struct {
 	UID int
 	// Token is the agent's lea token (LEA_AGENT_TOKEN), "" without lea.
 	Token string
+
+	// owner: the caller is the plan's own binding (OwnerOf), for the lock
+	// acting on a plan without its agent; hash is its token hash.
+	owner bool
+	hash  string
+}
+
+// OwnerOf is the caller a plan is bound to, for the lock itself acting on
+// the plan for its agent (a renewal the human asked for on the hub). Only
+// this package makes one: a product builds callers from its clients.
+func OwnerOf(p *Plan) Caller {
+	return Caller{UID: p.Binding.UID, owner: true, hash: p.Binding.TokenHash}
+}
+
+// tokenHash is the stored form of c's token.
+func (c Caller) tokenHash() string {
+	if c.owner {
+		return c.hash
+	}
+	return HashToken(c.Token)
 }
 
 // Binding is what a plan is bound to.
@@ -112,6 +132,10 @@ type Binding struct {
 	TokenHash string `json:"token_hash"`
 	PolicyFP  string `json:"policy_fp"`
 	PlanHash  string `json:"plan_hash"`
+	// Inputs are the digests of the plan hash's inputs by name
+	// (ticket.InputDigests), when the product gives them: a renewal shows
+	// which of them moved (ticket.DiffInputs).
+	Inputs map[string]string `json:"inputs,omitempty"`
 }
 
 // Plan is one stored plan.
@@ -134,6 +158,16 @@ type Plan struct {
 	Expires *time.Time `json:"expires,omitempty"`
 	// Body is the product's plan, opaque to the store.
 	Body json.RawMessage `json:"body"`
+	// Clear is the clear screen of the plan's ticket: it stays in the
+	// lock's volume and leaves only sealed (a reveal, a device).
+	Clear *ticket.Screen `json:"clear,omitempty"`
+	// ApprovedAt is when an approval that aged before the run was given
+	// (an Expired plan whose decision came too late to be used).
+	ApprovedAt *time.Time `json:"approved_at,omitempty"`
+	// Renews is the expired plan this one asks again for; RenewedBy, on
+	// an expired plan, the plan that renews it.
+	Renews    string `json:"renews,omitempty"`
+	RenewedBy string `json:"renewed_by,omitempty"`
 }
 
 // LockTicket decodes the signed ticket of a pending plan, verified under
@@ -393,7 +427,27 @@ func clone(p *Plan) *Plan {
 		e := *p.Expires
 		c.Expires = &e
 	}
+	if p.ApprovedAt != nil {
+		a := *p.ApprovedAt
+		c.ApprovedAt = &a
+	}
+	if p.Clear != nil {
+		cl := cloneScreen(*p.Clear)
+		c.Clear = &cl
+	}
+	if p.Binding.Inputs != nil {
+		c.Binding.Inputs = make(map[string]string, len(p.Binding.Inputs))
+		for k, v := range p.Binding.Inputs {
+			c.Binding.Inputs[k] = v
+		}
+	}
 	return &c
+}
+
+func cloneScreen(s ticket.Screen) ticket.Screen {
+	s.Body = append([]string(nil), s.Body...)
+	s.Warnings = append([]string(nil), s.Warnings...)
+	return s
 }
 
 // Create stores a new Planned plan bound to b, with the product's body,
@@ -439,7 +493,7 @@ func (s *Store) lookup(id string, c Caller) (*Plan, error) {
 	if p.Binding.UID != c.UID {
 		return nil, ErrWrongPeer
 	}
-	if subtle.ConstantTimeCompare([]byte(p.Binding.TokenHash), []byte(HashToken(c.Token))) != 1 {
+	if subtle.ConstantTimeCompare([]byte(p.Binding.TokenHash), []byte(c.tokenHash())) != 1 {
 		return nil, ErrWrongRequester
 	}
 	if !p.State.Final() && p.State != Executing && p.Expires != nil && !s.now().Before(*p.Expires) {
@@ -489,7 +543,7 @@ func (s *Store) FindPending(c Caller, planHash string) (*Plan, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	now := s.now()
-	th := HashToken(c.Token)
+	th := c.tokenHash()
 	var found *Plan
 	for _, p := range s.plans {
 		if p.State == Pending && p.Binding.UID == c.UID && p.Binding.TokenHash == th && p.Binding.PlanHash == planHash &&
@@ -553,6 +607,12 @@ func (s *Store) Check(id string, c Caller, policyFP, planHash string) error {
 // for it, until t.Expires (nil: no expiry). t must carry the plan's hash
 // and policy fingerprint.
 func (s *Store) MarkPending(id string, c Caller, t *ticket.Ticket) error {
+	return s.MarkPendingClear(id, c, t, nil)
+}
+
+// MarkPendingClear is MarkPending keeping clear, the clear screen of the
+// ticket, in the plan (Plan.Clear) for a later reveal.
+func (s *Store) MarkPendingClear(id string, c Caller, t *ticket.Ticket, clear *ticket.Screen) error {
 	if t == nil || t.Sig == "" {
 		return errors.New("plans: MarkPending needs the signed ticket")
 	}
@@ -577,6 +637,10 @@ func (s *Store) MarkPending(id string, c Caller, t *ticket.Ticket) error {
 	}
 	u := clone(p)
 	u.State, u.Ticket, u.SignedTicket, u.Updated = Pending, t.ID, signed, s.now().UTC()
+	if clear != nil {
+		cl := cloneScreen(*clear)
+		u.Clear = &cl
+	}
 	u.Expires = nil
 	if t.Expires != nil {
 		e := t.Expires.UTC()
@@ -662,6 +726,134 @@ func (s *Store) End(id string, c Caller, st State, reason string) error {
 	}
 	return s.setState(p, st, reason)
 }
+
+// ExpireApproval ends a pending plan Expired because its approval, given
+// at approvedAt, aged before the run: a renewal says so.
+func (s *Store) ExpireApproval(id string, c Caller, approvedAt time.Time, reason string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, err := s.lookup(id, c)
+	if err != nil {
+		return err
+	}
+	if p.State != Pending {
+		return fmt.Errorf("%w: %s → %s", ErrState, p.State, Expired)
+	}
+	u := clone(p)
+	a := approvedAt.UTC()
+	u.State, u.Reason, u.Updated, u.ApprovedAt = Expired, reason, s.now().UTC(), &a
+	if err := s.write(u); err != nil {
+		return err
+	}
+	s.plans[id] = u
+	return nil
+}
+
+// ErrNotExpired: Renew of a plan that is not Expired.
+var ErrNotExpired = errors.New("plans: plan has not expired")
+
+// ExpiredByTicket returns the expired plan of ticket ticketID, for caller
+// c (its binding: same peer UID, same agent token): what a renewal starts
+// from. A plan of the ticket in any other state is ErrNotExpired.
+func (s *Store) ExpiredByTicket(ticketID string, c Caller) (*Plan, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, p := range s.plans {
+		if p.Ticket != ticketID {
+			continue
+		}
+		if _, err := s.lookup(p.ID, c); err != nil && !errors.Is(err, ErrNoSuchPlan) {
+			return nil, err
+		}
+		p = s.plans[p.ID]
+		if p.State != Expired {
+			return nil, fmt.Errorf("%w: plan is %s", ErrNotExpired, p.State)
+		}
+		return clone(p), nil
+	}
+	return nil, ErrNoSuchPlan
+}
+
+// TicketPlan returns the plan of ticket ticketID whatever its caller: for
+// the lock itself (a request of the hub about one of its tickets), never
+// for a client.
+func (s *Store) TicketPlan(ticketID string) (*Plan, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, p := range s.plans {
+		if p.Ticket == ticketID {
+			if p.Binding.UID < 0 {
+				break
+			}
+			if _, err := s.lookup(p.ID, OwnerOf(p)); err != nil && !errors.Is(err, ErrNoSuchPlan) {
+				return nil, err
+			}
+			return clone(s.plans[p.ID]), nil
+		}
+	}
+	return nil, ErrNoSuchPlan
+}
+
+// Renew makes a new Planned plan asking again for expired plan id: the
+// same body, binding and clear screen, under the policy fingerprint, plan
+// hash and inputs the lock computed now. The expired plan records it
+// (RenewedBy); a plan already renewed returns its renewal with
+// ErrRenewed.
+func (s *Store) Renew(id string, policyFP, planHash string, inputs map[string]string) (*Plan, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	old, ok := s.plans[id]
+	if !ok {
+		return nil, ErrNoSuchPlan
+	}
+	if old.RenewedBy != "" {
+		if r, ok := s.plans[old.RenewedBy]; ok {
+			return clone(r), ErrRenewed
+		}
+	}
+	if old.State != Expired {
+		return nil, fmt.Errorf("%w: plan is %s", ErrNotExpired, old.State)
+	}
+	live := 0
+	for _, p := range s.plans {
+		if !p.State.Final() {
+			live++
+		}
+	}
+	if live >= MaxPlans {
+		return nil, ErrFull
+	}
+	now := s.now().UTC()
+	b := old.Binding
+	b.PolicyFP, b.PlanHash, b.Inputs = policyFP, planHash, nil
+	if inputs != nil {
+		b.Inputs = make(map[string]string, len(inputs))
+		for k, v := range inputs {
+			b.Inputs[k] = v
+		}
+	}
+	n := &Plan{ID: ticket.NewID(now), State: Planned, Binding: b, Created: now, Updated: now,
+		Body: append(json.RawMessage(nil), old.Body...), Renews: old.ID}
+	if old.Clear != nil {
+		cl := cloneScreen(*old.Clear)
+		n.Clear = &cl
+	}
+	if err := s.write(n); err != nil {
+		return nil, err
+	}
+	u := clone(old)
+	u.RenewedBy, u.Updated = n.ID, now
+	if err := s.write(u); err != nil {
+		_ = os.Remove(filepath.Join(s.dir, n.ID+planExt))
+		return nil, err
+	}
+	s.plans[n.ID], s.plans[id] = n, u
+	return clone(n), nil
+}
+
+// ErrRenewed: the expired plan was renewed already; Renew returns the
+// renewal.
+var ErrRenewed = errors.New("plans: plan already renewed")
 
 // WithdrawAll ends every pending plan as Withdrawn (a lock starting
 // without its hub) and returns them.
