@@ -32,7 +32,9 @@ func revealRequest(tb testing.TB, rk *RevealKey) *HubRequest {
 }
 
 func TestParseFacades(t *testing.T) {
-	b64 := func(k ed25519.PrivateKey) string { return base64.StdEncoding.EncodeToString(k.Public().(ed25519.PublicKey)) }
+	b64 := func(k ed25519.PrivateKey) string {
+		return base64.StdEncoding.EncodeToString(k.Public().(ed25519.PublicKey))
+	}
 	good := `{"v":1,"facades":[{"facade":"tty","key":"` + b64(ttyKey) + `"},{"facade":"deck","key":"` + b64(deckKey) + `"}]}`
 	fs, err := ParseFacades([]byte(good))
 	if err != nil || len(fs) != 2 || fs[1].Facade != FacadeDeck {

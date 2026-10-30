@@ -289,6 +289,14 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 		return OKResp(req.ID, map[string]bool{"ok": true})
 	}
 	if h, ok := s.methods[req.Method]; ok {
+		// Standalone, a hub ticket cannot run: it was withdrawn when the
+		// console started without its hub (WithdrawStandalone). Said
+		// explicitly, before the product sees the request.
+		if s.cfg.Hub == nil {
+			if tk := TicketParam(req.Params); tk != "" {
+				return WithdrawnResp(req.ID, tk)
+			}
+		}
 		return s.call(ctx, req, h)
 	}
 	return ErrResp(req.ID, ipc.CodeMethodNotFound, fmt.Sprintf("unknown method %q", req.Method))

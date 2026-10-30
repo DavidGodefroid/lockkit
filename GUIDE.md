@@ -392,6 +392,31 @@ for its `Asker` (base keeps the console's own decisions), and
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
 for `lock up` to pin.
 
+**Reveal and re-approval.** In hub mode pass the console's clear screen
+to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
+and a local facade the lock pins (`--facade-keys-file`) can ask for it
+(Ctrl-O); `Watch` seals it to the facade's ephemeral key and audits the
+reveal (`Hub.Requests`). When `Begin` answers `ticket.ErrExpired`, answer
+`h.RenewResp(ctx, id, ticket, caller)`: the ticket is asked again and
+the agent gets pending with the new ticket. Record the plan-hash inputs
+at plan time (`Binding.Inputs = ticket.InputDigests(inputs)`) and give
+`h.Client.SetRecompute` the same digests recomputed now: the human then
+sees which inputs moved, and an unchanged non-production renewal is one
+click.
+
+**Hub mode off (rollback).** A console started without the hub flags
+after running with them withdraws the plans its hub mode left pending
+(`console.WithdrawStandalone`: `plans.Store.WithdrawAll`, the plans
+marked untold; the next start with `--hub` withdraws their tickets at the
+hub, `hubclient.Client.Sync`) and answers any request naming a `ticket`
+param with `ipc.CodeWithdrawn` (`console.WithdrawnResp`), before the
+product sees it: `ticket` is therefore a reserved param name of product
+methods. `Run` does both, and any `console.Server` without a hub refuses
+tickets itself; a product with its own console lifecycle calls
+`WithdrawStandalone` at its standalone start, and one that does not serve
+through `console.Server` (a gate) refuses a run by ticket with
+`WithdrawnResp`.
+
 A minimal product:
 
 ```go

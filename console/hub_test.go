@@ -371,3 +371,101 @@ func TestRunHubReveal(t *testing.T) {
 		t.Fatalf("audit:\n%s", raw)
 	}
 }
+
+// Rollback (hub mode off): a console started again without --hub
+// withdraws the plans its hub mode left pending and refuses a run of their
+// tickets explicitly, before the product sees it; the next start with
+// --hub withdraws them at the hub too.
+func TestRunStandaloneWithdrawsHubPlans(t *testing.T) {
+	home, state := t.TempDir(), t.TempDir()
+	key, _ := hubclient.InstanceKey(home, hubInstance)
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	hubOpts := HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}
+	start := func(o HubOptions) (*hubBackend, *fakeIO, string, func()) {
+		t.Helper()
+		env := runEnv(t)
+		b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+		io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+		ready := make(chan string, 1)
+		done := make(chan error, 1)
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+				Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s }, Hub: o})
+		}()
+		select {
+		case s := <-ready:
+			return b, io, s, func() { cancel(); <-done }
+		case err := <-done:
+			cancel()
+			t.Fatalf("Run: %v\n%s", err, io.plain())
+		case <-time.After(10 * time.Second):
+			t.Fatal("no socket")
+		}
+		return nil, nil, "", nil
+	}
+
+	_, _, socket, stop := start(hubOpts)
+	m := pendingOf(t, dialAndCall(t, socket, "op.write", map[string]bool{"hub": true}).Result)
+	tk := m["ticket"]
+	if tk == "" {
+		t.Fatalf("no ticket: %v", m)
+	}
+	stop()
+
+	b, io, socket, stop := start(HubOptions{})
+	if !strings.Contains(io.plain(), "1 pending ticket(s) of "+hubInstance+" withdrawn") {
+		t.Fatalf("no withdrawal notice:\n%s", io.plain())
+	}
+	r := dialAndCall(t, socket, "op.run", map[string]string{"ticket": tk})
+	if r.Error == nil || r.Error.Code != ipc.CodeWithdrawn || !strings.Contains(r.Error.Message, tk) || b.ran != 0 {
+		t.Fatalf("standalone run of a hub ticket: %+v ran %d", r.Error, b.ran)
+	}
+	// Any ticket, known or not, is refused the same way.
+	if r := dialAndCall(t, socket, "op.run", map[string]string{"ticket": "x\x1b[31m"}); r.Error == nil || r.Error.Code != ipc.CodeWithdrawn ||
+		strings.Contains(r.Error.Message, "\x1b") {
+		t.Fatalf("unknown ticket: %+v", r.Error)
+	}
+	if _, told := hub.Withdrawn(tk); told {
+		t.Fatal("the hub heard of it with no hub configured")
+	}
+	stop()
+
+	// A second standalone start has nothing left to withdraw.
+	_, io, _, stop = start(HubOptions{})
+	if strings.Contains(io.plain(), "withdrawn") {
+		t.Fatalf("withdrawn twice:\n%s", io.plain())
+	}
+	stop()
+
+	_, _, _, stop = start(hubOpts)
+	defer stop()
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		if reason, ok := hub.Withdrawn(tk); ok {
+			if reason != StandaloneReason {
+				t.Fatalf("reason %q", reason)
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the hub was not told on the next hub-mode start")
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
+func TestTicketParam(t *testing.T) {
+	for in, want := range map[string]string{
+		`{"ticket":"01JBDN0Z0000000000000000AB"}`: "01JBDN0Z0000000000000000AB",
+		`{"plan_id":"p"}`:                         "",
+		`{"ticket":7}`:                            "",
+		`{"ticket":""}`:                           "",
+		`[1]`:                                     "",
+		``:                                        "",
+	} {
+		if got := TicketParam(json.RawMessage(in)); got != want {
+			t.Errorf("%s: %q, want %q", in, got, want)
+		}
+	}
+}

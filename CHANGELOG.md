@@ -31,6 +31,39 @@ alone cannot make an approval pass for one taken on the device.
   hub flags back, for products that start their console again.
 - `ticket/devicetest`: a virtual WebAuthn authenticator for tests.
 
+- Hub mode rollback: a console started without `--hub` withdraws the
+  plans its hub mode left pending (`console.WithdrawStandalone`) and
+  answers a run of a hub ticket with the new `ipc.CodeWithdrawn`
+  (`console.WithdrawnResp`, `console.TicketParam`) before the product
+  sees it. `plans.Store.WithdrawAll` marks the plans `Untold` (kept past
+  the retention until told); `hubclient.Client.Sync` withdraws them at the
+  hub on the next start in hub mode (`Untold`, `MarkTold`).
+  `hubtest.Hub.SetWithdrawStatus` for tests.
+- Reveal (Ctrl-O on a local facade): `ticket.HubRequest` (signed by the
+  hub, `ContextHubRequest`, kinds `reveal` and `renew`) arrives in the
+  `requests` of the decisions long poll; `ticket.RevealKey` is the
+  facade's ephemeral X25519 key signed by its Ed25519 key
+  (`ContextRevealKey`, `NewRevealKey`, `Verify` against the lock's
+  `PinnedFacade`s; `CanReveal`: `tty`, `deck` only); the lock answers
+  `POST /v1/requests/{id}/answer` with a `RevealAnswer` signed by its key
+  (`SealReveal`, `ContextRevealAnswer`), which the facade opens with
+  `OpenReveal`. The hub relays ciphertext only. `FacadeSet`,
+  `ParseFacades`, `hubclient.ReadFacades`, `Config.Facades`, console flag
+  `--facade-keys-file` (`HubOptions.FacadeKeysFile`, in `Args`).
+  `SubmitClear` keeps the clear screen in the plan (`plans.Plan.Clear`,
+  `MarkPendingClear`), the one both reveals and devices see.
+- Re-approval of expired tickets (H1): `Ticket.Renews` (`Renewal`: the
+  expired ticket, `expired` or `approval-expired` with `approved_at`,
+  `checked`, `changes` of plan-hash input digests, never values;
+  `InputDigests`, `DiffInputs`, `Unchanged`). `hubclient.Client.Renew`
+  (agent path) and the hub's `renew` request make a new ticket for the
+  same plan, re-checked through `SetRecompute`; `Begin` answers an
+  expired ticket `ticket.ErrExpired` and records an aged approval
+  (`plans.Store.ExpireApproval`). `plans`: `Binding.Inputs`, `Renew`,
+  `ExpiredByTicket`, `TicketPlan`, `OwnerOf`, `ErrRenewed`. Console:
+  `Hub.RenewResp`, `Hub.Requests` (audit events `reveal`, `renew`).
+  `hubtest`: `Request`, `RawRequest`, `Requeue`, `Answer`.
+
 ## v0.3.1 (2026-10-30)
 
 Fixes to hub mode found after v0.3.0. A lock reaching its hub over plain

@@ -427,3 +427,65 @@ func TestWatchDeliversDecisions(t *testing.T) {
 		time.Sleep(20 * time.Millisecond)
 	}
 }
+
+// Plans withdrawn while the lock ran without its hub are withdrawn at the
+// hub by the next Sync, once; a hub that no longer knows the ticket is
+// told all the same.
+func TestSyncWithdrawsUntold(t *testing.T) {
+	e := newEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	if err != nil {
+		t.Fatal(err)
+	}
+	q, tk2 := e.plan(t, "sha256:"+strings.Repeat("3", 64))
+	id2, err := e.client.Submit(ctx, e.store, q.ID, caller, tk2, screen())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := e.store.WithdrawAll("standalone"); err != nil {
+		t.Fatal(err)
+	}
+	e.hub.SetWithdrawStatus(id2, http.StatusNotFound)
+	r, tk3 := e.plan(t, "sha256:"+strings.Repeat("4", 64))
+	id3, _ := e.client.Submit(ctx, e.store, r.ID, caller, tk3, screen())
+	q4, tk4 := e.plan(t, "sha256:"+strings.Repeat("5", 64))
+	id4, _ := e.client.Submit(ctx, e.store, q4.ID, caller, tk4, screen())
+	_, _ = e.store.WithdrawAll("standalone")
+	e.hub.SetWithdrawStatus(id3, http.StatusConflict)
+	e.hub.SetWithdrawStatus(id4, http.StatusGone)
+	if err := e.client.Sync(ctx, e.store); err != nil {
+		t.Fatal(err)
+	}
+	if r, ok := e.hub.Withdrawn(id); !ok || r != "standalone" {
+		t.Fatalf("withdrawn %q %v", r, ok)
+	}
+	if n := len(e.store.Untold()); n != 0 {
+		t.Fatalf("%d untold left", n)
+	}
+	e.hub.SetWithdrawStatus(id, http.StatusServiceUnavailable)
+	if err := e.client.Sync(ctx, e.store); err != nil {
+		t.Fatalf("told twice: %v", err)
+	}
+}
+
+// A hub that cannot be reached keeps the plan untold, for the next Sync.
+func TestSyncUntoldHubDown(t *testing.T) {
+	e := newEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	_, _ = e.store.WithdrawAll("standalone")
+	e.hub.SetWithdrawStatus(id, http.StatusServiceUnavailable)
+	if err := e.client.Sync(ctx, e.store); !errors.Is(err, hubclient.ErrUnreachable) {
+		t.Fatalf("Sync: %v", err)
+	}
+	if n := len(e.store.Untold()); n != 1 {
+		t.Fatalf("%d untold", n)
+	}
+	e.hub.SetWithdrawStatus(id, 0)
+	if err := e.client.Sync(ctx, e.store); err != nil || len(e.store.Untold()) != 0 {
+		t.Fatalf("Sync: %v, %d untold", err, len(e.store.Untold()))
+	}
+}
