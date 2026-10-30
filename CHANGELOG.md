@@ -14,7 +14,9 @@ GUIDE.md is the contract between lockkit and the products built on it.
   renewal in a chain lists the changes since what the human last approved
   (the newest approved link, else the first plan), never since an
   undecided link (`plans.Store.PlanByID`); a pruned link makes it
-  unchecked.
+  unchecked. A renewal denied at the hub, or whose approval aged, is
+  handled before the agent's run. Facades and hubs must run lockkit with
+  `unchecked` (this release) before locks send it.
 
 - `hubclient`: a hub `renew` request for a pending ticket whose approval
   aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`

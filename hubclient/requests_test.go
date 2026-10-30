@@ -604,3 +604,42 @@ func TestRenewChainDiffsAgainstLastApproval(t *testing.T) {
 		t.Fatalf("C %+v", rc.Renews)
 	}
 }
+
+// Without stored inputs, an unchecked input still makes the renewal
+// unchecked, never one click.
+func TestRenewUncheckedWithoutStoredInputs(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return policyFP, planHash, map[string]string{"queue": ticket.UncheckedInput}, nil
+	})
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
+	if rt.Renews.Unchanged() || len(rt.Renews.Changes) != 1 || rt.Renews.Changes[0] != (ticket.Change{Input: "queue", Change: ticket.ChangeUnchecked}) {
+		t.Fatalf("%+v", rt.Renews)
+	}
+}
+
+// A renewal the hub denied is not handed back before the agent's run.
+func TestRenewDeniedRenewal(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.hub.DecideWith(n, ticket.Denied, "no", nil, func(d *ticket.Decision) { d.At = c.now() })
+	_, _ = e.client.Poll(ctx, 0)
+	if _, err := e.client.Renew(ctx, e.store, id, caller); !errors.Is(err, hubclient.ErrNotRenewable) {
+		t.Fatalf("handed back a denied renewal: %v", err)
+	}
+}

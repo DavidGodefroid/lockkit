@@ -269,9 +269,17 @@ func (c *Client) renewLocked(ctx context.Context, st *plans.Store, old *plans.Pl
 		return "", err
 	}
 	if n.Ticket != "" {
-		// Through a lookup: a renewal past its own expiry reads Expired.
-		if x, err := st.TicketPlan(n.Ticket); err == nil {
-			n = x
+		// Through a lookup: a renewal past its own expiry reads Expired; an
+		// approval of it that aged reads Expired too (ageOut).
+		x, err := st.TicketPlan(n.Ticket)
+		if err != nil {
+			return "", err
+		}
+		if n, err = c.ageOut(st, x); err != nil {
+			return "", err
+		}
+		if n.State == plans.Pending && c.deniedAtHub(n) {
+			return "", fmt.Errorf("%w: its renewal %s was denied", ErrNotRenewable, n.Ticket)
 		}
 	}
 	switch n.State {
@@ -316,7 +324,17 @@ func renewalChanges(st *plans.Store, old, n *plans.Plan) (changes []ticket.Chang
 	}
 	before, after := base.Binding.Inputs, n.Binding.Inputs
 	if before == nil || after == nil {
-		before, after = map[string]string{"plan_hash": base.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
+		// No named inputs on one side: the plan hash, plus every input one
+		// side could not check (never dropped by the fallback).
+		b, a := map[string]string{"plan_hash": base.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
+		for _, m := range []map[string]string{before, after} {
+			for k, v := range m {
+				if v == ticket.UncheckedInput {
+					b[k], a[k] = ticket.UncheckedInput, ticket.UncheckedInput
+				}
+			}
+		}
+		before, after = b, a
 	}
 	return ticket.DiffInputs(before, after), true
 }
@@ -383,4 +401,21 @@ func (c *Client) ageOut(st *plans.Store, p *plans.Plan) (*plans.Plan, error) {
 	}
 	c.drop(p.Ticket)
 	return st.TicketPlan(p.Ticket)
+}
+
+// deniedAtHub reports whether the lock holds a verified denial of p's
+// ticket that the agent has not run into yet.
+func (c *Client) deniedAtHub(p *plans.Plan) bool {
+	c.mu.Lock()
+	e, ok := c.inbox[p.Ticket]
+	c.mu.Unlock()
+	if !ok {
+		return false
+	}
+	d, err := c.verify(e)
+	if err != nil || d.Decision != ticket.Denied {
+		return false
+	}
+	own, err := p.LockTicket(c.pub)
+	return err == nil && d.Match(own) == nil
 }
