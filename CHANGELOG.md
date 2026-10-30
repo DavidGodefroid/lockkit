@@ -3,6 +3,43 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+Console product hooks (locksql#96: locksql's console runs on this one).
+A backend that implements none of them keeps the console's behaviour, so
+lockfile and lockmq see no change; the console goldens are unchanged.
+
+- `Backend.Connect` gets the policy in force: `Credentials.Policy` (#12),
+  at start and at every reconnection (`ServerConfig.ReconnectPolicy`,
+  used instead of `Reconnect` when set; `Run` sets it).
+- `console.Unwrap`: the backend's own session behind a Vault-leased one
+  (`expiringSession.Unwrap`) (#13).
+- Optional backend interfaces: `StatusAnswerer` (the whole `status`
+  answer, flat), `StatusRower` and `StatusLiner` (`:status` rows, status
+  row parts; `StatusView`, `StatusModeRow`, `StatusResultsRow`,
+  `StatusUnmaskRow`, `StatusPendingRow`, `StatusBoundaryRow`),
+  `ChangeFormatter` (policy diffs at start, on a tightening, at
+  `:review`), `ConnectionComparer` (more changes of the policy that end
+  the session, on top of where/user/host/port), `PolicyApplier` (prepares
+  the backend for a policy before it is in force; a refused loosening
+  stays out, a refused tightening is audited and ends the session, a
+  failed save applies the policy in force back, and ends the session if
+  that fails; `NewServer` refuses a start policy it refuses, audited by
+  `Run`), `Worder`
+  (`Words`: the console's lines in the product's terms; an empty field
+  keeps the console's, `NoAutoHub` refuses auto mode in hub mode).
+- `EndError`: a `Reconnect` error that ends the session with its reason.
+- `AskerOf(env)` and `PolicyPendingOf(env)` for a handler that paints its
+  own approval screen; `Server.Asker`, `Server.WriteAudit` (returns the
+  write failure, counted like the console's own), `Server.PolicyRefused`.
+- A tightening that cannot be saved as the approved policy now applies
+  anyway (audited `policy`/`unsaved`, told on the console): before, the
+  looser policy stayed in force (fail open). A loosening that cannot be
+  saved still stays out.
+- `:review` no longer says "policy change applied" when applying it ended
+  the session (connection settings changed, production refused): the
+  console already said why.
+
 ## v0.6.0 (2026-10-30)
 
 Renewal hardening, from wiring v0.5.0 into the locks: an input a lock

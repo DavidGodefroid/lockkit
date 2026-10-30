@@ -369,6 +369,34 @@ profile name on production, an optional retype answer), takes the finger
 and returns the same `Approval`, handing each outcome to a record callback.
 `Server.Approve` is built on it, so both decide the same way.
 
+`Backend.Connect` gets the policy in force in `Credentials.Policy` (at
+start and at every reconnection): connect to what it says, never to what
+the config files say now (an unconfirmed edit). The console wraps a
+session whose login expires (a Vault lease): `console.Unwrap(s)` returns
+yours, in `Checks` and after `env.Session`.
+
+**Product hooks.** A product that ported a console of its own keeps what
+its users and clients see by implementing optional interfaces on the
+backend; a backend that implements none gets the console's behaviour
+unchanged. `StatusAnswerer` answers the `status` method itself (a flat
+answer instead of `product`); `StatusRower` lists the `:status` rows
+(`StatusModeRow`, `StatusResultsRow`, `StatusUnmaskRow`,
+`StatusPendingRow`, `StatusBoundaryRow` give the console's own values);
+`StatusLiner` adds to the status row; `ChangeFormatter` renders policy
+diffs; `ConnectionComparer` widens the connection change that ends the
+session (a TLS setting, a tunnel); `PolicyApplier` compiles what the
+product derives from a policy before it is in force (an error refuses the
+policy, neither saved nor applied); `Worder` words the console's lines
+(`Words`: statements rather than requests, the reconnection and lease
+lines, the end of a session that became production). A `Reconnect` that
+returns an `EndError` ends the session with its reason. A handler that
+paints its own approval screen decides with `console.AskerOf(env)` (a
+switch pressed meanwhile is refused, as for `env.Approve`), reads a
+pending loosening with `console.PolicyPendingOf(env)`, and records its own
+approvals with `Server.WriteAudit`, which returns the failure (fail
+closed). `Server.PolicyRefused` reports a refused loosening still in the
+files.
+
 **Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
 writes: `--hub URL --hub-key-file PATH --instance NAME`, plus `--hub-plain-http` for an http:// hub on its own network (all three or
 none; `--auto` is refused with them). Pass them as `Options.Hub`: `Run`
