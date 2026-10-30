@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/DavidGodefroid/lockkit/ticket"
 )
@@ -379,8 +380,13 @@ func TestChainIsASuffix(t *testing.T) {
 	}
 	line := string(rawLines(t, l.Path())[1])
 	before, chain, ok := strings.Cut(line, `,"prev_hash":"`)
-	ts := before[:len(`{"ts":"2006-01-02T15:04:05.000Z"`)]
-	if !ok || before[len(ts):] != `,"event":"read","queue":"orders","note":"a <b> & c"` || !strings.HasSuffix(chain, `"}`) {
+	// The timestamp is in the log's local zone ("Z" only in UTC): cut it
+	// at its closing quote rather than at a UTC length.
+	ts, rest, tsOK := strings.Cut(strings.TrimPrefix(before, `{"ts":"`), `"`)
+	if _, err := time.Parse(time.RFC3339Nano, ts); err != nil || !strings.HasPrefix(before, `{"ts":"`) {
+		tsOK = false
+	}
+	if !ok || !tsOK || rest != `,"event":"read","queue":"orders","note":"a <b> & c"` || !strings.HasSuffix(chain, `"}`) {
 		t.Fatalf("line = %q", line)
 	}
 	// A record may not set the chain itself.
