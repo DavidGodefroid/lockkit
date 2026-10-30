@@ -25,9 +25,9 @@ type deviceVectors struct {
 		Plaintext string `json:"plaintext"`
 		Box       Sealed `json:"box"`
 	} `json:"seal_gcm"`
-	Statement     stmtVector `json:"device_statement"`
-	StatementMS   stmtVector `json:"device_statement_ms"`
-	TimeNote      string     `json:"time_note"`
+	Statement   stmtVector `json:"device_statement"`
+	StatementMS stmtVector `json:"device_statement_ms"`
+	TimeNote    string     `json:"time_note"`
 }
 
 type stmtVector struct {
