@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/ticket"
@@ -120,9 +119,12 @@ func (c *Client) handle(ctx context.Context, st *plans.Store, raw json.RawMessag
 		}
 	}
 	if err != nil {
+		// A fixed code only: the error text may hold what the hub must not
+		// see (a recheck's plan inputs, SQL, paths). The detail stays with
+		// the lock (OnRequest: its audit and console).
 		body, _ = json.Marshal(struct {
 			Error string `json:"error"`
-		}{strings.ToValidUTF8(cut(err.Error(), 512), "")})
+		}{AnswerCode(err)})
 	}
 	if aerr := c.do(ctx, http.MethodPost, "/v1/requests/"+url.PathEscape(q.ID)+"/answer", body, true, nil); aerr != nil {
 		err = errors.Join(err, fmt.Errorf("request %s: the answer did not reach the hub: %w", q.ID, aerr))
@@ -130,12 +132,42 @@ func (c *Client) handle(ctx context.Context, st *plans.Store, raw json.RawMessag
 	return q, renewal, err
 }
 
-func cut(s string, n int) string {
-	if len(s) > n {
-		return s[:n]
+// Answer codes: the only error text a lock sends the hub for a request.
+const (
+	CodeFacadeRefused = "facade_refused" // no pinned facade, or not this one
+	CodeNotPending    = "not_pending"    // nothing to reveal: the ticket is not pending
+	CodeNoClear       = "no_clear_screen"
+	CodeNotRenewable  = "not_renewable" // not expired, or gone
+	CodeRecheckFailed = "recheck_failed"
+	CodeLimited       = "rate_limited"
+	CodeFailed        = "failed"
+)
+
+// AnswerCode is the code a lock answers the hub for a request that failed
+// with err.
+func AnswerCode(err error) string {
+	switch {
+	case errors.Is(err, errRecheck):
+		return CodeRecheckFailed
+	case errors.Is(err, ErrBadRequest), errors.Is(err, ticket.ErrFacade):
+		return CodeFacadeRefused
+	case errors.Is(err, errNotPending):
+		return CodeNotPending
+	case errors.Is(err, errNoClear):
+		return CodeNoClear
+	case errors.Is(err, ErrNotRenewable), errors.Is(err, plans.ErrNoSuchPlan), errors.Is(err, plans.ErrNotExpired):
+		return CodeNotRenewable
+	case errors.Is(err, ErrRateLimited):
+		return CodeLimited
 	}
-	return s
+	return CodeFailed
 }
+
+var (
+	errRecheck    = errors.New("the plan could not be checked again")
+	errNotPending = errors.New("nothing to reveal")
+	errNoClear    = errors.New("the lock kept no clear screen")
+)
 
 // reveal seals the clear screen of q's ticket to the facade's key, if a
 // pinned facade signed it and the ticket's plan is pending with a clear
@@ -154,9 +186,9 @@ func (c *Client) reveal(st *plans.Store, q *ticket.HubRequest) (*ticket.RevealAn
 	}
 	switch {
 	case p.State != plans.Pending:
-		return nil, fmt.Errorf("ticket %s is %s: nothing to reveal", q.Ticket, p.State)
+		return nil, fmt.Errorf("%w: ticket %s is %s", errNotPending, q.Ticket, p.State)
 	case p.Clear == nil:
-		return nil, fmt.Errorf("ticket %s: the lock kept no clear screen", q.Ticket)
+		return nil, fmt.Errorf("%w: ticket %s", errNoClear, q.Ticket)
 	}
 	return ticket.SealReveal(c.cfg.Key, q, epk, *p.Clear)
 }
@@ -193,7 +225,7 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 	checked := rc != nil
 	if rc != nil {
 		if fp, hash, inputs, err = rc(old); err != nil {
-			return "", fmt.Errorf("%w: the plan could not be checked again: %v", ErrNotRenewable, err)
+			return "", fmt.Errorf("%w: %w: %v", ErrNotRenewable, errRecheck, err)
 		}
 	}
 	n, err := st.Renew(old.ID, fp, hash, inputs)

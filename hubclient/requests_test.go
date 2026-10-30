@@ -140,8 +140,8 @@ func TestRevealRefused(t *testing.T) {
 		mod  func(*ticket.HubRequest)
 		want string
 	}{
-		"no pinned facade":   {nil, fkey, nil, "pins no facade"},
-		"unpinned facade":    {pins, otherKey, nil, "not pinned"},
+		"no pinned facade":   {nil, fkey, nil, hubclient.CodeFacadeRefused},
+		"unpinned facade":    {pins, otherKey, nil, hubclient.CodeFacadeRefused},
 		"stale":              {pins, fkey, func(q *ticket.HubRequest) { q.At = q.At.Add(-time.Hour) }, ""},
 		"for other instance": {pins, fkey, func(q *ticket.HubRequest) { q.Instance = "other"; q.Reveal = nil; q.Kind = ticket.RequestRenew }, ""},
 	}
@@ -317,5 +317,32 @@ func TestRenewUnchecked(t *testing.T) {
 	rt, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
 	if rt.Renews.Checked || rt.Renews.Unchanged() || rt.PlanHash != planHash {
 		t.Fatalf("%+v", rt.Renews)
+	}
+}
+
+// The hub hears a fixed code for a failed request, never the error text:
+// a recheck error can hold plan inputs.
+func TestRequestErrorIsACodeOnly(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	c.add(2 * time.Hour)
+	const canary = "CANARY jane.doe@example.com SELECT secret"
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) {
+		return "", "", nil, errors.New(canary)
+	})
+	var local error
+	e.client.OnRequest(func(_ *ticket.HubRequest, _ string, err error) { local = err })
+	rid := e.hub.Request(id, ticket.RequestRenew, nil, func(q *ticket.HubRequest) { q.At = c.now() })
+	if err := poll(t, e); err == nil {
+		t.Fatal("no error")
+	}
+	ans := string(e.hub.Answer(rid))
+	if ans != `{"error":"`+hubclient.CodeRecheckFailed+`"}` || strings.Contains(ans, "CANARY") {
+		t.Fatalf("answer %s", ans)
+	}
+	if local == nil || !strings.Contains(local.Error(), "CANARY") {
+		t.Fatalf("the lock lost the detail: %v", local)
 	}
 }
