@@ -10,7 +10,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
   the renewal names it `unchecked` and is never one click.
 - `hubclient`: renewing a ticket whose renewal expired renews that
   renewal (one link at a time); one whose renewal ran, was denied or
-  withdrawn is `not_renewable` (it no longer returns a used ticket).
+  withdrawn is `not_renewable` (it no longer returns a used ticket). A
+  renewal in a chain lists the changes since what the human last approved
+  (the newest approved link, else the first plan), never since an
+  undecided link (`plans.Store.PlanByID`); a pruned link makes it
+  unchecked.
 
 - `hubclient`: a hub `renew` request for a pending ticket whose approval
   aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`

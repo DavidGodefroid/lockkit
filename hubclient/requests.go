@@ -297,24 +297,36 @@ func (c *Client) renewLocked(ctx context.Context, st *plans.Store, old *plans.Pl
 
 var errPolicyChanged = errors.New("policy changed")
 
-// renewalChanges are the plan-hash inputs that moved from old to n, by
-// name; nil when n was not checked.
-func renewalChanges(old, n *plans.Plan) []ticket.Change {
+// renewalChanges are the plan-hash inputs that moved, by name, from what
+// the human last approved in the renewal chain (the newest link with an
+// approval, else the chain's first plan) to n: a link that was never
+// approved does not reset what "changed" means. checked is false when n
+// was not checked, or a link of the chain is gone (pruned).
+func renewalChanges(st *plans.Store, old, n *plans.Plan) (changes []ticket.Change, checked bool) {
 	if !n.RenewChecked {
-		return nil
+		return nil, false
 	}
-	before, after := old.Binding.Inputs, n.Binding.Inputs
+	base := old
+	for i := 0; base.ApprovedAt == nil && base.Renews != ""; i++ {
+		prev, err := st.PlanByID(base.Renews)
+		if err != nil || i >= plans.MaxPlans {
+			return nil, false
+		}
+		base = prev
+	}
+	before, after := base.Binding.Inputs, n.Binding.Inputs
 	if before == nil || after == nil {
-		before, after = map[string]string{"plan_hash": old.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
+		before, after = map[string]string{"plan_hash": base.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
 	}
-	return ticket.DiffInputs(before, after)
+	return ticket.DiffInputs(before, after), true
 }
 
 func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Plan, caller plans.Caller, own *ticket.Ticket, old *plans.Plan) (string, error) {
 	t := ticket.NewTicket(ticket.Source{Lock: own.Source.Lock}, own.Risk, n.Binding.PlanHash, n.Binding.PolicyFP, c.cfg.Now(),
 		ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
 	t.Workspace, t.Requester, t.Flags = own.Workspace, own.Requester, own.Flags
-	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: n.RenewChecked, Changes: renewalChanges(old, n)}
+	changes, checked := renewalChanges(st, old, n)
+	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: checked, Changes: changes}
 	if old.ApprovedAt != nil {
 		a := old.ApprovedAt.UTC().Truncate(time.Millisecond)
 		r.Reason, r.ApprovedAt = ticket.RenewApprovalExpired, &a

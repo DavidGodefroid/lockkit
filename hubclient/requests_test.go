@@ -558,3 +558,49 @@ func TestRenewUncheckedInput(t *testing.T) {
 		t.Fatalf("%+v", rt.Renews)
 	}
 }
+
+// A chain of renewals diffs against what the human last approved: a link
+// with changes that was never approved does not make the next one
+// "unchanged".
+func TestRenewChainDiffsAgainstLastApproval(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	v1 := map[string]string{"schema": "sha256:" + strings.Repeat("a", 64)}
+	v2 := map[string]string{"schema": "sha256:" + strings.Repeat("b", 64)}
+	p, err := e.store.Create(plans.Binding{UID: caller.UID, TokenHash: plans.HashToken(caller.Token),
+		PolicyFP: policyFP, PlanHash: planHash, Inputs: v1}, json.RawMessage(`{}`), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tk := ticket.NewTicket(ticket.Source{Lock: "locksql"}, ticket.RiskWrite, planHash, policyFP, c.now(), 0)
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	// A: approved, the approval ages.
+	at := c.now()
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = at })
+	_, _ = e.client.Poll(ctx, 0)
+	c.add(25 * time.Hour)
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, ticket.ErrExpired) {
+		t.Fatal(err)
+	}
+	// B: the schema moved; never decided.
+	h2 := "sha256:" + strings.Repeat("9", 64)
+	e.client.SetRecompute(func(*plans.Plan) (string, string, map[string]string, error) { return policyFP, h2, v2, nil })
+	b, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rb, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(b))
+	if len(rb.Renews.Changes) != 1 {
+		t.Fatalf("B %+v", rb.Renews)
+	}
+	c.add(25 * time.Hour) // B expires undecided
+	// C: nothing moved since B, but B was never approved.
+	c2, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil || c2 == b {
+		t.Fatalf("C %q %v", c2, err)
+	}
+	rc, _ := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(c2))
+	if rc.Renews.Of != b || rc.Renews.Unchanged() || len(rc.Renews.Changes) != 1 || rc.Renews.Changes[0].Input != "schema" {
+		t.Fatalf("C %+v", rc.Renews)
+	}
+}
