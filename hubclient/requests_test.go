@@ -16,6 +16,7 @@ import (
 	"github.com/DavidGodefroid/lockkit/hubclient/hubtest"
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/ticket"
+	"github.com/DavidGodefroid/lockkit/ticket/devicetest"
 )
 
 type clk struct {
@@ -471,5 +472,30 @@ func TestRenewRequestAgesOutApproval(t *testing.T) {
 	}
 	if n, err := e.client.Renew(ctx, e.store, id, caller); err != nil || n != a.Ticket {
 		t.Fatalf("%q %v", n, err)
+	}
+}
+
+// An aged approval that Begin would not honour (no device signature for a
+// risk that needs one) is not turned into an approval-expired renewal.
+func TestRenewRequestAgedApprovalNeedsDevice(t *testing.T) {
+	phone := devicetest.New(rpID, origin, "phone")
+	e, c := newClockEnv(t, func(cfg *hubclient.Config) {
+		cfg.Devices, cfg.RequireDevice = []ticket.Device{phone.Device()}, []ticket.Risk{ticket.RiskWrite}
+	})
+	ctx := context.Background()
+	p, tk := e.plan(t, planHash)
+	tk.Expires = nil
+	id, _ := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	at := c.now()
+	e.hub.DecideWith(id, ticket.Approved, "", nil, func(d *ticket.Decision) { d.At = at })
+	_, _ = e.client.Poll(ctx, 0)
+	c.add(25 * time.Hour)
+	rid := e.hub.Request(id, ticket.RequestRenew, nil, func(q *ticket.HubRequest) { q.At = c.now() })
+	_ = poll(t, e)
+	if !strings.Contains(string(e.hub.Answer(rid)), hubclient.CodeNotRenewable) {
+		t.Fatalf("renewed a hub-only approval of a device risk: %s", e.hub.Answer(rid))
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Pending {
+		t.Fatalf("plan is %s", sp.State)
 	}
 }

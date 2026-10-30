@@ -323,13 +323,28 @@ func (c *Client) ageOut(st *plans.Store, p *plans.Plan) (*plans.Plan, error) {
 	if err != nil || d.Match(own) != nil {
 		return p, nil
 	}
+	// Every check Begin makes before it would expire the approval: only
+	// an approval Begin would have honoured may age into a renewal that
+	// says it was approved.
+	if d.Device != nil || d.Facade == ticket.FacadeMobile {
+		if c.verifyDevice(d, p.SignedTicket) != nil {
+			return p, nil
+		}
+	}
+	if d.Device == nil && c.needsDevice(own.Risk) {
+		return p, nil
+	}
 	uerr := d.Usable(own, c.cfg.Now(), ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
 	if !errors.Is(uerr, ticket.ErrExpired) {
 		return p, nil
 	}
 	owner := plans.OwnerOf(p)
 	if err := st.ExpireApproval(p.ID, owner, d.At, uerr.Error()); err != nil {
-		return nil, err
+		if !errors.Is(err, plans.ErrState) {
+			return nil, err
+		}
+		// Moved meanwhile (the agent's run, another request): as it is now.
+		return st.TicketPlan(p.Ticket)
 	}
 	c.drop(p.Ticket)
 	return st.TicketPlan(p.Ticket)
