@@ -779,7 +779,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 			// A tightening is enforced even when it cannot be saved: going
 			// back to the looser policy would fail open. The next start
 			// reads the stricter files again.
-			_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "tightened policy not saved: " + err.Error()})
+			_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "unsaved", Error: "tightened policy not saved: " + err.Error()})
 			s.println(Paint.Warn("the tightened policy applies, but could not be saved: " + sanitize.Terminal(err.Error(), false)))
 			err = nil
 		}

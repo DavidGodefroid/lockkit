@@ -554,7 +554,7 @@ func TestTighteningSaveFailureStaysInForce(t *testing.T) {
 		}
 		found := false
 		for _, r := range h.records(t) {
-			if r["decision"] == "failed" && strings.Contains(fmt.Sprint(r["error"]), "tightened policy not saved") {
+			if r["decision"] == "unsaved" && strings.Contains(fmt.Sprint(r["error"]), "tightened policy not saved") {
 				found = true
 			}
 		}

@@ -80,6 +80,8 @@ type ConnectionComparer interface {
 // runs, an error refuses the policy, which then is neither saved nor
 // applied: a loosening stays out, and a tightening the backend cannot
 // apply ends the session (it would otherwise serve under the looser one).
+// On an error the backend must keep the policy it had (the console does
+// not apply that one again).
 // NewServer calls it with the start policy and fails on an error (Run has
 // then saved the start policy already, and stops before serving).
 type PolicyApplier interface {
