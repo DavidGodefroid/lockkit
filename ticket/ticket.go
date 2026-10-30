@@ -77,6 +77,11 @@ type PII struct {
 	// ClearSealed is the unmasked screen sealed to one facade's device
 	// key, for a facade able to show it; nil otherwise.
 	ClearSealed *Sealed `json:"clear_sealed"`
+	// SealedFor is the clear screen sealed to each device the lock pins
+	// (SealClearScreen), when the lock is set to seal it; absent
+	// otherwise. ClearSealed (one recipient, any facade key) is not used
+	// for devices.
+	SealedFor []DeviceBox `json:"sealed_for,omitempty"`
 }
 
 // Ticket is a request for a human decision, signed by the lock.
@@ -147,7 +152,11 @@ type Decision struct {
 	// Nonce is single use: a lock consumes it with the decision.
 	Nonce    string `json:"nonce"`
 	HubKeyID string `json:"hub_key_id"` // KeyID of the hub's key
-	Sig      string `json:"sig,omitempty"`
+	// Device is the assertion of the device the human decided on (facade
+	// FacadeMobile), over Statement; absent from any other facade. A lock
+	// checks it with VerifyDevice against the devices it pins.
+	Device *DeviceAssertion `json:"device,omitempty"`
+	Sig    string           `json:"sig,omitempty"`
 }
 
 // NewTicket is a ticket of the current Version with a fresh ID, created
@@ -250,6 +259,23 @@ func (t *Ticket) Validate() error {
 			return err
 		}
 	}
+	if t.PII.SealedFor != nil && len(t.PII.SealedFor) == 0 {
+		return invalid("pii.sealed_for: empty (omit it)")
+	}
+	if len(t.PII.SealedFor) > MaxDevices {
+		return invalid("pii.sealed_for: more than %d devices", MaxDevices)
+	}
+	seen := map[string]bool{}
+	for i := range t.PII.SealedFor {
+		b := &t.PII.SealedFor[i]
+		if !ValidDeviceID(b.Device) || seen[b.Device] {
+			return invalid("pii.sealed_for: device %q", b.Device)
+		}
+		seen[b.Device] = true
+		if err := b.Box.validate(); err != nil {
+			return err
+		}
+	}
 	if !validHash(t.PlanHash) {
 		return invalid("plan_hash %q", t.PlanHash)
 	}
@@ -303,6 +329,14 @@ func (d *Decision) Validate() error {
 	}
 	if !validNonce(d.Nonce) {
 		return invalid("nonce")
+	}
+	if d.Device != nil {
+		if err := d.Device.validate(); err != nil {
+			return err
+		}
+		if d.Facade != FacadeMobile {
+			return invalid("device: a device decision on facade %q", d.Facade)
+		}
 	}
 	return nil
 }
