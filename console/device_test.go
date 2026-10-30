@@ -5,7 +5,6 @@ package console
 import (
 	"context"
 	"crypto/ed25519"
-	"encoding/json"
 	"flag"
 	"os"
 	"path/filepath"
@@ -22,7 +21,7 @@ import (
 
 func TestHubOptionsArgsRoundTrip(t *testing.T) {
 	in := HubOptions{URL: "http://lockhub:8443", KeyFile: "/run/lockfamily/hub.pub", Instance: "crm", PlainHTTP: true,
-		DevicesFile: "/run/lockfamily/devices.json", RequireDevice: "prod-write,unlock"}
+		DevicesFile: "/run/lockfamily/devices.json", RequireDevice: "prod-write,unlock", SealClear: true}
 	var out HubOptions
 	fs := flag.NewFlagSet("console", flag.ContinueOnError)
 	out.Register(fs)
@@ -39,7 +38,7 @@ func TestHubOptionsArgsRoundTrip(t *testing.T) {
 
 func writeDevices(t *testing.T, devs ...ticket.Device) string {
 	t.Helper()
-	b, _ := json.Marshal(ticket.DeviceSet{V: ticket.Version, Devices: devs})
+	b, _ := ticket.MarshalDevices(devs)
 	p := filepath.Join(t.TempDir(), "devices.json")
 	if err := os.WriteFile(p, b, 0o644); err != nil {
 		t.Fatal(err)
@@ -68,7 +67,7 @@ func TestRunHubModeDevice(t *testing.T) {
 		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
 			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
 			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home,
-				DevicesFile: writeDevices(t, phone.Device()), RequireDevice: "write"}})
+				DevicesFile: writeDevices(t, phone.Device()), RequireDevice: "write", SealClear: true}})
 	}()
 	var socket string
 	select {
@@ -87,13 +86,13 @@ func TestRunHubModeDevice(t *testing.T) {
 	if err != nil || len(tk.PII.SealedFor) != 1 {
 		t.Fatalf("ticket %+v %v", tk, err)
 	}
-	clear, err := ticket.OpenClearScreen(phone.Seal, tk.ID, &tk.PII.SealedFor[0])
+	clear, err := ticket.OpenClearScreen(phone.Seal, tk.ID, ticket.DeviceID(phone.Cred), &tk.PII.SealedFor[0])
 	if err != nil || !slices.Contains(clear.Body, "WRITE jane.doe@example.com") {
 		t.Fatalf("clear screen %+v %v", clear, err)
 	}
 	hub.DecideWith(m["ticket"], ticket.Approved, "", nil, func(d *ticket.Decision) {
 		d.HubKeyID = ticket.KeyID(hub.Pub)
-		phone.Decide(d)
+		phone.Decide(d, raw)
 	})
 	deadline := time.Now().Add(10 * time.Second)
 	for {

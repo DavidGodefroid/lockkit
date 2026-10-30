@@ -104,12 +104,16 @@ func (a *Authenticator) AssertWith(challenge []byte, o Options) *ticket.DeviceAs
 		ClientData: enc.EncodeToString(cd), Sig: enc.EncodeToString(sig)}
 }
 
-// Decide makes d a decision taken on a: approver and facade, then the
-// assertion over its statement. d is signed by the hub afterwards.
-func (a *Authenticator) Decide(d *ticket.Decision) {
+// Decide makes d a decision taken on a about the signed ticket it showed:
+// approver and facade, then the assertion over its statement. d is signed
+// by the hub afterwards.
+func (a *Authenticator) Decide(d *ticket.Decision, signed []byte) {
 	id := ticket.DeviceID(a.Cred)
 	d.Approver.ID, d.Facade = id, ticket.FacadeMobile
-	ch, err := d.Statement(id).Challenge()
+	if d.Approver.Display == "" {
+		d.Approver.Display = a.Name
+	}
+	ch, err := d.Statement(id, ticket.TicketHash(signed)).Challenge()
 	if err != nil {
 		panic(err)
 	}

@@ -18,11 +18,21 @@ import (
 
 // A device is a human's own approval device (a phone running lockhub's
 // mobile facade): a WebAuthn credential that signs each decision the human
-// takes on it, and an X25519 key the lock seals its clear screen to. The
-// lock pins its devices (Device records the human confirmed at the host's
-// terminal) and verifies a device's signature itself, after the hub's: a
-// hub that holds no device key cannot make a decision pass for one taken
-// on a device.
+// takes on it, and an X25519 key the lock may seal its clear screen to.
+// The lock pins its devices (Device records the human confirmed at the
+// host's terminal) and verifies a device's signature itself, after the
+// hub's, over the lock's own signed ticket: a hub that holds no device key
+// cannot make a decision pass for one taken on a device, nor get a device
+// signature for a ticket the lock did not sign.
+//
+// Limits, by design: the device's code is a web app the hub serves. A hub
+// that serves malicious code can show one ticket and ask the human to
+// verify themselves for another of the same lock's pending tickets, and
+// can read the clear screens sealed to the device while the human looks
+// at them (which is why sealing them is a separate opt-in). A synced
+// passkey lives in the platform's account too. The sign counter
+// (VerifyAssertion's result) is checked by the hub; a lock does not keep
+// one.
 
 // FacadeMobile is the facade name of decisions taken on a device.
 const FacadeMobile = "mobile"
@@ -104,6 +114,13 @@ func (d *Device) Validate() error {
 	if err != nil || u.Scheme != "https" || u.Host == "" || u.Path != "" || u.RawQuery != "" || u.Fragment != "" || u.User != nil {
 		return invalid("device: origin %q is not an https origin", d.Origin)
 	}
+	// The origin as a browser serializes it: lowercase, no default port.
+	if u.String() != d.Origin || strings.ToLower(d.Origin) != d.Origin || u.Port() == "443" {
+		return invalid("device: origin %q is not in serialized form", d.Origin)
+	}
+	if strings.ToLower(d.RPID) != d.RPID || strings.ContainsAny(d.RPID, ":/ ") {
+		return invalid("device: rp_id %q is not a lowercase host name", d.RPID)
+	}
 	if h := u.Hostname(); h != d.RPID && !strings.HasSuffix(h, "."+d.RPID) {
 		return invalid("device: origin %q is not within rp_id %q", d.Origin, d.RPID)
 	}
@@ -165,17 +182,13 @@ type DeviceSet struct {
 	Devices []Device `json:"devices"`
 }
 
-// ParseDevices reads a DeviceSet: strict JSON, every device valid, ids
+// ParseDevices reads a DeviceSet in canonical JSON (MarshalDevices): no
+// unknown or duplicate member, no trailing data, every device valid, ids
 // unique, at most MaxDevices.
 func ParseDevices(data []byte) ([]Device, error) {
 	var s DeviceSet
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&s); err != nil {
-		return nil, fmt.Errorf("%w: devices: %w", ErrInvalid, err)
-	}
-	if dec.More() {
-		return nil, invalid("devices: trailing data")
+	if err := decodeStrict(data, &s); err != nil {
+		return nil, fmt.Errorf("devices: %w", err)
 	}
 	if s.V != Version {
 		return nil, invalid("devices: unsupported version %d", s.V)
@@ -194,6 +207,15 @@ func ParseDevices(data []byte) ([]Device, error) {
 		seen[s.Devices[i].ID] = true
 	}
 	return s.Devices, nil
+}
+
+// MarshalDevices is the canonical DeviceSet of devs, as ParseDevices
+// reads it.
+func MarshalDevices(devs []Device) ([]byte, error) {
+	if devs == nil {
+		devs = []Device{}
+	}
+	return Canonical(DeviceSet{V: Version, Devices: devs})
 }
 
 // DeviceAssertion is a WebAuthn assertion of a device over a decision's
@@ -234,7 +256,10 @@ func (a *DeviceAssertion) validate() error {
 
 // DeviceStatement is what a device signs for a decision: every field of
 // the decision a lock acts on, the hub's signature and the assertion
-// aside. A lock rebuilds it from the decision it received.
+// aside, and the hash of the lock-signed ticket the device showed. A lock
+// rebuilds it from the decision it received and its own signed ticket: a
+// hub that shows the device another screen, another clear screen or other
+// flags than the lock's gets a signature over another ticket hash.
 type DeviceStatement struct {
 	V        int       `json:"v"`
 	Ticket   string    `json:"ticket"`
@@ -244,18 +269,29 @@ type DeviceStatement struct {
 	Decision Outcome   `json:"decision"`
 	Reason   string    `json:"reason"`
 	Approver string    `json:"approver"`
+	Display  string    `json:"display"`
 	Facade   string    `json:"facade"`
 	At       time.Time `json:"at"`
 	Nonce    string    `json:"nonce"`
 	HubKeyID string    `json:"hub_key_id"`
 	Device   string    `json:"device"`
+	// TicketHash is TicketHash of the signed ticket, as the lock sent it.
+	TicketHash string `json:"ticket_hash"`
 }
 
-// Statement is the statement a device signs for d, as device dev.
-func (d *Decision) Statement(dev string) DeviceStatement {
+// TicketHash is "sha256:" and the hex SHA-256 of a signed ticket's bytes
+// as the lock sent them (its canonical form, Ticket.Marshal).
+func TicketHash(signed []byte) string {
+	sum := sha256.Sum256(signed)
+	return hashPrefix + hex.EncodeToString(sum[:])
+}
+
+// Statement is the statement a device signs for d, as device dev, about
+// the signed ticket whose TicketHash is ticketHash.
+func (d *Decision) Statement(dev, ticketHash string) DeviceStatement {
 	return DeviceStatement{V: d.V, Ticket: d.Ticket, Instance: d.Instance, KeyID: d.KeyID, PlanHash: d.PlanHash,
-		Decision: d.Decision, Reason: d.Reason, Approver: d.Approver.ID, Facade: d.Facade, At: d.At,
-		Nonce: d.Nonce, HubKeyID: d.HubKeyID, Device: dev}
+		Decision: d.Decision, Reason: d.Reason, Approver: d.Approver.ID, Display: d.Approver.Display, Facade: d.Facade,
+		At: d.At, Nonce: d.Nonce, HubKeyID: d.HubKeyID, Device: dev, TicketHash: ticketHash}
 }
 
 // Challenge is the WebAuthn challenge of s: the SHA-256 of
@@ -337,11 +373,14 @@ func VerifyAssertion(dev *Device, challenge []byte, a *DeviceAssertion) (uint32,
 	return binary.BigEndian.Uint32(authData[33:37]), nil
 }
 
-// VerifyDevice checks that d was taken on dev: d names dev as its device
-// and approver, on the mobile facade, and dev's assertion verifies over
-// d's statement. The caller verified d's hub signature first
-// (VerifyDecision) and picks dev among its pinned devices by d.Device.Device.
-func VerifyDevice(dev *Device, d *Decision) error {
+// VerifyDevice checks that d was taken on dev about the ticket signed:
+// d names dev as its device and approver, on the mobile facade, and dev's
+// assertion verifies over d's statement for that ticket. signed is the
+// lock's own signed ticket (never one the hub sent back). The caller
+// verified d's hub signature first (VerifyDecision), matched d to the
+// ticket (Match), and picks dev among its pinned devices by
+// d.Device.Device.
+func VerifyDevice(dev *Device, d *Decision, signed []byte) error {
 	switch {
 	case d.Device == nil:
 		return fmt.Errorf("%w: the decision carries no device signature", ErrDevice)
@@ -352,7 +391,7 @@ func VerifyDevice(dev *Device, d *Decision) error {
 	case d.Facade != FacadeMobile:
 		return fmt.Errorf("%w: a device decision on facade %q", ErrDevice, d.Facade)
 	}
-	ch, err := d.Statement(dev.ID).Challenge()
+	ch, err := d.Statement(dev.ID, TicketHash(signed)).Challenge()
 	if err != nil {
 		return err
 	}
@@ -372,6 +411,13 @@ func ClearScreenAAD(id, dev string) []byte {
 	return ContextClearScreen.message([]byte(id + "\x00" + dev))
 }
 
+// MaxClearScreen bounds the canonical clear screen sealed to a device;
+// a larger one is not sealed (the device shows the masked screen only).
+const MaxClearScreen = 256 << 10
+
+// ErrTooLarge: a clear screen over MaxClearScreen.
+var ErrTooLarge = errors.New("ticket: clear screen too large to seal")
+
 // SealClearScreen seals the clear screen s of ticket id to dev, with
 // SealAlgGCM (a browser opens it with WebCrypto).
 func SealClearScreen(dev *Device, id string, s Screen) (*DeviceBox, error) {
@@ -389,6 +435,9 @@ func SealClearScreen(dev *Device, id string, s Screen) (*DeviceBox, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(pt) > MaxClearScreen {
+		return nil, ErrTooLarge
+	}
 	box, err := SealGCM(pub, pt, ClearScreenAAD(id, dev.ID))
 	if err != nil {
 		return nil, err
@@ -397,9 +446,12 @@ func SealClearScreen(dev *Device, id string, s Screen) (*DeviceBox, error) {
 }
 
 // OpenClearScreen opens the clear screen of ticket id sealed to device
-// dev (whose sealing key is priv).
-func OpenClearScreen(priv *ecdh.PrivateKey, id string, b *DeviceBox) (Screen, error) {
-	pt, err := Open(priv, &b.Box, ClearScreenAAD(id, b.Device))
+// dev, whose sealing key is priv. A box for another device is ErrOpen.
+func OpenClearScreen(priv *ecdh.PrivateKey, id, dev string, b *DeviceBox) (Screen, error) {
+	if b.Device != dev {
+		return Screen{}, ErrOpen
+	}
+	pt, err := Open(priv, &b.Box, ClearScreenAAD(id, dev))
 	if err != nil {
 		return Screen{}, err
 	}

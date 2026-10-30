@@ -6,7 +6,6 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -40,12 +39,21 @@ func newTicket(t *testing.T, inst string) *ticket.Ticket {
 	return tk
 }
 
+func signed(t *testing.T, tk *ticket.Ticket) []byte {
+	t.Helper()
+	b, err := tk.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
 func deviceDecision(t *testing.T, a *devicetest.Authenticator, tk *ticket.Ticket) *ticket.Decision {
 	t.Helper()
 	d := &ticket.Decision{V: ticket.Version, Ticket: tk.ID, Instance: tk.Source.Instance, KeyID: tk.Source.KeyID,
 		PlanHash: tk.PlanHash, Decision: ticket.Approved, At: t0.Add(time.Minute), Nonce: ticket.NewNonce(),
 		HubKeyID: ticket.KeyID(hubPub)}
-	a.Decide(d)
+	a.Decide(d, signed(t, tk))
 	if err := d.Sign(hubKey); err != nil {
 		t.Fatal(err)
 	}
@@ -71,8 +79,9 @@ func TestDeviceDecisionVerifies(t *testing.T) {
 	if err := dev.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	d := roundTrip(t, deviceDecision(t, a, newTicket(t, "crm")))
-	if err := ticket.VerifyDevice(&dev, d); err != nil {
+	tk := newTicket(t, "crm")
+	d := roundTrip(t, deviceDecision(t, a, tk))
+	if err := ticket.VerifyDevice(&dev, d, signed(t, tk)); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -100,13 +109,15 @@ func TestHubCannotForgeDeviceDecision(t *testing.T) {
 		"other nonce":            func(d *ticket.Decision) { d.Nonce = ticket.NewNonce() },
 		"redated":                func(d *ticket.Decision) { d.At = d.At.Add(3 * time.Hour) },
 		"reason":                 func(d *ticket.Decision) { d.Reason = "ok" },
+		"display":                func(d *ticket.Decision) { d.Approver.Display = "someone else" },
 		"assertion of a hub key": func(d *ticket.Decision) {
 			fake := devicetest.New(rpID, origin, "phone")
 			fake.Cred = a.Cred // same id, the hub's own key
-			ch, _ := d.Statement(dev.ID).Challenge()
+			ch, _ := d.Statement(dev.ID, ticket.TicketHash(signed(t, tk))).Challenge()
 			d.Device = fake.Assert(ch)
 		},
-		"no assertion": func(d *ticket.Decision) { d.Device = nil; d.Facade = "tty" },
+		"no assertion":     func(d *ticket.Decision) { d.Device = nil; d.Facade = "tty" },
+		"approver changed": func(d *ticket.Decision) { d.Approver.ID = "host:uid:1000" },
 	}
 	for name, mutate := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -114,16 +125,46 @@ func TestHubCannotForgeDeviceDecision(t *testing.T) {
 			if name == "denial turned approval" {
 				d = &ticket.Decision{V: ticket.Version, Ticket: tk.ID, Instance: tk.Source.Instance, KeyID: tk.Source.KeyID,
 					PlanHash: tk.PlanHash, Decision: ticket.Denied, At: t0.Add(time.Minute), Nonce: ticket.NewNonce(), HubKeyID: ticket.KeyID(hubPub)}
-				a.Decide(d)
+				a.Decide(d, signed(t, tk))
 				d.Decision = ticket.Approved
 			} else {
 				mutate(d)
 			}
 			got := resign(d)
-			if err := ticket.VerifyDevice(&dev, got); !errors.Is(err, ticket.ErrDevice) {
+			if err := ticket.VerifyDevice(&dev, got, signed(t, tk)); !errors.Is(err, ticket.ErrDevice) {
 				t.Fatalf("VerifyDevice = %v, want ErrDevice", err)
 			}
 		})
+	}
+}
+
+// What you see is what you sign: the device signs the hash of the ticket
+// it was shown. A hub that shows another screen (masked or sealed) for the
+// real ticket gets a signature the lock refuses against its own ticket.
+func TestDeviceSignsTheTicketItSaw(t *testing.T) {
+	a := devicetest.New(rpID, origin, "phone")
+	dev := a.Device()
+	real := newTicket(t, "crm")
+	shown := *real
+	shown.Sig = ""
+	shown.Screen = ticket.Screen{Header: "crm / shop", Body: []string{"SELECT 1"}}
+	box, err := ticket.SealClearScreen(&dev, shown.ID, ticket.Screen{Body: []string{"SELECT 1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	shown.PII.SealedFor = []ticket.DeviceBox{*box}
+	d := &ticket.Decision{V: ticket.Version, Ticket: real.ID, Instance: real.Source.Instance, KeyID: real.Source.KeyID,
+		PlanHash: real.PlanHash, Decision: ticket.Approved, At: t0.Add(time.Minute), Nonce: ticket.NewNonce(), HubKeyID: ticket.KeyID(hubPub)}
+	a.Decide(d, signed(t, &shown))
+	if err := d.Sign(hubKey); err != nil {
+		t.Fatal(err)
+	}
+	got := roundTrip(t, d)
+	if err := ticket.VerifyDevice(&dev, got, signed(t, &shown)); err != nil {
+		t.Fatalf("over the ticket shown: %v", err)
+	}
+	if err := ticket.VerifyDevice(&dev, got, signed(t, real)); !errors.Is(err, ticket.ErrDevice) {
+		t.Fatalf("against the lock's ticket: %v, want ErrDevice", err)
 	}
 }
 
@@ -131,18 +172,34 @@ func TestAssertionRefusals(t *testing.T) {
 	a := devicetest.New(rpID, origin, "phone")
 	dev := a.Device()
 	ch := bytes.Repeat([]byte{7}, 32)
-	up := byte(0x01)
+	up, uv := byte(0x01), byte(0x04)
+	good := a.Assert(ch)
+	tamper := func(f func(as *ticket.DeviceAssertion)) *ticket.DeviceAssertion {
+		c := *good
+		f(&c)
+		return &c
+	}
+	flip := func(s string) string {
+		b, _ := b64.DecodeString(s)
+		b[len(b)-1] ^= 1
+		return b64.EncodeToString(b)
+	}
 	cases := map[string]*ticket.DeviceAssertion{
-		"registration type": a.AssertWith(ch, devicetest.Options{Type: "webauthn.create"}),
-		"other origin":      a.AssertWith(ch, devicetest.Options{Origin: "https://evil.example.net"}),
-		"other rp":          a.AssertWith(ch, devicetest.Options{RPID: "evil.example.net"}),
-		"not verified":      a.AssertWith(ch, devicetest.Options{Flags: &up}),
-		"cross origin":      a.AssertWith(ch, devicetest.Options{Cross: true}),
-		"other challenge":   a.Assert(bytes.Repeat([]byte{8}, 32)),
+		"verified, not present": a.AssertWith(ch, devicetest.Options{Flags: &uv}),
+		"tampered signature":    tamper(func(as *ticket.DeviceAssertion) { as.Sig = flip(as.Sig) }),
+		"tampered auth data":    tamper(func(as *ticket.DeviceAssertion) { as.AuthData = flip(as.AuthData) }),
+		"short auth data":       tamper(func(as *ticket.DeviceAssertion) { as.AuthData = b64.EncodeToString(make([]byte, 36)) }),
+		"client data not JSON":  tamper(func(as *ticket.DeviceAssertion) { as.ClientData = b64.EncodeToString([]byte("not json")) }),
+		"registration type":     a.AssertWith(ch, devicetest.Options{Type: "webauthn.create"}),
+		"other origin":          a.AssertWith(ch, devicetest.Options{Origin: "https://evil.example.net"}),
+		"other rp":              a.AssertWith(ch, devicetest.Options{RPID: "evil.example.net"}),
+		"not verified":          a.AssertWith(ch, devicetest.Options{Flags: &up}),
+		"cross origin":          a.AssertWith(ch, devicetest.Options{Cross: true}),
+		"other challenge":       a.Assert(bytes.Repeat([]byte{8}, 32)),
 	}
 	for name, as := range cases {
 		t.Run(name, func(t *testing.T) {
-			if _, err := ticket.VerifyAssertion(&dev, ch, as); !errors.Is(err, ticket.ErrDevice) {
+			if _, err := ticket.VerifyAssertion(&dev, ch, as); !errors.Is(err, ticket.ErrDevice) && !errors.Is(err, ticket.ErrInvalid) {
 				t.Fatalf("got %v, want ErrDevice", err)
 			}
 		})
@@ -185,13 +242,15 @@ func TestDeviceRecord(t *testing.T) {
 		t.Fatalf("fingerprint %q, %v", fp, err)
 	}
 	bad := map[string]func(d *ticket.Device){
-		"id":          func(d *ticket.Device) { d.ID = ticket.DeviceID([]byte("x")) },
-		"http origin": func(d *ticket.Device) { d.Origin = "http://hub.example.net" },
-		"origin path": func(d *ticket.Device) { d.Origin = origin + "/x" },
-		"foreign rp":  func(d *ticket.Device) { d.RPID = "example.org" },
-		"es256":       func(d *ticket.Device) { d.ES256 = b64.EncodeToString(make([]byte, 65)) },
-		"x25519":      func(d *ticket.Device) { d.X25519 = "AA" },
-		"version":     func(d *ticket.Device) { d.V = 2 },
+		"id":           func(d *ticket.Device) { d.ID = ticket.DeviceID([]byte("x")) },
+		"http origin":  func(d *ticket.Device) { d.Origin = "http://hub.example.net" },
+		"origin path":  func(d *ticket.Device) { d.Origin = origin + "/x" },
+		"foreign rp":   func(d *ticket.Device) { d.RPID = "example.org" },
+		"es256":        func(d *ticket.Device) { d.ES256 = b64.EncodeToString(make([]byte, 65)) },
+		"x25519":       func(d *ticket.Device) { d.X25519 = "AA" },
+		"version":      func(d *ticket.Device) { d.V = 2 },
+		"default port": func(d *ticket.Device) { d.Origin = origin + ":443" },
+		"uppercase":    func(d *ticket.Device) { d.Origin, d.RPID = "https://Hub.example.net", "Hub.example.net" },
 	}
 	for name, f := range bad {
 		d := dev
@@ -200,17 +259,28 @@ func TestDeviceRecord(t *testing.T) {
 			t.Errorf("%s: %v", name, err)
 		}
 	}
-	set, _ := json.Marshal(ticket.DeviceSet{V: 1, Devices: []ticket.Device{dev}})
+	set, _ := ticket.MarshalDevices([]ticket.Device{dev})
 	if got, err := ticket.ParseDevices(set); err != nil || len(got) != 1 || got[0] != dev {
 		t.Fatalf("ParseDevices: %v %v", got, err)
 	}
-	twice, _ := json.Marshal(ticket.DeviceSet{V: 1, Devices: []ticket.Device{dev, dev}})
+	twice, _ := ticket.MarshalDevices([]ticket.Device{dev, dev})
 	if _, err := ticket.ParseDevices(twice); err == nil {
 		t.Fatal("a device twice was accepted")
 	}
-	if _, err := ticket.ParseDevices([]byte(`{"v":1,"devices":[],"extra":1}`)); err == nil {
-		t.Fatal("unknown member accepted")
+	for _, bad := range []string{`{"devices":[],"extra":1,"v":1}`, `{"devices":[],"v":1}]`, `{"DEVICES":[],"v":1}`,
+		`{"devices":[` + string(mustJSON(dev)) + `],"devices":[],"v":1}`, `{"v":1,"devices":[]}`} {
+		if _, err := ticket.ParseDevices([]byte(bad)); err == nil {
+			t.Errorf("accepted %s", bad)
+		}
 	}
+}
+
+func mustJSON(v any) []byte {
+	b, err := ticket.Canonical(v)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
 
 func TestClearScreenSealed(t *testing.T) {
@@ -225,17 +295,31 @@ func TestClearScreenSealed(t *testing.T) {
 	if box.Box.Alg != ticket.SealAlgGCM || strings.Contains(box.Box.CT, "jane") {
 		t.Fatalf("box %+v", box.Box)
 	}
-	got, err := ticket.OpenClearScreen(a.Seal, tk.ID, box)
+	got, err := ticket.OpenClearScreen(a.Seal, tk.ID, dev.ID, box)
 	if err != nil || got.Body[0] != clear.Body[0] {
 		t.Fatalf("open: %+v %v", got, err)
 	}
 	// Bound to the ticket and the device.
-	if _, err := ticket.OpenClearScreen(a.Seal, newTicket(t, "crm").ID, box); !errors.Is(err, ticket.ErrOpen) {
+	if _, err := ticket.OpenClearScreen(a.Seal, newTicket(t, "crm").ID, dev.ID, box); !errors.Is(err, ticket.ErrOpen) {
 		t.Fatalf("other ticket: %v", err)
 	}
 	other, _ := ecdh.X25519().GenerateKey(rand.Reader)
-	if _, err := ticket.OpenClearScreen(other, tk.ID, box); !errors.Is(err, ticket.ErrOpen) {
+	if _, err := ticket.OpenClearScreen(other, tk.ID, dev.ID, box); !errors.Is(err, ticket.ErrOpen) {
 		t.Fatalf("other key: %v", err)
+	}
+	// Relabelled for another device id, the AAD no longer matches.
+	relabel := *box
+	relabel.Device = devicetest.New(rpID, origin, "x").Device().ID
+	if _, err := ticket.OpenClearScreen(a.Seal, tk.ID, relabel.Device, &relabel); !errors.Is(err, ticket.ErrOpen) {
+		t.Fatalf("relabelled box: %v", err)
+	}
+	if _, err := ticket.OpenClearScreen(a.Seal, tk.ID, relabel.Device, box); !errors.Is(err, ticket.ErrOpen) {
+		t.Fatalf("box of another device: %v", err)
+	}
+	// Too large to seal.
+	big := ticket.Screen{Body: []string{strings.Repeat("x", ticket.MaxClearScreen)}}
+	if _, err := ticket.SealClearScreen(&dev, tk.ID, big); !errors.Is(err, ticket.ErrTooLarge) {
+		t.Fatalf("large screen: %v", err)
 	}
 	// A ticket carries it and still verifies.
 	tk2 := newTicket(t, "crm")
@@ -256,7 +340,7 @@ func TestClearScreenSealed(t *testing.T) {
 
 // The AES-GCM box is the one WebCrypto opens: X25519, HKDF-SHA256 with
 // the ephemeral then the recipient key as salt, AES-256-GCM with a 12-byte
-// nonce. This fixed vector is checked by the PWA's own test.
+// nonce (fixed bytes: testdata/device-v1.json, TestDeviceVectors).
 func TestSealGCMShape(t *testing.T) {
 	priv, _ := ecdh.X25519().GenerateKey(rand.Reader)
 	s, err := ticket.SealGCM(priv.PublicKey(), []byte("hello"), []byte("aad"))
