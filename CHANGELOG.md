@@ -5,6 +5,19 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `ticket.UncheckedInput` / `ChangeUnchecked`: a Recompute marks an input
+  it cannot check now (no session) instead of passing its stored digest;
+  the renewal names it `unchecked` and is never one click.
+- `hubclient`: renewing a ticket whose renewal expired renews that
+  renewal (one link at a time); one whose renewal ran, was denied or
+  withdrawn is `not_renewable` (it no longer returns a used ticket). A
+  renewal in a chain lists the changes since what the human last approved
+  (the newest approved link, else the first plan), never since an
+  undecided link (`plans.Store.PlanByID`); a pruned link makes it
+  unchecked. A renewal denied at the hub, or whose approval aged, is
+  handled before the agent's run. Facades and hubs must run lockkit with
+  `unchecked` (this release) before locks send it.
+
 - `hubclient`: a hub `renew` request for a pending ticket whose approval
   aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`
   would at the agent's run) and renews it: the hub can offer an aged

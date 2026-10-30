@@ -15,7 +15,10 @@ import (
 
 // Recompute gives, for a stored plan, its policy fingerprint, plan hash
 // and plan-hash inputs (ticket.InputDigests) as the lock sees them now: a
-// renewal shows the human what moved since the expired ticket. A product
+// renewal shows the human what moved since the expired ticket. An input it
+// cannot check now (no session) is ticket.UncheckedInput, never its stored
+// digest: the renewal then says so, and is not one click; keep the stored
+// plan hash in that case (the run checks it). A product
 // sets it with SetRecompute; without one, a renewal keeps the plan's hash
 // and says it was not checked (the run checks it anyway).
 type Recompute func(p *plans.Plan) (policyFP, planHash string, inputs map[string]string, err error)
@@ -230,6 +233,10 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 	// race on the same expired plan.
 	c.renewMu.Lock()
 	defer c.renewMu.Unlock()
+	return c.renewLocked(ctx, st, old, caller)
+}
+
+func (c *Client) renewLocked(ctx context.Context, st *plans.Store, old *plans.Plan, caller plans.Caller) (string, error) {
 	if old.State != plans.Expired {
 		return "", fmt.Errorf("%w: ticket %s is %s", ErrNotRenewable, old.Ticket, old.State)
 	}
@@ -261,11 +268,35 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 	if err != nil {
 		return "", err
 	}
-	if n.State != plans.Planned {
+	if n.Ticket != "" {
+		// Through a lookup: a renewal past its own expiry reads Expired; an
+		// approval of it that aged reads Expired too (ageOut).
+		x, err := st.TicketPlan(n.Ticket)
+		if err != nil {
+			return "", err
+		}
+		if n, err = c.ageOut(st, x); err != nil {
+			return "", err
+		}
+		if n.State == plans.Pending && c.deniedAtHub(n) {
+			return "", fmt.Errorf("%w: its renewal %s was denied", ErrNotRenewable, n.Ticket)
+		}
+	}
+	switch n.State {
+	case plans.Planned:
+	case plans.Pending:
+		return n.Ticket, nil
+	case plans.Expired:
+		// The renewal expired too: renew it in turn (a chain, one link at
+		// a time; renewMu is held, so call the unlocked body).
 		if n.Ticket == "" {
 			return "", fmt.Errorf("%w: renewal plan %s is %s", ErrNotRenewable, n.ID, n.State)
 		}
-		return n.Ticket, nil
+		// Same binding as old: the same caller.
+		return c.renewLocked(ctx, st, n, caller)
+	default:
+		// Ran, denied, withdrawn, stale: nothing left to ask again.
+		return "", fmt.Errorf("%w: its renewal %s is %s", ErrNotRenewable, n.Ticket, n.State)
 	}
 	// Planned: new, or a renewal whose submission failed (hub limits). Its
 	// changes come from the stored bindings, whichever call submits it.
@@ -274,24 +305,46 @@ func (c *Client) renew(ctx context.Context, st *plans.Store, old *plans.Plan, ca
 
 var errPolicyChanged = errors.New("policy changed")
 
-// renewalChanges are the plan-hash inputs that moved from old to n, by
-// name; nil when n was not checked.
-func renewalChanges(old, n *plans.Plan) []ticket.Change {
+// renewalChanges are the plan-hash inputs that moved, by name, from what
+// the human last approved in the renewal chain (the newest link with an
+// approval, else the chain's first plan) to n: a link that was never
+// approved does not reset what "changed" means. checked is false when n
+// was not checked, or a link of the chain is gone (pruned).
+func renewalChanges(st *plans.Store, old, n *plans.Plan) (changes []ticket.Change, checked bool) {
 	if !n.RenewChecked {
-		return nil
+		return nil, false
 	}
-	before, after := old.Binding.Inputs, n.Binding.Inputs
+	base := old
+	for i := 0; base.ApprovedAt == nil && base.Renews != ""; i++ {
+		prev, err := st.PlanByID(base.Renews)
+		if err != nil || i >= plans.MaxPlans {
+			return nil, false
+		}
+		base = prev
+	}
+	before, after := base.Binding.Inputs, n.Binding.Inputs
 	if before == nil || after == nil {
-		before, after = map[string]string{"plan_hash": old.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
+		// No named inputs on one side: the plan hash, plus every input one
+		// side could not check (never dropped by the fallback).
+		b, a := map[string]string{"plan_hash": base.Binding.PlanHash}, map[string]string{"plan_hash": n.Binding.PlanHash}
+		for _, m := range []map[string]string{before, after} {
+			for k, v := range m {
+				if v == ticket.UncheckedInput {
+					b[k], a[k] = ticket.UncheckedInput, ticket.UncheckedInput
+				}
+			}
+		}
+		before, after = b, a
 	}
-	return ticket.DiffInputs(before, after)
+	return ticket.DiffInputs(before, after), true
 }
 
 func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Plan, caller plans.Caller, own *ticket.Ticket, old *plans.Plan) (string, error) {
 	t := ticket.NewTicket(ticket.Source{Lock: own.Source.Lock}, own.Risk, n.Binding.PlanHash, n.Binding.PolicyFP, c.cfg.Now(),
 		ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
 	t.Workspace, t.Requester, t.Flags = own.Workspace, own.Requester, own.Flags
-	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: n.RenewChecked, Changes: renewalChanges(old, n)}
+	changes, checked := renewalChanges(st, old, n)
+	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: checked, Changes: changes}
 	if old.ApprovedAt != nil {
 		a := old.ApprovedAt.UTC().Truncate(time.Millisecond)
 		r.Reason, r.ApprovedAt = ticket.RenewApprovalExpired, &a
@@ -348,4 +401,21 @@ func (c *Client) ageOut(st *plans.Store, p *plans.Plan) (*plans.Plan, error) {
 	}
 	c.drop(p.Ticket)
 	return st.TicketPlan(p.Ticket)
+}
+
+// deniedAtHub reports whether the lock holds a verified denial of p's
+// ticket that the agent has not run into yet.
+func (c *Client) deniedAtHub(p *plans.Plan) bool {
+	c.mu.Lock()
+	e, ok := c.inbox[p.Ticket]
+	c.mu.Unlock()
+	if !ok {
+		return false
+	}
+	d, err := c.verify(e)
+	if err != nil || d.Decision != ticket.Denied {
+		return false
+	}
+	own, err := p.LockTicket(c.pub)
+	return err == nil && d.Match(own) == nil
 }

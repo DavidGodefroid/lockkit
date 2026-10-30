@@ -50,7 +50,15 @@ const (
 	ChangeChanged = "changed"
 	ChangeNew     = "new"
 	ChangeGone    = "gone"
+	// ChangeUnchecked: the lock could not check this input now (a
+	// Recompute without the session it needs): it may have moved. The run
+	// checks it; no facade presents the renewal as unchanged.
+	ChangeUnchecked = "unchecked"
 )
+
+// UncheckedInput is the digest a Recompute gives an input it cannot check
+// now; DiffInputs reports it as ChangeUnchecked.
+const UncheckedInput = "unchecked"
 
 // MaxChanges bounds Renewal.Changes.
 const MaxChanges = 64
@@ -85,7 +93,7 @@ func (r *Renewal) validate() error {
 		if i > 0 && r.Changes[i-1].Input >= c.Input {
 			return invalid("renews.changes: not sorted by input, or an input twice")
 		}
-		if c.Change != ChangeChanged && c.Change != ChangeNew && c.Change != ChangeGone {
+		if c.Change != ChangeChanged && c.Change != ChangeNew && c.Change != ChangeGone && c.Change != ChangeUnchecked {
 			return invalid("renews.changes.%s: change %q", c.Input, c.Change)
 		}
 	}
@@ -137,6 +145,8 @@ func DiffInputs(before, after map[string]string) []Change {
 		b, inB := before[k]
 		a, inA := after[k]
 		switch {
+		case a == UncheckedInput || b == UncheckedInput:
+			out = append(out, Change{Input: k, Change: ChangeUnchecked})
 		case !inB:
 			out = append(out, Change{Input: k, Change: ChangeNew})
 		case !inA:
