@@ -3,6 +3,45 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## v0.5.0 (2026-10-30)
+
+Reveal and re-approval (lockhub's local facades): a human at the host's
+terminal or the lea deck can see a ticket's clear screen, sealed by the
+lock to the facade's own key (the hub relays ciphertext only), and
+approve an expired ticket again in one step, seeing which plan-hash
+inputs moved. Locks wire `SetRecompute`, `Binding.Inputs` and
+`Hub.RenewResp`; `lock up` pins the facade keys (`--facade-keys-file`).
+#78 merged after the v0.4.0 tag; nothing else changed.
+
+- Reveal (Ctrl-O on a local facade): `ticket.HubRequest` (signed by the
+  hub, `ContextHubRequest`, kinds `reveal` and `renew`) arrives in the
+  `requests` of the decisions long poll; `ticket.RevealKey` is the
+  facade's ephemeral X25519 key signed by its Ed25519 key
+  (`ContextRevealKey`, `NewRevealKey`, `Verify` against the lock's
+  `PinnedFacade`s; `CanReveal`: `tty`, `deck` only); the lock answers
+  `POST /v1/requests/{id}/answer` with a `RevealAnswer` signed by its key
+  (`SealReveal`, `ContextRevealAnswer`), which the facade opens with
+  `OpenReveal`. The hub relays ciphertext only. `FacadeSet`,
+  `ParseFacades`, `hubclient.ReadFacades`, `Config.Facades`, console flag
+  `--facade-keys-file` (`HubOptions.FacadeKeysFile`, in `Args`).
+  `SubmitClear` keeps the clear screen in the plan (`plans.Plan.Clear`,
+  `MarkPendingClear`), the one both reveals and devices see.
+- Re-approval of expired tickets (H1): `Ticket.Renews` (`Renewal`: the
+  expired ticket, `expired` or `approval-expired` with `approved_at`,
+  `checked`, `changes`: the names of the plan-hash inputs that moved
+  (`changed`/`new`/`gone`), never values nor digests; `InputDigests`
+  stays in the lock, `DiffInputs`, `Unchanged`). A changed policy
+  fingerprint is no renewal (`policy_changed`: plan again). `hubclient.Client.Renew`
+  (agent path) and the hub's `renew` request make a new ticket for the
+  same plan, re-checked through `SetRecompute`; `Begin` answers an
+  expired ticket `ticket.ErrExpired` and records an aged approval
+  (`plans.Store.ExpireApproval`). `plans`: `Binding.Inputs`, `Renew`,
+  `ExpiredByTicket`, `TicketPlan`, `RenewalOf`, `OwnerOf`, `ErrRenewed`.
+  Failed requests are answered with a fixed code (`hubclient.AnswerCode`),
+  never the error text. Console:
+  `Hub.RenewResp`, `Hub.Requests` (audit events `reveal`, `renew`).
+  `hubtest`: `Request`, `RawRequest`, `Requeue`, `Answer`.
+
 ## v0.4.0 (2026-10-30)
 
 Approval devices (lockhub's mobile facade): a decision taken on a phone is
@@ -51,34 +90,6 @@ to the device while they are shown (hence sealing is a separate opt-in).
   the retention until told); `hubclient.Client.Sync` withdraws them at the
   hub on the next start in hub mode (`Untold`, `MarkTold`).
   `hubtest.Hub.SetWithdrawStatus` for tests.
-- Reveal (Ctrl-O on a local facade): `ticket.HubRequest` (signed by the
-  hub, `ContextHubRequest`, kinds `reveal` and `renew`) arrives in the
-  `requests` of the decisions long poll; `ticket.RevealKey` is the
-  facade's ephemeral X25519 key signed by its Ed25519 key
-  (`ContextRevealKey`, `NewRevealKey`, `Verify` against the lock's
-  `PinnedFacade`s; `CanReveal`: `tty`, `deck` only); the lock answers
-  `POST /v1/requests/{id}/answer` with a `RevealAnswer` signed by its key
-  (`SealReveal`, `ContextRevealAnswer`), which the facade opens with
-  `OpenReveal`. The hub relays ciphertext only. `FacadeSet`,
-  `ParseFacades`, `hubclient.ReadFacades`, `Config.Facades`, console flag
-  `--facade-keys-file` (`HubOptions.FacadeKeysFile`, in `Args`).
-  `SubmitClear` keeps the clear screen in the plan (`plans.Plan.Clear`,
-  `MarkPendingClear`), the one both reveals and devices see.
-- Re-approval of expired tickets (H1): `Ticket.Renews` (`Renewal`: the
-  expired ticket, `expired` or `approval-expired` with `approved_at`,
-  `checked`, `changes`: the names of the plan-hash inputs that moved
-  (`changed`/`new`/`gone`), never values nor digests; `InputDigests`
-  stays in the lock, `DiffInputs`, `Unchanged`). A changed policy
-  fingerprint is no renewal (`policy_changed`: plan again). `hubclient.Client.Renew`
-  (agent path) and the hub's `renew` request make a new ticket for the
-  same plan, re-checked through `SetRecompute`; `Begin` answers an
-  expired ticket `ticket.ErrExpired` and records an aged approval
-  (`plans.Store.ExpireApproval`). `plans`: `Binding.Inputs`, `Renew`,
-  `ExpiredByTicket`, `TicketPlan`, `RenewalOf`, `OwnerOf`, `ErrRenewed`.
-  Failed requests are answered with a fixed code (`hubclient.AnswerCode`),
-  never the error text. Console:
-  `Hub.RenewResp`, `Hub.Requests` (audit events `reveal`, `renew`).
-  `hubtest`: `Request`, `RawRequest`, `Requeue`, `Answer`.
 
 ## v0.3.1 (2026-10-30)
 
