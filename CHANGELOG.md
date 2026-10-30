@@ -3,6 +3,11 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console.Options.OnHub`: called with the hub once `Run` opened it,
+  before any request: where a product registers `SetRecompute`.
+
 ## v0.5.0 (2026-10-30)
 
 Reveal and re-approval (lockhub's local facades): a human at the host's
