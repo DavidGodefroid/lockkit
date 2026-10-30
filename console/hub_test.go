@@ -492,7 +492,7 @@ func TestRunOnHub(t *testing.T) {
 				}
 				got <- h
 			},
-			Hub:   HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
+			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
 	}()
 	select {
 	case h := <-got:
