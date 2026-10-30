@@ -742,6 +742,9 @@ func TestBecomingProductionReappliesStartRefusals(t *testing.T) {
 	if !strings.Contains(h.io.plain(), "X11 session") {
 		t.Fatalf("no refusal shown:\n%s", h.io.plain())
 	}
+	if strings.Contains(h.io.plain(), "policy tightened") {
+		t.Fatalf("tightened said of a session that ends:\n%s", h.io.plain())
+	}
 }
 
 func TestTickTimeouts(t *testing.T) {

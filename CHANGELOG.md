@@ -3,6 +3,13 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- A tightening read from the files that ends the session when applied
+  (production refused, connection settings changed, the backend refusing
+  it) no longer prints "policy tightened:" or "policy change not
+  applied" after the line that ends the session.
+
 ## v0.7.0 (2026-10-30)
 
 Console product hooks (locksql#96: locksql's console runs on this one).

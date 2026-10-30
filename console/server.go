@@ -708,7 +708,14 @@ func (s *Server) CheckPolicy() {
 	changes := cur.Diff(s.approved)
 	if !Loosens(changes) {
 		s.pending = nil
-		if err := s.adopt(cur, "tightened"); err != nil {
+		wasEnded := s.ended
+		err := s.adopt(cur, "tightened")
+		if s.ended && !wasEnded {
+			// Applying it ended the session (production refused, the
+			// connection settings changed): the console said why.
+			return
+		}
+		if err != nil {
 			s.println("policy change not applied: " + sanitize.Terminal(err.Error(), false))
 			return
 		}
