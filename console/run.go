@@ -60,12 +60,14 @@ const connectTimeout = 30 * time.Second
 
 // starter carries the start-up state of Run.
 type starter struct {
-	p         kit.Product
-	b         Backend
-	o         Options
-	io        IO
-	log       *audit.Log
-	profile   Profile
+	p       kit.Product
+	b       Backend
+	o       Options
+	io      IO
+	log     *audit.Log
+	profile Profile
+	// policy is the policy in force, passed to Backend.Connect.
+	policy    Policy
 	user      string
 	approver  Approver
 	lockedOut bool
@@ -234,7 +236,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		return errLockedOut
 	}
 	pr := approved.Profile()
-	st.profile = pr
+	st.profile, st.policy = pr, approved
 	// The start-up refusals of a production profile, applied again by the
 	// server when the policy in force becomes production.
 	refuseProduction := func() error {
@@ -310,7 +312,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
 		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
-		Reconnect: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
+		ReconnectPolicy: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
 		RefuseProduction: refuseProduction,
 	})
 	if err != nil {
@@ -397,14 +399,14 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 			return nil, "", err
 		}
 		io.Println("policy tightened since the last session:")
-		for _, line := range FormatChanges(changes) {
+		for _, line := range formatChangesOf(st.b, changes) {
 			io.Println(line)
 		}
 		st.audit(audit.Base{Event: audit.EventPolicy, Decision: "tightened"})
 		return cur, "", nil
 	}
 	io.Println(bold + "The policy of profile " + cur.Profile().Name + " changed since it was approved:" + reset)
-	for _, line := range FormatChanges(changes) {
+	for _, line := range formatChangesOf(st.b, changes) {
 		io.Println(line)
 	}
 	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
@@ -435,6 +437,9 @@ type expiringSession struct {
 // CredentialsExpire is when the session must be replaced.
 func (s *expiringSession) CredentialsExpire() time.Time { return s.refreshAt }
 
+// Unwrap returns the backend's session (console.Unwrap).
+func (s *expiringSession) Unwrap() Session { return s.Session }
+
 // connect obtains the credentials of the profile and opens a session. The
 // secret is wiped once Connect returns.
 func (st *starter) connect(ctx context.Context, first bool) (Session, error) {
@@ -442,6 +447,7 @@ func (st *starter) connect(ctx context.Context, first bool) (Session, error) {
 	open := func(c Credentials) (Session, error) {
 		cctx, cancel := context.WithTimeout(ctx, connectTimeout)
 		defer cancel()
+		c.Policy = st.policy
 		return st.b.Connect(cctx, c)
 	}
 	switch p.Credentials {
@@ -586,10 +592,10 @@ func (st *starter) checks(ctx context.Context, sess Session) error {
 	return nil
 }
 
-// reconnect opens a new session under p, the profile in force now, and
+// reconnect opens a new session under p, the policy in force now, and
 // runs the checks again with the start-up rules.
-func (st *starter) reconnect(ctx context.Context, p Profile) (Session, error) {
-	st.profile = p
+func (st *starter) reconnect(ctx context.Context, p Policy) (Session, error) {
+	st.profile, st.policy = p.Profile(), p
 	sess, err := st.connect(ctx, false)
 	if err != nil {
 		return nil, err

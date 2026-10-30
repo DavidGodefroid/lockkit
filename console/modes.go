@@ -60,8 +60,13 @@ func (s *Server) widenRefused(what string) bool {
 }
 
 func (s *Server) toggleMode() {
+	w := s.words()
 	if s.profile.Production {
-		s.println(Paint.Warn("auto mode is not available on a production profile: every request is prompted"))
+		s.println(Paint.Warn(word(w.NoAutoProduction, "auto mode is not available on a production profile: every request is prompted")))
+		return
+	}
+	if !s.auto && s.cfg.Hub != nil && w.NoAutoHub != "" {
+		s.println(Paint.Warn(w.NoAutoHub))
 		return
 	}
 	if !s.auto && s.widenRefused("auto mode") {
@@ -88,9 +93,9 @@ func (s *Server) toggleMode() {
 		_ = s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: s.modeName()})
 	}
 	if s.auto {
-		s.println(Paint.Yellow(ui.MarkWarn + " auto mode: requests run without a prompt; those that ask for a human every time are still prompted (Shift+Tab: back to manual)"))
+		s.println(Paint.Yellow(ui.MarkWarn + " " + word(w.AutoOn, "auto mode: requests run without a prompt; those that ask for a human every time are still prompted (Shift+Tab: back to manual)")))
 	} else {
-		s.println(Paint.OK("manual mode: every request is prompted"))
+		s.println(Paint.OK(word(w.Manual, "manual mode: every request is prompted")))
 	}
 	s.refreshStatus()
 }
@@ -126,7 +131,7 @@ func (s *Server) toggleResults() {
 		_ = s.record(context.Background(), audit.Base{Event: audit.EventResults, Decision: "hidden"})
 	}
 	if s.showResults {
-		msg := "results: each result is printed here in clear, personal data included; the agent still gets it masked (Ctrl-O: hide)"
+		msg := word(s.words().ResultsOn, "results: each result is printed here in clear, personal data included; the agent still gets it masked (Ctrl-O: hide)")
 		if s.profile.Production {
 			s.println(red + ui.MarkWarn + " " + msg + " (PRODUCTION data: mind screen sharing and the terminal's scrollback)" + reset)
 		} else {
@@ -142,14 +147,14 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 	if s.allowUnmask {
 		s.allowUnmask = false
 		s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "off"})
-		s.println(Paint.OK("unmask: off; clients get masked output only"))
+		s.println(Paint.OK(word(s.words().UnmaskOff, "unmask: off; clients get masked output only")))
 		s.refreshStatus()
 		return
 	}
 	if s.widenRefused("unmask") {
 		return
 	}
-	warn := "allow clients to ask for unmasked output? Each such request is still approved here, never auto-approved"
+	warn := word(s.words().UnmaskAsk, "allow clients to ask for unmasked output? Each such request is still approved here, never auto-approved")
 	if s.profile.Production {
 		warn += " (PRODUCTION data)"
 	}
@@ -196,6 +201,9 @@ func (s *Server) Command(ctx context.Context, line string) {
 
 // statusLines is the :status screen.
 func (s *Server) statusLines() []string {
+	if r, ok := s.cfg.Backend.(StatusRower); ok {
+		return keyValues(r.StatusRows(s.statusView()))
+	}
 	st := s.Status()
 	mode := "manual: every request is prompted"
 	switch {
@@ -234,6 +242,63 @@ func (s *Server) statusLines() []string {
 		}
 		rows = append(rows, [2]string{"boundary", b})
 	}
+	return keyValues(rows)
+}
+
+// StatusModeRow, StatusResultsRow, StatusUnmaskRow, StatusPendingRow and
+// StatusBoundaryRow are the values of the console's own :status rows, for
+// a StatusRower that keeps them; words (Words.StatusAuto, StatusManual,
+// StatusResults) word them.
+
+// StatusModeRow is the value of the mode row.
+func StatusModeRow(v StatusView, w Words) string {
+	mode := word(w.StatusManual, "manual: every request is prompted")
+	switch {
+	case v.Auto:
+		mode = Paint.Yellow(word(w.StatusAuto, "auto: requests run without a prompt unless they ask for a human every time"))
+	case v.Profile.Production:
+		mode += " (production: auto mode unavailable)"
+	}
+	return mode + Paint.Dim(" (Shift+Tab or :mode)")
+}
+
+// StatusResultsRow is the value of the results row.
+func StatusResultsRow(v StatusView, w Words) string {
+	results := "masked (the agent's view)"
+	if v.ShowResults {
+		results = Paint.Yellow(word(w.StatusResults, "shown here in clear, personal data included"))
+	}
+	return results + Paint.Dim(" (Ctrl-O or :results)")
+}
+
+// StatusUnmaskRow is the value of the unmask row.
+func StatusUnmaskRow(v StatusView) string {
+	unmask := "refused (:unmask allows it)"
+	if v.AllowUnmask {
+		unmask = Paint.Red("allowed: clients may ask for unmasked output, approved here each time")
+	}
+	return unmask + Paint.Dim(" (:unmask)")
+}
+
+// StatusPendingRow is the value of the policy change row.
+func StatusPendingRow(v StatusView) string {
+	if v.Pending {
+		return Paint.Red("a loosening awaits :review")
+	}
+	return "none"
+}
+
+// StatusBoundaryRow is the value of the boundary row; "" in the session
+// shape (no row).
+func StatusBoundaryRow(v StatusView) string {
+	if v.Boundary != "" && v.Level != 2 {
+		return Paint.Red(v.Boundary)
+	}
+	return v.Boundary
+}
+
+// keyValues aligns :status rows.
+func keyValues(rows [][2]string) []string {
 	width := 0
 	for _, r := range rows {
 		width = max(width, len(r[0]))
@@ -254,6 +319,14 @@ func (s *Server) statusLine() string {
 	} else {
 		name = Paint.Brand(name)
 	}
+	var suffix string
+	var extra []string
+	if l, ok := s.cfg.Backend.(StatusLiner); ok {
+		suffix, extra = l.StatusLineParts(s.statusView())
+	}
+	if suffix != "" {
+		name += " " + suffix
+	}
 	parts := []string{name}
 	mode := Paint.Green("manual")
 	if s.autoApprove() {
@@ -272,6 +345,7 @@ func (s *Server) statusLine() string {
 	if s.allowUnmask {
 		parts = append(parts, Paint.Red("unmask allowed"))
 	}
+	parts = append(parts, extra...)
 	if s.cfg.Boundary != "" && !s.fingerprintLevel() {
 		parts = append(parts, Paint.Red("level 1: desktop boundary"))
 	}

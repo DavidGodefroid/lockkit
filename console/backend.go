@@ -21,9 +21,11 @@ type Backend interface {
 	// is refused at start.
 	Methods() map[string]Handler
 	// Connect opens a session with the credentials the console obtained
-	// (asked, from the OS keychain, or from Vault). It is called at start
-	// and again after a lost connection or an expired login. The console
-	// wipes c.Secret once Connect returns.
+	// (asked, from the OS keychain, or from Vault) to the policy in force
+	// (c.Policy). It is called at start and again after a lost connection
+	// or an expired login. The console wipes c.Secret once Connect returns.
+	// The session handed back to the backend (Env.Session, Checks) may be
+	// wrapped: Unwrap returns the backend's own.
 	Connect(ctx context.Context, c Credentials) (Session, error)
 	// Checks audits a new session: what the backend account can do beyond
 	// the profile (a red warning, typed "continue" to go on), or a reason
@@ -46,6 +48,11 @@ type Credentials struct {
 	User string
 	// Secret is nil for a profile with credentials "none".
 	Secret []byte
+	// Policy is the approved policy in force, the one to connect to: a
+	// backend reads its endpoint from it, never from the config files (an
+	// unconfirmed edit). Reconnections pass the policy in force then. Nil
+	// when the console that calls Connect has none (a product's own tests).
+	Policy Policy
 }
 
 // Finding is one result of Checks.

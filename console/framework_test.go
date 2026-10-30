@@ -127,7 +127,7 @@ func (b *fakeBackend) Methods() map[string]Handler {
 func (b *fakeBackend) Connect(_ context.Context, c Credentials) (Session, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.creds = append(b.creds, Credentials{User: c.User, Secret: append([]byte(nil), c.Secret...)})
+	b.creds = append(b.creds, Credentials{User: c.User, Secret: append([]byte(nil), c.Secret...), Policy: c.Policy})
 	if b.connErr != nil {
 		return nil, b.connErr
 	}
@@ -706,6 +706,9 @@ func TestAdoptedHostChangeEndsSession(t *testing.T) {
 	h.s.Command(context.Background(), ":review")
 	if reason, ended := h.s.Ended(); !ended || reason != "connection settings changed" {
 		t.Fatalf("ended %v %q", ended, reason)
+	}
+	if strings.Contains(h.io.plain(), "policy change applied") {
+		t.Fatalf("applied said of a session that ends:\n%s", h.io.plain())
 	}
 }
 
