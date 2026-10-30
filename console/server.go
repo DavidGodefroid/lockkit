@@ -904,13 +904,15 @@ func (s *Server) review(ctx context.Context) {
 	}
 	s.refused = ""
 	wasEnded := s.ended
-	if err := s.adopt(next, "applied"); err != nil {
-		s.println("policy change not applied: " + sanitize.Terminal(err.Error(), false))
+	err := s.adopt(next, "applied")
+	if s.ended && !wasEnded {
+		// Applying it ended the session (the connection settings changed,
+		// production refused, the policy in force not restored): the
+		// console said why.
 		return
 	}
-	if s.ended && !wasEnded {
-		// Applied, and the session ends (the connection settings changed,
-		// a refusal of production): the console said why.
+	if err != nil {
+		s.println("policy change not applied: " + sanitize.Terminal(err.Error(), false))
 		return
 	}
 	s.println("policy change applied")

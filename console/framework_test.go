@@ -723,6 +723,9 @@ func TestBecomingProductionRunsChecks(t *testing.T) {
 	if reason, ended := h.s.Ended(); !ended || !strings.Contains(reason, "checks failed") {
 		t.Fatalf("ended %v %q", ended, reason)
 	}
+	if strings.Contains(h.io.plain(), "policy tightened") {
+		t.Fatalf("tightened said of a session that ends:\n%s", h.io.plain())
+	}
 }
 
 // A profile turned production re-applies the start-up refusals before
