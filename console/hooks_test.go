@@ -416,6 +416,9 @@ func TestHooksRefusedPolicy(t *testing.T) {
 	if reason, ended := h.s.Ended(); !ended || reason != "a tightened policy could not be applied" {
 		t.Fatalf("ended %v %q", ended, reason)
 	}
+	if strings.Contains(h.io.plain(), "not applied") {
+		t.Fatalf("not applied said of a session that ends:\n%s", h.io.plain())
+	}
 	if rec := h.lastRecord(t); rec["event"] != "policy" || rec["decision"] != "failed" || !strings.Contains(rec["error"].(string), "bad rules") {
 		t.Fatalf("audit %v", rec)
 	}
