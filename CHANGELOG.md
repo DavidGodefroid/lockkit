@@ -5,6 +5,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `hubclient`: a hub `renew` request for a pending ticket whose approval
+  aged past its TTL ends the plan Expired (`ExpireApproval`, as `Begin`
+  would at the agent's run) and renews it: the hub can offer an aged
+  approval for re-approval before the agent comes back.
 - `console.Options.OnHub`: called with the hub once `Run` opened it,
   before any request: where a product registers `SetRecompute`.
 
