@@ -72,6 +72,11 @@ type Assets struct {
 	// permissions.allow at user scope, and listed in the project notes:
 	// only calls that never touch data without the console's approval.
 	ClaudeAllow []string
+	// ClaudeAllowProject also merges ClaudeAllow into the project's
+	// .claude/settings.local.json (personal, not the shared
+	// .claude/settings.json) on a project init: for a product whose listed
+	// calls only ever see masked data.
+	ClaudeAllowProject bool
 	// ClaudeNote ends the Claude Code notes of a project init (optional).
 	ClaudeNote string
 }
@@ -168,6 +173,9 @@ func (w Wiring) Init(root, agent string) (Result, error) {
 		steps = []step{
 			w.mcpEntry(".mcp.json", w.mcpServer(map[string]any{"type": "stdio"})),
 			w.plainFile(".claude/skills/"+n+"/SKILL.md", w.Assets.Skill),
+		}
+		if w.Assets.ClaudeAllowProject && len(w.Assets.ClaudeAllow) > 0 {
+			steps = append(steps, w.jsonStrings(".claude/settings.local.json", []string{"permissions", "allow"}, w.Assets.ClaudeAllow))
 		}
 		notes = w.claudeNotes()
 	case "codex":
@@ -607,7 +615,19 @@ func writeAtomic(path string, data []byte, mode fs.FileMode, pattern string) err
 func (w Wiring) claudeNotes() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "Claude Code asks once whether to use the project MCP server %q; approve it.\n", w.name())
-	if len(w.Assets.ClaudeAllow) > 0 {
+	if len(w.Assets.ClaudeAllow) > 0 && w.Assets.ClaudeAllowProject {
+		b.WriteString("The calls below never touch data without the console's approval; they were added\n" +
+			"to \"permissions.allow\" in .claude/settings.local.json (personal, not shared), so\n" +
+			"Claude Code does not prompt for them. Remove them there to be asked again:\n\n")
+		for i, a := range w.Assets.ClaudeAllow {
+			q, _ := json.Marshal(a)
+			b.WriteString("  " + string(q))
+			if i < len(w.Assets.ClaudeAllow)-1 {
+				b.WriteString(",")
+			}
+			b.WriteString("\n")
+		}
+	} else if len(w.Assets.ClaudeAllow) > 0 {
 		b.WriteString("Optional: the calls below never touch data without the console's approval. To stop\n" +
 			"Claude Code prompting for them, add them to \"permissions.allow\" in\n" +
 			".claude/settings.local.json (personal) or .claude/settings.json (shared):\n\n")

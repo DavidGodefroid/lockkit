@@ -3,6 +3,12 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
+  project's `.claude/settings.local.json` on a project `Init` (off by
+  default; GUIDE §12).
+
 ## v0.7.1 (2026-10-30)
 
 - A policy change that ends the session when applied (a tightening read
