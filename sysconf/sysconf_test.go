@@ -163,3 +163,17 @@ func TestFileIsPerProduct(t *testing.T) {
 		t.Errorf("File(lockmq) = %q", got)
 	}
 }
+
+// An unknown service user or client group is named by its key, never
+// quoted back (os/user's errors quote it).
+func TestLookupsNeverEchoNames(t *testing.T) {
+	for _, v := range []string{"glsa_CanarySecretToken123", "https://user:glsa_Canary@h/path?token=glsa_Canary"} {
+		c := &Config{ServiceUser: v, ClientGroup: v}
+		if _, err := c.ServiceUID(); err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "service_user") {
+			t.Errorf("ServiceUID: %v", err)
+		}
+		if _, err := c.ClientGID(); err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "client_group") {
+			t.Errorf("ClientGID: %v", err)
+		}
+	}
+}

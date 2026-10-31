@@ -512,3 +512,138 @@ func TestRunOnHub(t *testing.T) {
 	cancel()
 	<-done
 }
+
+// Canaries: a token pasted in a hub flag never reaches an error, the
+// console's lines or the command line Args builds.
+const (
+	echoCanary    = "glsa_CanarySecretToken123"
+	echoCanaryURL = "https://user:glsa_Canary@h/path?token=glsa_Canary"
+)
+
+func TestHubOptionsNeverEchoValues(t *testing.T) {
+	for _, o := range []HubOptions{
+		{URL: echoCanaryURL, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h/path?token=" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h/" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h#" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h;" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h&token=" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://lockhub:8443", KeyFile: "/k", Instance: echoCanary},
+		{URL: "https://lockhub:8443", KeyFile: "/k", Instance: "mq-uat", DevicesFile: "/d", RequireDevice: "write," + echoCanary},
+	} {
+		err := o.check()
+		if !errors.Is(err, ErrConfig) || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "--") {
+			t.Errorf("%+v: %v (want an ErrConfig naming the flag, not the value)", o, err)
+		}
+		if a := o.Args(); strings.Contains(strings.Join(a, " "), "Canary") {
+			t.Errorf("Args %q carries the token", a)
+		}
+	}
+	// Args passes the hub as scheme://host[:port] only; a URL OpenHub would
+	// refuse goes as one the new console refuses too.
+	for in, want := range map[string]string{
+		"https://lockhub:8443/": "https://lockhub:8443", "http://lockhub:8443": "http://lockhub:8443",
+		echoCanaryURL: refusedHubURL, "https://h/path?token=" + echoCanary: refusedHubURL,
+	} {
+		o := HubOptions{URL: in, KeyFile: "/k", Instance: "mq-uat"}
+		args := o.Args()
+		if len(args) < 2 || args[0] != "--hub" || args[1] != want {
+			t.Errorf("Args(%s) = %q, want --hub %s", in, args, want)
+		}
+		if want == refusedHubURL {
+			o.URL = args[1]
+			if err := o.check(); !errors.Is(err, ErrConfig) {
+				t.Errorf("%s passed on is not refused: %v", refusedHubURL, err)
+			}
+		}
+	}
+}
+
+// Run with a token in the hub URL is refused before any prompt, and the
+// token reaches neither the error nor the terminal.
+func TestRunHubURLNeverEchoed(t *testing.T) {
+	pub, _, _ := ed25519.GenerateKey(nil)
+	keyFile := writeHubKey(t, pub)
+	for _, u := range []string{echoCanaryURL, "https://h/?token=" + echoCanary, "https://h/" + echoCanary} {
+		b := &fakeBackend{policy: uat()}
+		io := &fakeIO{answers: []string{"y"}}
+		err := Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: runEnv(t),
+			Harden: func() error { return nil }, Hub: HubOptions{URL: u, KeyFile: keyFile, Instance: "mq-uat", Home: t.TempDir()}})
+		if !errors.Is(err, ErrConfig) || strings.Contains(err.Error(), "Canary") || strings.Contains(io.plain(), "Canary") {
+			t.Errorf("%s: %v\n%s", u, err, io.plain())
+		}
+	}
+}
+
+// The start line names the hub as scheme://host[:port], and the errors of
+// a hub that cannot be reached do not quote the request URL.
+func TestRunHubStartLineAndErrorsShowHostOnly(t *testing.T) {
+	env := runEnv(t)
+	home := t.TempDir()
+	key, _ := hubclient.InstanceKey(home, hubInstance)
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	base := hub.URL()
+	hub.Close()
+	b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+	io := &fakeIO{answers: []string{"y", "y", "y"}, secrets: []string{"s3cret"}}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
+			Hub: HubOptions{URL: base + "/", KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
+	}()
+	var socket string
+	select {
+	case socket = <-ready:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, io.plain())
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	if r := dialAndCall(t, socket, "op.write", map[string]bool{"hub": true}); r.Error != nil {
+		t.Fatalf("op.write: %+v", r.Error)
+	}
+	deadline := time.Now().Add(10 * time.Second)
+	for !strings.Contains(io.plain(), "hub unreachable") && time.Now().Before(deadline) {
+		time.Sleep(20 * time.Millisecond)
+	}
+	cancel()
+	<-done
+	out := io.plain()
+	if !strings.Contains(out, "Requests are decided on lockhub at "+base+" as "+hubInstance) {
+		t.Errorf("no start line with %s:\n%s", base, out)
+	}
+	if !strings.Contains(out, "hub unreachable") || strings.Contains(out, "/v1/") {
+		t.Errorf("hub errors (want unreachable, without the request URL):\n%s", out)
+	}
+}
+
+// Args passes neither an invalid --instance nor an invalid
+// --require-device on; the console started with the placeholder refuses it.
+func TestHubArgsDropInvalidValues(t *testing.T) {
+	o := HubOptions{URL: "https://lockhub:8443", KeyFile: "/k", Instance: echoCanary, DevicesFile: "/d", RequireDevice: "write," + echoCanary}
+	a := o.Args()
+	if strings.Contains(strings.Join(a, " "), "Canary") {
+		t.Fatalf("Args %q", a)
+	}
+	var back HubOptions
+	fs := flag.NewFlagSet("console", flag.ContinueOnError)
+	back.Register(fs)
+	if err := fs.Parse(a); err != nil {
+		t.Fatal(err)
+	}
+	if err := back.check(); !errors.Is(err, ErrConfig) {
+		t.Errorf("placeholders accepted: %v", err)
+	}
+	back.Instance = "mq-uat"
+	if err := back.check(); !errors.Is(err, ErrConfig) {
+		t.Errorf("--require-device placeholder accepted: %v", err)
+	}
+	ok := HubOptions{URL: "https://lockhub:8443", KeyFile: "/k", Instance: "mq-uat", DevicesFile: "/d", RequireDevice: "write, prod-write"}
+	if a := strings.Join(ok.Args(), " "); !strings.Contains(a, "--instance mq-uat") || !strings.Contains(a, "--require-device write, prod-write") {
+		t.Errorf("valid values not passed on: %s", a)
+	}
+}

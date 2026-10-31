@@ -65,17 +65,29 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 }
 
 // Args are the flags of h, as Register reads them back: what a product
-// that starts its console again (a handoff) passes on.
+// that starts its console again (a handoff) passes on. An invalid
+// --instance or --require-device goes as refusedValue. The hub URL goes
+// as scheme://host[:port] only (hubclient.CanonicalURL), a command line
+// being readable by every account of the machine; one OpenHub would
+// refuse goes as refusedHubURL, which the new console refuses too.
 func (h HubOptions) Args() []string {
 	var out []string
 	if h.URL != "" {
-		out = append(out, "--hub", h.URL)
+		u, err := hubclient.CanonicalURL(h.URL)
+		if err != nil {
+			u = refusedHubURL
+		}
+		out = append(out, "--hub", u)
 	}
 	if h.KeyFile != "" {
 		out = append(out, "--hub-key-file", h.KeyFile)
 	}
 	if h.Instance != "" {
-		out = append(out, "--instance", h.Instance)
+		inst := h.Instance
+		if !hubclient.ValidInstance(inst) {
+			inst = refusedValue
+		}
+		out = append(out, "--instance", inst)
 	}
 	if h.PlainHTTP {
 		out = append(out, "--hub-plain-http")
@@ -84,7 +96,11 @@ func (h HubOptions) Args() []string {
 		out = append(out, "--devices-file", h.DevicesFile)
 	}
 	if h.RequireDevice != "" {
-		out = append(out, "--require-device", h.RequireDevice)
+		rd := h.RequireDevice
+		if _, err := hubclient.ParseRisks(rd); err != nil {
+			rd = refusedValue
+		}
+		out = append(out, "--require-device", rd)
 	}
 	if h.SealClear {
 		out = append(out, "--seal-clear")
@@ -94,6 +110,16 @@ func (h HubOptions) Args() []string {
 	}
 	return out
 }
+
+// refusedHubURL stands for a hub URL Args cannot pass on: not one
+// hubclient.CanonicalURL accepts, so the console started with it refuses
+// it, without the value.
+const refusedHubURL = "refused:hub-url"
+
+// refusedValue stands for an --instance or --require-device value Args
+// will not pass on (invalid, so possibly a token): the new console
+// refuses it, without the value.
+const refusedValue = "refused:value"
 
 // Enabled reports whether any hub flag is set.
 func (h HubOptions) Enabled() bool {
@@ -105,11 +131,16 @@ func (h HubOptions) check() error {
 	case h.URL == "" || h.KeyFile == "" || h.Instance == "":
 		return fmt.Errorf("%w: --hub, --hub-key-file and --instance go together", ErrConfig)
 	case !hubclient.ValidInstance(h.Instance):
-		return fmt.Errorf("%w: invalid instance name %q", ErrConfig, h.Instance)
+		// Neither value is quoted: it may be a token pasted in the wrong
+		// flag.
+		return fmt.Errorf("%w: --instance: want lowercase letters, digits and '-', starting with a letter or digit, at most 63 characters", ErrConfig)
 	case h.RequireDevice != "" && h.DevicesFile == "":
 		return fmt.Errorf("%w: --require-device needs --devices-file", ErrConfig)
 	case h.SealClear && h.DevicesFile == "":
 		return fmt.Errorf("%w: --seal-clear needs --devices-file", ErrConfig)
+	}
+	if _, err := hubclient.CanonicalURL(h.URL); err != nil {
+		return fmt.Errorf("%w: --hub: %v", ErrConfig, err)
 	}
 	if _, err := hubclient.ParseRisks(h.RequireDevice); err != nil {
 		return fmt.Errorf("%w: --require-device: %v", ErrConfig, err)

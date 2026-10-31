@@ -46,7 +46,7 @@ func homeDir(home string) (string, error) {
 // creates it; a key file group or others can read is refused.
 func InstanceKey(home, instance string) (ed25519.PrivateKey, error) {
 	if !ValidInstance(instance) {
-		return nil, fmt.Errorf("hubclient: invalid instance name %q", instance)
+		return nil, errInstance
 	}
 	home, err := homeDir(home)
 	if err != nil {
@@ -167,7 +167,9 @@ func HubKeyCommand(w io.Writer, home string, args []string) error {
 	fs.SetOutput(io.Discard)
 	inst := fs.String("instance", "", "the lock instance name")
 	if err := fs.Parse(args); err != nil {
-		return fmt.Errorf("usage: hub-key --instance NAME: %w", err)
+		// The flag package quotes an unknown flag, which may be a
+		// token: the usage alone.
+		return errors.New("usage: hub-key --instance NAME (an unknown or malformed flag)")
 	}
 	if fs.NArg() != 0 || *inst == "" {
 		return errors.New("usage: hub-key --instance NAME")

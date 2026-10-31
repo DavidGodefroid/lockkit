@@ -3,6 +3,7 @@ package ticket
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -30,7 +31,18 @@ func ParseRisk(s string) (Risk, error) {
 			return r, nil
 		}
 	}
-	return "", fmt.Errorf("ticket: unknown risk class %q", s)
+	// The name given is not quoted: it may be a token pasted in the wrong
+	// flag or key.
+	return "", fmt.Errorf("ticket: unknown risk class: want one of %s", RiskNames())
+}
+
+// RiskNames lists Risks, comma-separated, for messages.
+func RiskNames() string {
+	names := make([]string, len(Risks))
+	for i, r := range Risks {
+		names[i] = string(r)
+	}
+	return strings.Join(names, ", ")
 }
 
 // Valid reports whether r is one of Risks.

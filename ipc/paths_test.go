@@ -112,3 +112,16 @@ func TestSocketPathRuntimeDirOverride(t *testing.T) {
 		t.Fatalf("relative override used: %q", p)
 	}
 }
+
+// An invalid profile or project hash is named, never quoted back.
+func TestSocketPathNeverEchoesNames(t *testing.T) {
+	p := kit.Product{Name: "lockdemo"}
+	for _, v := range []string{"glsa_CanarySecretToken123/x", "https://user:glsa_Canary@h/path?token=glsa_Canary"} {
+		if _, err := SocketPath(p, "abcd", v); err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "invalid profile") {
+			t.Errorf("SocketPath profile: %v", err)
+		}
+		if _, err := SocketPath(p, v, "prod"); err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "invalid project hash") {
+			t.Errorf("SocketPath project hash: %v", err)
+		}
+	}
+}

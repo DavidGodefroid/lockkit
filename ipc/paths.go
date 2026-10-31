@@ -28,7 +28,7 @@ var nameRe = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`)
 
 func checkName(what, s string) error {
 	if !nameRe.MatchString(s) || strings.Contains(s, "..") {
-		return fmt.Errorf("ipc: invalid %s %q", what, s)
+		return fmt.Errorf("ipc: invalid %s: want letters, digits, '_', '-' or '.', starting with a letter or digit, at most 64 characters, no '..'", what)
 	}
 	return nil
 }

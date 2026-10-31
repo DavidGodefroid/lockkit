@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -148,9 +149,10 @@ type Config struct {
 // Client talks to one hub for one lock instance. It is safe for
 // concurrent use.
 type Client struct {
-	cfg  Config
-	base *url.URL
-	pub  ed25519.PublicKey
+	cfg   Config
+	base  *url.URL
+	shown string // base as printed: scheme://host[:port]
+	pub   ed25519.PublicKey
 
 	pollMu sync.Mutex // one long poll at a time
 
@@ -185,7 +187,7 @@ func New(cfg Config) (*Client, error) {
 	case cfg.URL == "":
 		return nil, errors.New("hubclient: no hub URL")
 	case !ValidInstance(cfg.Instance):
-		return nil, fmt.Errorf("hubclient: invalid instance name %q", cfg.Instance)
+		return nil, errInstance
 	case len(cfg.Key) != ed25519.PrivateKeySize:
 		return nil, errors.New("hubclient: no lock key")
 	case len(cfg.HubKey) != ed25519.PublicKeySize:
@@ -211,20 +213,14 @@ func New(cfg Config) (*Client, error) {
 	}
 	for _, r := range cfg.RequireDevice {
 		if !r.Valid() {
-			return nil, fmt.Errorf("hubclient: unknown risk class %q", r)
+			return nil, fmt.Errorf("hubclient: RequireDevice: an unknown risk class (want %s)", ticket.RiskNames())
 		}
 	}
-	base, err := url.Parse(strings.TrimRight(cfg.URL, "/"))
-	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" {
-		return nil, errors.New("hubclient: bad hub URL: want http(s)://host[:port]")
+	base, err := parseURL(cfg.URL)
+	if err != nil {
+		return nil, err
 	}
-	// A user or token in the URL would reach net/http's errors, the
-	// console's lines and the hub as a Basic header: the hub
-	// authenticates by signature, so a URL never carries one.
-	if base.User != nil {
-		return nil, errors.New("hubclient: the hub URL must not carry a user or password")
-	}
-	shown := base.Scheme + "://" + base.Host
+	shown := base.String()
 	// Signatures protect integrity, not privacy: tickets carry masked
 	// screens and the kinds of personal data touched.
 	if base.Scheme == "http" && !loopback(base.Hostname()) {
@@ -257,7 +253,7 @@ func New(cfg Config) (*Client, error) {
 	if cfg.Now == nil {
 		cfg.Now = time.Now
 	}
-	c := &Client{cfg: cfg, base: base, pub: cfg.Key.Public().(ed25519.PublicKey),
+	c := &Client{cfg: cfg, base: base, shown: shown, pub: cfg.Key.Public().(ed25519.PublicKey),
 		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}}
 	if err := c.load(); err != nil {
 		return nil, err
@@ -334,12 +330,91 @@ func (c *Client) save() error {
 	return nil
 }
 
+// noURL rewrites the *url.Error in err (net/http's, which quotes the
+// whole request URL) as its operation, the hub as URL prints it, and the
+// cause: a hub's errors reach the console's terminal and its audit.
+func (c *Client) noURL(err error) error {
+	var ue *url.Error
+	if !errors.As(err, &ue) {
+		return err
+	}
+	return fmt.Errorf("%s %s: %w", ue.Op, c.shown, ue.Err)
+}
+
+// URL is the hub as the client prints it: scheme://host[:port], the only
+// form of the hub URL New accepts (CanonicalURL).
+func (c *Client) URL() string { return c.shown }
+
+// errInstance names the allowed form of an instance name, never the name
+// given: it may be a token pasted in the wrong flag.
+var errInstance = errors.New("hubclient: invalid instance name: want lowercase letters, digits and '-', starting with a letter or digit, at most 63 characters")
+
+// CanonicalURL checks raw as a hub URL and returns it as
+// scheme://host[:port], the only form accepted: the hub API lives at the
+// root, and the hub authenticates by signature, so a user, password,
+// path, query or fragment has no use and would carry a token to errors,
+// the console's lines, its command line and the hub. Its errors never
+// quote raw.
+func CanonicalURL(raw string) (string, error) {
+	u, err := parseURL(raw)
+	if err != nil {
+		return "", err
+	}
+	return u.String(), nil
+}
+
+func parseURL(raw string) (*url.URL, error) {
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || u.Opaque != "" {
+		return nil, errors.New("hubclient: bad hub URL: want http(s)://host[:port]")
+	}
+	// A user or token in the URL would reach net/http's errors, the
+	// console's lines and the hub as a Basic header: the hub
+	// authenticates by signature, so a URL never carries one.
+	if u.User != nil {
+		return nil, errors.New("hubclient: the hub URL must not carry a user or password: want http(s)://host[:port]")
+	}
+	// An IPv6 zone is free text; a port is 1-65535.
+	if strings.Contains(u.Host, "%") {
+		return nil, errors.New("hubclient: the hub URL must not carry an IPv6 zone: want http(s)://host[:port]")
+	}
+	if u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.RawFragment != "" || strings.Contains(raw, "#") {
+		return nil, errors.New("hubclient: the hub URL must not carry a query or fragment: want http(s)://host[:port]")
+	}
+	if (u.Path != "" && u.Path != "/") || u.RawPath != "" {
+		return nil, errors.New("hubclient: the hub URL must not carry a path: want http(s)://host[:port]")
+	}
+	host := u.Hostname()
+	if strings.HasPrefix(u.Host, "[") {
+		if a, err := netip.ParseAddr(host); err != nil || !a.Is6() {
+			return nil, errors.New("hubclient: bad hub URL host: want http(s)://host[:port]")
+		}
+		host = "[" + host + "]"
+	} else if !hostRE.MatchString(host) {
+		// url.Parse takes sub-delims (;&=!$'()*+,) and escapes in a
+		// host, where a token could sit as well as in a query.
+		return nil, errors.New("hubclient: bad hub URL host (a DNS name or an IP address): want http(s)://host[:port]")
+	}
+	if p := u.Port(); p != "" || strings.HasSuffix(u.Host, ":") {
+		n, err := strconv.Atoi(p)
+		if err != nil || n < 1 || n > 65535 {
+			return nil, errors.New("hubclient: bad hub URL port: want http(s)://host[:port], port 1-65535")
+		}
+		host += ":" + strconv.Itoa(n)
+	}
+	return &url.URL{Scheme: u.Scheme, Host: host}, nil
+}
+
+// hostRE is a DNS name (or an IPv4 address): labels of letters, digits,
+// '-' and '_' (container service names), dot-separated.
+var hostRE = regexp.MustCompile(`^[A-Za-z0-9_]([A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?(\.[A-Za-z0-9_]([A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?)*\.?$`)
+
 // do sends one request, signed unless it is the hello, and decodes a 2xx
 // JSON answer into out (nil: ignored).
 func (c *Client) do(ctx context.Context, method, pathQuery string, body []byte, signed bool, out any) error {
 	req, err := http.NewRequestWithContext(ctx, method, c.base.String()+pathQuery, bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("hubclient: %w", err)
+		return fmt.Errorf("hubclient: %w", c.noURL(err))
 	}
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
@@ -354,12 +429,12 @@ func (c *Client) do(ctx context.Context, method, pathQuery string, body []byte, 
 	}
 	resp, err := c.cfg.HTTP.Do(req)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrUnreachable, err)
+		return fmt.Errorf("%w: %v", ErrUnreachable, c.noURL(err))
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(io.LimitReader(resp.Body, maxAnswer+1))
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrUnreachable, err)
+		return fmt.Errorf("%w: %v", ErrUnreachable, c.noURL(err))
 	}
 	if len(b) > maxAnswer {
 		return fmt.Errorf("hubclient: answer longer than %d bytes", maxAnswer)

@@ -192,7 +192,9 @@ var approvalWords = map[string]bool{"y": true, "yes": true, "n": true, "no": tru
 // an approval.
 func CheckProfileName(name string, production bool) error {
 	if len(name) > MaxProfileName || !profileNameRe.MatchString(name) {
-		return fmt.Errorf("invalid profile name %q: use letters, digits, '_', '-' or '.', starting with a letter or digit", name)
+		// The name is not quoted: it may be a URL or a token pasted in
+		// the wrong place.
+		return fmt.Errorf("invalid profile name: use letters, digits, '_', '-' or '.', starting with a letter or digit, at most %d characters", MaxProfileName)
 	}
 	if production && (len(name) < 2 || approvalWords[strings.ToLower(name)]) {
 		// Production requests are approved by typing the profile name,

@@ -346,3 +346,30 @@ func TestPeerContext(t *testing.T) {
 		t.Error("unknown pid named")
 	}
 }
+
+// A token pasted as service_user matches no account: the refusal names
+// the key, never the value.
+func TestIsolationNeverEchoesServiceUser(t *testing.T) {
+	for _, v := range []string{"glsa_CanarySecretToken123", "https://user:glsa_Canary@h/path?token=glsa_Canary"} {
+		sys := separated()
+		sys.ServiceUser = v
+		io := &fakeIO{}
+		_, err := CheckIsolation(testProduct, io, fakeIsolation(sys, sysconf.DisplayWayland))
+		if err == nil || strings.Contains(err.Error(), "glsa_Canary") || strings.Contains(io.plain(), "glsa_Canary") || !strings.Contains(err.Error(), "service_user") {
+			t.Errorf("%v\n%s", err, io.plain())
+		}
+	}
+}
+
+// A token pasted as client_group is not quoted when allowed_uids lets the
+// console account in without the group ever resolving.
+func TestIsolationNeverEchoesClientGroup(t *testing.T) {
+	sys := separated()
+	sys.ClientGroup, sys.AllowedUIDs = "glsa_CanarySecretToken123", []int{900}
+	env := fakeIsolation(sys, sysconf.DisplayWayland)
+	env.ClientAllowed = func(*sysconf.Config, int) bool { return true }
+	_, err := CheckIsolation(testProduct, &fakeIO{}, env)
+	if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "client_group") {
+		t.Errorf("%v", err)
+	}
+}

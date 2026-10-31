@@ -165,11 +165,13 @@ func CheckIsolation(p kit.Product, io IO, env IsolationEnv) (*Isolation, error) 
 		return nil, fmt.Errorf("console: cannot read the current account: %w", err)
 	}
 	if name != sys.ServiceUser {
-		return nil, fmt.Errorf("console: this machine separates the console from the agent (%s): run the console as %q, in its own login session, not as %q",
-			sysconf.File(p), sys.ServiceUser, name)
+		// service_user is not quoted: it matched no account here, and it
+		// may be a value pasted in the wrong key.
+		return nil, fmt.Errorf("console: this machine separates the console from the agent (%s): run the console as the account its service_user names, in its own login session, not as %q",
+			sysconf.File(p), name)
 	}
 	if env.ClientAllowed(sys, iso.Self) {
-		return nil, fmt.Errorf("console: the account %q may also connect as a client (group %q or allowed_uids): the separation would be void", name, sys.ClientGroup)
+		return nil, fmt.Errorf("console: the account %q may also connect as a client (its client_group or allowed_uids): the separation would be void", name)
 	}
 	if env.DesktopEnv() {
 		return iso.desktopShape(io, env, name)

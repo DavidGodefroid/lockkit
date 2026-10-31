@@ -487,3 +487,21 @@ func TestRequestMessage(t *testing.T) {
 		t.Fatal("instance not covered")
 	}
 }
+
+// ParseRisk names the risk classes, never the name given (it may be a
+// token pasted in the wrong flag).
+func TestParseRiskNeverEchoes(t *testing.T) {
+	for _, v := range []string{"glsa_CanarySecretToken123", "https://user:glsa_Canary@h/path?token=glsa_Canary"} {
+		_, err := ParseRisk(v)
+		if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "want one of "+RiskNames()) {
+			t.Errorf("ParseRisk: %v", err)
+		}
+		var r Risk
+		if err := r.UnmarshalJSON([]byte(`"` + v + `"`)); err == nil || strings.Contains(err.Error(), "glsa_Canary") {
+			t.Errorf("UnmarshalJSON: %v", err)
+		}
+	}
+	if RiskNames() != "read, read-pii, write, prod-write, policy-loosen, unlock" {
+		t.Errorf("RiskNames = %s", RiskNames())
+	}
+}

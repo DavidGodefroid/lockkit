@@ -130,7 +130,7 @@ func Load(p kit.Product) (*Config, error) {
 func (c *Config) ServiceUID() (int, error) {
 	u, err := user.Lookup(c.ServiceUser)
 	if err != nil {
-		return -1, fmt.Errorf("sysconf: service user %q: %w", c.ServiceUser, err)
+		return -1, lookupError("service_user", "account", err)
 	}
 	return strconv.Atoi(u.Uid)
 }
@@ -139,9 +139,20 @@ func (c *Config) ServiceUID() (int, error) {
 func (c *Config) ClientGID() (int, error) {
 	g, err := user.LookupGroup(c.ClientGroup)
 	if err != nil {
-		return -1, fmt.Errorf("sysconf: client group %q: %w", c.ClientGroup, err)
+		return -1, lookupError("client_group", "group", err)
 	}
 	return strconv.Atoi(g.Gid)
+}
+
+// lookupError names key, never its value: os/user's errors quote the
+// name looked up, which may be a value pasted in the wrong key.
+func lookupError(key, what string, err error) error {
+	var uu user.UnknownUserError
+	var ug user.UnknownGroupError
+	if errors.As(err, &uu) || errors.As(err, &ug) {
+		return fmt.Errorf("sysconf: %s names no %s of this machine", key, what)
+	}
+	return fmt.Errorf("sysconf: %s: the %s lookup failed", key, what)
 }
 
 // ClientAllowed reports whether uid may connect: listed in AllowedUIDs or
