@@ -24,7 +24,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   userinfo and command-line regexps need before running them, and starts
   its key=value search near the next separator: about 7 MB/s per core on
   plain log lines instead of 1 MB/s (`BenchmarkSecretBenignCorpus`), same
-  findings. CI fails under 3 MB/s (`TestSecretThroughputFloor`). A value
+  findings. CI fails under 2.5 MB/s (`TestSecretThroughputFloor`). A value
   opened by a `\u0022` escape is masked after the escape, not from inside
   it, so the output stays valid JSON.
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
