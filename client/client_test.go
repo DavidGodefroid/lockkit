@@ -120,21 +120,22 @@ func TestDialWithoutConsoleNamesTheProduct(t *testing.T) {
 		t.Fatalf("err = %#v", err)
 	}
 	msg := err.Error()
-	for _, want := range []string{"no lockmq console is running for profile uat", "the lockmq account's own session",
-		".lockmq/config.toml", "`lockmq doctor`", "lockmq console --profile uat --project DIR"} {
+	for _, want := range []string{"no lockmq console is running for profile uat", "started by `lox up` only",
+		"ask the user to run `lox up`", "`lockmq doctor`"} {
 		if !strings.Contains(msg, want) {
 			t.Errorf("message lacks %q: %s", want, msg)
 		}
 	}
-	if strings.Contains(msg, "locksql") {
-		t.Errorf("another product named: %s", msg)
+	// The console is never started by hand: no `<lock> console` command.
+	if strings.Contains(msg, "locksql") || strings.Contains(nc.Hint(), "console --") || strings.Contains(nc.Hint(), "uat") {
+		t.Errorf("message: %s", msg)
 	}
-	if got := StartCommand(testProduct, "uat", "/a b/it's"); got != `lockmq console --profile uat --project '/a b/it'\''s'` {
-		t.Fatalf("quoting: %s", got)
+	if got := StartCommand(testProduct, "uat", "/a b/it's"); got != "lox up" {
+		t.Fatalf("StartCommand: %s", got)
 	}
 }
 
-func TestDialWithoutConsoleInProjectNamesProject(t *testing.T) {
+func TestDialWithoutConsoleInProjectHintsLoxUp(t *testing.T) {
 	runtimeDir(t)
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, ".lockmq"), 0o755); err != nil {
@@ -152,8 +153,8 @@ func TestDialWithoutConsoleInProjectNamesProject(t *testing.T) {
 	if !errors.As(err, &nc) || nc.Project != root {
 		t.Fatalf("err = %#v", err)
 	}
-	want := "lockmq console --profile uat --project " + root
-	if nc.Command() != want || !strings.Contains(err.Error(), want) {
+	// The hint names no value: not the project, not the profile's flag.
+	if nc.Command() != "lox up" || strings.Contains(nc.Hint(), root) || strings.Contains(nc.Hint(), "uat") || !strings.Contains(err.Error(), "run `lox up`") {
 		t.Fatalf("hint %q / command %q", err.Error(), nc.Command())
 	}
 }

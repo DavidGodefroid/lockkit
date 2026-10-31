@@ -54,39 +54,32 @@ func (e *NoConsoleError) Error() string {
 	return fmt.Sprintf("no %s console is running for profile %s: %s", e.Product.Name, e.Profile, e.Hint())
 }
 
-// Command is the exact command that starts the missing console.
+// Command is the command that starts the missing console: `lox up`
+// (StartCommand).
 func (e *NoConsoleError) Command() string { return StartCommand(e.Product, e.Profile, e.Project) }
 
-// Hint tells the agent what to ask of the user. Inside a project, only a
-// console started on that project serves the agent, so the hint names it;
-// outside one, the hint asks for the project's directory, since the
-// console runs in the product's account and reads the profiles from the
-// project's config.
+// Hint tells the agent what to ask of the user: a console is started by
+// `lox up` only (a console started by hand refuses to start), so the hint
+// is StartHint, and names no profile, project or other value.
 func (e *NoConsoleError) Hint() string {
-	if e.Project != "" {
-		return fmt.Sprintf("ask the user to run this command in the %s account's own session (the console must serve the project %s):\n  %s", e.Product.Account, e.Project, e.Command())
-	}
-	return fmt.Sprintf("ask the user to start the console in the %s account's own session, on the project that holds %s/%s (`%s doctor` checks the setup):\n  %s",
-		e.Product.Account, e.Product.ProjectDir(), config.ConfigFile, e.Product.Name, StartCommand(e.Product, e.Profile, "DIR"))
+	return fmt.Sprintf("%s (`%s doctor` checks the setup)", StartHint, e.Product.Name)
 }
+
+// StartHint is what an agent asks of the user when no console runs. It
+// carries no value.
+const StartHint = "the console is started by `lox up` only: ask the user to run `lox up`"
 
 // Is makes errors.Is(err, ErrNoConsole) true.
 func (e *NoConsoleError) Is(target error) bool { return target == ErrNoConsole }
 
 func (e *NoConsoleError) Unwrap() error { return e.Err }
 
-// StartCommand is the exact command that starts p's console for profile
-// (left out when empty) on project (left out when "": the user config).
-func StartCommand(p kit.Product, profile, project string) string {
-	c := p.Name + " console"
-	if profile != "" {
-		c += " --profile " + ShellQuote(profile)
-	}
-	if project != "" {
-		c += " --project " + ShellQuote(project)
-	}
-	return c
-}
+// StartCommand is the command that starts p's console: `lox up`, for
+// every product, profile and project. A console is launched by `lox up`
+// only (`<lock> console` without the hub options it writes refuses to
+// start); p, profile and project are kept for the callers and not used,
+// so that no value is put in a command an agent passes on.
+func StartCommand(p kit.Product, profile, project string) string { return "lox up" }
 
 // ShellQuote quotes s for a POSIX shell when it holds anything beyond
 // letters, digits and ./_-+:,@%=.
