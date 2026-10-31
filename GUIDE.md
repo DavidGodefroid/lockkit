@@ -213,7 +213,7 @@ bastion reaches; no local port is ever opened.
     link-local, multicast, unspecified, broadcast and reserved addresses
     stay in clear; shared CGNAT (100.64/10) and the other IANA
     special-purpose ranges (documentation, benchmarking, 192.0.0/24) are
-    masked. An address glued to a letter, a digit or a dot (`v1.2.3.4`,
+    masked. An address glued to a letter, a digit, `_` or a dot (`v1.2.3.4`, `ip_8.8.8.8`,
     `1.2.3.4.5`) is not one; a four-part version in public ranges
     (`5.15.0.91`) is masked.
   - `secret`: credentials, masked as `<redacted>` (no first character, no

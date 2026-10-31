@@ -56,6 +56,9 @@ func LooksSecret(name string) bool {
 		return false
 	}
 	last := toks[len(toks)-1]
+	if j := strings.Join(toks, ""); strings.HasSuffix(j, "sessionid") || strings.HasSuffix(j, "sessid") {
+		return true // "sessionId", "session_id": a bearer credential
+	}
 	if len(toks) > 1 && secretNeutralLast[last] {
 		return false
 	}

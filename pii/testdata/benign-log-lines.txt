@@ -162,3 +162,5 @@ TLS negotiate cipher-suite ok
 mapping ::dead:beef to nothing
 mysql -uroot shop -e 'select 1' | grep -pattern
 version=1.8.0.201 oid 2.5.4.3
+file=src/main/java/com/Example/Abc123DefGhiJklMnoPqr.java line=12
+pass=10 fail=0 skip=2

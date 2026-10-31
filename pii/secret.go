@@ -35,6 +35,7 @@ func findSecrets(s string) []span {
 	out = append(out, findSecretPairs(s)...)
 	out = append(out, findSecretFlags(s)...)
 	out = append(out, findMySQLPasswords(s)...)
+	out = append(out, findNameValuePairs(s)...)
 	if len(out) == 0 {
 		return nil
 	}
@@ -142,6 +143,12 @@ func isLetterDigit(c byte) bool { return isDigit(c) || c >= 'a' && c <= 'z' || c
 // (the boundary RE2 cannot look behind for), then searches again from
 // the offset f returns; a refused match is retried one rune on.
 func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []int) int) {
+	eachMatchGlue(s, re, isAlnum, ok, f)
+}
+
+// eachMatchGlue is eachMatch where a refused match skips the rest of the
+// run of glue bytes it starts in (any match starting there is refused too).
+func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, ok func(start int) bool, f func(m []int) int) {
 	for pos := 0; pos <= len(s); {
 		m := re.FindStringSubmatchIndex(s[pos:])
 		if m == nil {
@@ -155,7 +162,7 @@ func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []
 		next := m[0] + 1
 		if !ok(m[0]) {
 			// Refused: any match starting inside the same word is too.
-			for next < len(s) && isAlnum(s[next]) && isAlnum(s[next-1]) {
+			for next < len(s) && glue(s[next]) && glue(s[next-1]) {
 				next++
 			}
 		} else {
@@ -266,11 +273,11 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}\pL[\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
-	eachMatch(s, pairRe, func(start int) bool {
+	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, func(start int) bool {
 		b := before(s, start)
 		return !isAlnum(b) && b != '.' && b != '-' && b != '\\'
 	}, func(m []int) int {
@@ -279,7 +286,7 @@ func findSecretPairs(s string) []span {
 		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
 			return start // a URL: "https://"
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) || key == "PASS" && s[m[8]] == ':' {
+		if !isSecretHeader(key) && !LooksSecret(key) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
 			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
@@ -301,18 +308,14 @@ func findSecretPairs(s string) []span {
 			// value runs to the end of the line, quotes included
 			// (`Cookie: a="b"; session=…`, Digest parameters).
 			vs = start
-			end := lineEnd(s, vs, true)
+			var end int
 			if open := s[m[2]:m[3]]; m[6] == m[7] && (strings.HasSuffix(open, `"`) || strings.HasSuffix(open, "'")) {
 				// `-H "Authorization: Bearer x" next`: the header sits in
-				// a quoted argument, which its closing quote ends.
-				nl := strings.IndexAny(s[vs:], "\r\n")
-				if nl < 0 {
-					nl = len(s) - vs
-				}
-				end = vs + nl
-				if k := closingQuote(s, vs, end, open); k >= 0 {
-					end = k
-				}
+				// a quoted argument, which its closing quote (or the end
+				// of the line) ends; one scan, so the text is read once.
+				end = closingQuote(s, vs, open)
+			} else {
+				end = lineEnd(s, vs, true)
 			}
 			v = strings.TrimRight(s[vs:end], " \t")
 		} else {
@@ -334,14 +337,16 @@ func findSecretPairs(s string) []span {
 }
 
 // closingQuote returns the offset of the quote that closes open (", ' or
-// an escaped \") in s[i:end], an escaped quote of the plain kind skipped,
-// or -1.
-func closingQuote(s string, i, end int, open string) int {
+// an escaped \") from s[i], an escaped quote of the plain kind skipped, or
+// of the end of the line when there is none.
+func closingQuote(s string, i int, open string) int {
 	q := open[len(open)-1]
 	escaped := strings.HasPrefix(open, "\\")
-	for j := i; j < end; j++ {
+	for j := i; j < len(s); j++ {
 		switch {
-		case escaped && s[j] == '\\' && j+1 < end && s[j+1] == q:
+		case s[j] == '\n' || s[j] == '\r':
+			return j
+		case escaped && s[j] == '\\' && j+1 < len(s) && s[j+1] == q:
 			return j
 		case !escaped && s[j] == '\\':
 			j++
@@ -349,7 +354,19 @@ func closingQuote(s string, i, end int, open string) int {
 			return j
 		}
 	}
-	return -1
+	return len(s)
+}
+
+// passCount reports a test runner's "pass=10": a count, not a password.
+func passCount(s, key string, i int) bool {
+	if !strings.EqualFold(key, "pass") {
+		return false
+	}
+	j := i
+	for j < len(s) && isDigit(s[j]) {
+		j++
+	}
+	return j > i && !isAlnum(after(s, j))
 }
 
 // hashName reports a key that names a digest, whose value is high-entropy
@@ -495,8 +512,13 @@ func highEntropy(v string) bool {
 			return false
 		}
 	}
+	if strings.IndexByte(v, '/') >= 0 && fileExt.MatchString(v) {
+		return false // a relative path: src/main/java/…/Abc.java
+	}
 	return upper && lower && digit && !qualifiedName.MatchString(v) && entropy(v) >= 4.0
 }
+
+var fileExt = regexp.MustCompile(`\.[A-Za-z][A-Za-z0-9]{0,4}$`)
 
 // qualifiedName is a dotted identifier: a Java class or a package, a
 // logger name, a module path.
@@ -573,6 +595,24 @@ func allDigits(s string) bool {
 	return s != ""
 }
 
+// --- name/value pairs: Kubernetes env, AWS tags, form fields
+
+var nameValueRe = regexp.MustCompile(`(?i)"(?:name|key)"[ \t]*:[ \t]*"([^"\\]{1,64})"[ \t]*,[ \t]*"value"[ \t]*:[ \t]*"`)
+
+// findNameValuePairs masks the value of {"name":"DB_PASSWORD","value":"x"}.
+func findNameValuePairs(s string) []span {
+	var out []span
+	for _, m := range nameValueRe.FindAllStringSubmatchIndex(s, -1) {
+		if !LooksSecret(s[m[2]:m[3]]) {
+			continue
+		}
+		if _, vs, ve := pairValue(s, m[1]-1, false, 0); ve > vs {
+			out = append(out, span{vs, ve})
+		}
+	}
+	return out
+}
+
 // --- MySQL and MariaDB clients: "mysql -uroot -phunter2"
 
 var mysqlRe = regexp.MustCompile(`\b(?:curl|mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
@@ -586,26 +626,16 @@ func findMySQLPasswords(s string) []span {
 	done := 0
 	for _, m := range mysqlRe.FindAllStringIndex(s, -1) {
 		if m[0] < done {
-			continue // the line was read
+			continue // inside the command already read
 		}
-		end := m[1]
-		for end < len(s) && s[end] != '\n' {
-			end++
-		}
+		end := commandEnd(s, m[1])
 		done = end
-		line := s[m[1]:end]
-		// The command ends at a pipe or a command separator.
-		if k := strings.IndexAny(line, "|;"); k >= 0 {
-			line = line[:k]
-		}
-		if k := strings.Index(line, "&&"); k >= 0 {
-			line = line[:k]
-		}
+		seg := s[m[1]:end]
 		re := mysqlPassRe
 		if strings.HasPrefix(s[m[0]:], "curl") {
 			re = curlUserRe
 		}
-		for _, p := range re.FindAllStringSubmatchIndex(line, -1) {
+		for _, p := range re.FindAllStringSubmatchIndex(seg, -1) {
 			for g := 2; g+1 < len(p); g += 2 {
 				if p[g] >= 0 && p[g+1] > p[g] {
 					out = append(out, span{m[1] + p[g], m[1] + p[g+1]})
@@ -614,4 +644,26 @@ func findMySQLPasswords(s string) []span {
 		}
 	}
 	return out
+}
+
+// commandEnd is where the shell command that starts at s[i] ends: a
+// newline, a pipe, ";" or "&&" outside quotes.
+func commandEnd(s string, i int) int {
+	var q byte
+	for j := i; j < len(s); j++ {
+		c := s[j]
+		switch {
+		case c == '\n' || c == '\r':
+			return j
+		case q != 0:
+			if c == q {
+				q = 0
+			}
+		case c == '"' || c == '\'':
+			q = c
+		case c == '|' || c == ';' || c == '&' && j+1 < len(s) && s[j+1] == '&':
+			return j
+		}
+	}
+	return len(s)
 }
