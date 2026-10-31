@@ -526,6 +526,8 @@ func TestHubOptionsNeverEchoValues(t *testing.T) {
 		{URL: "https://h/path?token=" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
 		{URL: "https://h/" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
 		{URL: "https://h#" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h;" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
+		{URL: "https://h&token=" + echoCanary, KeyFile: "/k", Instance: "mq-uat"},
 		{URL: "https://lockhub:8443", KeyFile: "/k", Instance: echoCanary},
 		{URL: "https://lockhub:8443", KeyFile: "/k", Instance: "mq-uat", DevicesFile: "/d", RequireDevice: "write," + echoCanary},
 	} {

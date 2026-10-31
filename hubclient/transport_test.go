@@ -147,6 +147,8 @@ func TestHubURLRefusesPathQueryFragment(t *testing.T) {
 		"https://h?token=" + canary, "https://h/?" + canary, "https://h?", "https://h#" + canary, "https://h/#x",
 		"https://h/" + canary, "https://h/lockhub/", "https://h//", "https://h/%2F", "http://127.0.0.1:8443/v1",
 		"http://[fe80::1%25" + canary + "]:80", "https://h:99999", "https://h:0", "https://h:",
+		"https://h;" + canary, "https://h&token=" + canary, "https://h!$&'()*+,;=" + canary, "https://h%41" + canary,
+		"https://\u2603.com", "https://[" + canary + "]", "https://[10.0.0.1]", "https://-h",
 	} {
 		if _, err := hubclient.New(transportCfg(t, u, false)); err == nil || strings.Contains(err.Error(), canary) ||
 			!strings.Contains(err.Error(), "want http(s)://host[:port]") {
@@ -159,6 +161,8 @@ func TestHubURLRefusesPathQueryFragment(t *testing.T) {
 	for in, want := range map[string]string{
 		"https://hub.example.com": "https://hub.example.com", "https://hub.example.com/": "https://hub.example.com",
 		"http://127.0.0.1:8443/": "http://127.0.0.1:8443", "HTTPS://lockhub:8443": "https://lockhub:8443",
+		"https://h:00443": "https://h:443", "http://[::1]:8443/": "http://[::1]:8443", "https://lock_hub:8443": "https://lock_hub:8443",
+		"https://hub.example.com.": "https://hub.example.com.", "https://xn--n3h.example": "https://xn--n3h.example",
 	} {
 		if got, err := hubclient.CanonicalURL(in); err != nil || got != want {
 			t.Errorf("CanonicalURL(%s) = %q, %v, want %s", in, got, err, want)

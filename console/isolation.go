@@ -171,7 +171,7 @@ func CheckIsolation(p kit.Product, io IO, env IsolationEnv) (*Isolation, error) 
 			sysconf.File(p), name)
 	}
 	if env.ClientAllowed(sys, iso.Self) {
-		return nil, fmt.Errorf("console: the account %q may also connect as a client (group %q or allowed_uids): the separation would be void", name, sys.ClientGroup)
+		return nil, fmt.Errorf("console: the account %q may also connect as a client (its client_group or allowed_uids): the separation would be void", name)
 	}
 	if env.DesktopEnv() {
 		return iso.desktopShape(io, env, name)

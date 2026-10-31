@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -377,19 +378,36 @@ func parseURL(raw string) (*url.URL, error) {
 	if strings.Contains(u.Host, "%") {
 		return nil, errors.New("hubclient: the hub URL must not carry an IPv6 zone: want http(s)://host[:port]")
 	}
-	if p := u.Port(); p != "" || strings.HasSuffix(u.Host, ":") {
-		if n, err := strconv.Atoi(p); err != nil || n < 1 || n > 65535 {
-			return nil, errors.New("hubclient: bad hub URL port: want http(s)://host[:port], port 1-65535")
-		}
-	}
 	if u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.RawFragment != "" || strings.Contains(raw, "#") {
 		return nil, errors.New("hubclient: the hub URL must not carry a query or fragment: want http(s)://host[:port]")
 	}
 	if (u.Path != "" && u.Path != "/") || u.RawPath != "" {
 		return nil, errors.New("hubclient: the hub URL must not carry a path: want http(s)://host[:port]")
 	}
-	return &url.URL{Scheme: u.Scheme, Host: u.Host}, nil
+	host := u.Hostname()
+	if strings.HasPrefix(u.Host, "[") {
+		if a, err := netip.ParseAddr(host); err != nil || !a.Is6() {
+			return nil, errors.New("hubclient: bad hub URL host: want http(s)://host[:port]")
+		}
+		host = "[" + host + "]"
+	} else if !hostRE.MatchString(host) {
+		// url.Parse takes sub-delims (;&=!$'()*+,) and escapes in a
+		// host, where a token could sit as well as in a query.
+		return nil, errors.New("hubclient: bad hub URL host (a DNS name or an IP address): want http(s)://host[:port]")
+	}
+	if p := u.Port(); p != "" || strings.HasSuffix(u.Host, ":") {
+		n, err := strconv.Atoi(p)
+		if err != nil || n < 1 || n > 65535 {
+			return nil, errors.New("hubclient: bad hub URL port: want http(s)://host[:port], port 1-65535")
+		}
+		host += ":" + strconv.Itoa(n)
+	}
+	return &url.URL{Scheme: u.Scheme, Host: host}, nil
 }
+
+// hostRE is a DNS name (or an IPv4 address): labels of letters, digits,
+// '-' and '_' (container service names), dot-separated.
+var hostRE = regexp.MustCompile(`^[A-Za-z0-9_]([A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?(\.[A-Za-z0-9_]([A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?)*\.?$`)
 
 // do sends one request, signed unless it is the hello, and decodes a 2xx
 // JSON answer into out (nil: ignored).

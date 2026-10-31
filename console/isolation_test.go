@@ -360,3 +360,16 @@ func TestIsolationNeverEchoesServiceUser(t *testing.T) {
 		}
 	}
 }
+
+// A token pasted as client_group is not quoted when allowed_uids lets the
+// console account in without the group ever resolving.
+func TestIsolationNeverEchoesClientGroup(t *testing.T) {
+	sys := separated()
+	sys.ClientGroup, sys.AllowedUIDs = "glsa_CanarySecretToken123", []int{900}
+	env := fakeIsolation(sys, sysconf.DisplayWayland)
+	env.ClientAllowed = func(*sysconf.Config, int) bool { return true }
+	_, err := CheckIsolation(testProduct, &fakeIO{}, env)
+	if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "client_group") {
+		t.Errorf("%v", err)
+	}
+}
