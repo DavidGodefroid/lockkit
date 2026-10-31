@@ -22,7 +22,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
   and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
   escapes.
 - `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
-  ranges with their kind, also behind percent, JSON and HTML escapes,
+  ranges with their kind, also behind percent, JSON, HTML, `\xHH`, `\e`,
+  `\033` and form escapes (alone or chained),
   look-alikes, invisible characters, control sequences (also escaped),
   invalid UTF-8 bytes and values cut by
   the scan limit (#93). New dependency: `golang.org/x/text` v0.43.0

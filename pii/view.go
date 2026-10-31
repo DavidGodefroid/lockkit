@@ -173,8 +173,11 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 		var kind byte
 		body, intro := i, 0
 		switch {
-		case s[i] == 0x1b && i+1 < len(s):
-			kind, body, intro = s[i+1], i+2, 1
+		case s[i] == 0x1b && escSkip(s, i+1) < len(s):
+			// C0 controls (but CAN, SUB, ESC) and DEL after ESC are
+			// executed in the escape state, which goes on ("ESC BEL [31m").
+			k := escSkip(s, i+1)
+			kind, body, intro = s[k], k+1, 1
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
 			kind, body, intro = s[i+1]-0x40, i+2, 2 // C1 x is ESC (x - 0x40)
 		case rawC1(s, i):
@@ -207,11 +210,13 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 			end = int(next[j])
 		case kind >= 0x20 && kind <= 0x2f && intro == 1: // nF ("ESC ( B")
 			j = body
-			for j < len(s) && j-body < 4 && s[j] >= 0x20 && s[j] <= 0x2f {
+			for j < len(s) && (s[j] >= 0x20 && s[j] <= 0x2f || skippedC0(s[j])) {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
 				end = j + 1
+			} else if j < len(s) && (s[j] == 0x1b || rawC1(s, j) || s[j] == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f) {
+				end = j // aborted by the next sequence
 			}
 		case kind >= 0x30 && kind <= 0x7e && intro == 1: // two-byte Fp, Fe, Fs escapes ("ESC 7", "ESC c")
 			end = body
@@ -247,9 +252,10 @@ func separateANSI(s string) (string, bool) {
 	}
 	for i := 0; i < len(s); i++ {
 		switch {
-		case s[i] == 0x1b && i+1 < len(s) && s[i+1] < 0x80:
-			blank(i, i+2)
-			i++
+		case s[i] == 0x1b && escSkip(s, i+1) < len(s) && s[escSkip(s, i+1)] < 0x80:
+			k := escSkip(s, i+1)
+			blank(i, k+1)
+			i = k
 		case s[i] == 0x1b:
 			blank(i, i+1)
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
@@ -261,11 +267,18 @@ func separateANSI(s string) (string, bool) {
 	}
 	// The final byte of a CSI: blank it when a CSI introducer precedes it.
 	for i := 0; i+1 < len(s); i++ {
-		if s[i] == 0x1b && s[i+1] == '[' || s[i] == 0xc2 && s[i+1] == 0x9b || s[i] == 0x9b && rawC1(s, i) {
-			j := i + 2
-			if s[i] == 0x9b {
-				j = i + 1
+		var j int
+		switch {
+		case s[i] == 0x1b:
+			if k := escSkip(s, i+1); k < len(s) && s[k] == '[' {
+				j = k + 1
 			}
+		case s[i] == 0xc2 && s[i+1] == 0x9b:
+			j = i + 2
+		case s[i] == 0x9b && rawC1(s, i):
+			j = i + 1
+		}
+		if j > 0 {
 			if _, f := csiEnd(s, j); f >= 0 {
 				blank(f, f+1)
 			}
@@ -287,19 +300,34 @@ func sepView(s, sep string) View {
 	return vb.view(len(s))
 }
 
+// skippedC0 reports a control a terminal executes inside an escape or a
+// control sequence without leaving it: C0 but CAN, SUB and ESC, and DEL.
+func skippedC0(c byte) bool {
+	return c < 0x20 && c != 0x18 && c != 0x1a && c != 0x1b || c == 0x7f
+}
+
+// escSkip returns the first position from k on that is not a skippedC0.
+func escSkip(s string, k int) int {
+	for k < len(s) && skippedC0(s[k]) {
+		k++
+	}
+	return k
+}
+
 // csiEnd returns the end of the CSI whose parameters start at body (after
 // its final byte, or after a CAN or SUB that cancels it) and the position
 // of its final byte (-1 when cancelled), or -1, -1 when it is not well
-// formed. Other C0 controls inside are executed by a terminal without
-// ending the sequence: they are skipped.
+// formed. Other C0 controls (and DEL) inside are executed or ignored by a
+// terminal without ending the sequence: they are skipped. An ESC or a C1
+// control aborts it: it ends before them, cancelled.
 func csiEnd(s string, body int) (end, final int) {
 	for j := body; j < len(s); j++ {
 		switch c := s[j]; {
 		case c == 0x18 || c == 0x1a:
 			return j + 1, -1
-		case c == 0x1b:
-			return -1, -1
-		case c < 0x20, c <= 0x3f:
+		case c == 0x1b || rawC1(s, j) || c == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f:
+			return j, -1 // aborted: the next sequence starts here
+		case c < 0x20, c <= 0x3f, c == 0x7f:
 			// a C0 control, a parameter or an intermediate byte
 		case c <= 0x7e:
 			return j + 1, j
@@ -455,10 +483,12 @@ const maxViewBytes = 2 * DetectLimit
 // written across that point is found whole.
 const viewOverlap = 16 << 10
 
-// DetectionViews returns the detection view of s, then the detection view
-// of each decoding of s that changes it: percent-decoded once and twice,
-// JSON string escapes, HTML character references, all of them chained (until
-// nothing changes, at most 16 rounds, cleaned up between rounds), \\xHH, \\e and \\033 escapes, and form encoding ("+" as a space) then percent. Texts are distinct.
+// DetectionViews returns the detection view of s, the views without its
+// terminal sequences, then the detection view of each decoding of s that
+// changes it: percent-decoded once and twice, JSON string escapes, HTML
+// character references, all of them chained (until nothing changes, at
+// most 16 rounds, cleaned up between rounds), \\xHH, \\e and \\033 escapes,
+// and form encoding ("+" as a space) then percent. Texts are distinct.
 // Texts longer than DetectLimit are cut as by Find.
 func DetectionViews(s string) []View {
 	s, _ = scanned(s)
