@@ -3,6 +3,24 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- The hub URL is `http(s)://host[:port]` only: `hubclient.New` and the
+  console's `--hub` check refuse a path, query or fragment as they refuse
+  a user or password, without quoting the URL. `hubclient.CanonicalURL`
+  returns that form, `Client.URL` the hub as the client prints it: the
+  console's start line uses it, and `console.HubOptions.Args` passes the
+  hub on in that form only. A hub that cannot be reached is an
+  `ErrUnreachable` naming the hub by scheme and host, no longer net/http's
+  error quoting the whole request URL.
+- More errors name the flag or key and the allowed form, never the value
+  given (a token or URL pasted in the wrong place): `ticket.ParseRisk`
+  (and `--require-device`), invalid instance names (`--instance`,
+  `hubclient.New`, `InstanceKey`, `HubKeyCommand`, whose unknown flag is
+  no longer quoted), `config.CheckProfileName`, `ipc` socket names, and
+  `sysconf`'s `service_user` and `client_group` lookups.
+- New: `ticket.RiskNames`.
+
 ## v0.8.0 (2026-10-31)
 
 - `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as

@@ -552,7 +552,10 @@ files.
 
 **Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
 writes: `--hub URL --hub-key-file PATH --instance NAME`, plus `--hub-plain-http` for an http:// hub on its own network (all three or
-none; `--auto` is refused with them). Pass them as `Options.Hub`: `Run`
+none; `--auto` is refused with them). The hub URL is
+`http(s)://host[:port]` and nothing else: a user, password, path, query
+or fragment is refused (`hubclient.CanonicalURL`), and the hub is printed,
+logged and passed on (`HubOptions.Args`) in that form only. Pass them as `Options.Hub`: `Run`
 then reads the pinned hub key, the instance key (`hubclient.InstanceKey`
 in the home volume) and opens the plans and the hub state under the
 product's state directory. Requests are no longer asked on the terminal:

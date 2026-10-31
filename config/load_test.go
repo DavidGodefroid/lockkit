@@ -146,3 +146,16 @@ func TestProfileName(t *testing.T) {
 		}
 	}
 }
+
+// A URL or token pasted as a profile name is not quoted back (setup
+// prompts and errors print it).
+func TestProfileNameNeverEchoed(t *testing.T) {
+	for _, v := range []string{"glsa_CanarySecretToken123/x", "https://user:glsa_Canary@h/path?token=glsa_Canary"} {
+		for _, prod := range []bool{false, true} {
+			err := CheckProfileName(v, prod)
+			if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "use letters, digits") {
+				t.Errorf("CheckProfileName(prod %v): %v", prod, err)
+			}
+		}
+	}
+}
