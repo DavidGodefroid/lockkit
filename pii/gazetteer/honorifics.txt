@@ -1,0 +1,2 @@
+# Titles before a name (the dot is optional). Lower case.
+mr mrs ms miss mx dr prof sir madam mme mlle m monsieur madame mademoiselle herr frau fräulein dhr mevr mevrouw meneer sr sra srta señor señora don doña sig signor signora dott

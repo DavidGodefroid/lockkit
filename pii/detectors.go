@@ -20,17 +20,18 @@ type Detector interface {
 // detectorOrder is the order detectors run in, whatever the order they are
 // configured in: emails first (their digits are not phone numbers), the
 // checksummed numbers next, phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone", "phone_loose"}
+var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "phone", "phone_loose"}
 
 var detectorFinders = map[string]func(string) []span{
-	"email":   findEmails,
-	"iban":    findIBANs,
-	"card":    findCards,
-	"be_niss": findNISS,
-	"fr_nir":  findNIR,
-	"nl_bsn":  findBSN,
-	"us_ssn":  findSSN,
-	"phone":   findPhones,
+	"email":       findEmails,
+	"iban":        findIBANs,
+	"card":        findCards,
+	"be_niss":     findNISS,
+	"fr_nir":      findNIR,
+	"nl_bsn":      findBSN,
+	"us_ssn":      findSSN,
+	"phone":       findPhones,
+	"person_name": findPersonNames,
 	// phone_loose is opt-in: it adds national numbers written without a
 	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
 	// rate than phone.
@@ -62,7 +63,7 @@ func Detectors(names []string) ([]Detector, error) {
 func AllDetectors() []Detector {
 	var names []string
 	for _, n := range detectorOrder {
-		if n != "phone_loose" {
+		if n != "phone_loose" && n != "person_name" {
 			names = append(names, n)
 		}
 	}

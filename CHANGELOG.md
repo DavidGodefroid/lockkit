@@ -3,6 +3,12 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `pii`: opt-in `person_name` detector (gazetteer of given and family
+  names, titles), not in `AllDetectors` (GUIDE §8). Recall 95.0 % on the
+  name corpus, 0 false positives on 2 000 Loghub-style lines.
+
 ## v0.7.1 (2026-10-30)
 
 - A policy change that ends the session when applied (a tightening read

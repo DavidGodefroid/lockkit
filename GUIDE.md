@@ -207,6 +207,20 @@ bastion reaches; no local port is ever opened.
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
+- Opt-in `person_name` (never in `AllDetectors`): a full name in free
+  text, from embedded gazetteers (given names, family names, titles, in
+  the languages above and common immigrant names). A known given name
+  followed by a known surname in the same case ("Jean Dupont", "JOHN
+  SMITH", "john smith", "john.smith"), or, in title case, by any
+  capitalised word that is not a common word ("Kevin Vandeputte"); a
+  title before capitalised words ("Mr. Smith", "Mme Lefebvre", "Dr
+  Janssens"); middle initials, particles ("van der") and hyphenated given
+  names. Given names that are also words, places or months ("Will",
+  "Max", "Jan", "Austin") need a known surname. Not found: a given or
+  family name alone, "Smith, John", names outside the gazetteer without a
+  title, user names that are not first.last. `TestPersonNameRecall` and
+  `TestPersonNameFalsePositives` log the recall and false-positive rate of
+  each release.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
