@@ -219,23 +219,25 @@ bastion reaches; no local port is ever opened.
     without what a value can hide behind: default-ignorable characters
     (format characters, variation selectors, the combining grapheme
     joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
-    the braille blank, combining marks (ESC and C1 controls included);
-    hyphens,
-    dashes and minus signs read as `-`, ideographic full stops as `.`, and
+    the braille blank, combining marks; hyphens, dashes and minus signs
+    read as `-`, ideographic full stops as `.`, and
     Cyrillic and Greek letters drawn like Latin ones as those. Invalid
-    UTF-8 bytes are kept: replace or drop them before the text leaves your
-    product, and only after masking if you drop them. `View.Source(start, end)` maps a
+    UTF-8 bytes are kept in it; `DetectionViews` adds a view without them,
+    so a value an invalid byte splits is found whole: replace or drop them
+    before the text leaves your product, after masking. `View.Source(start, end)` maps a
     range of `View.Text` back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds a view without terminal sequences (CSI,
-    OSC, DCS, SOS, PM, APC, nF, two-byte escapes; only well-formed short
-    ones whole, otherwise their introducer) and a view where introducers
+    OSC, DCS, SOS, PM, APC, nF, two-byte escapes, introduced by ESC, a C1
+    control or a raw 8-bit C1 byte; only well-formed ones up to 256 bytes
+    whole, otherwise their introducer; also in every decoded view below,
+    so `\u001b[31m` inside a value does not split it) and a view where introducers
     and final bytes read as spaces, the payload kept, the detection view
     of `s` percent-decoded
     (once, twice), with JSON escapes decoded (`\u0040`), with HTML
     character references decoded (`&#64;`, `&commat;`), with all of them
     chained (`jean%40example&#46;com`; until nothing changes, at most 16
     rounds, the view cleaned up between rounds: `jean％40`, `%4`+zero-width+`0`),
-    with `\xHH` escapes decoded, and form-decoded
+    with `\xHH`, `\e` and `\033` escapes decoded, and form-decoded
     (`+` as a space) then percent-decoded. A view of a long text may stop
     early: apply only the matches of `Find`/`FindInViews` to a text, never
     ranges you computed on a view yourself.

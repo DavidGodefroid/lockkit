@@ -23,7 +23,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
   escapes.
 - `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
   ranges with their kind, also behind percent, JSON and HTML escapes,
-  look-alikes, invisible characters, control sequences and values cut by
+  look-alikes, invisible characters, control sequences (also escaped),
+  invalid UTF-8 bytes and values cut by
   the scan limit (#93). New dependency: `golang.org/x/text` v0.43.0
   (`unicode/norm`); `golang.org/x/sync` moves to v0.24.0.
 

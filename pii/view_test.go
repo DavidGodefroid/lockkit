@@ -559,3 +559,43 @@ func FuzzFindAroundTerminalSequences(f *testing.F) {
 		}
 	})
 }
+
+// A terminal sequence written escaped (JSON, \xHH, percent, HTML), or an
+// invalid UTF-8 byte, inside a value never hides it: the decoded views
+// and the view without invalid bytes are stripped too.
+func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
+	ds := allDetectors(t)
+	splitters := []string{
+		`\u001b[31m`, `\u001b[1m`, `\u001B[0;1m`, `\x1b[31m`, `%1b[31m`, `%1B[1m`, `&#x1b;[31m`, `&#27;[1m`,
+		"\xff", "\x9b", "\xc0\x80", "\x9b31m", "\x1b[1m\xff",
+		// The introducer decoded one chain round before the rest.
+		`%1b&amp;#91;31m`, `\u001b&amp;#91;31m`, `\x1b&amp;#91;31m`, `&#x1b;%255b31m`,
+		// Shell spellings.
+		`\033[31m`, `\e[1m`,
+	}
+	for _, v := range []string{"jean.dupont@example.com", "BE68539007547034", "4111111111111111", "+32475123456"} {
+		for _, sp := range splitters {
+			for _, p := range []int{4, len(v) / 2} {
+				in := `{"log":"to ` + v[:p] + sp + v[p:] + ` now"}`
+				start := strings.Index(in, v[:p])
+				end := strings.Index(in, v[p:]) + len(v[p:])
+				covered := false
+				for _, m := range FindInViews(in, ds) {
+					covered = covered || m.Start <= start && end <= m.End
+				}
+				if !covered {
+					t.Errorf("FindInViews(%q) leaves %q", in, v)
+				}
+			}
+		}
+	}
+	for _, in := range []string{
+		`{"log":"card 4111 1111\u001b[1m 1111 1111\u001b[0m"}`,
+		`{"log":"tel +32 475\u001b[1m 12 34 56\u001b[0m"}`,
+		"pay BE68\x1b[1m5390%200754%207034",
+	} {
+		if len(FindInViews(in, ds)) == 0 {
+			t.Errorf("FindInViews(%q) finds nothing", in)
+		}
+	}
+}
