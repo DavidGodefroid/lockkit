@@ -67,9 +67,9 @@ func TestDetectionViewsDecode(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"to=jean%40example.com", "to=jean@example.com"},
 		{"to=jean%2540example.com", "to=jean@example.com"}, // double
-		{`"to":"jean@example.com"`, `"to":"jean@example.com"`},
-		{`"e":"😀 x\n"`, "\"e\":\"\U0001F600 x\n\""},
-		{`lone \ud83d`, "lone �"},
+		{`"to":"jean\u0040example.com"`, `"to":"jean@example.com"`},
+		{`"e":"\ud83d\ude00 x\n"`, "\"e\":\"\U0001F600 x\n\""},
+		{`lone \ud83d`, "lone \ufffd"},
 		{"jean&#64;example.com", "jean@example.com"},
 		{"jean&#x40;example.com", "jean@example.com"},
 		{"jean&#64example.com", "jean@example.com"},
@@ -98,7 +98,7 @@ func TestFindInViewsCoversEncodedForm(t *testing.T) {
 	cases := []struct{ in, value, kind string }{
 		{"to=jean%40example.com&x=1", "jean%40example.com", "email"},
 		{"to=jean%2540example.com&x=1", "jean%2540example.com", "email"},
-		{`{"to":"jean@example.com"}`, `jean@example.com`, "email"},
+		{`{"to":"jean\u0040example.com"}`, `jean\u0040example.com`, "email"},
 		{"<a>jean&#64;example.com</a>", "jean&#64;example.com", "email"},
 		{"<a>jean&#x40;example.com</a>", "jean&#x40;example.com", "email"},
 		{"<a>jean&commat;example.com</a>", "jean&commat;example.com", "email"},
@@ -260,7 +260,7 @@ func TestFindInViewsValueAcrossViewCap(t *testing.T) {
 	ds := AllDetectors()
 	// Values only a view finds whole: in the source, an invisible
 	// character cuts each.
-	values := []string{"jean\u200b.dupont@example.com", "BE68\u200b5390\u200b0754\u200b7034", "+32\u200b475123456", "4111\u200b1111\u200b1111\u200b1111"}
+	values := []string{"jean\u200b.dupont@example.com", "BE68\u200b5390\u200b0754\u200b7034", "+32\u200b475123456", "4111\u200b1111\u200b1111\u200b1111", fullwidthEmail, "jean.dupont&#64;example.com"}
 	// U+FDFA expands to 33 bytes: after k of them the view is 33k bytes
 	// long; padding moves the point where it stops across the value.
 	k := maxViewBytes / 33
@@ -277,4 +277,118 @@ func TestFindInViewsValueAcrossViewCap(t *testing.T) {
 			}
 		}
 	}
+}
+
+// ｊｅａｎ．ｄｕｐｏｎｔ＠ｅｘａｍｐｌｅ．ｃｏｍ, built so that no tool rewrites it.
+var fullwidthEmail = func() string {
+	var b strings.Builder
+	for _, c := range "jean.dupont@example.com" {
+		b.WriteRune(c - 0x21 + 0xff01)
+	}
+	return b.String()
+}()
+
+// Values written across DetectLimit, in every encoding, are covered
+// whole: the rest's match starts where they start.
+func TestFindInViewsValueAcrossDetectLimit(t *testing.T) {
+	ds := AllDetectors()
+	values := []string{
+		"jean.dupont\u200b@example.com", "jean.dupont&#64;example.com", "+32\u200b475123456", fullwidthEmail,
+		strings.Repeat("j", 47) + ".dupont@example.com", "jean.dupont" + "\\" + "u0040example.com", "BE68 5390 0754 7034",
+	}
+	for _, v := range values {
+		for off := -len(v) - 2; off <= 2; off++ {
+			pad := DetectLimit + off
+			if pad < 1 {
+				continue
+			}
+			s := strings.Repeat("x", pad-1) + " " + v + " " + strings.Repeat("y", 100)
+			start := pad
+			covered := false
+			ms := FindInViews(s, ds)
+			for _, m := range ms {
+				covered = covered || m.Start <= start && start+len(v) <= m.End
+			}
+			if !covered {
+				t.Fatalf("%q at %d from DetectLimit not covered whole: %v", v, off, ms)
+			}
+			if fs := Find(s, ds); len(fs) == 0 || fs[len(fs)-1].End != len(s) {
+				t.Fatalf("Find on a long text: %v", fs)
+			}
+		}
+	}
+}
+
+// Look-alike digits, marks on digits, controls, form encoding and mixed
+// encodings do not hide a value.
+func TestFindInViewsMoreHidings(t *testing.T) {
+	arabic := func(d string) string {
+		var b strings.Builder
+		for _, c := range d {
+			if c >= '0' && c <= '9' {
+				b.WriteRune(0x0660 + c - '0')
+			} else {
+				b.WriteRune(c)
+			}
+		}
+		return b.String()
+	}
+	marked := func(d string, mark rune) string {
+		var b strings.Builder
+		for i, c := range d {
+			b.WriteRune(c)
+			if c >= '0' && c <= '9' && i < len(d)-1 {
+				b.WriteRune(mark) // between digits: a trailing mark is not part of the value
+			}
+		}
+		return b.String()
+	}
+	cases := []struct{ value, kind string }{
+		{arabic("4111111111111111"), "card"},
+		{"+" + string([]rune{0x0969, 0x0968}) + "475123456", "phone"},
+		{marked("4111111111111111", 0x0303), "card"},
+		{marked("4111111111111111", 0x20e3), "card"},
+		{"4111\x001111\x7f1111\u28001111", "card"},
+		{"%2B32+475+12+34+56", "phone"},
+		{"jean%40example&#46;com", "email"},
+		{"jean&#37;40example.com", "email"},
+		{"jean%252540example.com", "email"},
+		{"jean@example%2Ecom", "email"},
+	}
+	ds := AllDetectors()
+	for _, c := range cases {
+		in := "v=" + c.value + " ok"
+		covered := false
+		ms := FindInViews(in, ds)
+		for _, m := range ms {
+			covered = covered || m.Start <= 2 && 2+len(c.value) <= m.End
+		}
+		if !covered {
+			t.Errorf("FindInViews(%q) = %v, want the whole %s", in, ms, c.kind)
+		}
+	}
+}
+
+// Long inputs: the fuzzer's text near DetectLimit.
+func FuzzFindLongText(f *testing.F) {
+	f.Add("jean.dupont@example.com", uint16(10))
+	f.Add("jean&#64;example.com", uint16(3))
+	f.Add("+32\u200b475123456", uint16(20))
+	ds := AllDetectors()
+	f.Fuzz(func(t *testing.T, tail string, back uint16) {
+		if len(tail) > 2048 {
+			return
+		}
+		pad := DetectLimit - int(back%2048)
+		s := strings.Repeat("a ", pad/2) + tail
+		ms := FindInViews(s, ds)
+		checkMatches(t, s, ms)
+		out := detectText(s, ds)
+		if len(s) <= DetectLimit && !gapsPreserved(s, out, ms) {
+			t.Fatalf("Detect changes text outside FindInViews")
+		}
+		if len(s) > DetectLimit && (len(ms) == 0 || ms[len(ms)-1].Kind != CutKind || ms[len(ms)-1].Start > DetectLimit) {
+			t.Fatalf("long text without its rest: %v", ms[len(ms)-1:])
+		}
+	})
 }

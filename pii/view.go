@@ -28,7 +28,7 @@ type View struct {
 // Source returns the range of the source text that Text[start:end] was
 // written with. It covers every source character dropped inside the range
 // (a zero-width character between two digits) and every escape it decodes
-// whole ("%40", "&#64;", "@"). Out-of-range arguments are clamped.
+// whole ("%40", "&#64;", "\u0040"). Out-of-range arguments are clamped.
 func (v View) Source(start, end int) (int, int) {
 	start = min(max(start, 0), len(v.Text))
 	end = min(max(end, start), len(v.Text))
@@ -115,27 +115,29 @@ func DetectionView(s string) View {
 }
 
 func detectionView(s string) View {
-	ascii := true
+	plain := true
 	for i := 0; i < len(s); i++ {
-		if s[i] >= utf8.RuneSelf {
-			ascii = false
+		if c := s[i]; c >= utf8.RuneSelf || dropControl(rune(c)) {
+			plain = false
 			break
 		}
 	}
-	if ascii {
-		return View{Text: s} // ASCII is NFKC and has no format character
+	if plain {
+		return View{Text: s} // printable ASCII is NFKC and has nothing to drop
 	}
 	var vb viewBuilder
 	vb.b = make([]byte, 0, len(s))
 	vb.lo, vb.hi = make([]int32, 0, len(s)), make([]int32, 0, len(s))
+	cut, cutAt := false, 0
 	var it norm.Iter
 	it.InitString(norm.NFKC, s)
 	for !it.Done() {
 		from := it.Pos()
-		if len(vb.b) >= maxViewBytes {
-			v := vb.view(len(s))
-			v.cut, v.cutAt = true, backOverValue(s, from)
-			return v
+		if len(vb.b) >= maxViewBytes && !cut {
+			cut, cutAt = true, from
+		}
+		if len(vb.b) >= maxViewBytes+viewOverlap {
+			break // past the overlap: the rest is the source's from cutAt on
 		}
 		seg := it.Next()
 		to := it.Pos()
@@ -146,16 +148,22 @@ func detectionView(s string) View {
 				vb.add(seg[:1], from, to)
 			case folded:
 				vb.add([]byte{c}, from, to)
-			case ignorable(r):
-				// dropped: the next byte's range starts after it, and a
-				// range of the view spanning it covers it
+			case ignorable(r) || dropControl(r) || r == '\u2800' ||
+				unicode.In(r, unicode.Mn, unicode.Me) && len(vb.b) > 0 && isDigit(vb.b[len(vb.b)-1]):
+				// dropped (invisible, a control, a mark on a digit): the
+				// next byte's range starts after it, and a range of the view
+				// spanning it covers it
+			case r >= utf8.RuneSelf && unicode.Is(unicode.Nd, r):
+				vb.add([]byte{'0' + ndValue(r)}, from, to) // ٤ ३ → 4 3
 			default:
 				vb.add(seg[:n], from, to)
 			}
 			seg = seg[n:]
 		}
 	}
-	return vb.view(len(s))
+	v := vb.view(len(s))
+	v.cut, v.cutAt = cut, cutAt
+	return v
 }
 
 // ignorable reports whether r is a default-ignorable code point (format
@@ -165,28 +173,34 @@ func ignorable(r rune) bool {
 	return unicode.In(r, unicode.Cf, unicode.Other_Default_Ignorable_Code_Point, unicode.Variation_Selector)
 }
 
-// backOverValue returns where the unscanned part of s must start when a
-// view stops at source offset at: back over up to cutTail value-like or
-// ignorable characters, as CutAt does, so that a value the stop splits is
-// masked whole rather than left in part.
-func backOverValue(s string, at int) int {
-	for back := 0; back < cutTail && at > 0; back++ {
-		r, size := utf8.DecodeLastRuneInString(s[:at])
-		if !valueRune(r) && !ignorable(r) {
-			break
-		}
-		at -= size
+// dropControl reports a control character a value may hide behind: C0
+// but tab, newline and carriage return, DEL, C1.
+func dropControl(r rune) bool {
+	return r < 0x20 && r != '\t' && r != '\n' && r != '\r' || r == 0x7f || r >= 0x80 && r < 0xa0
+}
+
+// ndValue is the value of a decimal digit (Unicode Nd): digits come in
+// runs of ten (or of several tens, the mathematical ones) from 0.
+func ndValue(r rune) byte {
+	z := r
+	for unicode.Is(unicode.Nd, z-1) && r-(z-1) < 50 {
+		z--
 	}
-	return at
+	return byte((r - z) % 10)
 }
 
 // maxViewBytes caps a view's text: NFKC can expand a text about tenfold.
 // A view cut there makes the rest of the source one match (find).
 const maxViewBytes = 2 * DetectLimit
 
+// viewOverlap is how far a view goes on past maxViewBytes, so that a value
+// written across that point is found whole.
+const viewOverlap = 16 << 10
+
 // DetectionViews returns the detection view of s, then the detection view
 // of each decoding of s that changes it: percent-decoded once and twice,
-// JSON string escapes, HTML character references. Texts are distinct.
+// JSON string escapes, HTML character references, all of them chained (up
+// to four rounds), and form encoding ("+" as a space) then percent. Texts are distinct.
 // Texts longer than DetectLimit are cut as by Find.
 func DetectionViews(s string) []View {
 	s, _ = scanned(s)
@@ -217,7 +231,49 @@ func DetectionViews(s string) []View {
 	if h, ok := decodeHTML(s); ok {
 		addDecoded(compose(src, h), true)
 	}
+	// Every decoding in turn, a few rounds: a value written with two
+	// encodings ("jean%40example&#46;com", "jean&#37;40...") or three
+	// percent rounds.
+	chain, rounds := src, 0
+	for round := 0; round < 4; round++ {
+		changed := false
+		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML} {
+			if d, ok := dec(chain.Text); ok {
+				chain, changed = compose(chain, d), true
+			}
+		}
+		if !changed {
+			break
+		}
+		rounds++
+	}
+	addDecoded(chain, rounds > 0)
+	// Form encoding: "+" for a space, then percent ("tel=%2B32+475+12").
+	if f, ok := decodeForm(s); ok {
+		fv := compose(src, f)
+		if p, ok := decodePercent(fv.Text); ok {
+			fv = compose(fv, p)
+		}
+		addDecoded(fv, true)
+	}
 	return out
+}
+
+// decodeForm reads "+" as a space (application/x-www-form-urlencoded).
+func decodeForm(s string) (View, bool) {
+	if !strings.Contains(s, "+") {
+		return View{}, false
+	}
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c == '+' {
+			c = ' '
+		}
+		vb.add([]byte{c}, i, i+1)
+	}
+	return vb.view(len(s)), true
 }
 
 func unhex(c byte) (byte, bool) {
@@ -257,7 +313,7 @@ func decodePercent(s string) (View, bool) {
 	return vb.view(len(s)), changed
 }
 
-// decodeJSONEscapes decodes the escapes of a JSON string ("@",
+// decodeJSONEscapes decodes the escapes of a JSON string ("\u0040",
 // surrogate pairs, "\n", "\""...) wherever they appear in s; a lone
 // surrogate becomes U+FFFD. False when there is none.
 func decodeJSONEscapes(s string) (View, bool) {
