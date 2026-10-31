@@ -16,6 +16,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - `agentwire`: merged `permissions.allow` entries (user and project scope)
   and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
   escapes.
+- `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
+  ranges with their kind, also behind percent, JSON, HTML, `\xHH`, `\e`,
+  `\033` and form escapes (alone or chained),
+  look-alikes, invisible characters, control sequences (also escaped),
+  invalid UTF-8 bytes and values cut by
+  the scan limit (#93). New dependency: `golang.org/x/text` v0.43.0
+  (`unicode/norm`); `golang.org/x/sync` moves to v0.24.0.
 
 ## v0.7.2 (2026-10-31)
 

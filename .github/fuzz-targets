@@ -1,4 +1,9 @@
 FuzzReadMsgNoPanic ./ipc/
 FuzzDetectorsNoPanic ./pii/
 FuzzRenderNoPanic ./render/
+FuzzFindCoversDetect ./pii/
+FuzzDetectionView ./pii/
+FuzzFindLongText ./pii/
+FuzzFindAroundTerminalSequences ./pii/
 FuzzPersonNameNoPanic ./pii/
+FuzzFindValueSplitByTerminal ./pii/

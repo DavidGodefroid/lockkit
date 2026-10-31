@@ -84,7 +84,9 @@ type finderDetector struct {
 
 func (d finderDetector) Name() string { return d.name }
 
-func (d finderDetector) Mask(s string) string {
+// spans returns the values the detector recognises in s, sorted and
+// merged.
+func (d finderDetector) spans(s string) []span {
 	spans := d.find(s)
 	// Folding can also hide a value (a full-width digit glued to a number
 	// makes it longer), so the values found in the folded text are added to
@@ -95,6 +97,11 @@ func (d finderDetector) Mask(s string) string {
 		}
 		spans = mergeSpans(spans)
 	}
+	return spans
+}
+
+func (d finderDetector) Mask(s string) string {
+	spans := d.spans(s)
 	if len(spans) == 0 {
 		return s
 	}
