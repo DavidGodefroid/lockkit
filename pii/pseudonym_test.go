@@ -101,17 +101,18 @@ func TestPseudonymsStableAcrossCalls(t *testing.T) {
 		ids[id] = fmt.Sprint(kv)
 	}
 	// A reopened store gives the same IDs.
+	before := mustID(t, p, "email", "jean.dupont@example.com")
 	s.Close()
 	s2, err := OpenEpochStore(dir, false, t0.Add(time.Hour))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s2.Current().Epoch() != p.Epoch() || mustID(t, s2.Current(), "email", "jean.dupont@example.com") != mustID(t, p, "email", "jean.dupont@example.com") {
+	if s2.Current().Epoch() != p.Epoch() || mustID(t, s2.Current(), "email", "jean.dupont@example.com") != before {
 		t.Error("a reopened store gives other pseudonyms")
 	}
 	// Another epoch, other IDs.
 	q, _ := NewEpoch(t0)
-	if mustID(t, q, "email", "jean.dupont@example.com") == mustID(t, p, "email", "jean.dupont@example.com") || q.Epoch() == p.Epoch() {
+	if mustID(t, q, "email", "jean.dupont@example.com") == before || q.Epoch() == p.Epoch() {
 		t.Error("two epochs give the same pseudonym")
 	}
 }
@@ -472,11 +473,11 @@ func TestEpochStoreClosedRefusesWrites(t *testing.T) {
 	if _, err := s.Rotate(t0); !errors.Is(err, ErrClosed) {
 		t.Errorf("Rotate after Close: %v", err)
 	}
-	if _, err := s.Prune(t0, 0); !errors.Is(err, ErrClosed) {
+	if _, err := s.Prune(t0, time.Hour); !errors.Is(err, ErrClosed) {
 		t.Errorf("Prune after Close: %v", err)
 	}
-	if mustID(t, s.Current(), "email", "a@example.com") != mustID(t, cur, "email", "a@example.com") {
-		t.Error("reads changed after Close")
+	if _, err := cur.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) {
+		t.Errorf("ID after Close = %v, want ErrForgottenEpoch (another process may prune the key)", err)
 	}
 	if _, err := s.Get("ZZZZZZZZ"); !errors.Is(err, ErrUnknownEpoch) {
 		t.Errorf("Get(never existed) = %v", err)

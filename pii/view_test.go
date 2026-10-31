@@ -388,7 +388,54 @@ func FuzzFindLongText(f *testing.F) {
 			t.Fatalf("Detect changes text outside FindInViews")
 		}
 		if len(s) > DetectLimit && (len(ms) == 0 || ms[len(ms)-1].Kind != CutKind || ms[len(ms)-1].Start > DetectLimit) {
-			t.Fatalf("long text without its rest: %v", ms[len(ms)-1:])
+			t.Fatalf("long text without its rest: %v", ms)
 		}
 	})
+}
+
+// The round-3 review's inputs: padded values across the cut, escapes
+// behind look-alikes or invisibles, zero-padded references, colour codes,
+// deep encodings, \\xHH escapes, dashes.
+func TestFindInViewsReviewRepros(t *testing.T) {
+	ds := AllDetectors()
+	zw := "\u200b"
+	long := []string{
+		"4111111111" + strings.Repeat(zw, 1400) + "111111",
+		"jeanpierredupont" + strings.Repeat(zw, 1500) + "@example.com",
+		"4111111111" + strings.Repeat("%E2%80%8B", 500) + "111111",
+		"4111111111" + strings.Repeat("\u0336", 2500) + "111111",
+	}
+	for _, v := range long {
+		s := strings.Repeat("x ", DetectLimit/2)[:DetectLimit-20] + v + " tail"
+		start := DetectLimit - 20
+		covered := false
+		for _, m := range FindInViews(s, ds) {
+			covered = covered || m.Start <= start && start+len(v) <= m.End
+		}
+		if !covered {
+			t.Errorf("padded value across DetectLimit (%d bytes) not covered whole", len(v))
+		}
+	}
+	cases := []struct{ in, value string }{
+		{"mail jean\uff0540example.com x", "jean\uff0540example.com"},
+		{"mail jean%4" + zw + "0example.com x", "jean%4" + zw + "0example.com"},
+		{"mail jean&#6" + zw + "4;example.com x", "jean&#6" + zw + "4;example.com"},
+		{"mail jean&#" + strings.Repeat("0", 40) + "64;example.com x", "jean&#" + strings.Repeat("0", 40) + "64;example.com"},
+		{"user \x1b[1mjean\x1b[22m@example.com x", "jean\x1b[22m@example.com"},
+		{"tel +32 475\x1b[0m 12 34 56 x", "+32 475\x1b[0m 12 34 56"},
+		{"mail jean%2525252540example.com x", "jean%2525252540example.com"},
+		{"mail jo\\xE2\\x80\\x8Bhn@example.com x", "jo\\xE2\\x80\\x8Bhn@example.com"},
+		{"card 4111\u20101111\u20101111\u20101111 x", "4111\u20101111\u20101111\u20101111"},
+	}
+	for _, c := range cases {
+		start := strings.Index(c.in, c.value)
+		covered := false
+		ms := FindInViews(c.in, ds)
+		for _, m := range ms {
+			covered = covered || m.Start <= start && start+len(c.value) <= m.End
+		}
+		if !covered {
+			t.Errorf("FindInViews(%q) = %v, want %q covered", c.in, ms, c.value)
+		}
+	}
 }

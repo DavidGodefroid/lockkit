@@ -3,6 +3,7 @@ package pii
 import (
 	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -34,7 +35,7 @@ func Find(s string, ds []Detector) []Match {
 		return nil
 	}
 	t, rest := scanned(s)
-	return finish(find(t, ds, nil), rest, len(s))
+	return finish(find(t, ds, nil), rest, s)
 }
 
 // CutKind is the kind of the match that covers the end of a text past
@@ -68,18 +69,41 @@ func runeStart(s string, i int) int {
 // finish merges matches and, when there is a cut (rest >= 0), makes the
 // rest of the source one CutKind match, starting earlier where a match
 // runs across the cut: no value is left in part.
-func finish(ms []rankedMatch, rest, srcLen int) []Match {
+func finish(ms []rankedMatch, rest int, src string) []Match {
 	merged := mergeMatches(ms)
-	if rest < 0 || rest >= srcLen {
+	if rest < 0 || rest >= len(src) {
 		return merged
 	}
+	rest = backOverWord(src, rest)
 	for k, m := range merged {
 		if m.End > rest {
 			rest = min(rest, m.Start)
-			return append(merged[:k], Match{rest, srcLen, CutKind})
+			return append(merged[:k], Match{rest, len(src), CutKind})
 		}
 	}
-	return append(merged, Match{rest, srcLen, CutKind})
+	return append(merged, Match{rest, len(src), CutKind})
+}
+
+// backOverWord returns where the unscanned rest of s must start for a cut
+// at i: back over the word the cut is in, however long (a value padded
+// with invisible characters, marks or escapes is one word), and over
+// single blanks between digit groups ("+32 475 12 34 56"). It stops at
+// other whitespace.
+func backOverWord(s string, i int) int {
+	for i > 0 {
+		r, n := utf8.DecodeLastRuneInString(s[:i])
+		if !unicode.IsSpace(r) || ignorable(r) {
+			i -= n
+			continue
+		}
+		// A single blank between digits (a grouped number) does not end it.
+		if r == ' ' && i-n > 0 && isDigit(s[i-n-1]) && i < len(s) && isDigit(s[i]) {
+			i -= n
+			continue
+		}
+		break
+	}
+	return i
 }
 
 // rankedMatch is a match with the position of its detector in the list it
@@ -160,7 +184,7 @@ func FindInViews(s string, ds []Detector) []Match {
 	if len(ds) == 0 {
 		return nil
 	}
-	srcLen := len(s)
+	src := s
 	s, rest := scanned(s)
 	out := find(s, ds, nil)
 	for _, v := range DetectionViews(s) {
@@ -172,7 +196,7 @@ func FindInViews(s string, ds []Detector) []Match {
 		}
 		out = append(out, find(v.Text, ds, &v)...)
 	}
-	return finish(out, rest, srcLen)
+	return finish(out, rest, src)
 }
 
 // mergeMatches sorts matches and joins those that overlap; a joined match

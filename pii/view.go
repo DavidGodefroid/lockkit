@@ -115,6 +115,62 @@ func DetectionView(s string) View {
 }
 
 func detectionView(s string) View {
+	if strings.IndexByte(s, 0x1b) >= 0 {
+		if a, ok := stripANSI(s); ok {
+			return compose(a, cleanView(a.Text))
+		}
+	}
+	return cleanView(s)
+}
+
+// stripANSI drops terminal control sequences (CSI "ESC [ ... final", OSC
+// "ESC ] ... BEL" or "ESC ] ... ESC \\", and two-byte escapes) whole:
+// colour codes inside a value would split it.
+func stripANSI(s string) (View, bool) {
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	changed := false
+	for i := 0; i < len(s); {
+		if s[i] != 0x1b || i+1 >= len(s) {
+			vb.add([]byte{s[i]}, i, i+1)
+			i++
+			continue
+		}
+		j := i + 1 // ESC alone, unless a known sequence follows
+		switch c := s[i+1]; {
+		case c >= 0x40 && c <= 0x5f && c != '[' && c != ']':
+			j = i + 2 // a two-byte escape ("ESC c", "ESC M")
+		case c == '[' || c == ']':
+			j = i + 2
+		}
+		switch s[i+1] {
+		case '[':
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
+				j++
+			}
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
+				j++
+			}
+			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
+				j++
+			}
+		case ']':
+			for j < len(s) && s[j] != 0x07 && !(s[j] == 0x1b && j+1 < len(s) && s[j+1] == '\\') {
+				j++
+			}
+			if j < len(s) && s[j] == 0x07 {
+				j++
+			} else if j+1 < len(s) {
+				j += 2
+			}
+		}
+		i = min(j, len(s))
+		changed = true
+	}
+	return vb.view(len(s)), changed
+}
+
+func cleanView(s string) View {
 	plain := true
 	for i := 0; i < len(s); i++ {
 		if c := s[i]; c >= utf8.RuneSelf || dropControl(rune(c)) {
@@ -153,6 +209,8 @@ func detectionView(s string) View {
 				// dropped (invisible, a control, a mark on a digit): the
 				// next byte's range starts after it, and a range of the view
 				// spanning it covers it
+			case r >= 0x2010 && r <= 0x2015 || r == 0x2212 || r == 0xfe63 || r == 0xff0d:
+				vb.add([]byte{'-'}, from, to) // hyphens, dashes and minus signs
 			case r >= utf8.RuneSelf && unicode.Is(unicode.Nd, r):
 				vb.add([]byte{'0' + ndValue(r)}, from, to) // ٤ ३ → 4 3
 			default:
@@ -199,8 +257,8 @@ const viewOverlap = 16 << 10
 
 // DetectionViews returns the detection view of s, then the detection view
 // of each decoding of s that changes it: percent-decoded once and twice,
-// JSON string escapes, HTML character references, all of them chained (up
-// to four rounds), and form encoding ("+" as a space) then percent. Texts are distinct.
+// JSON string escapes, HTML character references, all of them chained (until
+// nothing changes, at most 16 rounds, cleaned up between rounds), \\xHH escapes, and form encoding ("+" as a space) then percent. Texts are distinct.
 // Texts longer than DetectLimit are cut as by Find.
 func DetectionViews(s string) []View {
 	s, _ = scanned(s)
@@ -235,9 +293,14 @@ func DetectionViews(s string) []View {
 	// encodings ("jean%40example&#46;com", "jean&#37;40...") or three
 	// percent rounds.
 	chain, rounds := src, 0
-	for round := 0; round < 4; round++ {
+	for round := 0; round < 16; round++ {
 		changed := false
-		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML} {
+		// Clean up between decodings: an escape written with a look-alike
+		// or broken by an invisible character ("jean％40", "%4\u200b0").
+		if c := detectionView(chain.Text); c.Text != chain.Text {
+			chain = compose(chain, c)
+		}
+		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML, decodeHexEscapes} {
 			if d, ok := dec(chain.Text); ok {
 				chain, changed = compose(chain, d), true
 			}
@@ -257,6 +320,31 @@ func DetectionViews(s string) []View {
 		addDecoded(fv, true)
 	}
 	return out
+}
+
+// decodeHexEscapes decodes "\\xHH" (nginx, Python, Go %q logs).
+func decodeHexEscapes(s string) (View, bool) {
+	if !strings.Contains(s, `\x`) {
+		return View{}, false
+	}
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	changed := false
+	for i := 0; i < len(s); {
+		if s[i] == '\\' && i+3 < len(s) && s[i+1] == 'x' {
+			h, ok1 := unhex(s[i+2])
+			l, ok2 := unhex(s[i+3])
+			if ok1 && ok2 {
+				vb.add([]byte{h<<4 | l}, i, i+4)
+				i += 4
+				changed = true
+				continue
+			}
+		}
+		vb.add([]byte{s[i]}, i, i+1)
+		i++
+	}
+	return vb.view(len(s)), changed
 }
 
 // decodeForm reads "+" as a space (application/x-www-form-urlencoded).
@@ -385,6 +473,13 @@ func jsonSimpleEscape(c byte) (byte, bool) {
 	return 0, false
 }
 
+func boolInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
 // maxEntity bounds the length of an HTML character reference, "&" and ";"
 // included ("&CounterClockwiseContourIntegral;" is the longest name).
 const maxEntity = 40
@@ -429,8 +524,14 @@ func entityLen(s string) int {
 		if isHex {
 			k++
 		}
-		from := k
-		for k < len(s) && k < maxEntity {
+		for k < len(s) && s[k] == '0' && k < 4096 {
+			k++ // leading zeros do not count toward the cap ("&#000064;")
+		}
+		from, limit := k, k+maxEntity
+		if k > 2+boolInt(isHex) {
+			from = 2 + boolInt(isHex) // zeros alone are a number too
+		}
+		for k < len(s) && k < limit {
 			if _, ok := unhex(s[k]); ok && (isHex || isDigit(s[k])) {
 				k++
 				continue

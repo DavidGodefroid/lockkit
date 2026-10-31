@@ -219,12 +219,15 @@ bastion reaches; no local port is ever opened.
     without what a value can hide behind: default-ignorable characters
     (format characters, variation selectors, the combining grapheme
     joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
-    the braille blank, marks on a digit. `View.Source(start, end)` maps a
+    the braille blank, marks on a digit, terminal colour and control
+    sequences (`ESC [ ... m`); hyphens, dashes and minus signs read as `-`. `View.Source(start, end)` maps a
     range of `View.Text` back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds the detection view of `s` percent-decoded
     (once, twice), with JSON escapes decoded (`\u0040`), with HTML
     character references decoded (`&#64;`, `&commat;`), with all of them
-    chained (four rounds: `jean%40example&#46;com`), and form-decoded
+    chained (`jean%40example&#46;com`; until nothing changes, at most 16
+    rounds, the view cleaned up between rounds: `jean％40`, `%4`+zero-width+`0`),
+    with `\xHH` escapes decoded, and form-decoded
     (`+` as a space) then percent-decoded. A view of a long text may stop
     early: apply only the matches of `Find`/`FindInViews` to a text, never
     ranges you computed on a view yourself.
@@ -234,9 +237,10 @@ bastion reaches; no local port is ever opened.
     `Detector` of your own (no ranges) makes the whole text one match.
   - Past `DetectLimit` (and where a view expands past twice that) the
     unscanned rest is one more match of kind `pii.CutKind`, starting
-    earlier where a value runs across that point (the detectors scan 4 KiB
-    past it to see such a value whole): the matches are always safe to
-    apply to `s` itself.
+    earlier where a value runs across that point: at the start of the word
+    the cut falls in, however long (blanks between digit groups included),
+    or of a match the detectors found running across it (they scan 4 KiB
+    past it): the matches are always safe to apply to `s` itself.
 - Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
   base32 (60 bits) of `HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0 ||
   kind || 0 || pii.Normalise(kind, value))`, stable within one epoch; a
@@ -250,12 +254,15 @@ bastion reaches; no local port is ever opened.
   in a private directory (0700, owned by the process user; anything else,
   a symbolic link, a corrupt file or an all-zero key refuses the store),
   ordered by a sequence number, the directory locked for one process
-  until `Close` (after which `Rotate` and `Prune` fail with `ErrClosed`;
+  until `Close` (which forgets the keys in memory: `ID` then fails, and
+  `Rotate` and `Prune` fail with `ErrClosed`;
   opening creates the `.lock` file). `Current()`, `Get(epoch)` for a reference minted earlier,
   `Rotate(now)`, `RotationDue(now, every)` (also true for an epoch
   created more than `ClockSkew` in the future), `Prune(now, keep)`
   deletes keys replaced `keep` ago and leftover temporary files (a clock
-  that jumped forward may delete a key early, never keep one late).
+  that jumped forward may delete a key early; one set back keeps it at most
+  `ClockSkew` late). On non-unix platforms there are no permission,
+  owner or lock checks: one process per store.
   `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
   prints or marshals its key. `ID` returns `ErrForgottenEpoch` once
   `Prune` deleted the key, through every copy of the value: redact the

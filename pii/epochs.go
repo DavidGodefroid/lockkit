@@ -266,6 +266,9 @@ func (s *EpochStore) RotationDue(now time.Time, every time.Duration) bool {
 // epoch is replaced when the next one is created) and returns their ids.
 // The current epoch is never deleted.
 func (s *EpochStore) Prune(now time.Time, keep time.Duration) ([]string, error) {
+	if keep <= 0 {
+		return nil, errors.New("pii: Prune needs a positive keep")
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.closed {
@@ -306,12 +309,17 @@ func replacedLongAgo(now, replaced time.Time, keep time.Duration) bool {
 	return now.Sub(replaced) >= keep || replaced.After(now.Add(ClockSkew))
 }
 
-// Close releases the directory's lock. The epochs stay readable in memory
-// (Current, Get, ID); Rotate and Prune fail with ErrClosed.
+// Close releases the directory's lock and forgets every epoch's key in
+// memory (another process may now prune them): ID then fails with
+// ErrForgottenEpoch, Rotate and Prune with ErrClosed.
 func (s *EpochStore) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.closed = true
+	// Another process may now prune these keys: never mint under them.
+	for _, p := range s.epochs {
+		p.forget()
+	}
 	if s.lock == nil {
 		return nil
 	}
