@@ -129,7 +129,7 @@ func TestFindInViewsCoversEncodedForm(t *testing.T) {
 }
 
 func FuzzDetectionView(f *testing.F) {
-	for _, s := range []string{"jo\u200bhn@ｅｘ.com", "%2540&#x40;\\u0040&commat;", "\xff\xfe%", "&#;&#x;&;", `\ud800A`, "ﬁ́\u200d"} {
+	for _, s := range []string{"jo\u200bhn@ｅｘ.com", "%2540&#x40;\\u0040&commat;", "\xff\xfe%", "&#;&#x;&;", `\ud800A`, "ﬁ́\u200d", "\x1b\x7f\x7f\x7f\x7f\x7f\x7f\x7fX※0", "\x1bX※0", "\x07€ж"} {
 		f.Add(s)
 	}
 	f.Fuzz(func(t *testing.T, s string) {
@@ -603,6 +603,10 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 		"mail jean&#6\xff4;example.com",
 		"mail jean\\u00\xff40example.com",
 		"mail jean%4%ff0example.com",
+		"iban BE68\x1bZ\u009b31m539007547034 x",
+		"iban BE68\x1bZ\x9b31m539007547034 x",
+		"iban BE68\u009a\u009b31m539007547034 x",
+		"iban BE6853900754703\x1bZ4 x",
 		"card 4111111111\x1b€111111 end",
 		"card 41111111\x1b[€11111111 end",
 		"card 41111111\x1b[1€11111111 end",
