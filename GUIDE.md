@@ -231,7 +231,9 @@ bastion reaches; no local port is ever opened.
     (introduced by ESC, a C1 control or a raw 8-bit C1 byte): CSI (C0
     controls and DEL after the ESC and inside skipped, as terminals do, CAN and SUB cancelling it), OSC, DCS,
     SOS, PM and APC strings (ended by their terminator, CAN or SUB), nF
-    and two-byte escapes, each aborted by the next ESC or C1 control, dropped whole
+    and two-byte escapes (SCI with the character it swallows), each
+    aborted by the next ESC or C1 control or cancelled by a non-ASCII
+    character (swallowed, as xterm and VTE do), dropped whole
     whatever their length (otherwise only their introducer); one view
     keeps the strings' payload. These views are also made of every
     decoded view below, so `\u001b[31m` inside a value does not split it.
