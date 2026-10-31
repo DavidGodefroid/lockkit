@@ -295,6 +295,9 @@ var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-
 func findSecretPairs(s string) []span {
 	var out []span
 	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, func(start int) bool {
+		if escapeLen(s, start) > 0 {
+			return false // "\r\nauth=": the key starts after the escape
+		}
 		b := before(s, start)
 		return !isAlnum(b) && b != '.' && b != '-' && b != '\\'
 	}, func(m []int) int {

@@ -269,17 +269,39 @@ func before(s string, i int) byte {
 	return 0
 }
 
-// escapeBoundary reports that s[:i] ends with a \n, \r or \t escape: an
-// odd run of backslashes, then the letter.
+// escapeBoundary reports that s[:i] ends with an escape that stands for
+// a blank or a delimiter: \n, \r, \t, or \u0026 (&), \u003c (<),
+// \u003e (>), \u003d (=), \u0027 ('), \u0022 (") as Go's encoding/json
+// and logrus write them.
 func escapeBoundary(s string, i int) bool {
-	if i < 2 || s[i-2] != '\\' || s[i-1] != 'n' && s[i-1] != 'r' && s[i-1] != 't' {
-		return false
+	return escapeLen(s, i-2) == 2 || escapeLen(s, i-6) == 6
+}
+
+// escapeLen returns the length of a boundary escape that starts at s[i]
+// (its backslash unescaped), or 0.
+func escapeLen(s string, i int) int {
+	if i < 0 || i+1 >= len(s) || s[i] != '\\' {
+		return 0
 	}
 	n := 0
-	for k := i - 2; k >= 0 && s[k] == '\\'; k-- {
+	for k := i; k >= 0 && s[k] == '\\'; k-- {
 		n++
 	}
-	return n%2 == 1
+	if n%2 == 0 {
+		return 0 // an escaped backslash
+	}
+	switch s[i+1] {
+	case 'n', 'r', 't':
+		return 2
+	case 'u':
+		if i+6 <= len(s) {
+			switch strings.ToLower(s[i+2 : i+6]) {
+			case "0026", "003c", "003e", "003d", "0027", "0022":
+				return 6
+			}
+		}
+	}
+	return 0
 }
 
 func after(s string, i int) byte {
