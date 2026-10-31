@@ -19,10 +19,12 @@ import (
 	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
-// HubOptions put a console in hub mode: requests are decided on lockhub,
-// never on this terminal. They are the console flags `lock up` writes:
-// --hub URL --hub-key-file PATH --instance NAME, all three or none. There
-// is no discovery: without them the console is standalone.
+// HubOptions attach a console to its hub: requests are decided on
+// lockhub, never on this terminal. They are the console flags `lox up`
+// writes: --hub URL --hub-key-file PATH --instance NAME, all three
+// required. There is no discovery and no standalone mode: a console
+// started without them refuses to start (it is launched by `lox up`
+// only).
 type HubOptions struct {
 	// URL is the hub's base URL ("http://lockhub:8443").
 	URL string
@@ -54,12 +56,12 @@ type HubOptions struct {
 
 // Register adds the hub flags to fs.
 func (h *HubOptions) Register(fs *flag.FlagSet) {
-	fs.StringVar(&h.URL, "hub", "", "decide requests on lockhub at this URL instead of this terminal (with --hub-key-file and --instance)")
-	fs.StringVar(&h.KeyFile, "hub-key-file", "", "the pinned public key of the hub (base64, one line)")
-	fs.StringVar(&h.Instance, "instance", "", "the lock instance name the hub knows this console by")
+	fs.StringVar(&h.URL, "hub", "", "the lockhub URL requests are decided on (required, with --hub-key-file and --instance; written by lox up)")
+	fs.StringVar(&h.KeyFile, "hub-key-file", "", "the pinned public key of the hub (base64, one line; required)")
+	fs.StringVar(&h.Instance, "instance", "", "the lock instance name the hub knows this console by (required)")
 	fs.BoolVar(&h.PlainHTTP, "hub-plain-http", false, "allow an http:// hub URL on a network of its own (a service name without a dot or a private address)")
-	fs.StringVar(&h.DevicesFile, "devices-file", "", "the approval devices this lock pins (JSON, written by lock up): device decisions must carry their signature")
-	fs.StringVar(&h.FacadeKeysFile, "facade-keys-file", "", "the facade keys this lock pins (JSON, written by lock up): reveals are sealed only to them")
+	fs.StringVar(&h.DevicesFile, "devices-file", "", "the approval devices this lock pins (JSON, written by lox up): device decisions must carry their signature")
+	fs.StringVar(&h.FacadeKeysFile, "facade-keys-file", "", "the facade keys this lock pins (JSON, written by lox up): reveals are sealed only to them")
 	fs.StringVar(&h.RequireDevice, "require-device", "", "risk classes (comma-separated) whose approvals must be signed by a pinned device, from any facade")
 	fs.BoolVar(&h.SealClear, "seal-clear", false, "send the clear screen sealed to the pinned devices (end to end; the hub relays ciphertext)")
 }
@@ -126,10 +128,14 @@ func (h HubOptions) Enabled() bool {
 	return h.URL != "" || h.KeyFile != "" || h.Instance != "" || h.PlainHTTP || h.DevicesFile != "" || h.RequireDevice != "" || h.SealClear || h.FacadeKeysFile != ""
 }
 
+// ErrNoHub refuses a console started without its hub: --hub,
+// --hub-key-file and --instance are required, as `lox up` writes them.
+var ErrNoHub = fmt.Errorf("%w: the console is launched by `lox up` only: --hub, --hub-key-file and --instance are required", ErrConfig)
+
 func (h HubOptions) check() error {
 	switch {
 	case h.URL == "" || h.KeyFile == "" || h.Instance == "":
-		return fmt.Errorf("%w: --hub, --hub-key-file and --instance go together", ErrConfig)
+		return ErrNoHub
 	case !hubclient.ValidInstance(h.Instance):
 		// Neither value is quoted: it may be a token pasted in the wrong
 		// flag.
@@ -174,7 +180,8 @@ type Hub struct {
 	now      func() time.Time
 }
 
-// HubOf returns env's hub, nil when the console is standalone.
+// HubOf returns env's hub (nil only for a Server built without one, in
+// tests).
 func HubOf(env Env) *Hub {
 	if h, ok := env.(interface{ Hub() *Hub }); ok {
 		return h.Hub()

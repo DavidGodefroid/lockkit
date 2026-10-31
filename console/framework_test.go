@@ -120,7 +120,7 @@ func (b *fakeBackend) Methods() map[string]Handler {
 		if !a.Approved {
 			return a.Refusal
 		}
-		return OKResp(req.ID, map[string]any{"messages": 1, "auto": a.Auto})
+		return OKResp(req.ID, map[string]any{"messages": 1})
 	}}
 }
 
@@ -323,7 +323,7 @@ func TestApproveAuditFailureRefuses(t *testing.T) {
 	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error != nil {
 		t.Fatal(r.Error)
 	}
-	// An unwritable log: manual and auto approvals are refused.
+	// An unwritable log: approvals are refused.
 	if err := os.Chmod(h.log, 0o400); err != nil {
 		t.Fatal(err)
 	}
@@ -332,15 +332,14 @@ func TestApproveAuditFailureRefuses(t *testing.T) {
 	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
 		t.Fatalf("unwritable log approved: %s %+v", r.Result, r.Error)
 	}
-	h.s.auto = true
+	h.io.answers = []string{"y"}
 	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeInternal {
-		t.Fatalf("unwritable log auto-approved: %s %+v", r.Result, r.Error)
+		t.Fatalf("unwritable log approved twice: %s %+v", r.Result, r.Error)
 	}
 	if _, ended := h.s.Ended(); ended {
 		t.Fatal("ended after two failures")
 	}
 	// A denial stays a denial; the third failure in a row ends the session.
-	h.s.auto = false
 	h.io.answers = []string{"n"}
 	if r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || r.Error.Code != ipc.CodeDenied {
 		t.Fatalf("denial: %+v", r.Error)
@@ -369,39 +368,27 @@ func TestApproveProductionTypedName(t *testing.T) {
 	}
 }
 
-// Auto mode approves without a prompt, except a NeverAuto screen and
-// never on production.
-func TestAutoMode(t *testing.T) {
-	h := newHarness(t, uat(), func(c *ServerConfig) { c.Auto = true })
-	r := h.call(t, context.Background(), "op.read", map[string]string{"queue": "q"})
-	if r.Error != nil || !strings.Contains(string(r.Result), `"auto":true`) || h.io.promptCount() != 0 {
-		t.Fatalf("auto: %s %+v prompts %d", r.Result, r.Error, h.io.promptCount())
+// Auto mode is gone: NewServer refuses it, and Auto is always false.
+func TestNewServerRefusesAuto(t *testing.T) {
+	log, _ := audit.Open(testProduct, t.TempDir())
+	_, err := NewServer(ServerConfig{Product: testProduct, Backend: &fakeBackend{policy: uat()}, Policy: uat(),
+		Session: &fakeSession{}, Audit: log, IO: &fakeIO{}, Auto: true})
+	if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "auto mode is gone") {
+		t.Fatalf("err = %v", err)
 	}
-	if rec := h.lastRecord(t); rec["event"] != "auto" {
-		t.Fatalf("audit: %v", rec)
-	}
-	h.io.answers = []string{"y"}
-	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q", "never_auto": true}); r.Error != nil || strings.Contains(string(r.Result), `"auto":true`) || h.io.promptCount() != 1 {
-		t.Fatalf("never auto: %s prompts %d", r.Result, h.io.promptCount())
-	}
-	hp := newHarness(t, prod(), func(c *ServerConfig) { c.Auto = true })
-	hp.io.timeout = true
-	if r := hp.call(t, context.Background(), "op.read", map[string]string{"queue": "q"}); r.Error == nil || hp.io.promptCount() != 1 {
-		t.Fatalf("auto on production: %+v", r)
-	}
-	if hp.s.Auto() {
-		t.Error("Auto() on production")
+	if h := newHarness(t, uat(), nil); h.s.Auto() || h.s.Status().AutoApprove {
+		t.Fatal("auto mode reported")
 	}
 }
 
 func TestKeysAndCommands(t *testing.T) {
 	h := newHarness(t, uat(), nil)
+	// Shift+Tab and :mode switched auto mode, which is gone: nothing
+	// happens, nothing is audited.
 	h.s.Key(KeyShiftTab)
-	if !h.s.Auto() || !strings.Contains(h.io.statusLine(), "AUTO") {
-		t.Fatalf("Shift+Tab: auto %v status %q", h.s.Auto(), h.io.statusLine())
-	}
-	if rec := h.lastRecord(t); rec["event"] != "mode" || rec["decision"] != "auto" {
-		t.Fatalf("audit: %v", rec)
+	h.s.Command(context.Background(), ":mode")
+	if h.s.Auto() || strings.Contains(h.io.statusLine(), "mode") || len(h.records(t)) != 0 {
+		t.Fatalf("Shift+Tab: auto %v status %q records %v", h.s.Auto(), h.io.statusLine(), h.records(t))
 	}
 	h.s.Key(KeyCtrlO)
 	if !h.s.ShowResults() || !strings.Contains(h.io.statusLine(), "results clear") {
@@ -422,22 +409,17 @@ func TestKeysAndCommands(t *testing.T) {
 		t.Errorf(":status lacks the policy:\n%s", h.io.plain())
 	}
 	h.s.Command(context.Background(), ":what")
-	if !strings.Contains(h.io.plain(), "commands: :review") {
-		t.Error("no help")
+	if !strings.Contains(h.io.plain(), "commands: :review") || strings.Contains(h.io.plain(), ":mode") {
+		t.Error("no help, or one naming :mode")
 	}
 	h.s.Command(context.Background(), ":quit")
 	if reason, ended := h.s.Ended(); !ended || reason != "quit" {
 		t.Fatal(":quit")
 	}
-	hp := newHarness(t, prod(), nil)
-	hp.s.Key(KeyShiftTab)
-	if hp.s.Auto() || !strings.Contains(hp.io.plain(), "not available on a production profile") {
-		t.Fatal("auto on production")
-	}
 }
 
-// At level 2 a typed answer alone never widens: auto mode takes a finger,
-// the clear results stay off.
+// At level 2 a typed answer alone never widens: the clear results stay
+// off, and Shift+Tab asks for no finger.
 func TestLevel2Widening(t *testing.T) {
 	v := &fingerprint.Fake{Results: []error{fingerprint.ErrNoMatch}}
 	var io *fakeIO
@@ -448,8 +430,8 @@ func TestLevel2Widening(t *testing.T) {
 	})
 	io.answers = []string{"y"}
 	h.s.Key(KeyShiftTab)
-	if h.s.Auto() || v.Calls != 1 {
-		t.Fatalf("auto without a finger: auto %v calls %d", h.s.Auto(), v.Calls)
+	if h.s.Auto() || v.Calls != 0 {
+		t.Fatalf("Shift+Tab: auto %v calls %d", h.s.Auto(), v.Calls)
 	}
 	h.s.Key(KeyCtrlO)
 	if h.s.ShowResults() {
@@ -479,14 +461,16 @@ func TestNoWideningWhilePromptWaits(t *testing.T) {
 	var h *harness
 	h = newHarness(t, uat(), func(c *ServerConfig) {
 		c.Level = 2
-		c.Approver = &keyApprover{Approver: NewFingerprintApprover(c.IO, v, "left-index-finger", time.Second), during: func() { h.s.Key(KeyShiftTab) }}
+		c.Approver = &keyApprover{Approver: NewFingerprintApprover(c.IO, v, "left-index-finger", time.Second), during: func() {
+			h.s.Command(context.Background(), ":unmask")
+		}}
 	})
 	h.io.answers = []string{"y"}
 	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q"}); r.Error != nil {
 		t.Fatalf("request: %+v", r.Error)
 	}
-	if h.s.Auto() || v.Calls != 1 || !strings.Contains(h.io.plain(), "auto mode: not while a prompt waits") {
-		t.Fatalf("auto %v, finger calls %d:\n%s", h.s.Auto(), v.Calls, h.io.plain())
+	if h.s.UnmaskAllowed() || v.Calls != 1 || !strings.Contains(h.io.plain(), "unmask: not while a prompt waits") {
+		t.Fatalf("unmask %v, finger calls %d:\n%s", h.s.UnmaskAllowed(), v.Calls, h.io.plain())
 	}
 	if !strings.Contains(h.io.plain(), "Place your left index finger on the reader to approve the request above") {
 		t.Fatalf("the finger prompt does not name its decision:\n%s", h.io.plain())
@@ -495,7 +479,6 @@ func TestNoWideningWhilePromptWaits(t *testing.T) {
 	var h0 *harness
 	h0 = newHarness(t, uat(), func(c *ServerConfig) {
 		c.Approver = &keyApprover{Approver: NewTypedApprover(c.IO), during: func() {
-			h0.s.Key(KeyShiftTab)
 			h0.s.Key(KeyCtrlO)
 			h0.s.Command(context.Background(), ":unmask")
 		}}
@@ -504,39 +487,39 @@ func TestNoWideningWhilePromptWaits(t *testing.T) {
 	if r := h0.call(t, context.Background(), "op.read", map[string]any{"queue": "q"}); r.Error != nil {
 		t.Fatalf("request: %+v", r.Error)
 	}
-	if h0.s.Auto() || h0.s.ShowResults() || h0.s.UnmaskAllowed() {
-		t.Fatalf("widened during a prompt: auto %v results %v unmask %v", h0.s.Auto(), h0.s.ShowResults(), h0.s.UnmaskAllowed())
+	if h0.s.ShowResults() || h0.s.UnmaskAllowed() {
+		t.Fatalf("widened during a prompt: results %v unmask %v", h0.s.ShowResults(), h0.s.UnmaskAllowed())
 	}
-	if n := strings.Count(h0.io.plain(), "not while a prompt waits"); n != 3 {
+	if n := strings.Count(h0.io.plain(), "not while a prompt waits"); n != 2 {
 		t.Fatalf("refusal printed %d times:\n%s", n, h0.io.plain())
 	}
 	// Between prompts the keys work again.
-	h0.s.Key(KeyShiftTab)
-	if !h0.s.Auto() {
-		t.Fatal("auto mode refused with no prompt waiting")
+	h0.s.Key(KeyCtrlO)
+	if !h0.s.ShowResults() {
+		t.Fatal("clear results refused with no prompt waiting")
 	}
 }
 
-// Narrowing stays allowed while a prompt waits: auto mode can be switched
-// off during a request that asks for a human every time.
+// Narrowing stays allowed while a prompt waits: the clear results can be
+// hidden during a request.
 func TestNarrowingWhilePromptWaits(t *testing.T) {
 	var h *harness
 	h = newHarness(t, uat(), func(c *ServerConfig) {
-		c.Auto = true
-		c.Approver = &keyApprover{Approver: NewTypedApprover(c.IO), during: func() { h.s.Key(KeyShiftTab) }}
+		c.ShowResults = true
+		c.Approver = &keyApprover{Approver: NewTypedApprover(c.IO), during: func() { h.s.Key(KeyCtrlO) }}
 	})
 	h.io.answers = []string{"y"}
-	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q", "never_auto": true}); r.Error != nil {
+	if r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "q"}); r.Error != nil {
 		t.Fatalf("request: %+v", r.Error)
 	}
-	if h.s.Auto() {
-		t.Fatal("auto mode not switched off during a prompt")
+	if h.s.ShowResults() {
+		t.Fatal("clear results not hidden during a prompt")
 	}
 }
 
 // At level 1 the agent's account can read the console window: Ctrl-O and
-// :results leave the results masked, with nothing audited, while auto mode
-// and :unmask still work as at level 0.
+// :results leave the results masked, with nothing audited, while :unmask
+// still works as at level 0.
 func TestLevel1ClearResultsRefused(t *testing.T) {
 	h := newHarness(t, uat(), func(c *ServerConfig) { c.Level = 1 })
 	before := len(h.records(t))
@@ -560,10 +543,6 @@ func TestLevel1ClearResultsRefused(t *testing.T) {
 	if st := h.s.Status(); st.ShowResults || st.Level != 1 {
 		t.Errorf("status = %+v", st)
 	}
-	h.s.Key(KeyShiftTab)
-	if !h.s.Auto() {
-		t.Error("auto mode refused at level 1")
-	}
 	h.io.answers = []string{"y"}
 	h.s.Command(context.Background(), ":unmask")
 	if !h.s.UnmaskAllowed() {
@@ -572,7 +551,7 @@ func TestLevel1ClearResultsRefused(t *testing.T) {
 }
 
 // ShowResults at start is refused by NewServer at levels 1 and 2, whoever
-// assembles the console; Auto and AllowUnmask stay accepted at level 1.
+// assembles the console; AllowUnmask stays accepted at level 1.
 func TestNewServerRefusesShowResultsOnDesktop(t *testing.T) {
 	for _, level := range []int{1, 2} {
 		log, _ := audit.Open(testProduct, t.TempDir())
@@ -586,9 +565,9 @@ func TestNewServerRefusesShowResultsOnDesktop(t *testing.T) {
 	if !h.s.ShowResults() {
 		t.Error("level 0 lost ShowResults")
 	}
-	h1 := newHarness(t, uat(), func(c *ServerConfig) { c.Level, c.Auto, c.AllowUnmask = 1, true, true })
-	if !h1.s.Auto() || !h1.s.UnmaskAllowed() {
-		t.Error("level 1 refused --auto or --allow-unmask")
+	h1 := newHarness(t, uat(), func(c *ServerConfig) { c.Level, c.AllowUnmask = 1, true })
+	if !h1.s.UnmaskAllowed() {
+		t.Error("level 1 refused --allow-unmask")
 	}
 }
 
@@ -602,7 +581,7 @@ func TestRunRefusesShowResultsAtLevel1(t *testing.T) {
 	b := &fakeBackend{policy: uat()}
 	io := &fakeIO{answers: []string{"y"}}
 	state := t.TempDir()
-	err := Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: &env,
+	err := Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: state, Isolation: &env,
 		ShowResults: true, Harden: func() error { return nil }})
 	if !errors.Is(err, ErrConfig) || err.Error() != "configuration error: level 1 does not accept --show-results: the agent's account can read this window" {
 		t.Fatalf("err = %v", err)
@@ -614,7 +593,7 @@ func TestRunRefusesShowResultsAtLevel1(t *testing.T) {
 		t.Fatalf("state written: %v", entries)
 	}
 	env2 := desktopEnvFake()
-	err = Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: &fakeIO{}, StateDir: t.TempDir(), Isolation: &env2,
+	err = Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: &fakeIO{}, StateDir: t.TempDir(), Isolation: &env2,
 		ShowResults: true, Harden: func() error { return nil }})
 	if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "level 2 does not accept") {
 		t.Fatalf("level 2: %v", err)
@@ -835,17 +814,19 @@ func dialAndCall(t *testing.T, socket, method string, params any) ipc.Response {
 }
 
 // Run end to end: first-start review, the user and the secret asked, the
-// checks accepted with "continue", the socket served, logout audited.
+// checks accepted with "continue", the socket served, logout audited. A
+// request is never asked on the terminal: it goes to the hub (a screen
+// without a hub ticket is refused, TestRunHubModeEndToEnd covers one with).
 func TestRunEndToEnd(t *testing.T) {
 	env := runEnv(t)
 	b := &fakeBackend{policy: uat(), findings: []Finding{{Text: "the account can configure queues"}}}
 	b.policy.Base.User = ""
-	io := &fakeIO{answers: []string{"y", "alice", "continue", "y"}, secrets: []string{"s3cret"}}
+	io := &fakeIO{answers: []string{"y", "alice", "continue"}, secrets: []string{"s3cret"}}
 	state := t.TempDir()
 	ready := make(chan string, 1)
 	done := make(chan error, 1)
 	go func() {
-		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: state, Isolation: env,
 			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s }})
 	}()
 	var socket string
@@ -856,8 +837,8 @@ func TestRunEndToEnd(t *testing.T) {
 	case <-time.After(10 * time.Second):
 		t.Fatal("no socket")
 	}
-	if r := dialAndCall(t, socket, "op.read", map[string]string{"queue": "orders"}); r.Error != nil {
-		t.Fatalf("op.read: %+v\n%s", r.Error, io.plain())
+	if r := dialAndCall(t, socket, "op.read", map[string]string{"queue": "orders"}); r.Error == nil || io.promptCount() != 4 {
+		t.Fatalf("op.read without a hub ticket: %s, prompts %d\n%s", r.Result, io.promptCount(), io.plain())
 	}
 	if r := dialAndCall(t, socket, ipc.MethodLogout, nil); r.Error != nil {
 		t.Fatal(r.Error)
@@ -878,7 +859,7 @@ func TestRunEndToEnd(t *testing.T) {
 		_ = json.Unmarshal([]byte(l), &m)
 		events = append(events, fmt.Sprint(m["event"]))
 	}
-	if strings.Join(events, ",") != "policy,login,approved,logout" {
+	if strings.Join(events, ",") != "policy,login,logout" {
 		t.Fatalf("events %v", events)
 	}
 	if strings.Contains(string(raw), "s3cret") {
@@ -891,16 +872,16 @@ func TestRunProductionRefusesFindings(t *testing.T) {
 	env := runEnv(t)
 	b := &fakeBackend{policy: prod(), findings: []Finding{{Text: "the account can publish"}}}
 	io := &fakeIO{answers: []string{"y", "prod"}, secrets: []string{"pw"}}
-	err := Run(context.Background(), testProduct, b, Options{Profile: "prod", IO: io, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }})
+	err := Run(context.Background(), testProduct, b, Options{Profile: "prod", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }})
 	if err == nil || !strings.Contains(err.Error(), "refused by the checks") || len(b.sessions) != 1 || !b.sessions[0].closed {
 		t.Fatalf("err = %v sessions %d", err, len(b.sessions))
 	}
 	b2 := &fakeBackend{policy: prod()}
 	io2 := &fakeIO{answers: []string{"y", "PROD"}, secrets: []string{"pw"}}
-	if err := Run(context.Background(), testProduct, b2, Options{Profile: "prod", IO: io2, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }}); err == nil || !strings.Contains(err.Error(), "not confirmed") {
+	if err := Run(context.Background(), testProduct, b2, Options{Profile: "prod", Hub: testHub(t), IO: io2, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }}); err == nil || !strings.Contains(err.Error(), "not confirmed") {
 		t.Fatalf("unconfirmed production: %v", err)
 	}
-	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", IO: &fakeIO{answers: []string{"y"}}, StateDir: t.TempDir(), Isolation: env,
+	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", Hub: testHub(t), IO: &fakeIO{answers: []string{"y"}}, StateDir: t.TempDir(), Isolation: env,
 		Harden: func() error { return errors.New("no rlimit") }}); err == nil || !strings.Contains(err.Error(), "core dumps could not be disabled") {
 		t.Fatalf("production without hardening: %v", err)
 	}
@@ -926,7 +907,7 @@ func TestRunBecomingProductionReappliesStartRefusals(t *testing.T) {
 			ready := make(chan string, 1)
 			done := make(chan error, 1)
 			go func() {
-				done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+				done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env,
 					Harden: func() error { return tc.harden }, Quantum: -1, Ready: func(s string) { ready <- s }})
 			}()
 			select {
@@ -968,7 +949,7 @@ func TestRunLoosenedPolicyReviewedAtStart(t *testing.T) {
 	ready := make(chan string, 1)
 	done := make(chan error, 1)
 	go func() {
-		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: state, Isolation: env,
 			Harden: func() error { return nil }, Ready: func(s string) { ready <- s }})
 	}()
 	var socket string
@@ -1005,7 +986,7 @@ func TestRunKeychainAndVault(t *testing.T) {
 	ready := make(chan string, 1)
 	done := make(chan error, 1)
 	go func() {
-		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env,
 			Harden: func() error { return nil }, Keychain: &kc, Ready: func(s string) { ready <- s },
 			VaultRead: func(context.Context, string) (*secrets.VaultCredentials, error) {
 				return &secrets.VaultCredentials{User: "vault-user", Password: []byte("vpw")}, nil
@@ -1035,15 +1016,11 @@ func readOnlyAudit(t *testing.T, path string) {
 	t.Cleanup(func() { _ = os.Chmod(path, 0o600) })
 }
 
-// A widening takes effect only once recorded: auto mode, clear results,
+// A widening takes effect only once recorded: clear results,
 // unmask and a loosened policy stay off when the audit write fails.
 func TestWideningAuditFailureKeepsSwitchesOff(t *testing.T) {
 	h := newHarness(t, uat(), nil)
 	readOnlyAudit(t, h.log)
-	h.s.toggleMode()
-	if h.s.auto {
-		t.Error("auto mode on without a record")
-	}
 	h.s.toggleResults()
 	if h.s.showResults {
 		t.Error("clear results shown without a record")

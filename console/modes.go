@@ -10,40 +10,19 @@ import (
 	"github.com/DavidGodefroid/lockkit/ui"
 )
 
-// The console's live switches: the approval mode (manual, where every
-// request is prompted, or auto, where requests run without a prompt unless
-// their screen says NeverAuto), the clear results (Ctrl-O: the product
+// The console's live switches: the clear results (Ctrl-O: the product
 // prints the clear result of each masked request here) and unmasked output
-// (whether a client may ask for it, each such request then approved here).
-// They change only from the console's own keyboard, Shift+Tab, Ctrl-O and
-// :unmask (or :mode and :results), never from a client or a config file,
-// and each change is audited. A production profile stays in manual mode.
-// Allowing unmasked output is a typed command confirmed with y, never a
-// single key.
-
-// autoApprove reports whether auto mode is in effect: never on a
-// production profile, nor with an AsyncApprover (the hub has its own).
-func (s *Server) autoApprove() bool {
-	if _, async := s.approver.(AsyncApprover); async {
-		return false
-	}
-	return s.auto && !s.profile.Production
-}
-
-func (s *Server) modeName() string {
-	if s.autoApprove() {
-		return "auto"
-	}
-	return "manual"
-}
+// (whether a client may ask for it, each such request then decided on
+// lockhub). They change only from the console's own keyboard, Ctrl-O and
+// :unmask (or :results), never from a client or a config file, and each
+// change is audited. Allowing unmasked output is a typed command confirmed
+// with y, never a single key. There is no auto mode: lockhub decides every
+// request.
 
 // Key handles a control key pressed in the console.
 func (s *Server) Key(k Key) {
 	s.lastSeen = s.now()
-	switch k {
-	case KeyShiftTab:
-		s.toggleMode()
-	case KeyCtrlO:
+	if k == KeyCtrlO {
 		s.toggleResults()
 	}
 }
@@ -57,47 +36,6 @@ func (s *Server) widenRefused(what string) bool {
 	}
 	s.println(Paint.Warn(what + ": not while a prompt waits; answer it first"))
 	return true
-}
-
-func (s *Server) toggleMode() {
-	w := s.words()
-	if s.profile.Production {
-		s.println(Paint.Warn(word(w.NoAutoProduction, "auto mode is not available on a production profile: every request is prompted")))
-		return
-	}
-	if !s.auto && s.cfg.Hub != nil && w.NoAutoHub != "" {
-		s.println(Paint.Warn(w.NoAutoHub))
-		return
-	}
-	if !s.auto && s.widenRefused("auto mode") {
-		return
-	}
-	if !s.auto && s.fingerprintLevel() {
-		// Level 2: auto mode widens what runs unprompted, so a typed
-		// answer alone, which the agent could type too, never turns it on.
-		if r := s.decide(context.Background(), Decision{Prompt: "Switch to auto mode? [y/N] ", Expected: "y", For: "to switch to auto mode"}); r.Outcome != Approved {
-			if reason, errText := noFingerFields(r); reason != "" {
-				s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: "refused", Reason: reason, Error: errText})
-			}
-			s.println("mode: still manual")
-			s.refreshStatus()
-			return
-		}
-	}
-	if !s.auto && s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: "auto"}) != nil {
-		s.notRecorded("auto mode")
-		return
-	}
-	s.auto = !s.auto
-	if !s.auto {
-		_ = s.record(context.Background(), audit.Base{Event: audit.EventMode, Decision: s.modeName()})
-	}
-	if s.auto {
-		s.println(Paint.Yellow(ui.MarkWarn + " " + word(w.AutoOn, "auto mode: requests run without a prompt; those that ask for a human every time are still prompted (Shift+Tab: back to manual)")))
-	} else {
-		s.println(Paint.OK(word(w.Manual, "manual mode: every request is prompted")))
-	}
-	s.refreshStatus()
 }
 
 // notRecorded tells the human that a widening stays off: its audit record
@@ -154,7 +92,7 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 	if s.widenRefused("unmask") {
 		return
 	}
-	warn := word(s.words().UnmaskAsk, "allow clients to ask for unmasked output? Each such request is still approved here, never auto-approved")
+	warn := word(s.words().UnmaskAsk, "allow clients to ask for unmasked output? Each such request is still approved, never auto-approved")
 	if s.profile.Production {
 		warn += " (PRODUCTION data)"
 	}
@@ -186,8 +124,6 @@ func (s *Server) Command(ctx context.Context, line string) {
 		for _, l := range s.statusLines() {
 			s.println(l)
 		}
-	case ":mode":
-		s.toggleMode()
 	case ":results":
 		s.toggleResults()
 	case ":unmask":
@@ -195,7 +131,7 @@ func (s *Server) Command(ctx context.Context, line string) {
 	case ":quit":
 		s.End("quit")
 	default:
-		s.println("commands: :review (pending policy change and change requests) · :status · :mode (Shift+Tab) · :results (Ctrl-O) · :unmask · :quit")
+		s.println("commands: :review (pending policy change and change requests) · :status · :results (Ctrl-O) · :unmask · :quit")
 	}
 }
 
@@ -208,7 +144,6 @@ func (s *Server) statusLines() []string {
 	v := s.statusView()
 	rows := [][2]string{
 		{"profile", fmt.Sprintf("%s · %s · production %t", st.Profile, sanitize.Terminal(s.profile.Where, false), st.Production)},
-		{"mode", StatusModeRow(v, Words{})},
 		{"results", StatusResultsRow(v, Words{})},
 		{"unmask", StatusUnmaskRow(v)},
 		{"session", fmt.Sprintf("ends in %d min (max_session %s) · idle_timeout %s", st.SessionEndsInS/60, s.profile.MaxSession, s.profile.IdleTimeout)},
@@ -223,22 +158,16 @@ func (s *Server) statusLines() []string {
 	return keyValues(rows)
 }
 
-// StatusModeRow, StatusResultsRow, StatusUnmaskRow, StatusPendingRow and
+// StatusResultsRow, StatusUnmaskRow, StatusPendingRow and
 // StatusBoundaryRow are the values of the console's own :status rows, for
-// a StatusRower that keeps them; words (Words.StatusAuto, StatusManual,
-// StatusResults) word them.
+// a StatusRower that keeps them; words (Words.StatusResults) word them.
 
-// StatusModeRow is the value of the mode row.
-func StatusModeRow(v StatusView, w Words) string {
-	mode := word(w.StatusManual, "manual: every request is prompted")
-	switch {
-	case v.Auto:
-		mode = Paint.Yellow(word(w.StatusAuto, "auto: requests run without a prompt unless they ask for a human every time"))
-	case v.Profile.Production:
-		mode += " (production: auto mode unavailable)"
-	}
-	return mode + Paint.Dim(" (Shift+Tab or :mode)")
-}
+// StatusModeRow is the value of the former mode row: lockhub decides
+// every request.
+//
+// Deprecated: auto mode is gone and the console's :status has no mode
+// row; it goes in the next minor release.
+func StatusModeRow(StatusView, Words) string { return "lockhub decides every request" }
 
 // StatusResultsRow is the value of the results row.
 func StatusResultsRow(v StatusView, w Words) string {
@@ -306,15 +235,6 @@ func (s *Server) statusLine() string {
 		name += " " + suffix
 	}
 	parts := []string{name}
-	mode := Paint.Green("manual")
-	if s.autoApprove() {
-		mode = Paint.Paint(bold+ui.Yellow, "AUTO")
-	}
-	if s.profile.Production {
-		parts = append(parts, "mode "+mode)
-	} else {
-		parts = append(parts, "mode "+mode+" "+Paint.Dim("⇧Tab"))
-	}
 	results := Paint.Dim("masked")
 	if s.showResults {
 		results = Paint.Yellow("clear")

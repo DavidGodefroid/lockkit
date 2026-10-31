@@ -74,10 +74,8 @@ func (b *hookBackend) ApplyPolicy(p Policy) error {
 
 func (b *hookBackend) Words() Words {
 	return Words{
-		AutoStart: "auto mode: statements run (start)", AutoOn: "auto mode: statements run", Manual: "manual mode: every statement",
-		NoAutoProduction: "no auto on production statements", NoAutoHub: "no auto in hub mode",
-		StatusAuto: "auto: statements", StatusManual: "manual: statements", ResultsOn: "results: PII in clear", StatusResults: "PII in clear",
-		UnmaskAsk: "unmask PII?", UnmaskOff: "unmask: off, plans refused", ReviewAuto: "auto mode is on: statements run",
+		ResultsOn: "results: PII in clear", StatusResults: "PII in clear",
+		UnmaskAsk: "unmask PII?", UnmaskOff: "unmask: off, plans refused",
 		ChangeQueued: func(c string) string { return "queued: " + c },
 		Reconnecting: "reconnecting to the database…",
 		TTLReached:   func(ttl time.Duration, cred string) string { return fmt.Sprintf("ttl %s %s", ttl, cred) },
@@ -109,12 +107,9 @@ func newHookHarness(t *testing.T, p fakePolicy, mutate func(*ServerConfig)) (*ha
 // A backend without hooks keeps the console's own text: the other tests
 // and the goldens. With them, the product's.
 func TestHooksStatus(t *testing.T) {
-	h, _ := newHookHarness(t, uat(), func(c *ServerConfig) { c.Auto = true })
-	if !strings.Contains(h.io.plain(), "auto mode: statements run (start)") {
-		t.Fatalf("start:\n%s", h.io.plain())
-	}
+	h, _ := newHookHarness(t, uat(), nil)
 	r := h.call(t, context.Background(), ipc.MethodStatus, nil)
-	if r.Error != nil || string(r.Result) != `{"auto_approve":true,"connected":true,"profile":"uat","tier":"read"}` {
+	if r.Error != nil || string(r.Result) != `{"auto_approve":false,"connected":true,"profile":"uat","tier":"read"}` {
 		t.Fatalf("flat status: %s %+v", r.Result, r.Error)
 	}
 	h.s.Lost()
@@ -128,52 +123,34 @@ func TestHooksStatus(t *testing.T) {
 	}
 	h.s.Command(context.Background(), ":status")
 	out := h.io.plain()
-	for _, want := range []string{"  profile        uat · tier read", "  mode           auto: statements (Shift+Tab or :mode)",
+	for _, want := range []string{"  profile        uat · tier read",
 		"  results        masked (the agent's view) (Ctrl-O or :results)", "  queued         1"} {
 		if !strings.Contains(out, want) {
 			t.Errorf(":status lacks %q:\n%s", want, out)
 		}
 	}
-	if st := h.io.statusLine(); !strings.HasPrefix(st, "UAT tier read · mode AUTO") || !strings.Contains(st, "results masked ^O · 2 plans open · 1 change request") {
+	if st := h.io.statusLine(); !strings.HasPrefix(st, "UAT tier read · results masked") || !strings.Contains(st, "results masked ^O · 2 plans open · 1 change request") {
 		t.Fatalf("status row %q", st)
 	}
 }
 
 func TestHooksModesWording(t *testing.T) {
 	h, _ := newHookHarness(t, uat(), nil)
-	h.s.Key(KeyShiftTab)
-	h.s.Key(KeyShiftTab)
 	h.s.Key(KeyCtrlO)
 	h.io.answers = []string{"n"}
 	h.s.Command(context.Background(), ":unmask")
 	h.s.allowUnmask = true
 	h.s.Command(context.Background(), ":unmask")
 	out := h.io.plain()
-	for _, want := range []string{"auto mode: statements run", "manual mode: every statement", "results: PII in clear", "unmask PII?", "unmask: off, plans refused"} {
+	for _, want := range []string{"results: PII in clear", "unmask PII?", "unmask: off, plans refused"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("lacks %q:\n%s", want, out)
 		}
 	}
-	p, _ := newHookHarness(t, prod(), nil)
-	p.s.Key(KeyShiftTab)
-	if !strings.Contains(p.io.plain(), "no auto on production statements") {
-		t.Fatalf("production:\n%s", p.io.plain())
-	}
-	hub, _ := newHookHarness(t, uat(), func(c *ServerConfig) { c.Hub = &Hub{} })
-	hub.s.Key(KeyShiftTab)
-	if hub.s.auto || !strings.Contains(hub.io.plain(), "no auto in hub mode") {
-		t.Fatalf("hub: auto %v\n%s", hub.s.auto, hub.io.plain())
-	}
-	// Without NoAutoHub the console keeps its behaviour: the switch moves.
-	plain := newHarness(t, uat(), func(c *ServerConfig) { c.Hub = &Hub{} })
-	plain.s.Key(KeyShiftTab)
-	if !plain.s.auto {
-		t.Fatal("hub mode without NoAutoHub refused the switch")
-	}
 }
 
 func TestHooksPolicy(t *testing.T) {
-	h, hb := newHookHarness(t, uat(), func(c *ServerConfig) { c.Auto = true })
+	h, hb := newHookHarness(t, uat(), nil)
 	if len(hb.applied) != 1 || hb.applied[0].Name != "uat" {
 		t.Fatalf("start policy not applied: %+v", hb.applied)
 	}
@@ -213,17 +190,7 @@ func TestHooksPolicy(t *testing.T) {
 	}
 }
 
-func TestHooksReviewAutoAndProduction(t *testing.T) {
-	h, hb := newHookHarness(t, prod(), func(c *ServerConfig) { c.Auto = true })
-	off := prod()
-	off.Production = false
-	h.b.policy = off
-	h.s.CheckPolicy()
-	h.io.answers = []string{"n"}
-	h.s.Command(context.Background(), ":review")
-	if !strings.Contains(h.io.plain(), "auto mode is on: statements run") {
-		t.Fatalf("review:\n%s", h.io.plain())
-	}
+func TestHooksBecomingProduction(t *testing.T) {
 	// Becoming production with findings: the product's words.
 	u, hb2 := newHookHarness(t, uat(), nil)
 	hb2.findings = []Finding{{Text: "can write"}}
@@ -234,7 +201,6 @@ func TestHooksReviewAutoAndProduction(t *testing.T) {
 	if reason, ended := u.s.Ended(); !ended || reason != "privilege audit failed" || !strings.Contains(u.io.plain(), "privileges beyond uat") {
 		t.Fatalf("ended %v %q\n%s", ended, reason, u.io.plain())
 	}
-	_ = hb
 }
 
 func TestHooksSession(t *testing.T) {
@@ -295,12 +261,12 @@ func TestAskerOfAndPolicyPendingOf(t *testing.T) {
 	}
 	// A decision through it counts as a prompt: a widening waits.
 	h.io.answers = []string{"y"}
-	a.Approver = &keyApprover{Approver: a.Approver, during: func() { h.s.Key(KeyShiftTab) }}
+	a.Approver = &keyApprover{Approver: a.Approver, during: func() { h.s.Key(KeyCtrlO) }}
 	if r := a.Decide(context.Background(), Decision{Prompt: "Approve? ", Expected: "y"}); r.Outcome != Approved {
 		t.Fatalf("decide %+v", r)
 	}
-	if h.s.auto || !strings.Contains(h.io.plain(), "auto mode: not while a prompt waits") {
-		t.Fatalf("auto %v\n%s", h.s.auto, h.io.plain())
+	if h.s.showResults || !strings.Contains(h.io.plain(), "clear results: not while a prompt waits") {
+		t.Fatalf("results %v\n%s", h.s.showResults, h.io.plain())
 	}
 	if PolicyPendingOf(h.s) {
 		t.Fatal("pending without a loosening")
@@ -354,7 +320,7 @@ func TestRunConnectGetsPolicyAndUnwraps(t *testing.T) {
 	ready := make(chan string, 1)
 	done := make(chan error, 1)
 	go func() {
-		done <- Run(context.Background(), testProduct, hb, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+		done <- Run(context.Background(), testProduct, hb, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env,
 			Harden: func() error { return nil }, Keychain: &kc, Ready: func(s string) { ready <- s },
 			VaultRead: func(context.Context, string) (*secrets.VaultCredentials, error) {
 				return &secrets.VaultCredentials{User: "vault-user", Password: []byte("vpw"), LeaseID: "l1", LeaseDuration: time.Hour}, nil

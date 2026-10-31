@@ -36,7 +36,7 @@ type Decision struct {
 // request is answered "pending" instead of waiting for a human here. The
 // decision comes back later, through the hub, never through this console.
 // Approve still takes the console's own decisions (a policy change, unmask)
-// and the console's auto mode is off: the hub has its own.
+// on the terminal.
 type AsyncApprover interface {
 	Approver
 	// Submit hands d over. Pending.Ticket is set even when err is not nil

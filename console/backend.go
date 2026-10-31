@@ -125,10 +125,13 @@ type Handler func(ctx context.Context, req ipc.Request, env Env) ipc.Response
 
 // Env is what a Handler may use of the console.
 type Env interface {
-	// Approve shows s and asks the human (or approves it in auto mode, see
-	// Screen.NeverAuto). The decision is audited before Approve returns.
+	// Approve shows s and hands it to the approver: under Run, lockhub
+	// decides (the answer is Pending). The decision is audited before
+	// Approve returns.
 	Approve(ctx context.Context, id int64, s Screen) Approval
-	// Auto reports auto mode in effect (never on a production profile).
+	// Auto is always false: auto mode is gone, lockhub decides.
+	//
+	// Deprecated: it goes in the next minor release.
 	Auto() bool
 	// ShowResults reports the clear results switch (Ctrl-O).
 	ShowResults() bool
@@ -176,8 +179,9 @@ type Screen struct {
 	// Production forces the production prompt; the profile's own flag
 	// always does.
 	Production bool
-	// NeverAuto is never approved by auto mode (an unmasked read, a
-	// destructive-looking operation): the human answers every time.
+	// NeverAuto is never approved without a human's own decision on it,
+	// by the hub's auto mode or a renewal (an unmasked read, a
+	// destructive-looking operation): ticket.Flags.NeverAuto.
 	NeverAuto bool
 	// Red frames the screen in red outside production too.
 	Red bool
@@ -195,7 +199,9 @@ type Screen struct {
 // Approval is the outcome of Env.Approve.
 type Approval struct {
 	Approved bool
-	// Auto: approved by auto mode, without a prompt.
+	// Auto is never set: auto mode is gone.
+	//
+	// Deprecated: it goes in the next minor release.
 	Auto bool
 	// Retype: the human typed Screen.Retype.
 	Retype bool

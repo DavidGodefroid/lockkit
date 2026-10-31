@@ -161,16 +161,6 @@ func TestAsyncApproverConcurrentRequests(t *testing.T) {
 	}
 }
 
-// The console's auto mode never bypasses the hub.
-func TestAsyncApproverNoLocalAutoMode(t *testing.T) {
-	a := &fakeAsync{}
-	h := newHarness(t, uat(), func(c *ServerConfig) { c.Approver = a; c.Auto = true })
-	r := h.call(t, context.Background(), "op.read", map[string]any{"queue": "orders"})
-	if r.Error != nil || pendingOf(t, r.Result)["status"] != "pending" || len(a.decisions) != 1 || h.s.Auto() {
-		t.Fatalf("result %s decisions %d auto %v", r.Result, len(a.decisions), h.s.Auto())
-	}
-}
-
 // A pending request is audited with its ticket; one that cannot be
 // audited is withdrawn and refused, never answered pending.
 func TestAsyncApproverPendingAudited(t *testing.T) {

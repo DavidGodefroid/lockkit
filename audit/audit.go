@@ -32,7 +32,7 @@ const (
 	EventDenied    = "denied"    // the human denied
 	EventTimeout   = "timeout"   // approval timed out
 	EventAbandoned = "abandoned" // the client left while its approval was pending
-	EventAuto      = "auto"      // auto-approved under auto mode
+	EventAuto      = "auto"      // auto-approved under auto mode (older logs: the console has no auto mode now)
 	// EventPending is a request handed to the hub (Ticket set): decided
 	// there, later. It is written before the requester is told pending:
 	// a request whose pending record fails is refused, and its ticket
@@ -44,8 +44,9 @@ const (
 	EventRun     = "run"
 	EventCatalog = "catalog" // catalog read
 	// EventMode, EventResults and EventUnmask are the console's switches,
-	// changed from its keyboard: Decision is the new state (manual or
-	// auto; shown or hidden; allowed or off).
+	// changed from its keyboard: Decision is the new state (shown or
+	// hidden; allowed or off). EventMode (manual or auto) is in older
+	// logs only: the console has no auto mode now.
 	EventMode    = "mode"
 	EventResults = "results"
 	EventUnmask  = "unmask"
