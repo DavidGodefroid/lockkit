@@ -77,7 +77,9 @@ func ParseSSH(p kit.Product, r RawSSH, credentials string, errf func(string, ...
 	switch r.Credentials {
 	case "", CredentialsAsk, CredentialsKeychain:
 	default:
-		return nil, errf("unknown ssh.credentials mode %q (want ask or keychain)", r.Credentials)
+		// The value is not echoed: a secret pasted here must not reach
+		// the terminal, the logs or the agent.
+		return nil, errf("unknown ssh.credentials mode (want ask or keychain)")
 	}
 	s := &SSHProfile{Host: r.Host, Port: r.Port, User: r.User, Auth: r.Auth, Key: r.Key, Credentials: r.Credentials}
 	if s.Port == 0 {
