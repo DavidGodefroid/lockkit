@@ -5,6 +5,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+## v0.8.0 (2026-10-31)
+
 - `pii`: two opt-in detectors, `ip` (public IPv4 and IPv6 addresses,
   IPv4-mapped) and `secret` (credentials, tokens, private keys, masked as
   `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
