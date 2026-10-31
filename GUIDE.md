@@ -258,6 +258,86 @@ bastion reaches; no local port is ever opened.
   (`token_type`, `password_changed_at`, `api_key_id`), token counts
   (`max_tokens`) and `PWD` are not. Check it before `LooksPersonal`: a
   secret is redacted, never pseudonymised or unmasked.
+- For text bound for a model, use `pii.FindInViews(s, ds)`: the values
+  found in `s` and in every detection view of it, as byte ranges of `s`
+  (`[]pii.Match{Start, End, Kind}`, sorted, non-overlapping; `Kind` is the
+  detector name; overlapping matches merge, the earliest detector naming
+  the kind). A value written behind an escape, a look-alike or an
+  invisible character is covered whole, in its written form. Replace each
+  match with your own placeholder (a pseudonym).
+  - `pii.DetectionView(s)` is `s` folded, NFKC (full-width letters,
+    ligatures), every decimal digit as its ASCII digit (`٤`, `३`), and
+    without what a value can hide behind: default-ignorable characters
+    (format characters, variation selectors, the combining grapheme
+    joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
+    the braille blank, combining marks; hyphens, dashes and minus signs
+    read as `-`, ideographic full stops as `.`, and
+    Cyrillic and Greek letters drawn like Latin ones as those. Invalid
+    UTF-8 bytes are kept in it; `DetectionViews` adds a view without them,
+    so a value an invalid byte splits is found whole: after masking,
+    replace them (U+FFFD) rather than drop them before the text leaves
+    your product. `View.Source(start, end)` maps a range of `View.Text`
+    back to `s`, covering what was dropped inside it.
+    `pii.DetectionViews(s)` adds views without terminal sequences
+    (introduced by ESC, a C1 control or a raw 8-bit C1 byte): CSI (C0
+    controls and DEL after the ESC and inside skipped, as terminals do, CAN and SUB cancelling it), OSC, DCS,
+    SOS, PM and APC strings (ended by their terminator, CAN or SUB), nF
+    and two-byte escapes (SCI with the character it swallows), each
+    aborted by the next ESC or C1 control or cancelled by a non-ASCII
+    character (swallowed, as xterm and VTE do), dropped whole
+    whatever their length (otherwise only their introducer); one view
+    keeps the strings' payload. These views are also made of every
+    decoded view below, so `\u001b[31m` inside a value does not split it.
+    Then a view where introducers and final bytes read as spaces, the
+    payload kept; the detection view of `s` percent-decoded (once,
+    twice), with JSON escapes decoded (`\u0040`), with HTML character
+    references decoded (`&#64;`, `&commat;`), with all of them chained
+    (`jean%40example&#46;com`; until nothing changes, at most 16 rounds,
+    the view cleaned up between rounds: `jean％40`, `%4`+zero-width+`0`,
+    `%4`+ESC `[m`+`0`; a text still decoding after 16 rounds is one match
+    whole), with `\xHH`, `\e` and `\033` escapes decoded, and
+    form-decoded (`+` as a space) then percent-decoded. A view of a long
+    text may stop early: apply only the matches of `Find`/`FindInViews` to
+    a text, never ranges you computed on a view yourself.
+  - `pii.Find(s, ds)` is what `Detect` masks, as ranges: masking each with
+    `pii.MaskText` gives `Detect`'s output, except that Find masks more
+    where a later detector matched across an earlier mask, and a
+    `Detector` of your own (no ranges) makes the whole text one match.
+  - Past `DetectLimit` (and where a view expands past twice that) the
+    unscanned rest is one more match of kind `pii.CutKind`, starting
+    earlier where a value runs across that point: at the start of the word
+    the cut falls in, however long (blanks between digit groups included),
+    or of a match the detectors found running across it (they scan 4 KiB
+    past it): the matches are always safe to apply to `s` itself.
+- Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
+  base32 (60 bits) of `HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0 ||
+  kind || 0 || pii.Normalise(kind, value))`, stable within one epoch; a
+  kind is 1 to 32 of `[a-z0-9_]` (`ErrInvalidKind`). `Normalise` folds
+  spellings of one value together: the detection view (or the decoding
+  that is a whole value of the kind), then lower-case email (the local
+  part too), phone digits with `+` for international numbers (`00`, `+00`
+  → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
+  digits of an IBAN, upper case, a person name in lower case with single
+  spaces, digits of
+  cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
+  with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
+  in a private directory (0700, owned by the process user; anything else,
+  a symbolic link, a corrupt file or an all-zero key refuses the store),
+  ordered by a sequence number, the directory locked for one process
+  until `Close` (which forgets the keys in memory: `ID` then fails, and
+  `Rotate` and `Prune` fail with `ErrClosed`;
+  opening creates the `.lock` file). `Current()`, `Get(epoch)` for a reference minted earlier,
+  `Rotate(now)`, `RotationDue(now, every)` (also true for an epoch
+  created more than `ClockSkew` in the future), `Prune(now, keep)`
+  deletes keys replaced `keep` ago and leftover temporary files (a clock
+  that jumped forward may delete a key early; one set back keeps it at most
+  `ClockSkew` late, and set back further deletes it at once and makes
+  `RotationDue` true: privacy first). On non-unix platforms there are no permission,
+  owner or lock checks: one process per store.
+  `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
+  prints or marshals its key. `ID` returns `ErrForgottenEpoch` once
+  `Prune` deleted the key, through every copy of the value: redact the
+  value then. Do not show an ID without the kind it was taken for.
 - Opt-in `person_name` (never in `AllDetectors`): a full name in free
   text, from embedded gazetteers (given names, family names, titles, in
   the languages above and common immigrant names). A known given name

@@ -4,4 +4,9 @@ FuzzRenderNoPanic ./render/
 FuzzSecretMasksAppendedCredential ./pii/
 FuzzSecretPairVariants ./pii/
 FuzzIPCanaryAfterPrefix ./pii/
+FuzzFindCoversDetect ./pii/
+FuzzDetectionView ./pii/
+FuzzFindLongText ./pii/
+FuzzFindAroundTerminalSequences ./pii/
 FuzzPersonNameNoPanic ./pii/
+FuzzFindValueSplitByTerminal ./pii/

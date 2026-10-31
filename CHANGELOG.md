@@ -16,6 +16,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
   it stands for, so a word right after one is found (a value made of
   digits right after a `\u00XX` escape may still glue to its hex digits): `{"msg":"tel:\t0475123456"}` is now masked. This is the
   only output change for products that keep `AllDetectors`.
+- `pii`: keyed pseudonyms: `Pseudonymizer.ID(kind, value)` (HMAC-SHA256,
+  per-epoch key, 12 Crockford base32 characters), `Normalise` (one ID per
+  spelling of a value), `NewEpoch` and `OpenEpochStore` (private 0600/0700
+  key files, one process per directory, `Rotate`, `RotationDue`, `Prune`)
+  (GUIDE §8, #95).
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
   name corpus and 10 % on held-out names outside the gazetteer; false
@@ -27,6 +32,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - `agentwire`: merged `permissions.allow` entries (user and project scope)
   and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
   escapes.
+- `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
+  ranges with their kind, also behind percent, JSON, HTML, `\xHH`, `\e`,
+  `\033` and form escapes (alone or chained),
+  look-alikes, invisible characters, control sequences (also escaped),
+  invalid UTF-8 bytes and values cut by
+  the scan limit (#93). New dependency: `golang.org/x/text` v0.43.0
+  (`unicode/norm`); `golang.org/x/sync` moves to v0.24.0.
 
 ## v0.7.2 (2026-10-31)
 
