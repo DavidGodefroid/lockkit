@@ -52,6 +52,10 @@ type EpochStore struct {
 	mu     sync.Mutex
 	closed bool
 	epochs []*Pseudonymizer // oldest first; the last is current
+	// lastSeq is the highest sequence number used or attempted: a Rotate
+	// that failed after its file was renamed into place must not hand
+	// that number out again (the store would no longer open).
+	lastSeq uint64
 }
 
 // OpenEpochStore opens the epochs kept in dir. When dir holds none, it
@@ -233,15 +237,18 @@ func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 			break
 		}
 	}
-	p.seq = 1
-	if n := len(s.epochs); n > 0 {
-		if s.epochs[n-1].seq == math.MaxUint64 {
-			p.forget()
-			return nil, errors.New("pii: epoch sequence exhausted")
-		}
-		p.seq = s.epochs[n-1].seq + 1
+	last := s.lastSeq
+	if n := len(s.epochs); n > 0 && s.epochs[n-1].seq > last {
+		last = s.epochs[n-1].seq
 	}
+	if last == math.MaxUint64 {
+		p.forget()
+		return nil, errors.New("pii: epoch sequence exhausted")
+	}
+	p.seq = last + 1
+	s.lastSeq = p.seq
 	if err := s.writeKeyFile(p); err != nil {
+		p.forget()
 		return nil, err
 	}
 	p.store = s
@@ -383,8 +390,11 @@ func writeFileAtomic(dir, name string, data []byte) error {
 		return fmt.Errorf("pii: epoch store: %w", err)
 	}
 	ok = true
-	return syncDir(dir)
+	return syncDirHook(dir)
 }
+
+// syncDirHook is syncDir, replaced in tests to fail after a rename.
+var syncDirHook = syncDir
 
 // syncDir fsyncs dir: a new key file must survive a crash before any ID
 // is minted under it. Only Unix reports the error (others cannot sync a

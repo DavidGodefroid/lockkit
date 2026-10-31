@@ -271,7 +271,8 @@ bastion reaches; no local port is ever opened.
   created more than `ClockSkew` in the future), `Prune(now, keep)`
   deletes keys replaced `keep` ago and leftover temporary files (a clock
   that jumped forward may delete a key early; one set back keeps it at most
-  `ClockSkew` late). On non-unix platforms there are no permission,
+  `ClockSkew` late, and set back further deletes it at once and makes
+  `RotationDue` true: privacy first). On non-unix platforms there are no permission,
   owner or lock checks: one process per store.
   `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
   prints or marshals its key. `ID` returns `ErrForgottenEpoch` once

@@ -542,3 +542,32 @@ func TestEpochSequenceExhausted(t *testing.T) {
 		t.Error("a refused rotation left an epoch behind")
 	}
 }
+
+// A Rotate that fails after its key file was renamed into place leaves
+// that file behind: a retry must not reuse its sequence number.
+func TestEpochRotateFailedSyncKeepsStoreOpenable(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, err := OpenEpochStore(dir, true, t0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	syncDirHook = func(string) error { return errors.New("injected sync failure") }
+	_, err = s.Rotate(t0.Add(time.Hour))
+	syncDirHook = syncDir
+	if err == nil {
+		t.Fatal("Rotate ignored the sync failure")
+	}
+	cur, err := s.Rotate(t0.Add(2 * time.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.Close()
+	s2, err := OpenEpochStore(dir, false, t0.Add(3*time.Hour))
+	if err != nil {
+		t.Fatalf("store no longer opens: %v", err)
+	}
+	defer s2.Close()
+	if s2.Current().Epoch() != cur.Epoch() {
+		t.Error("the retried rotation is not current after reopening")
+	}
+}
