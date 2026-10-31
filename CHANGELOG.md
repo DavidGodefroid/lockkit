@@ -3,6 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
+  project's `.claude/settings.local.json` on a project `Init` (off by
+  default; GUIDE §12).
+- `agentwire`: merged `permissions.allow` entries (user and project scope)
+  and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
+  escapes.
+
 ## v0.7.2 (2026-10-31)
 
 - Errors no longer echo a value that may be a secret pasted in the wrong
