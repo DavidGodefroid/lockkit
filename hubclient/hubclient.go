@@ -218,8 +218,12 @@ func New(cfg Config) (*Client, error) {
 	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" {
 		return nil, errors.New("hubclient: bad hub URL: want http(s)://host[:port]")
 	}
-	// Errors name the hub by scheme and host only: a user or token in
-	// the URL never reaches them.
+	// A user or token in the URL would reach net/http's errors, the
+	// console's lines and the hub as a Basic header: the hub
+	// authenticates by signature, so a URL never carries one.
+	if base.User != nil {
+		return nil, errors.New("hubclient: the hub URL must not carry a user or password")
+	}
 	shown := base.Scheme + "://" + base.Host
 	// Signatures protect integrity, not privacy: tickets carry masked
 	// screens and the kinds of personal data touched.

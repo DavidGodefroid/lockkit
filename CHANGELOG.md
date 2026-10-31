@@ -9,7 +9,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
   key (locklog LL-02): `config.ParseSSH` names `ssh.credentials` and the
   allowed modes, `pii.Detectors` the entry's position and the known
   detectors, `sysconf.Load` the `finger` key, and `hubclient.New` the hub
-  by scheme and host only (never a user or token in the URL).
+  by scheme and host only.
+- `hubclient.New` refuses a hub URL that carries a user or password: it
+  reached net/http's errors, the console's start line and the hub as a
+  Basic header (the hub authenticates by signature).
 
 ## v0.7.1 (2026-10-30)
 

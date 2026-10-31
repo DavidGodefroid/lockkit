@@ -53,18 +53,28 @@ func TestPlainHTTPRefused(t *testing.T) {
 // URL.
 func TestHubURLErrorsDoNotEchoUserinfo(t *testing.T) {
 	const canary = "glsa_CanarySecretToken123"
-	for _, url := range []string{
+	for _, u := range []string{
 		"http://" + canary + "@hub.example.com", "http://u:" + canary + "@hub.example.com",
 		"ftp://u:" + canary + "@hub.example.com", "https://u:" + canary + "@hub.example.com:bad",
 	} {
-		_, err := hubclient.New(transportCfg(t, url, false))
+		_, err := hubclient.New(transportCfg(t, u, false))
 		if err == nil || strings.Contains(err.Error(), canary) {
-			t.Errorf("%s: err %v (want an error without the userinfo)", url, err)
+			t.Errorf("%s: err %v (want an error without the userinfo)", u, err)
 		}
 	}
-	if _, err := hubclient.New(transportCfg(t, "http://u:"+canary+"@lockhub.example.com:8443", true)); err == nil ||
-		strings.Contains(err.Error(), canary) || !strings.Contains(err.Error(), "http://lockhub.example.com:8443") {
-		t.Errorf("--hub-plain-http: err %v (want the scheme and host only)", err)
+	// Otherwise valid URLs carrying a user or token are refused.
+	for _, u := range []string{
+		"https://" + canary + "@hub.example.com", "https://u:" + canary + "@hub.example.com",
+		"http://" + canary + "@127.0.0.1:8443",
+	} {
+		_, err := hubclient.New(transportCfg(t, u, false))
+		if err == nil || strings.Contains(err.Error(), canary) || !strings.Contains(err.Error(), "user or password") {
+			t.Errorf("%s: err %v (want refused, without the userinfo)", u, err)
+		}
+	}
+	if _, err := hubclient.New(transportCfg(t, "http://lockhub.example.com:8443", true)); err == nil ||
+		!strings.Contains(err.Error(), "hub URL http://lockhub.example.com:8443:") {
+		t.Errorf("--hub-plain-http: err %v (want the scheme and host)", err)
 	}
 }
 
