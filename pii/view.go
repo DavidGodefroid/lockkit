@@ -114,13 +114,20 @@ func DetectionView(s string) View {
 	return detectionView(t)
 }
 
-func detectionView(s string) View {
-	if strings.IndexByte(s, 0x1b) >= 0 || strings.IndexByte(s, 0xc2) >= 0 {
-		if a, ok := stripANSI(s); ok {
-			return compose(a, cleanView(a.Text))
-		}
+func detectionView(s string) View { return cleanView(s) }
+
+// ansiView is the detection view of s without its terminal sequences, or
+// false when it has none. It is one more view, never a replacement: text
+// inside a sequence (an OSC title) is still scanned in the others.
+func ansiView(s string) (View, bool) {
+	if strings.IndexByte(s, 0x1b) < 0 && strings.IndexByte(s, 0xc2) < 0 {
+		return View{}, false
 	}
-	return cleanView(s)
+	a, ok := stripANSI(s)
+	if !ok {
+		return View{}, false
+	}
+	return compose(a, cleanView(a.Text)), true
 }
 
 // stripANSI drops terminal control sequences (CSI "ESC [ ... final", OSC
@@ -133,58 +140,129 @@ func stripANSI(s string) (View, bool) {
 	for i := 0; i < len(s); {
 		// The introducer: ESC and a byte, or a C1 control (UTF-8 C2 80-9F).
 		var kind byte
-		body := i
+		body, intro := i, 0
 		switch {
 		case s[i] == 0x1b && i+1 < len(s):
-			kind, body = s[i+1], i+2
+			kind, body, intro = s[i+1], i+2, 1
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
-			kind, body = s[i+1]-0x40, i+2 // C1 x is ESC (x - 0x40)
+			kind, body, intro = s[i+1]-0x40, i+2, 2 // C1 x is ESC (x - 0x40)
 		default:
 			vb.add([]byte{s[i]}, i, i+1)
 			i++
 			continue
 		}
+		// A sequence is dropped whole only when well formed and short;
+		// otherwise only its introducer is (the rest stays visible).
+		end := -1
 		j := body
 		switch {
 		case kind == '[': // CSI: parameters, intermediates, a final byte
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
+			for j < len(s) && j-body < maxSeq && s[j] >= 0x20 && s[j] <= 0x3f {
 				j++
 			}
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
+			for j < len(s) && j-body < maxSeq && s[j] >= 0x20 && s[j] <= 0x2f {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
-				j++
+				end = j + 1
 			}
 		case kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_':
-			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST (ESC \ or C1 9C).
-			for j < len(s) && s[j] != 0x07 && !(s[j] == 0x1b && j+1 < len(s) && s[j+1] == '\\') && !(s[j] == 0xc2 && j+1 < len(s) && s[j+1] == 0x9c) {
+			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST.
+			for j < len(s) && j-body < maxSeq {
+				if s[j] == 0x07 {
+					end = j + 1
+					break
+				}
+				if j+1 < len(s) && (s[j] == 0x1b && s[j+1] == '\\' || s[j] == 0xc2 && s[j+1] == 0x9c) {
+					end = j + 2
+					break
+				}
 				j++
 			}
-			if j < len(s) && s[j] == 0x07 {
-				j++
-			} else if j+1 < len(s) {
-				j += 2
-			}
-		case kind >= 0x20 && kind <= 0x2f: // nF: intermediates, a final byte ("ESC ( B")
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
+		case kind >= 0x20 && kind <= 0x2f && intro == 1: // nF ("ESC ( B")
+			j = body
+			for j < len(s) && j-body < 4 && s[j] >= 0x20 && s[j] <= 0x2f {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
-				j++
+				end = j + 1
 			}
-		case kind >= 0x30 && kind <= 0x7e: // a two-byte escape ("ESC c", "ESC M")
-		default:
-			j = i + 1 // ESC alone (a non-ASCII byte follows: keep it)
-			if s[i] == 0xc2 {
-				j = i + 2
+		case kind >= 0x40 && kind <= 0x5f && intro == 1: // two-byte Fe escapes
+			end = body
+		}
+		if end < 0 {
+			end = i + 1 // the introducer alone (C1: its two bytes)
+			if intro == 2 {
+				end = i + 2
 			}
 		}
-		i = min(j, len(s))
+		i = end
 		changed = true
 	}
 	return vb.view(len(s)), changed
 }
+
+// separateANSI is s with every terminal-sequence introducer (ESC and the
+// byte after it, a C1 control) and every final or terminator byte written
+// as a space, the rest kept: a value inside a sequence (an OSC title) or
+// glued to one ("ESC P" + an IBAN) stands as its own word. Byte for byte:
+// the map is the identity.
+func separateANSI(s string) (string, bool) {
+	b := []byte(s)
+	changed := false
+	blank := func(from, to int) {
+		for k := from; k < to && k < len(b); k++ {
+			b[k] = ' '
+		}
+		changed = true
+	}
+	for i := 0; i < len(s); i++ {
+		switch {
+		case s[i] == 0x1b && i+1 < len(s) && s[i+1] < 0x80:
+			blank(i, i+2)
+			i++
+		case s[i] == 0x1b:
+			blank(i, i+1)
+		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
+			blank(i, i+2)
+			i++
+		case s[i] == 0x07:
+			blank(i, i+1)
+		}
+	}
+	// The final byte of a CSI: blank it when a CSI introducer precedes it.
+	for i := 0; i+1 < len(s); i++ {
+		if s[i] == 0x1b && s[i+1] == '[' || s[i] == 0xc2 && s[i+1] == 0x9b {
+			j := i + 2
+			for j < len(s) && j-i < maxSeq && s[j] >= 0x20 && s[j] <= 0x3f {
+				j++
+			}
+			for j < len(s) && j-i < maxSeq && s[j] >= 0x20 && s[j] <= 0x2f {
+				j++
+			}
+			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
+				blank(j, j+1)
+			}
+		}
+	}
+	return string(b), changed
+}
+
+// sepView maps sep, s with some bytes blanked, to s: a blanked byte of a
+// multi-byte rune (a C1 control) comes from the whole rune.
+func sepView(s, sep string) View {
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	for i := 0; i < len(s); {
+		_, n := utf8.DecodeRuneInString(s[i:])
+		vb.add([]byte(sep[i:i+n]), i, i+n)
+		i += n
+	}
+	return vb.view(len(s))
+}
+
+// maxSeq bounds a terminal sequence the view drops whole.
+const maxSeq = 256
 
 func cleanView(s string) View {
 	plain := true
@@ -322,6 +400,16 @@ func DetectionViews(s string) []View {
 		if !seen[dv.Text] {
 			seen[dv.Text] = true
 			out = append(out, dv)
+		}
+	}
+	if a, ok := ansiView(s); ok && !seen[a.Text] {
+		seen[a.Text] = true
+		out = append(out, a)
+	}
+	if sep, ok := separateANSI(s); ok {
+		if v := compose(sepView(s, sep), cleanView(sep)); !seen[v.Text] {
+			seen[v.Text] = true
+			out = append(out, v)
 		}
 	}
 	src := View{Text: s}
