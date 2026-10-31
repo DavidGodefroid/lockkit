@@ -293,6 +293,7 @@ func findUserinfo(s string) []span {
 var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=]|\\u003[dD])[ \t]*`)
 
 func findSecretPairs(s string) []span {
+	s = jsonEscapeView(s) // same offsets
 	var out []span
 	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, func(start int) bool {
 		if escapeLen(s, start) > 0 {
@@ -825,6 +826,16 @@ func findMySQLPasswords(s string) []span {
 	return out
 }
 
+// continued reports a line break at s[j] that a shell line continuation
+// ("\\" at the end of the line, maybe before blanks or a CR) carries on.
+func continued(s string, i, j int) bool {
+	k := j
+	for k > i && (s[k-1] == ' ' || s[k-1] == '\t' || s[k-1] == '\r') {
+		k--
+	}
+	return k > i && s[k-1] == '\\'
+}
+
 // commandEnd is where the shell command that starts at s[i] ends: a
 // newline, a pipe, ";" or "&&" outside quotes.
 func commandEnd(s string, i int) int {
@@ -833,7 +844,9 @@ func commandEnd(s string, i int) int {
 		c := s[j]
 		switch {
 		case c == '\n' || c == '\r':
-			return j
+			if !continued(s, i, j) {
+				return j
+			}
 		case q != 0:
 			if c == q {
 				q = 0
@@ -865,6 +878,45 @@ func blankEscapes(s string) string {
 			b[i], b[i+1] = ' ', map[byte]byte{'n': '\n', 'r': '\r', 't': '\t'}[b[i+1]]
 		}
 		i++ // an escape pair, or a backslash and the byte it escapes
+	}
+	return string(b)
+}
+
+// jsonEscapeView returns s with the \u00XX escapes of quotes, "=", "&",
+// "<" and ">" (System.Text.Json, Gson, Go's encoding/json) written as
+// the character, a quote as the \" escape the pair finder reads, padded
+// with blanks to the same length: offsets stay valid.
+func jsonEscapeView(s string) string {
+	i := strings.Index(s, `\u00`)
+	if i < 0 {
+		return s
+	}
+	b := []byte(s)
+	for ; i+5 < len(b); i++ {
+		if b[i] != '\\' {
+			continue
+		}
+		if escapeLen(s, i) == 6 {
+			var rep string
+			switch strings.ToLower(s[i+2 : i+6]) {
+			case "0022":
+				rep = `\"    `
+			case "0027":
+				rep = `\'    `
+			case "003d":
+				rep = "=     "
+			case "0026":
+				rep = "&     "
+			case "003c":
+				rep = "<     "
+			case "003e":
+				rep = ">     "
+			}
+			copy(b[i:i+6], rep)
+			i += 5
+			continue
+		}
+		i++ // a backslash and the byte it escapes
 	}
 	return string(b)
 }
