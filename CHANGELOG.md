@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `pii`: keyed pseudonyms: `Pseudonymizer.ID(kind, value)` (HMAC-SHA256,
+  per-epoch key, 12 Crockford base32 characters), `Normalise` (one ID per
+  spelling of a value), `NewEpoch` and `OpenEpochStore` (private 0600/0700
+  key files, one process per directory, `Rotate`, `RotationDue`, `Prune`)
+  (GUIDE §8, #95).
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
   name corpus and 10 % on held-out names outside the gazetteer; false

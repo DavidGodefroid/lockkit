@@ -258,6 +258,35 @@ bastion reaches; no local port is ever opened.
     the cut falls in, however long (blanks between digit groups included),
     or of a match the detectors found running across it (they scan 4 KiB
     past it): the matches are always safe to apply to `s` itself.
+- Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
+  base32 (60 bits) of `HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0 ||
+  kind || 0 || pii.Normalise(kind, value))`, stable within one epoch; a
+  kind is 1 to 32 of `[a-z0-9_]` (`ErrInvalidKind`). `Normalise` folds
+  spellings of one value together: the detection view (or the decoding
+  that is a whole value of the kind), then lower-case email (the local
+  part too), phone digits with `+` for international numbers (`00`, `+00`
+  → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
+  digits of an IBAN, upper case, a person name in lower case with single
+  spaces, digits of
+  cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
+  with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
+  in a private directory (0700, owned by the process user; anything else,
+  a symbolic link, a corrupt file or an all-zero key refuses the store),
+  ordered by a sequence number, the directory locked for one process
+  until `Close` (which forgets the keys in memory: `ID` then fails, and
+  `Rotate` and `Prune` fail with `ErrClosed`;
+  opening creates the `.lock` file). `Current()`, `Get(epoch)` for a reference minted earlier,
+  `Rotate(now)`, `RotationDue(now, every)` (also true for an epoch
+  created more than `ClockSkew` in the future), `Prune(now, keep)`
+  deletes keys replaced `keep` ago and leftover temporary files (a clock
+  that jumped forward may delete a key early; one set back keeps it at most
+  `ClockSkew` late, and set back further deletes it at once and makes
+  `RotationDue` true: privacy first). On non-unix platforms there are no permission,
+  owner or lock checks: one process per store.
+  `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
+  prints or marshals its key. `ID` returns `ErrForgottenEpoch` once
+  `Prune` deleted the key, through every copy of the value: redact the
+  value then. Do not show an ID without the kind it was taken for.
 - Opt-in `person_name` (never in `AllDetectors`): a full name in free
   text, from embedded gazetteers (given names, family names, titles, in
   the languages above and common immigrant names). A known given name
