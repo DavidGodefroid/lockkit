@@ -5,10 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
-- Config errors no longer echo a value that may be a secret pasted in
-  the wrong key: `ParseSSH` names `ssh.credentials` and the allowed
-  modes, `pii.Detectors` the entry's position and the known detectors
-  (locklog LL-02).
+- Errors no longer echo a value that may be a secret pasted in the wrong
+  key (locklog LL-02): `config.ParseSSH` names `ssh.credentials` and the
+  allowed modes, `pii.Detectors` the entry's position and the known
+  detectors, `sysconf.Load` the `finger` key, and `hubclient.New` the hub
+  by scheme and host only (never a user or token in the URL).
 
 ## v0.7.1 (2026-10-30)
 

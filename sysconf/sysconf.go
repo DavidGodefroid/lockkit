@@ -121,7 +121,7 @@ func Load(p kit.Product) (*Config, error) {
 		return nil, fmt.Errorf("sysconf: %s: x11 must be %q or %q", path, X11Warn, X11Refuse)
 	}
 	if c.Finger != "" && !fingerName.MatchString(c.Finger) {
-		return nil, fmt.Errorf("sysconf: %s: finger: unknown finger name %q", path, c.Finger)
+		return nil, fmt.Errorf("sysconf: %s: finger: not an fprintd finger name (such as right-index-finger)", path)
 	}
 	return &c, nil
 }
