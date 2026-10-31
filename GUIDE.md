@@ -235,7 +235,14 @@ bastion reaches; no local port is ever opened.
     pairs (`password%3Dx`, unless the caller decodes first), `:=`
     assignments, an unquoted value cut by `;` or `,`, protocol commands
     (`PASS x`, `AUTH x`), `redis-cli -a`, `sshpass -p`, SQL `IDENTIFIED BY`,
-    a URL password holding `#` or `?`. `docker`/`podman`/`nerdctl`/`buildah
+    a URL password holding `#` or `?`, a value that opens with a
+    delimiter (`password=<x>`, `password=|x|`), a key quoted inside
+    brackets (`params["password"]="x"`), a key in full-width letters,
+    `STRIPE_KEY`-style names whose owner is not listed, PuTTY `.ppk`
+    bodies, and the elements of a JSON array or object under a secret
+    name past 1 KiB that are not on the line where that bound falls. A
+    secret name with a JSON array or object value masks it whole, across
+    lines; `Pwd=` (ODBC) is a password unless its value is a path. `docker`/`podman`/`nerdctl`/`buildah
     login -p` and `mongo*` `-p` are masked; `-p` elsewhere is not.
     Status words under a secret name (`auth=failed`) are masked too. A
     dotted quad after `version`, `build`, `release`, `oid` or a product

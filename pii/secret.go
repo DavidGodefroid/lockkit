@@ -281,7 +281,7 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}[A-Za-z][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
@@ -301,7 +301,7 @@ func findSecretPairs(s string) []span {
 			}
 			return start
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
+		if !isSecretHeader(key) && !LooksSecret(key) && !odbcPwd(key, s[start:]) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
 			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
@@ -316,9 +316,10 @@ func findSecretPairs(s string) []span {
 		if start >= len(s) {
 			return start // "password=" ends the text
 		}
-		if s[start] == '[' {
-			// A JSON array (Go's http.Header: "X-Api-Key":["v"]): the
-			// whole list, to its closing bracket.
+		if s[start] == '[' || s[start] == '{' {
+			// A JSON array (Go's http.Header: "X-Api-Key":["v"]) or
+			// object ("credentials":{"user":"bob","pw":"x"}): the whole
+			// value, to its closing bracket.
 			end := arrayEnd(s, start)
 			if end > start+1 {
 				out = append(out, span{start + 1, end})
@@ -360,8 +361,8 @@ func findSecretPairs(s string) []span {
 	return out
 }
 
-// arrayEnd returns the offset of the "]" that closes the array opened at
-// s[i]: nested arrays and quoted strings (plain, or escaped as \" in a
+// arrayEnd returns the offset of the "]" or "}" that closes the array or
+// object opened at s[i]: nested ones and quoted strings (plain, or escaped as \" in a
 // logged JSON string) are skipped, and the array may span lines
 // (json.MarshalIndent). An array that does not close within maxCandidate
 // bytes (cut, or not JSON) ends at the end of the line where that bound
@@ -370,6 +371,10 @@ func arrayEnd(s string, i int) int {
 	var q byte     // the open quote, 0 outside a string
 	esc := false   // the open quote is an escaped \" (JSON logged in a string)
 	inner := false // in an escaped string: the last inner character was an unpaired backslash
+	open, closing := s[i], byte(']')
+	if open == '{' {
+		closing = '}'
+	}
 	depth := 0
 	limit := i + 1 + maxCandidate
 	for j := i + 1; j < len(s); j++ {
@@ -412,9 +417,9 @@ func arrayEnd(s string, i int) int {
 			j++
 		case c == '"' || c == '\'':
 			q = c
-		case c == '[':
+		case c == open:
 			depth++
-		case c == ']':
+		case c == closing:
 			if depth == 0 {
 				return j
 			}
@@ -422,6 +427,26 @@ func arrayEnd(s string, i int) int {
 		}
 	}
 	return len(s)
+}
+
+// odbcPwd reports the ODBC and ADO "Pwd=" keyword (a password), told
+// from the shell's PWD by its value: a working directory is an absolute
+// path ("/home/bob", "~", "C:\\Users").
+func odbcPwd(key, v string) bool {
+	if !strings.EqualFold(key, "pwd") {
+		return false
+	}
+	v = strings.TrimLeft(v, `"'\`)
+	if v == "" {
+		return false
+	}
+	switch c := v[0]; {
+	case c == '/' || c == '~' || c == '$' || c == ' ' || c == '\t' || c == '\n' || c == '\r':
+		return false
+	case len(v) > 2 && isLetterDigit(c) && v[1] == ':' && (v[2] == '\\' || v[2] == '/'):
+		return false
+	}
+	return true
 }
 
 // closingQuote returns the offset of the quote that closes open (", ' or
