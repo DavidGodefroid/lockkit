@@ -198,6 +198,13 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 			if f, _ := csiEnd(s, body); f >= 0 {
 				end = f
 			}
+		case kind == 'Z' && body < len(s) && s[body] >= 0x20:
+			// SCI (VTE): the next character is swallowed with it.
+			end = body + runeLen(s, body)
+		case kind >= 0x80 && intro == 1 && !c1At(s, body-1):
+			// A non-ASCII character in the escape state: xterm and VTE
+			// swallow it and go back to ground.
+			end = body - 1 + runeLen(s, body-1)
 		case keepPayload && (kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_'):
 			end = body // the introducer; the terminator goes as a control or an Fe escape
 		case kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_':
@@ -215,8 +222,10 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 			}
 			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
 				end = j + 1
-			} else if j < len(s) && (s[j] == 0x1b || rawC1(s, j) || s[j] == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f) {
+			} else if j < len(s) && (s[j] == 0x1b || c1At(s, j)) {
 				end = j // aborted by the next sequence
+			} else if j < len(s) && s[j] >= 0x80 {
+				end = j + runeLen(s, j) // swallowed, back to ground
 			}
 		case kind >= 0x30 && kind <= 0x7e && intro == 1: // two-byte Fp, Fe, Fs escapes ("ESC 7", "ESC c")
 			end = body
@@ -256,6 +265,10 @@ func separateANSI(s string) (string, bool) {
 			k := escSkip(s, i+1)
 			blank(i, k+1)
 			i = k
+		case s[i] == 0x1b && escSkip(s, i+1) < len(s) && !c1At(s, escSkip(s, i+1)):
+			k := escSkip(s, i+1) // a non-ASCII character the escape swallows
+			blank(i, k+runeLen(s, k))
+			i = k + runeLen(s, k) - 1
 		case s[i] == 0x1b:
 			blank(i, i+1)
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
@@ -314,6 +327,17 @@ func escSkip(s string, k int) int {
 	return k
 }
 
+// c1At reports a C1 control at s[j]: UTF-8 C2 80-9F or a raw 8-bit byte.
+func c1At(s string, j int) bool {
+	return rawC1(s, j) || s[j] == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f
+}
+
+// runeLen is the length of the rune at s[j] (1 for an invalid byte).
+func runeLen(s string, j int) int {
+	_, n := utf8.DecodeRuneInString(s[j:])
+	return n
+}
+
 // csiEnd returns the end of the CSI whose parameters start at body (after
 // its final byte, or after a CAN or SUB that cancels it) and the position
 // of its final byte (-1 when cancelled), or -1, -1 when it is not well
@@ -325,14 +349,16 @@ func csiEnd(s string, body int) (end, final int) {
 		switch c := s[j]; {
 		case c == 0x18 || c == 0x1a:
 			return j + 1, -1
-		case c == 0x1b || rawC1(s, j) || c == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f:
+		case c == 0x1b || c1At(s, j):
 			return j, -1 // aborted: the next sequence starts here
 		case c < 0x20, c <= 0x3f, c == 0x7f:
 			// a C0 control, a parameter or an intermediate byte
 		case c <= 0x7e:
 			return j + 1, j
 		default:
-			return -1, -1
+			// A non-ASCII character (or an invalid byte): xterm and VTE
+			// swallow it and cancel the sequence.
+			return j + runeLen(s, j), -1
 		}
 	}
 	return -1, -1
