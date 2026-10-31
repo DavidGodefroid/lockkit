@@ -246,6 +246,28 @@ bastion reaches; no local port is ever opened.
   (`token_type`, `password_changed_at`, `api_key_id`), token counts
   (`max_tokens`) and `PWD` are not. Check it before `LooksPersonal`: a
   secret is redacted, never pseudonymised or unmasked.
+- Opt-in `person_name` (never in `AllDetectors`): a full name in free
+  text, from embedded gazetteers (given names, family names, titles, in
+  the languages above and common immigrant names). A known given name
+  followed by a known surname in the same case ("Jean Dupont", "JOHN
+  SMITH", "john smith", "john.smith", "john_smith"), or, in title case,
+  by a title-case or upper-case word that is neither a common word nor
+  camel case ("Kevin Vandeputte", "Kevin VANDEPUTTE"); an initial and a
+  known surname ("J. Smith"); a title-case title before capitalised words
+  ("Mr. Smith", "Mme Lefebvre", "Dr Janssens"; an upper-case title only
+  before an upper-case name; "Ms", "Sr", "Miss" only before a known
+  name); middle initials, particles ("van der") and hyphenated given
+  names. Given names that are also words, places or months ("Will",
+  "Max", "Jan", "Austin") need a known surname that is no common word,
+  and are never joined by `.`/`_` ("max_price"). Not found: a given or
+  family name alone, surname first ("DUPONT Jean", "Smith, John"), names
+  whose given name is outside the gazetteer (about 1 350 given and 500
+  family names, Latin script only: Cyrillic, Arabic, CJK names are never
+  found) without a title (see the held-out recall), user names other than
+  first.last and first_last. Three-word names extend over one more
+  title-case word. `TestPersonNameRecall`,
+  `TestPersonNameHeldOutRecall` and `TestPersonNameFalsePositives` log the
+  numbers of each release.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in

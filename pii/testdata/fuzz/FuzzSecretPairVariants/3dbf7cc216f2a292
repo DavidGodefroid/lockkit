@@ -1,0 +1,7 @@
+go test fuzz v1
+byte('\x06')
+byte('(')
+byte('"')
+byte('\x1c')
+byte('D')
+string("0")

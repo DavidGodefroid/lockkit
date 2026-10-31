@@ -22,24 +22,26 @@ type Detector interface {
 // address), emails next (their digits are not phone numbers), the
 // checksummed numbers, IP addresses (their digits are not phone numbers
 // either), phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "ip", "phone", "phone_loose"}
+var detectorOrder = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "ip", "phone", "phone_loose"}
 
-// optInDetectors are left out of AllDetectors: phone_loose for its false
-// positives; ip and secret so that a product upgrading lockkit masks
-// exactly what it masked before until it names them.
-var optInDetectors = set("phone_loose", "ip", "secret")
+// optInDetectors are left out of AllDetectors: phone_loose and
+// person_name for their false positives; ip and secret so that a product
+// upgrading lockkit masks exactly what it masked before until it names
+// them.
+var optInDetectors = set("phone_loose", "person_name", "ip", "secret")
 
 var detectorFinders = map[string]func(string) []span{
-	"email":   findEmails,
-	"iban":    findIBANs,
-	"card":    findCards,
-	"be_niss": findNISS,
-	"fr_nir":  findNIR,
-	"nl_bsn":  findBSN,
-	"us_ssn":  findSSN,
-	"phone":   findPhones,
-	"ip":      findIPs,
-	"secret":  findSecrets,
+	"email":       findEmails,
+	"iban":        findIBANs,
+	"card":        findCards,
+	"be_niss":     findNISS,
+	"fr_nir":      findNIR,
+	"nl_bsn":      findBSN,
+	"us_ssn":      findSSN,
+	"phone":       findPhones,
+	"ip":          findIPs,
+	"secret":      findSecrets,
+	"person_name": findPersonNames,
 	// phone_loose is opt-in: it adds national numbers written without a
 	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
 	// rate than phone.

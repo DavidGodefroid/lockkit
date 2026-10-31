@@ -4,3 +4,4 @@ FuzzRenderNoPanic ./render/
 FuzzSecretMasksAppendedCredential ./pii/
 FuzzSecretPairVariants ./pii/
 FuzzIPCanaryAfterPrefix ./pii/
+FuzzPersonNameNoPanic ./pii/

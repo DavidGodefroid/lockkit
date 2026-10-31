@@ -10,6 +10,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
   `AllDetectors`: a product masks exactly what it masked before until it
   names them (GUIDE §8).
+- `pii`: opt-in `person_name` detector (gazetteer of given and family
+  names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
+  name corpus and 10 % on held-out names outside the gazetteer; false
+  positives 0 % of 2 000 Loghub-style lines and 2.4 % of held-out ticket
+  and prose lines.
 - `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
   project's `.claude/settings.local.json` on a project `Init` (off by
   default; GUIDE §12).

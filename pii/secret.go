@@ -316,6 +316,13 @@ func findSecretPairs(s string) []span {
 		if start >= len(s) {
 			return start // "password=" ends the text
 		}
+		if s[start] == '[' {
+			// A JSON array (Go's http.Header: "X-Api-Key":["v"]): the
+			// whole list, to its closing bracket on the line.
+			end := arrayEnd(s, start)
+			out = append(out, span{start + 1, end})
+			return end
+		}
 		var v string
 		var vs int
 		if c := s[start]; headerLike(key) && m[6] == m[7] && c != '"' && c != '\'' && c != '\\' {
@@ -334,13 +341,6 @@ func findSecretPairs(s string) []span {
 			}
 			v = strings.TrimRight(s[vs:end], " \t")
 		} else {
-			if s[start] == '[' {
-				// A JSON array (Go's http.Header: "X-Api-Key":["v"]): the
-				// whole list, to its closing bracket on the line.
-				end := arrayEnd(s, start)
-				out = append(out, span{start + 1, end})
-				return end
-			}
 			v, vs, _ = pairValue(s, start, false, 0)
 		}
 		scheme := 0

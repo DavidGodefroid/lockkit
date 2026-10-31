@@ -1,0 +1,7 @@
+# Given names that are also common words, months, products or languages:
+# a name only when the next word is a known surname ("Will Smith", not
+# "Will retry"), or after an honorific.
+ada amber angel april art august autumn bill bob buck bud carter chase chip clay cliff cooper crystal daisy dale dawn dean destiny don duke earl eve faith frank gene ginger glen grant guy harmony hazel heath holly hope hunter iris ivy jack jade jan jesus joy julia june king lance lily luz major mark mason max may melody mercedes miles olive page pascal pat patience pearl penny pierre prince ray rich river rob rocky rod rose royal ruby sandy sky star sterling stone summer sue taylor victor violet wade will win wood austin florence victoria jordan chelsea georgia virginia sydney dallas india israel kenya savannah brooklyn paris london adelaide alexandria lourdes
+said per
+thu can lan nand mai
+grace hong
