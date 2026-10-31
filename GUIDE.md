@@ -256,7 +256,9 @@ bastion reaches; no local port is ever opened.
   spellings of one value together: the detection view (or the decoding
   that is a whole value of the kind), then lower-case email (the local
   part too), phone digits with `+` for international numbers (`00`, `+00`
-  → `+`, `+32 (0)475` → `+32475`), compact upper-case IBAN, digits of
+  → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
+  digits of an IBAN, upper case, a person name in lower case with single
+  spaces, digits of
   cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
   with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
   in a private directory (0700, owned by the process user; anything else,

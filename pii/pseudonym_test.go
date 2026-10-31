@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -512,4 +513,32 @@ func TestEpochStoreLockOutlivesDroppedStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	runtime.KeepAlive(p)
+}
+
+func TestNormaliseNamesAndIBANIdempotent(t *testing.T) {
+	if a, b := Normalise("person_name", "Jean  Dupont"), Normalise("person_name", "jean dupont"); a != b {
+		t.Errorf("person_name spellings split: %q vs %q", a, b)
+	}
+	for _, in := range []string{"BE68 5390 0754 7034", "be68-5390-0754-7034", "ϐE68539007547034", "ＢＥ68 5390 0754 7034"} {
+		n := Normalise("iban", in)
+		if Normalise("iban", n) != n {
+			t.Errorf("Normalise(iban) not idempotent on %q: %q", in, n)
+		}
+	}
+}
+
+func TestEpochSequenceExhausted(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, err := OpenEpochStore(dir, true, t0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	s.epochs[len(s.epochs)-1].seq = math.MaxUint64
+	if _, err := s.Rotate(t0.Add(time.Hour)); err == nil {
+		t.Fatal("Rotate wrapped the sequence number")
+	}
+	if len(s.Epochs()) != 1 {
+		t.Error("a refused rotation left an epoch behind")
+	}
 }

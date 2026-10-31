@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unicode"
 )
 
 // PseudonymLen is the length of a pseudonym ID: 12 characters of
@@ -240,6 +239,7 @@ func (p *Pseudonymizer) keyBytes() []byte {
 //     Corsican letter, upper case;
 //   - ip: the canonical address (an IPv4-mapped IPv6 address is the IPv4
 //     one; zones dropped);
+//   - person_name: lower case, blanks collapsed to one space;
 //   - other kinds: the detection view with surrounding blanks trimmed.
 func Normalise(kind, value string) string {
 	if len(value) > DetectLimit {
@@ -266,12 +266,17 @@ func Normalise(kind, value string) string {
 		}
 		return d
 	case "iban":
-		return strings.ToUpper(strings.Map(func(r rune) rune {
-			if unicode.IsSpace(r) || r == '-' || r == '.' {
-				return -1
+		return strings.Map(func(r rune) rune {
+			// An IBAN is ASCII letters and digits: anything else is a
+			// separator (and upper-casing stays idempotent).
+			if r >= 'a' && r <= 'z' {
+				return r - 'a' + 'A'
 			}
-			return r
-		}, v))
+			if r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' {
+				return r
+			}
+			return -1
+		}, v)
 	case "card", "be_niss", "nl_bsn", "us_ssn":
 		return digitsOf(v)
 	case "fr_nir":
@@ -281,6 +286,8 @@ func Normalise(kind, value string) string {
 			}
 			return -1
 		}, v))
+	case "person_name":
+		return strings.ToLower(strings.Join(strings.Fields(v), " "))
 	case "ip":
 		t := strings.Trim(strings.TrimSpace(v), "[]")
 		if a, err := netip.ParseAddr(t); err == nil {

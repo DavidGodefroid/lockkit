@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -234,6 +235,10 @@ func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 	}
 	p.seq = 1
 	if n := len(s.epochs); n > 0 {
+		if s.epochs[n-1].seq == math.MaxUint64 {
+			p.forget()
+			return nil, errors.New("pii: epoch sequence exhausted")
+		}
 		p.seq = s.epochs[n-1].seq + 1
 	}
 	if err := s.writeKeyFile(p); err != nil {
