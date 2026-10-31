@@ -1,0 +1,491 @@
+package pii
+
+import (
+	"encoding/base64"
+	"math"
+	"regexp"
+	"strings"
+)
+
+// --- secrets: credentials, tokens and keys written in a text
+//
+// The secret detector finds the value of a credential, never its label:
+// "Authorization: Bearer <value>", "password=<value>", "-----BEGIN
+// PRIVATE KEY-----...", a token whose shape names its issuer. Its spans
+// are masked whole as Redacted (never a first character or a length).
+// What it cannot see is documented in GUIDE §8: secrets without a known
+// shape or label (short tokens, passwords in prose, session ids in URL
+// paths, connection strings without userinfo, base64 or hex content).
+
+// maxCandidate bounds the value of a key with no credential name that
+// the detector reads to judge its shape: a longer one is content (a
+// payload, a blob), not a credential. A secret-named value is read whole,
+// and a later pair that starts inside it is skipped, so that no byte is
+// read twice.
+const maxCandidate = 1 << 10
+
+// findSecrets returns the spans of every secret value of s, merged.
+func findSecrets(s string) []span {
+	var out []span
+	out = append(out, findPEM(s)...)
+	out = append(out, findTokenShapes(s)...)
+	out = append(out, findAuthSchemes(s)...)
+	out = append(out, findUserinfo(s)...)
+	out = append(out, findSecretPairs(s)...)
+	out = append(out, findSecretFlags(s)...)
+	out = append(out, findMySQLPasswords(s)...)
+	if len(out) == 0 {
+		return nil
+	}
+	return mergeSpans(out)
+}
+
+// --- PEM private keys
+
+var pemBeginRe = regexp.MustCompile(`-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY(?: BLOCK)?-----`)
+var pemEndRe = regexp.MustCompile(`-----END [A-Z0-9 ]{0,40}PRIVATE KEY(?: BLOCK)?-----`)
+
+// findPEM masks a private key block from its BEGIN line to its END line,
+// or to the end of the text when it has none (a key cut by a line limit).
+func findPEM(s string) []span {
+	var out []span
+	for _, m := range pemBeginRe.FindAllStringIndex(s, -1) {
+		if n := len(out); n > 0 && m[0] < out[n-1].end {
+			continue
+		}
+		end := len(s)
+		if e := pemEndRe.FindStringIndex(s[m[1]:]); e != nil {
+			end = m[1] + e[1]
+		}
+		out = append(out, span{m[0], end})
+	}
+	return out
+}
+
+// --- tokens whose shape names their issuer
+
+// tokenShapeRe lists the shapes of well-known credentials. Each must stand
+// alone: tokenShapes checks that no token character touches a match.
+var tokenShapeRe = regexp.MustCompile(strings.Join([]string{
+	// JSON Web Token (and JWS/JWE compact forms): base64url "{" header.
+	`eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*`,
+	// AWS access key ids.
+	`(?:AKIA|ASIA|ABIA|ACCA|AGPA|AIDA|AROA|ANPA|ANVA|AIPA)[A-Z0-9]{16}`,
+	// GitHub tokens (classic and fine-grained).
+	`gh[pousr]_[A-Za-z0-9]{36,255}`,
+	`github_pat_[A-Za-z0-9_]{22,255}`,
+	// GitLab.
+	`gl(?:pat|dt|rt|ptt|soat|ft|imt|agent|cbt|oas)-[A-Za-z0-9_-]{20,}`,
+	// Slack tokens and webhooks.
+	`xox[abposre]-[A-Za-z0-9-]{10,}`,
+	`hooks\.slack\.com/(?:services|workflows|triggers)/[A-Za-z0-9/_-]{16,}`,
+	// Stripe.
+	`(?:sk|rk|pk|whsec)_(?:live|test)_[A-Za-z0-9]{10,}`,
+	`whsec_[A-Za-z0-9]{24,}`,
+	// Google API keys and OAuth client secrets, refresh tokens.
+	`AIza[0-9A-Za-z_-]{35}`,
+	`GOCSPX-[0-9A-Za-z_-]{20,}`,
+	`1//0[0-9A-Za-z_-]{30,}`,
+	`ya29\.[0-9A-Za-z_-]{20,}`,
+	// OpenAI, Anthropic and other "sk-" keys.
+	`sk-(?:proj-|ant-|svcacct-|admin-)?[A-Za-z0-9_-]{20,}`,
+	// npm, PyPI, RubyGems, Docker Hub, Hugging Face, DigitalOcean,
+	// Shopify, Grafana, Postman, Doppler, Linear, Atlassian, Vault.
+	`npm_[A-Za-z0-9]{36}`,
+	`pypi-[A-Za-z0-9_-]{50,}`,
+	`rubygems_[a-f0-9]{48}`,
+	`dckr_pat_[A-Za-z0-9_-]{20,}`,
+	`hf_[A-Za-z0-9]{30,}`,
+	`do[por]_v1_[a-f0-9]{64}`,
+	`shp(?:at|ca|pa|ss)_[a-fA-F0-9]{32}`,
+	`gl(?:c|sa)_[A-Za-z0-9_+/=-]{32,}`,
+	`PMAK-[a-f0-9]{24}-[a-f0-9]{34}`,
+	`dp\.(?:pt|st|sa|ct|scim|audit)\.[A-Za-z0-9]{40,}`,
+	`lin_(?:api|oauth)_[A-Za-z0-9]{40}`,
+	`ATATT3[A-Za-z0-9_=-]{100,}`,
+	`hv[sbr]\.[A-Za-z0-9_-]{24,}`,
+	// SendGrid, Mailgun, Twilio API key secrets, Telegram bot tokens.
+	`SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}`,
+	`key-[0-9a-zA-Z]{32}`,
+	`[0-9]{8,10}:AA[A-Za-z0-9_-]{33}`,
+	// Azure storage account keys and SAS signatures in a connection string.
+	`AccountKey=[A-Za-z0-9+/]{40,}={0,2}`,
+}, "|"))
+
+func findTokenShapes(s string) []span {
+	var out []span
+	for _, m := range tokenShapeRe.FindAllStringIndex(s, -1) {
+		start, end := m[0], m[1]
+		if isTokenByte(before(s, start)) && !strings.HasPrefix(s[start:], "hooks.") {
+			continue
+		}
+		// A longer token than the shape allows is still one token.
+		for end < len(s) && isTokenByte(s[end]) {
+			end++
+		}
+		if strings.HasPrefix(s[start:end], "AccountKey=") {
+			start += len("AccountKey=")
+		} else if strings.HasPrefix(s[start:end], "hooks.") {
+			start += strings.IndexByte(s[start:end], '/') + 1 // the host stays in clear
+		}
+		out = append(out, span{start, end})
+	}
+	return out
+}
+
+// isTokenByte reports a byte that may continue a token: base64, base64url
+// and the separators token shapes use.
+func isTokenByte(c byte) bool {
+	return isAlnum(c) || c == '-' || c == '+' || c == '/' || c == '='
+}
+
+// --- Authorization schemes: "Bearer <token>", "Basic <base64>"
+
+var authSchemeRe = regexp.MustCompile(`(?i)(?:^|[^A-Za-z0-9_])(bearer|basic|token|apikey|api-key|negotiate|ntlm|aws4-hmac-sha256)[ \t]+`)
+
+// findAuthSchemes masks the credential after an authorization scheme
+// word. A credential must look like one, so that prose ("basic
+// authentication", "bearer token required") stays in clear: a Basic
+// credential is base64 of "user:password"; another is at least 8 token
+// characters with a digit or a token separator, or at least 20.
+func findAuthSchemes(s string) []span {
+	var out []span
+	done := 0
+	for _, m := range authSchemeRe.FindAllStringSubmatchIndex(s, -1) {
+		scheme := strings.ToLower(s[m[2]:m[3]])
+		start := m[1]
+		if start < done {
+			continue // inside a credential already masked
+		}
+		if scheme == "aws4-hmac-sha256" {
+			// "AWS4-HMAC-SHA256 Credential=…, SignedHeaders=…, Signature=…"
+			end := lineEnd(s, start, false)
+			out = append(out, span{start, end})
+			done = end
+			continue
+		}
+		end := start
+		for end < len(s) && isCredentialByte(s[end]) {
+			end++
+		}
+		v := s[start:end]
+		switch {
+		case scheme == "basic":
+			if !basicCredential(v) {
+				continue
+			}
+		case scheme == "token" && !strings.ContainsAny(v, "0123456789"):
+			continue // "token expired", "token validation failed"
+		case !looksCredential(v):
+			continue
+		}
+		out = append(out, span{start, end})
+		done = end
+	}
+	return out
+}
+
+func isCredentialByte(c byte) bool {
+	return isAlnum(c) || strings.IndexByte("-._~+/=", c) >= 0
+}
+
+func basicCredential(v string) bool {
+	if len(v) < 4 {
+		return false
+	}
+	for _, enc := range []*base64.Encoding{base64.StdEncoding, base64.RawStdEncoding, base64.URLEncoding, base64.RawURLEncoding} {
+		if b, err := enc.DecodeString(v); err == nil && strings.IndexByte(string(b), ':') > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func looksCredential(v string) bool {
+	if len(v) < 8 {
+		return false
+	}
+	return len(v) >= 20 || strings.ContainsAny(v, "0123456789-._~+/=")
+}
+
+// --- URL userinfo: scheme://user:password@host
+
+var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#@"'<>:]*:[^\s/?#@"'<>]*)@`)
+
+func findUserinfo(s string) []span {
+	var out []span
+	for _, m := range userinfoRe.FindAllStringSubmatchIndex(s, -1) {
+		if m[3] > m[2] {
+			out = append(out, span{m[2], m[3]})
+		}
+	}
+	return out
+}
+
+// --- key=value and "key": "value" pairs
+
+// pairRe finds a key followed by "=" or ":" in logfmt, JSON, headers,
+// query strings, connection strings and command lines ("--password=x").
+// A JSON key may be quoted, and escaped when the JSON is logged inside a
+// string (\"password\":\"x\").
+var pairRe = regexp.MustCompile(`(?:^|[^A-Za-z0-9_.\\-])(\\?["']?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["']?)[ \t]{0,3}([:=])[ \t]{0,3}`)
+
+func findSecretPairs(s string) []span {
+	var out []span
+	done := 0
+	for _, m := range pairRe.FindAllStringSubmatchIndex(s, -1) {
+		key := s[m[4]:m[5]]
+		start := m[1]
+		if start < done {
+			continue // inside a secret already masked
+		}
+		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
+			continue // a URL: "https://"
+		}
+		if !isSecretHeader(key) && !LooksSecret(key) {
+			if hashName(key) {
+				continue // "SHA256:…" fingerprints, checksums, digests
+			}
+			if v, vs, ve := pairValue(s, start, false, maxCandidate+1); ve > vs && highEntropy(v) {
+				out = append(out, span{vs, ve})
+			}
+			continue
+		}
+		toLineEnd := headerLike(key)
+		v, vs, _ := pairValue(s, start, toLineEnd, len(s))
+		scheme := 0
+		if isAuthorization(key) {
+			scheme = authSchemePrefix(v)
+			if toLineEnd && strings.EqualFold(strings.TrimSpace(v[:scheme]), "digest") {
+				// Digest parameters are quoted: the line, not the first quote.
+				v = s[vs:lineEnd(s, vs, true)]
+			}
+		}
+		ve := vs + len(v)
+		vs += scheme // keep "Bearer " in clear
+		if ve > vs {
+			out = append(out, span{vs, ve})
+			done = ve
+		}
+	}
+	return out
+}
+
+// hashName reports a key that names a digest, whose value is high-entropy
+// by nature and no credential.
+func hashName(key string) bool {
+	for _, t := range Tokens(key) {
+		switch t {
+		case "md5", "sha", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3", "blake2b", "blake3",
+			"hash", "checksum", "digest", "etag", "integrity", "fingerprint", "crc32", "h1":
+			return true
+		}
+	}
+	return false
+}
+
+// pairValue reads the value that starts at s[i]: quoted (to its closing
+// quote, escaped quotes skipped, or the end of the line), to the end of
+// the line for a header whose value has blanks (a cookie, an
+// authorization), or unquoted (to a blank or a delimiter). It reads at
+// most limit bytes when limit > 0.
+func pairValue(s string, i int, toLineEnd bool, limit int) (string, int, int) {
+	if i >= len(s) {
+		return "", i, i
+	}
+	escaped := false
+	q := s[i]
+	if q == '\\' && i+1 < len(s) && (s[i+1] == '"' || s[i+1] == '\'') {
+		escaped, q = true, s[i+1]
+		i++
+	}
+	if q == '"' || q == '\'' {
+		start := i + 1
+		stop := len(s)
+		if limit > 0 {
+			stop = min(stop, start+limit)
+		}
+		for j := start; j < stop; j++ {
+			switch {
+			case escaped && s[j] == '\\' && j+1 < len(s) && s[j+1] == q:
+				return s[start:j], start, j
+			case !escaped && s[j] == '\\':
+				j++ // an escaped character, maybe the quote
+			case !escaped && s[j] == q:
+				return s[start:j], start, j
+			case s[j] == '\n':
+				return s[start:j], start, j
+			}
+		}
+		return s[start:stop], start, stop
+	}
+	stop := len(s)
+	if limit > 0 {
+		stop = min(stop, i+limit)
+	}
+	end := i
+	if toLineEnd {
+		end = min(stop, lineEnd(s, i, false))
+	} else {
+		for end < stop && strings.IndexByte(" \t\r\n,;&\"'<>|)}]", s[end]) < 0 {
+			end++
+		}
+	}
+	for end > i && strings.IndexByte(" \t,;.", s[end-1]) >= 0 {
+		end--
+	}
+	return s[i:end], i, end
+}
+
+// lineEnd is the end of the line that holds s[i], or of the JSON string
+// it sits in: at a newline, an escaped newline or quote (\n, \"), and,
+// unless quotes is set, at a plain quote.
+func lineEnd(s string, i int, quotes bool) int {
+	end := i
+	for end < len(s) && s[end] != '\n' && s[end] != '\r' && (quotes || s[end] != '"') {
+		if s[end] == '\\' && end+1 < len(s) && (s[end+1] == 'n' || s[end+1] == 'r' || s[end+1] == '"') {
+			break // \n or \" in a logged JSON string
+		}
+		end++
+	}
+	return end
+}
+
+// headerLike reports a key whose value runs to the end of its line: the
+// HTTP headers whose values hold blanks.
+func headerLike(key string) bool {
+	k := strings.ToLower(strings.TrimLeft(key, "-"))
+	return k == "cookie" || k == "set-cookie" || isAuthorization(key)
+}
+
+func isAuthorization(key string) bool {
+	k := strings.ToLower(strings.TrimLeft(key, "-"))
+	return k == "authorization" || k == "proxy-authorization"
+}
+
+// isSecretHeader reports the "*-Token" and "*-Key" header names
+// (X-Api-Key, X-Auth-Token, Ocp-Apim-Subscription-Key, X-Goog-Api-Key).
+func isSecretHeader(key string) bool {
+	if !strings.Contains(key, "-") || strings.HasPrefix(key, "-") {
+		return false
+	}
+	toks := Tokens(key)
+	if len(toks) < 2 {
+		return false
+	}
+	last := toks[len(toks)-1]
+	return last == "token" || last == "key"
+}
+
+// authSchemePrefix returns the length of an authorization scheme word and
+// its blanks at the start of v ("Bearer "), or 0.
+func authSchemePrefix(v string) int {
+	word, rest, ok := strings.Cut(v, " ")
+	if !ok {
+		return 0
+	}
+	switch strings.ToLower(word) {
+	case "bearer", "basic", "token", "digest", "negotiate", "ntlm", "hoba", "mutual", "apikey", "dpop":
+		return len(v) - len(strings.TrimLeft(rest, " "))
+	}
+	return 0
+}
+
+// highEntropy reports a value that looks like a random credential in a
+// key or header position: at least 32 base64 or base64url characters with
+// upper- and lower-case letters and digits, at least 4 bits of entropy
+// per character. Hex (hashes, trace and request ids, kept for tracing),
+// UUIDs, paths and URLs are not secrets by shape.
+func highEntropy(v string) bool {
+	if len(v) < 32 || len(v) > maxCandidate || v[0] == '/' || strings.Contains(v, "://") {
+		return false
+	}
+	var upper, lower, digit bool
+	for i := 0; i < len(v); i++ {
+		c := v[i]
+		switch {
+		case c >= 'A' && c <= 'Z':
+			upper = true
+		case c >= 'a' && c <= 'z':
+			lower = true
+		case isDigit(c):
+			digit = true
+		case strings.IndexByte("+/=_-.~", c) >= 0:
+		default:
+			return false
+		}
+	}
+	return upper && lower && digit && entropy(v) >= 4.0
+}
+
+// entropy is the Shannon entropy of the bytes of v, in bits per byte.
+func entropy(v string) float64 {
+	var n [256]int
+	for i := 0; i < len(v); i++ {
+		n[v[i]]++
+	}
+	h := 0.0
+	for _, c := range n {
+		if c > 0 {
+			p := float64(c) / float64(len(v))
+			h -= p * math.Log2(p)
+		}
+	}
+	return h
+}
+
+// --- command-line flags: "--password hunter2", "curl -u user:pass"
+
+var flagRe = regexp.MustCompile(`(?:^|[\s"'])(--?[A-Za-z][A-Za-z0-9_-]{0,63})[ \t]+([^\s"'-][^\s"']*)`)
+
+func findSecretFlags(s string) []span {
+	var out []span
+	for _, m := range flagRe.FindAllStringSubmatchIndex(s, -1) {
+		flag, v := s[m[2]:m[3]], s[m[4]:m[5]]
+		switch {
+		case flag == "-u" || flag == "--user" || flag == "--proxy-user":
+			// curl: user:password. "-u 1000:1000" (a uid) and "-u root"
+			// are not credentials.
+			if u, p, ok := strings.Cut(v, ":"); ok && p != "" && !allDigits(u+p) {
+				out = append(out, span{m[4], m[5]})
+			}
+		case len(flag) > 2 && flag[1] == '-' && LooksSecret(flag):
+			out = append(out, span{m[4], m[5]})
+		}
+	}
+	return out
+}
+
+func allDigits(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if !isDigit(s[i]) {
+			return false
+		}
+	}
+	return s != ""
+}
+
+// --- MySQL and MariaDB clients: "mysql -uroot -phunter2"
+
+var mysqlRe = regexp.MustCompile(`\b(?:mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
+var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p([^\s"']+)`)
+
+func findMySQLPasswords(s string) []span {
+	var out []span
+	done := 0
+	for _, m := range mysqlRe.FindAllStringIndex(s, -1) {
+		if m[0] < done {
+			continue // the line was read
+		}
+		end := m[1]
+		for end < len(s) && s[end] != '\n' {
+			end++
+		}
+		done = end
+		line := s[m[1]:end]
+		for _, p := range mysqlPassRe.FindAllStringSubmatchIndex(line, -1) {
+			out = append(out, span{m[1] + p[2], m[1] + p[3]})
+		}
+	}
+	return out
+}

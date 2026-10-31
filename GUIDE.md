@@ -207,6 +207,35 @@ bastion reaches; no local port is ever opened.
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
+- Opt-in, never in `AllDetectors` (name them):
+  - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
+    IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
+    link-local, multicast, unspecified, broadcast and reserved addresses
+    stay in clear; shared CGNAT (100.64/10) and documentation ranges are
+    masked. An address glued to a letter, a digit or a dot (`v1.2.3.4`,
+    `1.2.3.4.5`) is not one; a four-part version in public ranges
+    (`5.15.0.91`) is masked.
+  - `secret`: credentials, masked as `<redacted>` (no first character, no
+    length), and run before every other detector. It finds the values of
+    `Authorization`/`Proxy-Authorization` (the scheme word stays),
+    `Cookie`/`Set-Cookie` (to the end of the line), `*-Token`/`*-Key`
+    headers, any `key=value`/`"key": "value"`/`--flag value` whose name
+    `LooksSecret`, a high-entropy value (≥ 32 base64 characters, mixed
+    case and digits, ≥ 4 bits/char) in a key position (not under a digest
+    name such as `sha256`), `Bearer`/`Basic`/`Token` credentials in text,
+    JWTs, AWS/GitHub/GitLab/Slack/Stripe/Google/OpenAI/npm/PyPI/... token
+    shapes, PEM private keys (to their END line, or the end of the text),
+    URL userinfo (`postgres://app:pw@db`), `curl -u user:pw` and
+    `mysql -p<password>`. Not found: secrets without a known shape or label
+    (short or low-entropy tokens, passwords in prose, session ids in URL
+    paths, connection strings without userinfo), hex and other encoded
+    content.
+- `pii.LooksSecret(name)`: a field, header or flag name that holds a
+  credential (`password`, `client_secret`, `api_key`, `X-Api-Key`,
+  `Authorization`, `Cookie`, `PHPSESSID`, en/fr/nl/de/es); metadata about one
+  (`token_type`, `password_changed_at`, `api_key_id`), token counts
+  (`max_tokens`) and `PWD` are not. Check it before `LooksPersonal`: a
+  secret is redacted, never pseudonymised or unmasked.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in

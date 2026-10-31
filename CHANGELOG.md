@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `pii`: two opt-in detectors, `ip` (public IPv4 and IPv6 addresses,
+  IPv4-mapped) and `secret` (credentials, tokens, private keys, masked as
+  `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
+  `AllDetectors`: a product masks exactly what it masked before until it
+  names them (GUIDE §8).
+
 ## v0.7.1 (2026-10-30)
 
 - A policy change that ends the session when applied (a tightening read

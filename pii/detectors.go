@@ -18,9 +18,16 @@ type Detector interface {
 }
 
 // detectorOrder is the order detectors run in, whatever the order they are
-// configured in: emails first (their digits are not phone numbers), the
-// checksummed numbers next, phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone", "phone_loose"}
+// configured in: secrets first (a password in a URL is not an e-mail
+// address), emails next (their digits are not phone numbers), the
+// checksummed numbers, IP addresses (their digits are not phone numbers
+// either), phone numbers, the loosest pattern, last.
+var detectorOrder = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "ip", "phone", "phone_loose"}
+
+// optInDetectors are left out of AllDetectors: phone_loose for its false
+// positives; ip and secret so that a product upgrading lockkit masks
+// exactly what it masked before until it names them.
+var optInDetectors = set("phone_loose", "ip", "secret")
 
 var detectorFinders = map[string]func(string) []span{
 	"email":   findEmails,
@@ -31,6 +38,8 @@ var detectorFinders = map[string]func(string) []span{
 	"nl_bsn":  findBSN,
 	"us_ssn":  findSSN,
 	"phone":   findPhones,
+	"ip":      findIPs,
+	"secret":  findSecrets,
 	// phone_loose is opt-in: it adds national numbers written without a
 	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
 	// rate than phone.
@@ -39,7 +48,8 @@ var detectorFinders = map[string]func(string) []span{
 
 // Detectors returns the named detectors, de-duplicated, in their fixed run
 // order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn,
-// phone_loose.
+// and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses) and
+// secret (credentials, tokens and private keys, masked as Redacted).
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for _, n := range names {
@@ -57,12 +67,13 @@ func Detectors(names []string) ([]Detector, error) {
 	return out, nil
 }
 
-// AllDetectors is every detector but the opt-in ones (phone_loose), in
-// their run order: what masking falls back to when it was given none.
+// AllDetectors is every detector but the opt-in ones (phone_loose, ip,
+// secret), in their run order: what masking falls back to when it was
+// given none.
 func AllDetectors() []Detector {
 	var names []string
 	for _, n := range detectorOrder {
-		if n != "phone_loose" {
+		if !optInDetectors[n] {
 			names = append(names, n)
 		}
 	}
@@ -100,7 +111,12 @@ func (d finderDetector) Mask(s string) string {
 	last := 0
 	for _, sp := range spans {
 		b.WriteString(s[last:sp.start])
-		b.WriteString(MaskText(s[sp.start:sp.end]))
+		if d.name == "secret" {
+			// Neither the first character nor the length of a secret.
+			b.WriteString(Redacted)
+		} else {
+			b.WriteString(MaskText(s[sp.start:sp.end]))
+		}
 		last = sp.end
 	}
 	b.WriteString(s[last:])
