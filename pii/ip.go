@@ -26,6 +26,7 @@ const maxIPRun = 64
 // hex dump or a MAC list is still found. Each try reads at most maxIPRun
 // bytes, so the scan stays linear.
 func findIPs(s string) []span {
+	s = jsonEscapeView(s) // "\u0027203.0.113.7": same offsets
 	var out []span
 	for i := 0; i < len(s); i++ {
 		if !isIPByte(s[i]) {

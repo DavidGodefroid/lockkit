@@ -564,9 +564,14 @@ func TestSecretKeepsWorkingDirsAndPlainObjects(t *testing.T) {
 func TestIPAfterEscapes(t *testing.T) {
 	d := detector(t, "ip")
 	for in, leak := range map[string]string{
-		`{"msg":"peers:\n81.2.69.142\n81.2.69.143"}`: "81.2.69.14",
-		`{"msg":"a\t81.2.69.142\tb"}`:                "81.2.69.142",
-		`{"msg":"hosts\n2001:4860::8888"}`:           "2001:4860::8888",
+		`{"Message":"Failed to connect to \u002781.2.69.160\u0027"}`:           "81.2.69.160",
+		`{"Message":"Request {\u0022ClientIp\u0022:\u002281.2.69.160\u0022}"}`: "81.2.69.160",
+		`peer \u003c81.2.69.160\u003e`:                                         "81.2.69.160",
+		`client\u003d81.2.69.160`:                                              "81.2.69.160",
+		`\u00272001:4860:4860::8888\u0027`:                                     "2001:4860",
+		`{"msg":"peers:\n81.2.69.142\n81.2.69.143"}`:                           "81.2.69.14",
+		`{"msg":"a\t81.2.69.142\tb"}`:                                          "81.2.69.142",
+		`{"msg":"hosts\n2001:4860::8888"}`:                                     "2001:4860::8888",
 	} {
 		if got := d.Mask(in); strings.Contains(got, leak) {
 			t.Errorf("ip.Mask(%q) = %q, keeps %q", in, got, leak)
@@ -575,6 +580,15 @@ func TestIPAfterEscapes(t *testing.T) {
 	// An escaped backslash before "n" is no newline escape.
 	if !escapeBoundary(`a\nb`, 3) || escapeBoundary(`a\\nb`, 4) || escapeBoundary("an", 2) {
 		t.Error("escapeBoundary")
+	}
+}
+
+func TestBearerBeforeAPairIsNoCredential(t *testing.T) {
+	d := detector(t, "secret")
+	for _, in := range []string{"token_type=Bearer expires_in=3600", "www-authenticate: Bearer error=invalid_token"} {
+		if got := d.Mask(in); got != in {
+			t.Errorf("secret.Mask(%q) = %q", in, got)
+		}
 	}
 }
 

@@ -225,8 +225,10 @@ func findAuthSchemes(s string) []span {
 			if !basicCredential(v) {
 				return start
 			}
-		case scheme == "token" && (!strings.ContainsAny(v, "0123456789") || strings.Contains(strings.TrimRight(v, "="), "=")):
-			return start // "token expired", "token count=42"
+		case scheme == "token" && !strings.ContainsAny(v, "0123456789"):
+			return start // "token expired"
+		case strings.Contains(strings.TrimRight(v, "="), "="):
+			return start // "token count=42", "token_type=Bearer expires_in=3600": the next pair
 		case (scheme == "negotiate" || scheme == "ntlm") && (len(v) < 16 || strings.ContainsAny(v, "-._~")):
 			return start // "negotiate cipher-suite": SPNEGO and NTLM are base64
 		case !looksCredential(v):
