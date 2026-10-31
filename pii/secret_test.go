@@ -238,6 +238,9 @@ func TestSecretPathologicalInputs(t *testing.T) {
 		"auth args":   strings.Repeat(`"Authorization: Bearer `, DetectLimit/23),
 		"pairs":       strings.Repeat("a=", DetectLimit/2),
 		"secret keys": strings.Repeat("password=", DetectLimit/9),
+		"curl users":  strings.Repeat("--user=", DetectLimit/7),
+		"proxy users": strings.Repeat("--proxy-user=", DetectLimit/13),
+		"escapes":     strings.Repeat(`\npassword`, DetectLimit/10),
 		"quotes":      strings.Repeat(`x="`, DetectLimit/3),
 		"tokens":      strings.Repeat("k="+fakeRandom[:31]+" ", DetectLimit/40),
 		"aws4":        strings.Repeat("AWS4-HMAC-SHA256 ", DetectLimit/17),
@@ -349,6 +352,13 @@ func TestSecretReviewBypasses(t *testing.T) {
 		`{"msg":"{\n\"Pwd\":\"hunter2\"}"}`:                                                "hunter2",
 		"2fa_secret=JBSWY3DPEHPK3PXP":                                                      "JBSWY3DPEHPK3PXP",
 		`{"2fa_secret":"JBSWY3DPEHPK3PXP"}`:                                                "JBSWY3DPEHPK3PXP",
+		`{"msg":"loaded config\npassword=hunter2"}`:                                        "hunter2",
+		`{"msg":"env\nAPI_TOKEN=abc123"}`:                                                  "abc123",
+		`{"msg":"request headers\r\nX-Api-Key: abc123"}`:                                   "abc123",
+		`{"msg":"request headers\r\nAuthorization: s3cr3tvalue"}`:                          "s3cr3tvalue",
+		`{"msg":"a\tclient_secret=xyz"}`:                                                   "xyz",
+		`{"msg":"x\n--password hunter2"}`:                                                  "hunter2",
+		`{"dump":"GET / HTTP/1.1\r\nX-Auth-Token: abcdef\r\n"}`:                            "abcdef",
 		`{"Authorization":["Bearer s3cr3t"]}`:                                              "s3cr3t",
 		`{"password": [ "hunter2" ]}`:                                                      "hunter2",
 		"login: user=bob pass=1234 status=failed errors=0":                                 "1234",
@@ -522,5 +532,22 @@ func TestSecretKeepsWorkingDirsAndPlainObjects(t *testing.T) {
 		if got := d.Mask(in); got != in {
 			t.Errorf("secret.Mask(%q) = %q, want it unchanged", in, got)
 		}
+	}
+}
+
+func TestIPAfterEscapes(t *testing.T) {
+	d := detector(t, "ip")
+	for in, leak := range map[string]string{
+		`{"msg":"peers:\n81.2.69.142\n81.2.69.143"}`: "81.2.69.14",
+		`{"msg":"a\t81.2.69.142\tb"}`:                "81.2.69.142",
+		`{"msg":"hosts\n2001:4860::8888"}`:           "2001:4860::8888",
+	} {
+		if got := d.Mask(in); strings.Contains(got, leak) {
+			t.Errorf("ip.Mask(%q) = %q, keeps %q", in, got, leak)
+		}
+	}
+	// An escaped backslash before "n" is no newline escape.
+	if !escapeBoundary(`a\nb`, 3) || escapeBoundary(`a\\nb`, 4) || escapeBoundary("an", 2) {
+		t.Error("escapeBoundary")
 	}
 }

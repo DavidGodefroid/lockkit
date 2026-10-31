@@ -171,7 +171,7 @@ func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, ok func(st
 		next := m[0] + 1
 		if !ok(m[0]) {
 			// Refused: any match starting inside the same word is too.
-			for next < len(s) && glue(s[next]) && glue(s[next-1]) {
+			for next < len(s) && glue(s[next]) && glue(s[next-1]) && !escapeBoundary(s, next) {
 				next++
 			}
 		} else {
@@ -307,11 +307,11 @@ func findSecretPairs(s string) []span {
 			return start // a URL: "https://"
 		}
 		if (key == "--user" || key == "--proxy-user") && s[m[8]] == '=' {
-			if v, vs, ve := pairValue(s, start, false, 0); strings.Contains(v, ":") {
+			v, vs, ve := pairValue(s, start, false, 0)
+			if strings.Contains(v, ":") {
 				out = append(out, span{vs, ve})
-				return ve
 			}
-			return start
+			return max(ve, start) // read once: "--user=--user=…"
 		}
 		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] == '=' || m[3] > m[2] || m[7] > m[6]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it

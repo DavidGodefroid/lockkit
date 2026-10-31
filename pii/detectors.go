@@ -257,11 +257,29 @@ func isAlnum(c byte) bool {
 }
 
 // before and after return the byte around a range, or 0 at the edges.
+// before reads a \n, \r or \t escape (JSON or a logged string) as the
+// blank it stands for, so a word after it starts there.
 func before(s string, i int) byte {
+	if escapeBoundary(s, i) {
+		return ' '
+	}
 	if i > 0 {
 		return s[i-1]
 	}
 	return 0
+}
+
+// escapeBoundary reports that s[:i] ends with a \n, \r or \t escape: an
+// odd run of backslashes, then the letter.
+func escapeBoundary(s string, i int) bool {
+	if i < 2 || s[i-2] != '\\' || s[i-1] != 'n' && s[i-1] != 'r' && s[i-1] != 't' {
+		return false
+	}
+	n := 0
+	for k := i - 2; k >= 0 && s[k] == '\\'; k-- {
+		n++
+	}
+	return n%2 == 1
 }
 
 func after(s string, i int) byte {
