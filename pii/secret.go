@@ -367,22 +367,39 @@ func findSecretPairs(s string) []span {
 // bytes (cut, or not JSON) ends at the end of the line where that bound
 // falls, so a later element on another line is never left in clear.
 func arrayEnd(s string, i int) int {
-	var q byte   // the open quote, 0 outside a string
-	esc := false // the open quote is an escaped \"
+	var q byte     // the open quote, 0 outside a string
+	esc := false   // the open quote is an escaped \" (JSON logged in a string)
+	inner := false // in an escaped string: the last inner character was an unpaired backslash
 	depth := 0
 	limit := i + 1 + maxCandidate
 	for j := i + 1; j < len(s); j++ {
 		if j >= limit {
-			return lineEnd(s, j, true)
+			// Fail closed: to the end of the line itself, never to an
+			// escape sequence that might stand inside the array.
+			if k := strings.IndexAny(s[j:], "\n\r"); k >= 0 {
+				return j + k
+			}
+			return len(s)
 		}
 		c := s[j]
 		switch {
 		case esc:
+			// The text is escaped once: "\\" is one inner backslash,
+			// "\"" one inner quote. The inner string closes on an inner
+			// quote that no inner backslash escapes.
+			quote := false
 			if c == '\\' && j+1 < len(s) {
-				if s[j+1] == '"' {
-					q, esc = 0, false
-				}
 				j++
+				c = s[j]
+				quote = c == '"'
+			}
+			switch {
+			case inner:
+				inner = false
+			case c == '\\':
+				inner = true
+			case quote:
+				q, esc = 0, false
 			}
 		case q != 0 && c == '\\':
 			j++
@@ -391,7 +408,7 @@ func arrayEnd(s string, i int) int {
 				q = 0
 			}
 		case c == '\\' && j+1 < len(s) && s[j+1] == '"':
-			q, esc = '"', true
+			q, esc, inner = '"', true, false
 			j++
 		case c == '"' || c == '\'':
 			q = c
