@@ -153,14 +153,14 @@ const pairKeyBytes = 2 + 2 + 4 + 64*utf8.UTFMax + 2
 
 // pairWindow returns where a pairRe search from pos may start without
 // missing its leftmost match, or false when none can follow. Every match
-// holds a separator ("=", ":" or "=>"), and the bytes before the first one
+// holds a separator ("=", ":", "=>" or \u003d), and the bytes before the first one
 // it holds are an opening quote (which may itself be ":"), a key, a
 // closing quote and blanks, none of them "=" or ":" but that quote: the
 // leftmost match starts at most pairKeyBytes before the blanks ahead of
 // the first separator after pos. Go's regexp otherwise runs its automaton
 // over every byte of a text without one.
 func pairWindow(s string, pos int) (int, bool) {
-	k := strings.IndexAny(s[pos:], "=:")
+	k := strings.IndexAny(s[pos:], "=:\\") // "\\" for a \u003d separator
 	if k < 0 {
 		return 0, false
 	}

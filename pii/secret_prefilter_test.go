@@ -39,7 +39,7 @@ func prefilterCorpus(t testing.TB) []string {
 	in := strings.Split(string(data), "\n")
 	in = append(in, tokenShapeExamples(t)...)
 	return append(in,
-		"Authorization: BEARER abcdef123456", "to\u212aen abcdef123456", "\u212aEY toKen abcdef123456", "ba\u017fic dXNlcjpwYXNz", "Authorization: Bearer abcdef123456",
+		"Authorization: BEARER abcdef123456", `user\u003dbob password\u003dHunter2pw`, "set -e\\nmysql -uroot -pHunter2pw", "to\u212aen abcdef123456", "\u212aEY toKen abcdef123456", "ba\u017fic dXNlcjpwYXNz", "Authorization: Bearer abcdef123456",
 		"curl -ubob:pw https://x", "mysql -uroot -phunter2", "https://bob:pw@example.com/",
 		"x "+fakeGH, "AccountKey="+strings.Repeat("A", 44), "123456789:AA"+strings.Repeat("b", 33),
 	)
