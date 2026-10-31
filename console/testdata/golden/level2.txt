@@ -1,4 +1,4 @@
-status "\x1b[1m\x1b[38;5;99mUAT\x1b[0m\x1b[2m · \x1b[0mmode \x1b[32mmanual\x1b[0m \x1b[2m⇧Tab\x1b[0m\x1b[2m · \x1b[0mresults \x1b[2mmasked\x1b[0m \x1b[2m^O\x1b[0m"
+status "\x1b[1m\x1b[38;5;99mUAT\x1b[0m\x1b[2m · \x1b[0mresults \x1b[2mmasked\x1b[0m \x1b[2m^O\x1b[0m"
 print  ""
 print  "\x1b[38;5;99m╭─ \x1b[0m\x1b[1m\x1b[38;5;99mUAT\x1b[0m\x1b[2m · \x1b[0mbroker.example.com / orders \x1b[38;5;99m─────\x1b[0m"
 print  "\x1b[38;5;99m│\x1b[0m"

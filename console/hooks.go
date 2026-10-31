@@ -23,9 +23,12 @@ type StatusView struct {
 	// Profile and Policy are the approved policy in force.
 	Profile Profile
 	Policy  Policy
-	// Auto is auto mode in effect; ShowResults and AllowUnmask the other
-	// switches.
-	Auto, ShowResults, AllowUnmask bool
+	// ShowResults and AllowUnmask are the switches.
+	ShowResults, AllowUnmask bool
+	// Auto is always false: auto mode is gone, lockhub decides.
+	//
+	// Deprecated: it goes in the next minor release.
+	Auto bool
 	// Pending: a loosening awaits :review. Requests counts the change
 	// requests queued.
 	Pending  bool
@@ -101,26 +104,19 @@ type Worder interface {
 // text (a finding, a credentials mode, a change) must be escaped by the
 // product (sanitize.Terminal), as the console's own lines are.
 type Words struct {
-	// AutoStart is printed when the console starts in auto mode.
-	AutoStart string
-	// AutoOn and Manual are printed when the mode switches.
-	AutoOn, Manual string
-	// NoAutoProduction refuses auto mode on a production profile.
-	NoAutoProduction string
-	// NoAutoHub, when set, refuses auto mode in hub mode with this line
-	// (the console otherwise accepts the switch, which has no effect there).
-	NoAutoHub string
-	// StatusAuto and StatusManual are the mode row of :status.
-	StatusAuto, StatusManual string
+	// AutoStart, AutoOn, Manual, NoAutoProduction, NoAutoHub, StatusAuto,
+	// StatusManual and ReviewAuto are never printed: auto mode is gone,
+	// lockhub decides every request.
+	//
+	// Deprecated: kept so that products still setting them build; they go
+	// in the next minor release.
+	AutoStart, AutoOn, Manual, NoAutoProduction, NoAutoHub, StatusAuto, StatusManual, ReviewAuto string
 	// ResultsOn is printed when the clear results are switched on;
 	// StatusResults is their row of :status when on.
 	ResultsOn, StatusResults string
 	// UnmaskAsk is the question that allows unmasked output; UnmaskOff is
 	// printed when it is turned off.
 	UnmaskAsk, UnmaskOff string
-	// ReviewAuto warns at :review that auto mode is on and the loosening
-	// turns a production profile into another.
-	ReviewAuto string
 	// ChangeQueued words a change request from a client (already escaped).
 	ChangeQueued func(change string) string
 	// Reconnecting is printed before a reconnection.
@@ -204,7 +200,7 @@ func (s *Server) Asker() Asker { return s.asker() }
 
 // statusView is what the status hooks see.
 func (s *Server) statusView() StatusView {
-	return StatusView{Status: s.consoleStatus(), Profile: s.profile, Policy: s.approved, Auto: s.autoApprove(),
+	return StatusView{Status: s.consoleStatus(), Profile: s.profile, Policy: s.approved,
 		ShowResults: s.showResults, AllowUnmask: s.allowUnmask, Pending: s.pending != nil, Requests: len(s.requests),
 		Boundary: s.cfg.Boundary, Level: s.cfg.Level, Session: s.sess}
 }

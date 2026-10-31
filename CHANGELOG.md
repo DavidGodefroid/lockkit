@@ -3,6 +3,33 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+Behaviour change: a console is hub-attached only. There is no standalone
+console and no auto mode any more (#110).
+
+- `console.Run` requires its hub options: without `--hub`,
+  `--hub-key-file` and `--instance` (or with only some of them) it refuses
+  before any check, prompt or file write with `console.ErrNoHub` ("the
+  console is launched by `lox up` only"). The standalone start, which
+  withdrew the plans hub mode had left pending, is gone, and so is the
+  `console.Server` refusal of a run by ticket without a hub.
+- Auto mode is gone: `Options.Auto` (`--auto`) is refused by `Run`,
+  `ServerConfig.Auto` by `NewServer`; Shift+Tab and `:mode` do nothing,
+  the status row and `:status` have no mode. Requests are decided on
+  lockhub (whose own auto mode honours `Screen.NeverAuto`); the console's
+  own decisions (a policy change, `:unmask`) are still asked on its
+  terminal, by the approver `hub.Approver` wraps.
+- Deprecated, to be removed in the next minor release (kept so that
+  products still using them build): `Options.Auto`, `ServerConfig.Auto`,
+  `Env.Auto` (always false), `Approval.Auto`, `StatusView.Auto`,
+  `StatusResult.AutoApprove` (`auto_approve`, always false), the auto
+  `Words` (`AutoStart`, `AutoOn`, `Manual`, `NoAutoProduction`,
+  `NoAutoHub`, `StatusAuto`, `StatusManual`, `ReviewAuto`, never
+  printed), `StatusModeRow`, `WithdrawStandalone`, `WithdrawnResp`,
+  `StandaloneReason`, `Withdrawn`. Removed: `console.TicketParam`.
+- New: `console.ErrNoHub`.
+
 ## v0.8.1 (2026-10-31)
 
 Behaviour change: a hub URL with a path (`https://h/lockhub`), accepted

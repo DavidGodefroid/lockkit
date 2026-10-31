@@ -19,9 +19,9 @@ import (
 var updateGolden = flag.Bool("update", false, "rewrite the golden files of the console")
 
 // checkGolden compares what io saw, call by call and colours kept, with
-// testdata/golden/<name>.txt. The standalone terminal console must stay
+// testdata/golden/<name>.txt. What the human sees must stay
 // byte-identical: go test ./console -run Golden -update rewrites the files
-// only when a change of what the human sees is meant.
+// only when a change of it is meant.
 func checkGolden(t *testing.T, name string, io *fakeIO, replace ...string) {
 	t.Helper()
 	io.mu.Lock()
@@ -67,67 +67,6 @@ func lineDiff(want, got string) string {
 		}
 	}
 	return ""
-}
-
-// goldenSession runs a standalone console, sends each request in order
-// once the socket is up, then ends the console and returns its socket.
-func goldenSession(t *testing.T, b *fakeBackend, io *fakeIO, o Options, requests []map[string]any) string {
-	t.Helper()
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	ready := make(chan string, 1)
-	done := make(chan error, 1)
-	o.IO, o.StateDir, o.Isolation, o.Quantum = io, t.TempDir(), runEnv(t), -1
-	o.Harden = func() error { return nil }
-	o.Ready = func(s string) { ready <- s }
-	go func() { done <- Run(ctx, testProduct, b, o) }()
-	var socket string
-	select {
-	case socket = <-ready:
-	case err := <-done:
-		t.Fatalf("Run: %v\n%s", err, io.plain())
-	case <-time.After(10 * time.Second):
-		t.Fatal("no socket")
-	}
-	for _, params := range requests {
-		dialAndCall(t, socket, "op.read", params)
-	}
-	cancel()
-	select {
-	case <-done:
-	case <-time.After(10 * time.Second):
-		t.Fatal("the console did not end")
-	}
-	return socket
-}
-
-// The standalone console of a non-production profile: first start, an
-// approval, two denials (one with a reason) and an approval timeout.
-func TestGoldenStandalone(t *testing.T) {
-	io := &fakeIO{answers: []string{"y", "y", "n", "no not now"}, secrets: []string{"pw"}}
-	socket := goldenSession(t, &fakeBackend{policy: uat()}, io, Options{Profile: "uat"}, []map[string]any{
-		{"queue": "orders"}, {"queue": "orders"}, {"queue": "orders"}, {"queue": "orders"},
-	})
-	checkGolden(t, "standalone", io, socket, "<socket>")
-}
-
-// A production profile: the typed profile name at start and to approve.
-func TestGoldenStandaloneProduction(t *testing.T) {
-	io := &fakeIO{answers: []string{"y", "prod", "prod", "y"}, secrets: []string{"pw"}}
-	socket := goldenSession(t, &fakeBackend{policy: prod()}, io, Options{Profile: "prod"}, []map[string]any{
-		{"queue": "orders"}, {"queue": "orders"},
-	})
-	checkGolden(t, "standalone-production", io, socket, "<socket>")
-}
-
-// Auto mode: a request runs unprompted, one that asks for a human every
-// time is prompted.
-func TestGoldenStandaloneAuto(t *testing.T) {
-	io := &fakeIO{answers: []string{"y", "y"}, secrets: []string{"pw"}}
-	socket := goldenSession(t, &fakeBackend{policy: uat()}, io, Options{Profile: "uat", Auto: true}, []map[string]any{
-		{"queue": "orders"}, {"queue": "orders", "never_auto": true},
-	})
-	checkGolden(t, "standalone-auto", io, socket, "<socket>")
 }
 
 // Level 2: a typed yes and a finger approve; a non-matching finger denies.

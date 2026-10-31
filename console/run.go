@@ -25,9 +25,14 @@ type Options struct {
 	Profile     string
 	ProjectRoot string
 	IO          IO
-	// Auto, AllowUnmask and ShowResults are the start-up switches (all
-	// three refused at level 2; ShowResults refused at level 1 too).
-	Auto, AllowUnmask, ShowResults bool
+	// AllowUnmask and ShowResults are the start-up switches (both refused
+	// at level 2; ShowResults refused at level 1 too).
+	AllowUnmask, ShowResults bool
+	// Auto is refused: auto mode is gone, lockhub decides every request.
+	//
+	// Deprecated: kept so that products still setting it build; Run
+	// refuses it. It goes in the next minor release.
+	Auto bool
 	// StateDir is the state base (kit.StateBase() when empty).
 	StateDir string
 	// TTY is the console's terminal device (nil when unknown).
@@ -50,8 +55,8 @@ type Options struct {
 	Keychain *secrets.Keychain
 	// Ready, when set, is told the socket path once the console listens.
 	Ready func(socket string)
-	// Hub, when enabled, decides requests on lockhub (HubOptions); --auto
-	// is refused with it.
+	// Hub decides requests on lockhub (HubOptions): required, Run refuses
+	// to start without it (ErrNoHub).
 	Hub HubOptions
 	// OnHub, when set, is called with the console's hub once it is open,
 	// before any request is served: where a product registers its
@@ -120,7 +125,8 @@ func (st *starter) failed(err error) error {
 // record could not be written; nothing is saved and the console stops.
 var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
 
-// Run is a product's `console` command: the isolation checks, the policy
+// Run is a product's `console` command, launched by `lox up` only (the
+// hub options are required, ErrNoHub): the isolation checks, the policy
 // review, the production confirmation, the credentials and the connection,
 // the backend's checks, the socket, then the request loop until Ctrl-C,
 // logout, :quit or a timeout.
@@ -130,6 +136,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	if err := p.Validate(); err != nil {
 		return err
+	}
+	// Hub-attached only: refused before any check, prompt or file write.
+	if err := o.Hub.check(); err != nil {
+		return err
+	}
+	if o.Auto {
+		return fmt.Errorf("%w: --auto is gone: lockhub decides every request", ErrConfig)
 	}
 	env := RealIsolationEnv(p, o.TTY)
 	if o.Isolation != nil {
@@ -144,16 +157,8 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if iso.Verifier != nil {
 		defer CloseVerifier(iso.Verifier)
 	}
-	if iso.Verifier != nil && (o.Auto || o.AllowUnmask || o.ShowResults) {
-		return fmt.Errorf("%w: level 2 does not accept --auto, --allow-unmask or --show-results", ErrConfig)
-	}
-	if o.Hub.Enabled() {
-		if err := o.Hub.check(); err != nil {
-			return err
-		}
-		if o.Auto {
-			return fmt.Errorf("%w: --auto does not go with --hub: the hub decides", ErrConfig)
-		}
+	if iso.Verifier != nil && (o.AllowUnmask || o.ShowResults) {
+		return fmt.Errorf("%w: level 2 does not accept --allow-unmask or --show-results", ErrConfig)
 	}
 	if iso.Level() == 1 && o.ShowResults {
 		return fmt.Errorf("%w: level 1 does not accept --show-results: %s", ErrConfig, level1Window)
@@ -198,26 +203,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if err != nil {
 		return err
 	}
-	var hub *Hub
-	if o.Hub.Enabled() {
-		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
-			return err
-		}
-		defer hub.Close()
-		if o.OnHub != nil {
-			o.OnHub(hub)
-		}
-	} else {
-		// Rollback of hub mode: the plans it left pending are withdrawn,
-		// and a run of their tickets is refused (Server.Handle).
-		ws, err := WithdrawStandalone(p, o.StateDir)
-		for _, w := range ws {
-			o.IO.Println(Paint.Warn(fmt.Sprintf("hub mode is off: %d pending ticket(s) of %s withdrawn; the hub hears of it at the next start with --hub --instance %s",
-				len(w.Tickets), sanitize.Terminal(w.Instance, false), sanitize.Terminal(w.Instance, false))))
-		}
-		if err != nil {
-			o.IO.Println(Paint.Warn("hub mode is off, and its pending plans could not all be withdrawn (they stay pending and could run after a restart with --hub; deny them in lockhub): " + sanitize.Terminal(err.Error(), false)))
-		}
+	hub, err := OpenHub(p, o.Hub, o.StateDir, o.Now)
+	if err != nil {
+		return err
+	}
+	defer hub.Close()
+	if o.OnHub != nil {
+		o.OnHub(hub)
 	}
 	appr := NewTypedApprover(o.IO)
 	if iso.Desktop {
@@ -272,9 +264,6 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		if !ok || strings.TrimSpace(ans) != pr.Name {
 			return errors.New("console: production profile not confirmed")
 		}
-		if o.Auto {
-			o.IO.Println("--auto is ignored on production profiles: every request is prompted")
-		}
 	}
 	o.IO.Println(Paint.OK(fmt.Sprintf("profile %s · %s %s", Paint.Bold(pr.Name), where, Paint.Dim("(approved policy)"))))
 
@@ -313,14 +302,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if quantum == 0 {
 		quantum = ResponseQuantum
 	}
-	var serverAppr Approver = appr
-	if hub != nil {
-		serverAppr = hub.Approver(appr)
-	}
+	// Requests go to the hub; the console's own decisions (a policy
+	// change, unmask) stay with the terminal approver it wraps.
+	serverAppr := hub.Approver(appr)
 	s, err := NewServer(ServerConfig{
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
 		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
-		Auto: o.Auto, AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
+		AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		ReconnectPolicy: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
 		RefuseProduction: refuseProduction,
 	})
@@ -336,17 +324,15 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if o.Ready != nil {
 		o.Ready(path)
 	}
-	if hub != nil {
-		hub.Requests(o.IO, func(b audit.Base) { _ = s.record(context.Background(), b) })
-		o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(hub.Client.URL(), false) + " as " + hub.Instance))
-		wctx, stopWatch := context.WithCancel(ctx)
-		watched := make(chan struct{})
-		go func() {
-			defer close(watched)
-			hub.Watch(wctx, o.IO)
-		}()
-		defer func() { stopWatch(); <-watched }()
-	}
+	hub.Requests(o.IO, func(b audit.Base) { _ = s.record(context.Background(), b) })
+	o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(hub.Client.URL(), false) + " as " + hub.Instance))
+	wctx, stopWatch := context.WithCancel(ctx)
+	watched := make(chan struct{})
+	go func() {
+		defer close(watched)
+		hub.Watch(wctx, o.IO)
+	}()
+	defer func() { stopWatch(); <-watched }()
 	var lines <-chan string
 	if ls, ok := o.IO.(LineSource); ok {
 		lines = ls.Lines()

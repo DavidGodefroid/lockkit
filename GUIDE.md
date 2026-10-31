@@ -436,16 +436,22 @@ image refuses.
 
 ## 10. The console and the `Backend` seam
 
-Your `console` command is one call:
+Your `console` command is one call, and it is launched by `lox up` only:
+the hub options are required (see **Hub mode** below; there is no
+standalone console):
 
 ```go
+var hub console.HubOptions
+hub.Register(fs) // --hub, --hub-key-file, --instance, ...
 err := console.Run(ctx, P, backend, console.Options{
-	Profile: "prod", ProjectRoot: root, IO: term, TTY: os.Stdin,
+	Profile: "prod", ProjectRoot: root, IO: term, TTY: os.Stdin, Hub: hub,
 	Sanitizer: sanitize.New(sanitize.URLUserinfo),
 })
 ```
 
-`Run` does, in order: the isolation checks (separated account, session or
+`Run` does, in order: the hub options (without `--hub`, `--hub-key-file`
+and `--instance` it refuses with `console.ErrNoHub`, "launched by `lox up`
+only", before anything else), the isolation checks (separated account, session or
 desktop shape, X11, relays; refuses before any prompt or file write), core
 dumps off (refused on production if it fails), the policy review (first
 start: describe and approve; since the approved policy: tightenings apply,
@@ -494,24 +500,28 @@ a := env.Approve(ctx, req.ID, console.Screen{
 	Note:      params.Intent,                          // the agent's reason, escaped and audited
 	Body:      []string{"PEEK orders.failed  count 3"},
 	Warnings:  []string{"NOT READ-ONLY: 3 messages requeued, redelivered=true"},
-	NeverAuto: true,                                   // never approved by auto mode
+	NeverAuto: true,                                   // never approved without a human's own decision (the hub's auto mode, a renewal)
+	Hub:       &console.HubTicket{...},                // the plan and masked screen for the hub (Hub mode below)
 })
 if !a.Approved {
-	return a.Refusal // denied (with the human's reason), timed out, client gone, no finger
+	return a.Refusal // pending (decided on lockhub), or refused
 }
 ```
 
-The console frames the screen (red on production), asks `y` or, on
-production, the typed profile name, takes a finger at level 2, times out
-after 5 minutes, and audits the decision (`approved`, `denied`, `timeout`,
-`abandoned`, `auto`) before `Approve` returns. An approval it cannot
+Under `Run` the request goes to lockhub (**Hub mode** below) and the
+answer is `pending`. The console frames the screen (red on production) and
+audits the decision before `Approve` returns. A `console.Server` built
+with a terminal approver instead (tests) asks `y` or, on production, the
+typed profile name, takes a finger at level 2, times out after 5 minutes,
+and audits `approved`, `denied`, `timeout` or `abandoned`. An approval it cannot
 record (the log unwritable, `Screen.Record` returning no valid record) is
 refused with `ipc.CodeInternal` and told to the human; three failed
 writes in a row end the session. Use `Screen.Record` to write the
 decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
-Vault lease); `env.Level(ctx, start)` levels the response time; `env.Auto()`,
-`env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches;
+Vault lease); `env.Level(ctx, start)` levels the response time;
+`env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches
+(`env.Auto()` is deprecated and always false: there is no auto mode);
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
 
@@ -533,7 +543,7 @@ its users and clients see by implementing optional interfaces on the
 backend; a backend that implements none gets the console's behaviour
 unchanged. `StatusAnswerer` answers the `status` method itself (a flat
 answer instead of `product`); `StatusRower` lists the `:status` rows
-(`StatusModeRow`, `StatusResultsRow`, `StatusUnmaskRow`,
+(`StatusResultsRow`, `StatusUnmaskRow`,
 `StatusPendingRow`, `StatusBoundaryRow` give the console's own values);
 `StatusLiner` adds to the status row; `ChangeFormatter` renders policy
 diffs; `ConnectionComparer` widens the connection change that ends the
@@ -550,20 +560,24 @@ approvals with `Server.WriteAudit`, which returns the failure (fail
 closed). `Server.PolicyRefused` reports a refused loosening still in the
 files.
 
-**Hub mode.** `console.HubOptions.Register(fs)` adds the flags `lock up`
-writes: `--hub URL --hub-key-file PATH --instance NAME`, plus `--hub-plain-http` for an http:// hub on its own network (all three or
-none; `--auto` is refused with them). The hub URL is
+**Hub mode.** A console is hub-attached only. `console.HubOptions.Register(fs)`
+adds the flags `lox up` writes: `--hub URL --hub-key-file PATH --instance NAME`,
+all three required (`console.ErrNoHub` otherwise), plus `--hub-plain-http`
+for an http:// hub on its own network. There is no auto mode:
+`Options.Auto` and `ServerConfig.Auto` are deprecated and refused. The hub URL is
 `http(s)://host[:port]` and nothing else: a user, password, path, query
 or fragment is refused (`hubclient.CanonicalURL`), and the hub is printed,
 logged and passed on (`HubOptions.Args`) in that form only. Pass them as `Options.Hub`: `Run`
-then reads the pinned hub key, the instance key (`hubclient.InstanceKey`
+reads the pinned hub key, the instance key (`hubclient.InstanceKey`
 in the home volume) and opens the plans and the hub state under the
 product's state directory. Requests are no longer asked on the terminal:
 `env.Approve` pushes a ticket and answers `pending` (a result, with the
 ticket id). For that the product puts a `console.HubTicket` on the
 screen: the plan (made in `console.HubOf(env).Store`), its caller, the
-risk class and the `render.MaskedScreen`; a screen without one is refused
-in hub mode, never asked here. The run of a decided ticket is the
+risk class and the `render.MaskedScreen`; a screen without one is refused,
+never asked here. The terminal keeps the console's own decisions only (a
+policy change, `:unmask`): `hub.Approver(base)` hands requests to the hub
+and those to the terminal approver `base` it wraps. The run of a decided ticket is the
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
 matched, still usable, binding unchanged, nonce consumed; it returns
 the decision, whose approver, facade and signature go in the audit
@@ -574,7 +588,7 @@ calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
 for its `Asker` (base keeps the console's own decisions), and
 `hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
-for `lock up` to pin.
+for `lox up` to pin.
 
 **Reveal and re-approval.** In hub mode pass the console's clear screen
 to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
@@ -589,18 +603,11 @@ digests recomputed now: the human then
 sees which inputs moved, and an unchanged non-production renewal is one
 click.
 
-**Hub mode off (rollback).** A console started without the hub flags
-after running with them withdraws the plans its hub mode left pending
-(`console.WithdrawStandalone`: `plans.Store.WithdrawAll`, the plans
-marked untold; the next start with `--hub` withdraws their tickets at the
-hub, `hubclient.Client.Sync`) and answers any request naming a `ticket`
-param with `ipc.CodeWithdrawn` (`console.WithdrawnResp`), before the
-product sees it: `ticket` is therefore a reserved param name of product
-methods. `Run` does both, and any `console.Server` without a hub refuses
-tickets itself; a product with its own console lifecycle calls
-`WithdrawStandalone` at its standalone start, and one that does not serve
-through `console.Server` (a gate) refuses a run by ticket with
-`WithdrawnResp`.
+**No standalone mode.** A console started without its hub is refused,
+so there is no rollback of hub mode any more. `console.WithdrawStandalone`,
+`console.WithdrawnResp`, `console.StandaloneReason` and `console.Withdrawn`
+are deprecated (kept for a product with its own console lifecycle that
+still calls them) and go in the next minor release.
 
 A minimal product:
 
@@ -643,8 +650,7 @@ func (b *queueBackend) read(ctx context.Context, req ipc.Request, env console.En
 ```
 
 The console's own commands and keys: `:review` (pending loosening and
-change requests), `:status`, `:mode` / Shift+Tab (auto mode, never on
-production; takes a finger at level 2), `:results` / Ctrl-O (clear results,
+change requests), `:status`, `:results` / Ctrl-O (clear results,
 refused at levels 1 and 2, as is `--show-results` at start), `:unmask` (confirmed), `:quit`.
 
 The pieces are exported for a product that assembles its own console:
@@ -658,7 +664,7 @@ The pieces are exported for a product that assembles its own console:
 - a socket, a peer check or the JSON-RPC framing: `ipc`, `client`;
 - an approval prompt, a production typed name, a fingerprint wait, an
   approval timeout or the audit of a decision: `console.Env.Approve`;
-- auto/manual mode, clear results, unmask switches, the status row:
+- clear results, unmask switches, the status row:
   `console.Server`;
 - reading a secret from the terminal, the keychain or Vault: `console.Run`
   (or `secrets`);

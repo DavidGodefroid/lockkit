@@ -23,13 +23,17 @@ import (
 // StatusResult answers the status method: the console's part, and the
 // product's (Backend.Status) under "product".
 type StatusResult struct {
-	Profile        string `json:"profile"`
-	Production     bool   `json:"production"`
-	AutoApprove    bool   `json:"auto_approve"`
-	AllowUnmask    bool   `json:"allow_unmask"`
-	ShowResults    bool   `json:"show_results"`
-	IdleTimeoutInS int    `json:"idle_timeout_in_s"`
-	SessionEndsInS int    `json:"session_ends_in_s"`
+	Profile    string `json:"profile"`
+	Production bool   `json:"production"`
+	// AutoApprove is always false: auto mode is gone, lockhub decides.
+	//
+	// Deprecated: kept on the wire for older clients; it goes in the next
+	// minor release.
+	AutoApprove    bool `json:"auto_approve"`
+	AllowUnmask    bool `json:"allow_unmask"`
+	ShowResults    bool `json:"show_results"`
+	IdleTimeoutInS int  `json:"idle_timeout_in_s"`
+	SessionEndsInS int  `json:"session_ends_in_s"`
 	// Level is the security level: 0 session shape, 1 or 2 desktop shape.
 	Level   int `json:"level"`
 	Product any `json:"product,omitempty"`
@@ -57,8 +61,13 @@ type ServerConfig struct {
 	// Boundary names the desktop boundary for the status screen.
 	Boundary string
 	Now      func() time.Time
-	// Auto, AllowUnmask and ShowResults are the switches at start.
-	Auto, AllowUnmask, ShowResults bool
+	// AllowUnmask and ShowResults are the switches at start.
+	AllowUnmask, ShowResults bool
+	// Auto is refused by NewServer: auto mode is gone, lockhub decides.
+	//
+	// Deprecated: kept so that products still setting it build; it goes
+	// in the next minor release.
+	Auto bool
 	// Reconnect opens a new session (credentials, Connect, Checks) under
 	// the profile in force; nil (and ReconnectPolicy nil) means a lost
 	// connection ends the console. An EndError it returns ends the session
@@ -81,7 +90,8 @@ type ServerConfig struct {
 	// profile (an X11 session, core dumps that could not be disabled) when
 	// the policy in force becomes production; nil refuses nothing.
 	RefuseProduction func() error
-	// Hub is the hub mode (Run with HubOptions); nil standalone.
+	// Hub is the console's hub (Run always sets it, HubOptions being
+	// required); nil only in tests of the server itself.
 	Hub *Hub
 }
 
@@ -99,7 +109,7 @@ type Server struct {
 
 	started, lastSeen, connected time.Time
 
-	auto, showResults, allowUnmask bool
+	showResults, allowUnmask bool
 
 	// pending is a loosening policy read from the files that awaits :review.
 	pending *Policy
@@ -131,6 +141,9 @@ func NewServer(cfg ServerConfig) (*Server, error) {
 	if err := cfg.Product.Validate(); err != nil {
 		return nil, err
 	}
+	if cfg.Auto {
+		return nil, fmt.Errorf("%w: auto mode is gone: lockhub decides every request", ErrConfig)
+	}
 	if cfg.ShowResults && cfg.Level != 0 {
 		return nil, fmt.Errorf("%w: level %d does not accept --show-results", ErrConfig, cfg.Level)
 	}
@@ -155,13 +168,10 @@ func NewServer(cfg ServerConfig) (*Server, error) {
 		}
 	}
 	s := &Server{cfg: cfg, approver: cfg.Approver, methods: methods, sess: cfg.Session, now: cfg.Now, san: cfg.Sanitizer,
-		auto: cfg.Auto, showResults: cfg.ShowResults, allowUnmask: cfg.AllowUnmask, refused: cfg.Refused}
+		showResults: cfg.ShowResults, allowUnmask: cfg.AllowUnmask, refused: cfg.Refused}
 	s.apply(cfg.Policy)
 	s.started = s.now()
 	s.lastSeen, s.connected = s.started, s.started
-	if s.autoApprove() {
-		s.println(Paint.Yellow(word(s.words().AutoStart, "auto mode: requests run without a prompt unless they ask for a human every time (Shift+Tab: manual)")))
-	}
 	s.refreshStatus()
 	return s, nil
 }
@@ -302,14 +312,6 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 		return OKResp(req.ID, map[string]bool{"ok": true})
 	}
 	if h, ok := s.methods[req.Method]; ok {
-		// Standalone, a hub ticket cannot run: it was withdrawn when the
-		// console started without its hub (WithdrawStandalone). Said
-		// explicitly, before the product sees the request.
-		if s.cfg.Hub == nil {
-			if tk := TicketParam(req.Params); tk != "" {
-				return WithdrawnResp(req.ID, tk)
-			}
-		}
 		return s.call(ctx, req, h)
 	}
 	return ErrResp(req.ID, ipc.CodeMethodNotFound, fmt.Sprintf("unknown method %q", req.Method))
@@ -381,7 +383,7 @@ func (s *Server) Status() StatusResult {
 func (s *Server) consoleStatus() StatusResult {
 	left := max(s.profile.MaxSession-s.now().Sub(s.started), 0)
 	st := StatusResult{
-		Profile: s.profile.Name, Production: s.profile.Production, AutoApprove: s.autoApprove(),
+		Profile: s.profile.Name, Production: s.profile.Production,
 		AllowUnmask: s.allowUnmask, ShowResults: s.showResults, Level: s.cfg.Level,
 		IdleTimeoutInS: int(s.profile.IdleTimeout / time.Second), SessionEndsInS: int(left / time.Second),
 	}
@@ -480,8 +482,10 @@ func nonNil(s []string) []string {
 
 // Env.
 
-// Auto implements Env.
-func (s *Server) Auto() bool { return s.autoApprove() }
+// Auto implements Env: always false, auto mode is gone.
+//
+// Deprecated: lockhub decides every request.
+func (s *Server) Auto() bool { return false }
 
 // ShowResults implements Env.
 func (s *Server) ShowResults() bool { return s.showResults }
@@ -492,7 +496,7 @@ func (s *Server) UnmaskAllowed() bool { return s.allowUnmask }
 // Policy implements Env.
 func (s *Server) Policy() Policy { return s.approved }
 
-// Hub is the console's hub mode, nil standalone (HubOf).
+// Hub is the console's hub (HubOf).
 func (s *Server) Hub() *Hub { return s.cfg.Hub }
 
 // Audit implements Env.
@@ -578,8 +582,8 @@ func (s *Server) frameColour(sc Screen) string {
 	return ui.Violet
 }
 
-// Approve implements Env: it frames sc, approves it in auto mode or asks
-// the human, and audits the decision.
+// Approve implements Env: it frames sc, hands it to the approver (the hub,
+// under Run) and audits the decision.
 func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	frame := s.frameColour(sc)
 	sep := Paint.Dim(" · ")
@@ -628,15 +632,6 @@ func (s *Server) Approve(ctx context.Context, id int64, sc Screen) Approval {
 	}
 
 	production := s.profile.Production || sc.Production
-	if s.autoApprove() && !production && !sc.NeverAuto {
-		s.println(Paint.Paint(frame, "╰─ ") + Paint.Yellow("auto-approved") + Paint.Dim(" (auto mode)"))
-		b := base
-		b.Event, b.Decision = audit.EventAuto, "auto"
-		if rec(b) != nil {
-			return unrecorded()
-		}
-		return Approval{Approved: true, Auto: true}
-	}
 	q := Ask{Frame: frame, Production: production, Retype: sc.Retype, Screen: &sc}
 	var recErr error
 	a := s.asker().Ask(ctx, id, q, func(d audit.Base) {
@@ -888,9 +883,6 @@ func (s *Server) review(ctx context.Context) {
 	s.println("pending policy change for profile " + s.profile.Name + ":")
 	for _, line := range formatChangesOf(s.cfg.Backend, next.Diff(s.approved)) {
 		s.println(line)
-	}
-	if s.auto && s.profile.Production && !next.Profile().Production {
-		s.println(red + word(s.words().ReviewAuto, "auto mode is on: once applied, requests run without a prompt") + reset)
 	}
 	Bell(s.cfg.IO)
 	r := s.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
