@@ -609,3 +609,16 @@ func TestSecretMaskKeepsUnicodeEscapesWhole(t *testing.T) {
 		t.Errorf("secret.Mask(%q) = %q, want %q", in, got, want)
 	}
 }
+
+func TestSecretEmptyEscapedValueHasNoSpan(t *testing.T) {
+	for _, in := range []string{`password=\u0022\u0022`, `password=\u0022`} {
+		for _, sp := range findSecretPairs(in) {
+			if sp.end <= sp.start {
+				t.Errorf("findSecretPairs(%q) has the empty span %v", in, sp)
+			}
+		}
+		if got := detector(t, "secret").Mask(in); got != in {
+			t.Errorf("secret.Mask(%q) = %q", in, got)
+		}
+	}
+}

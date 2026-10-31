@@ -298,6 +298,9 @@ func scanUserinfo(s string) []span {
 
 // --- key=value and "key": "value" pairs
 
+// pairRe has no anchor and no \b: pairWindow, which starts a search
+// later in the text, relies on it.
+//
 // pairRe finds a key followed by "=" or ":" in logfmt, JSON, headers,
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
@@ -309,8 +312,11 @@ func findSecretPairs(s string) []span { return secretPairs(s, pairWindow) }
 // secretPairs is findSecretPairs; a nil window searches from every
 // position (the reference the window is tested against).
 func secretPairs(s string, window func(string, int) (int, bool)) []span {
-	out := viewPairs(jsonEscapeView(s), window) // same offsets
-	for i := range out {
+	pairs := viewPairs(jsonEscapeView(s), window) // same offsets
+	out := pairs[:0]
+	for i := range pairs {
+		out = append(out, pairs[i])
+		i := len(out) - 1
 		// A value opened by a \u0022 escape starts after it, never
 		// on its hex digits (the output stays valid JSON).
 		for k := max(0, out[i].start-5); k < out[i].start; k++ {
@@ -318,6 +324,9 @@ func secretPairs(s string, window func(string, int) (int, bool)) []span {
 				out[i].start = min(k+6, out[i].end)
 				break
 			}
+		}
+		if out[i].start >= out[i].end {
+			out = out[:i] // only the escape's padding: an empty value
 		}
 	}
 	return out

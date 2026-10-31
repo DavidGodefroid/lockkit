@@ -49,12 +49,16 @@ func TestSecretPrefiltersAreExact(t *testing.T) {
 	for _, s := range prefilterCorpus(t) {
 		checkPrefilters(t, s)
 	}
+	// Past the fuzz target's 4 KiB: long blank runs and keys before a separator.
+	for _, s := range []string{
+		"x " + strings.Repeat(" ", 5000) + "password" + strings.Repeat("\t", 3000) + "= hunter2",
+		strings.Repeat("ä", 64) + strings.Repeat(" ", 4100) + ":v " + strings.Repeat("a=", 3000),
+		strings.Repeat("k", 70) + "=" + strings.Repeat("Z9", 40),
+	} {
+		checkPrefilters(t, s)
+	}
 }
 
-// TestTokenShapeLitsCoverEveryAlternative checks that every branch of
-// tokenShapeRe (each alternative, each member of a small class) yields a
-// match that contains one of tokenShapeLits: a shape added without its
-// literal fails here.
 func TestAuthSchemeFoldRunes(t *testing.T) {
 	for _, r := range "\u212a\u017f" {
 		if !strings.ContainsRune(authSchemeFold, r) {
@@ -66,6 +70,10 @@ func TestAuthSchemeFoldRunes(t *testing.T) {
 	}
 }
 
+// TestTokenShapeLitsCoverEveryAlternative checks that every branch of
+// tokenShapeRe (each alternative, each member of a small class) yields a
+// match that contains one of tokenShapeLits: a shape added without its
+// literal fails here.
 func TestTokenShapeLitsCoverEveryAlternative(t *testing.T) {
 	ex := tokenShapeExamples(t)
 	if len(ex) < 60 {
