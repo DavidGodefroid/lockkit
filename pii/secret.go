@@ -381,15 +381,15 @@ func passCount(s, key string, i int) bool {
 	for j < len(s) && isDigit(s[j]) {
 		j++
 	}
-	if j == i || isAlnum(after(s, j)) {
+	if j == i || isAlnum(after(s, j)) || before(s, i-1) != '=' && before(s, i) != '=' {
 		return false
 	}
-	// A count only next to its test-runner siblings ("pass=10 fail=0").
-	end := lineEnd(s, j, true)
-	start := strings.LastIndexByte(s[:i], '\n') + 1
-	line := strings.ToLower(s[start:end])
-	return strings.Contains(line, "fail") || strings.Contains(line, "skip")
+	// A count only right beside a sibling count pair, within 64 bytes
+	// ("pass=10 fail=0 skip=2"), never a failed-login line.
+	return siblingCount.MatchString(s[j:min(len(s), j+64)]) || siblingCount.MatchString(s[max(0, i-64):i])
 }
+
+var siblingCount = regexp.MustCompile(`(?:^|[\s,;])(?:fail|failed|skip|skipped|error|errors)=[0-9]+(?:$|[\s,;])`)
 
 // hashName reports a key that names a digest, whose value is high-entropy
 // by nature and no credential.
@@ -596,7 +596,8 @@ func findSecretFlags(s string) []span {
 			// are not credentials.
 			u, p, ok := strings.Cut(v, ":")
 			secret = ok && p != "" && !allDigits(u+p)
-		case len(flag) > 2 && flag[1] == '-' && LooksSecret(flag):
+		case (len(flag) > 2 && flag[1] == '-' || len(flag) > 3) && LooksSecret(flag):
+			// "--password x", and single-dash Java-style "-storepass x".
 			secret = true
 		}
 		if !secret || ve <= vs {

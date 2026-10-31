@@ -81,8 +81,8 @@ func LooksSecret(name string) bool {
 	}
 	// Unsplit environment names: PGPASSWORD, DBSECRET, GITHUBTOKEN.
 	for _, t := range toks {
-		for _, suffix := range []string{"password", "passwd", "secret", "token"} {
-			if strings.HasSuffix(t, suffix) && len(t) > len(suffix) {
+		for _, suffix := range []string{"password", "passwd", "secret", "token", "storepass", "keypass"} {
+			if strings.HasSuffix(t, suffix) && (len(t) > len(suffix) || strings.HasSuffix(suffix, "pass")) {
 				return true
 			}
 		}
