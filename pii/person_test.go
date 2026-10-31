@@ -123,6 +123,7 @@ func TestPersonNameKeepsWords(t *testing.T) {
 		"gpgv: Signature made Thu Apr 23 10:00:00 2026 UTC", "Date:   Thu Oct 23 10:00:00 2026 +0200",
 		"Thu Oct 29 14:02:11 CET 2026", "Can Reach Host? false", "Lan Interface eth0 up",
 		"Nand Flash ECC error at block 12", "Mai Juni 2026",
+		"Termination Grace Period: 30s", "Grace Period Seconds: 30", "Asia Pacific (Hong Kong)", "Hong Kong Standard Time",
 		"Hugo Theme", "Started Hugo Static Site.", "Cassandra Keyspace", "Bruno Collection",
 		"Leon Fixture", "Adam Optimizer", "Tim Sort", "Kelly Criterion", "Simon Says",
 		"Milan Cathedral", "Oscar Nominee", "Charlotte Hornets", "Morgan Stanley",
