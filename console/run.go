@@ -56,8 +56,17 @@ type Options struct {
 	// Ready, when set, is told the socket path once the console listens.
 	Ready func(socket string)
 	// Hub decides requests on lockhub (HubOptions): required, Run refuses
-	// to start without it (ErrNoHub).
+	// to start without it (ErrNoHub), unless PolicyOnly.
 	Hub HubOptions
+	// PolicyOnly runs a console that serves its policy and decides no
+	// request: the console of a lock whose requests are decided by another
+	// process's hub (lockhttp's, whose gate asks lockhub; `lox up` starts
+	// such a console without hub flags). It starts without Hub, which must
+	// then be empty (ErrPolicyOnlyHub), and without OnHub; every request a
+	// handler hands to Env.Approve is refused (ErrPolicyOnly), never asked
+	// here. The console's own decisions (its policy at start and at a
+	// loosening, :unmask) are still asked on its terminal.
+	PolicyOnly bool
 	// OnHub, when set, is called with the console's hub once it is open,
 	// before any request is served: where a product registers its
 	// hubclient.Recompute (hub.Client.SetRecompute). It runs before the
@@ -126,7 +135,7 @@ func (st *starter) failed(err error) error {
 var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
 
 // Run is a product's `console` command, launched by `lox up` only (the
-// hub options are required, ErrNoHub): the isolation checks, the policy
+// hub options are required, ErrNoHub, unless Options.PolicyOnly): the isolation checks, the policy
 // review, the production confirmation, the credentials and the connection,
 // the backend's checks, the socket, then the request loop until Ctrl-C,
 // logout, :quit or a timeout.
@@ -137,8 +146,16 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
-	// Hub-attached only: refused before any check, prompt or file write.
-	if err := o.Hub.check(); err != nil {
+	// Hub-attached only, or policy-only without any hub option: refused
+	// before any check, prompt or file write.
+	if o.PolicyOnly {
+		if o.Hub.Enabled() {
+			return ErrPolicyOnlyHub
+		}
+		if o.OnHub != nil {
+			return fmt.Errorf("%w: a policy-only console has no hub (Options.OnHub is set)", ErrConfig)
+		}
+	} else if err := o.Hub.check(); err != nil {
 		return err
 	}
 	if o.Auto {
@@ -203,13 +220,15 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if err != nil {
 		return err
 	}
-	hub, err := OpenHub(p, o.Hub, o.StateDir, o.Now)
-	if err != nil {
-		return err
-	}
-	defer hub.Close()
-	if o.OnHub != nil {
-		o.OnHub(hub)
+	var hub *Hub
+	if !o.PolicyOnly {
+		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
+			return err
+		}
+		defer hub.Close()
+		if o.OnHub != nil {
+			o.OnHub(hub)
+		}
 	}
 	appr := NewTypedApprover(o.IO)
 	if iso.Desktop {
@@ -302,9 +321,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if quantum == 0 {
 		quantum = ResponseQuantum
 	}
-	// Requests go to the hub; the console's own decisions (a policy
-	// change, unmask) stay with the terminal approver it wraps.
-	serverAppr := hub.Approver(appr)
+	// Requests go to the hub (or are refused, policy-only); the console's
+	// own decisions (a policy change, unmask) stay with the terminal
+	// approver it wraps.
+	serverAppr := PolicyOnlyApprover(appr)
+	if hub != nil {
+		serverAppr = hub.Approver(appr)
+	}
 	s, err := NewServer(ServerConfig{
 		Product: p, Backend: b, Policy: approved, StateDir: o.StateDir, ApprovedKey: key, Session: sess, Audit: log,
 		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
@@ -324,15 +347,19 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if o.Ready != nil {
 		o.Ready(path)
 	}
-	hub.Requests(o.IO, func(b audit.Base) { _ = s.record(context.Background(), b) })
-	o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(hub.Client.URL(), false) + " as " + hub.Instance))
-	wctx, stopWatch := context.WithCancel(ctx)
-	watched := make(chan struct{})
-	go func() {
-		defer close(watched)
-		hub.Watch(wctx, o.IO)
-	}()
-	defer func() { stopWatch(); <-watched }()
+	if hub != nil {
+		hub.Requests(o.IO, func(b audit.Base) { _ = s.record(context.Background(), b) })
+		o.IO.Println(Paint.Step("Requests are decided on lockhub at " + sanitize.Terminal(hub.Client.URL(), false) + " as " + hub.Instance))
+		wctx, stopWatch := context.WithCancel(ctx)
+		watched := make(chan struct{})
+		go func() {
+			defer close(watched)
+			hub.Watch(wctx, o.IO)
+		}()
+		defer func() { stopWatch(); <-watched }()
+	} else {
+		o.IO.Println(Paint.Step("Policy only: this console serves its policy and approves no request"))
+	}
 	var lines <-chan string
 	if ls, ok := o.IO.(LineSource); ok {
 		lines = ls.Lines()
