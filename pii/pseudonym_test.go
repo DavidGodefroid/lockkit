@@ -485,3 +485,31 @@ func TestEpochStoreClosedRefusesWrites(t *testing.T) {
 	var nilP *Pseudonymizer
 	_ = fmt.Sprint(nilP)
 }
+
+// A store dropped without Close keeps its lock while a handle on one of
+// its epochs lives: another open cannot prune the key from under it.
+func TestEpochStoreLockOutlivesDroppedStore(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("no directory lock on Windows")
+	}
+	dir := filepath.Join(t.TempDir(), "epochs")
+	open := func() *Pseudonymizer {
+		s, err := OpenEpochStore(dir, true, t0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s.Current() // the store itself is dropped
+	}
+	p := open()
+	for range 3 {
+		runtime.GC()
+	}
+	if s2, err := OpenEpochStore(dir, false, t0); err == nil {
+		s2.Close()
+		t.Fatal("a second store opened while a handle of the first lives")
+	}
+	if _, err := p.ID("email", "a@example.com"); err != nil {
+		t.Fatal(err)
+	}
+	runtime.KeepAlive(p)
+}

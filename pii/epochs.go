@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -95,6 +96,7 @@ func OpenEpochStore(dir string, create bool, now time.Time) (*EpochStore, error)
 		if err != nil {
 			return nil, err
 		}
+		p.store = s
 		s.epochs = append(s.epochs, p)
 	}
 	sort.Slice(s.epochs, func(i, j int) bool { return s.epochs[i].seq < s.epochs[j].seq })
@@ -159,7 +161,7 @@ func readKeyFile(path, epoch string) (*Pseudonymizer, error) {
 		return nil, bad
 	}
 	raw := make([]byte, base64.StdEncoding.DecodedLen(len(key)))
-	n, err := base64.StdEncoding.Decode(raw, key)
+	n, err := base64.StdEncoding.Strict().Decode(raw, key)
 	defer clear(raw)
 	if err != nil || n != KeyLen {
 		return nil, bad
@@ -237,6 +239,7 @@ func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 	if err := s.writeKeyFile(p); err != nil {
 		return nil, err
 	}
+	p.store = s
 	s.epochs = append(s.epochs, p)
 	return p, nil
 }
@@ -297,7 +300,7 @@ func (s *EpochStore) Prune(now time.Time, keep time.Duration) ([]string, error) 
 		}
 	}
 	if len(gone) > 0 {
-		syncDir(s.dir)
+		_ = syncDir(s.dir) // the deletion is done; a lost sync only delays it
 	}
 	return gone, nil
 }
@@ -375,13 +378,20 @@ func writeFileAtomic(dir, name string, data []byte) error {
 		return fmt.Errorf("pii: epoch store: %w", err)
 	}
 	ok = true
-	syncDir(dir)
-	return nil
+	return syncDir(dir)
 }
 
-func syncDir(dir string) {
-	if d, err := os.Open(dir); err == nil {
-		_ = d.Sync() // best effort: not supported everywhere
-		d.Close()
+// syncDir fsyncs dir: a new key file must survive a crash before any ID
+// is minted under it. Only Unix reports the error (others cannot sync a
+// directory).
+func syncDir(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
 	}
+	defer d.Close()
+	if err := d.Sync(); err != nil && runtime.GOOS != "windows" {
+		return fmt.Errorf("pii: epoch store: sync %s: %w", dir, err)
+	}
+	return nil
 }

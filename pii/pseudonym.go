@@ -39,6 +39,10 @@ type Pseudonymizer struct {
 	epoch   string
 	created time.Time
 	seq     uint64 // order in an EpochStore
+	// store keeps the EpochStore (and so its directory lock) alive while a
+	// handle on one of its epochs is: a store dropped without Close must
+	// not release the lock under a live key.
+	store *EpochStore
 	// key is shared by every copy of the value, so forgetting it reaches
 	// them all; fmt prints a nested pointer as an address.
 	key *epochKey
