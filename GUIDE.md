@@ -215,21 +215,28 @@ bastion reaches; no local port is ever opened.
   invisible character is covered whole, in its written form. Replace each
   match with your own placeholder (a pseudonym).
   - `pii.DetectionView(s)` is `s` folded, NFKC (full-width letters,
-    ligatures) and without default-ignorable characters (format
-    characters, variation selectors, the combining grapheme joiner, Hangul
-    fillers); `View.Source(start, end)` maps a range of `View.Text` back
-    to `s`, covering what was dropped inside it. `pii.DetectionViews(s)`
-    adds the detection view of `s` percent-decoded (once, twice), with
-    JSON escapes decoded (`\u0040`) and with HTML character references
-    decoded (`&#64;`, `&commat;`). Decodings are not chained, and `\xHH`
-    and `+` are not decoded.
+    ligatures), every decimal digit as its ASCII digit (`٤`, `३`), and
+    without what a value can hide behind: default-ignorable characters
+    (format characters, variation selectors, the combining grapheme
+    joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
+    the braille blank, marks on a digit. `View.Source(start, end)` maps a
+    range of `View.Text` back to `s`, covering what was dropped inside it.
+    `pii.DetectionViews(s)` adds the detection view of `s` percent-decoded
+    (once, twice), with JSON escapes decoded (`\u0040`), with HTML
+    character references decoded (`&#64;`, `&commat;`), with all of them
+    chained (four rounds: `jean%40example&#46;com`), and form-decoded
+    (`+` as a space) then percent-decoded. A view of a long text may stop
+    early: apply only the matches of `Find`/`FindInViews` to a text, never
+    ranges you computed on a view yourself.
   - `pii.Find(s, ds)` is what `Detect` masks, as ranges: masking each with
     `pii.MaskText` gives `Detect`'s output, except that Find masks more
     where a later detector matched across an earlier mask, and a
     `Detector` of your own (no ranges) makes the whole text one match.
   - Past `DetectLimit` (and where a view expands past twice that) the
-    unscanned rest is one more match of kind `pii.CutKind`: the matches
-    are always safe to apply to `s` itself.
+    unscanned rest is one more match of kind `pii.CutKind`, starting
+    earlier where a value runs across that point (the detectors scan 4 KiB
+    past it to see such a value whole): the matches are always safe to
+    apply to `s` itself.
 - Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
   base32 (60 bits) of `HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0 ||
   kind || 0 || pii.Normalise(kind, value))`, stable within one epoch; a

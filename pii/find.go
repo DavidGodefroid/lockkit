@@ -3,6 +3,7 @@ package pii
 import (
 	"sort"
 	"strings"
+	"unicode/utf8"
 )
 
 // Match is a value a detector recognised: the byte range [Start, End) of
@@ -24,41 +25,61 @@ type Match struct {
 // cannot say where it found a value, so anything it masks makes the whole
 // text one match of its kind.
 //
-// A text longer than DetectLimit is scanned as Detect scans it, up to
-// where CutAt(s, DetectLimit) cuts it; the rest of s is one more match, of
-// kind CutKind, so the matches are always safe to apply to s itself.
+// Past DetectLimit, the rest of s is one more match, of kind CutKind,
+// starting earlier where a value runs across the limit (the detectors scan
+// a little past it to find such values whole): the matches are always
+// safe to apply to s itself.
 func Find(s string, ds []Detector) []Match {
 	if len(ds) == 0 {
 		return nil
 	}
 	t, rest := scanned(s)
-	return withRest(mergeMatches(find(t, ds, nil)), rest)
+	return finish(find(t, ds, nil), rest, len(s))
 }
 
 // CutKind is the kind of the match that covers the end of a text past
-// DetectLimit (or of a view past its cap), which no detector scanned: it
-// is masked whole.
+// DetectLimit (or past where a view reached its cap), masked whole.
 const CutKind = "cut"
 
-// scanned returns the part of s the detectors scan, and the match that
-// covers the rest, if any.
-func scanned(s string) (string, *rankedMatch) {
+// scanOverlap is how far past a cut the detectors still scan, so that a
+// value written across the cut is found whole (and the unscanned rest
+// starts where it starts): longer than any value in any encoding the
+// views decode.
+const scanOverlap = 4 << 10
+
+// scanned returns the part of s the detectors scan and where the
+// unscanned rest begins at the latest (-1: nowhere): DetectLimit, at a
+// rune boundary, with scanOverlap more bytes scanned past it.
+func scanned(s string) (string, int) {
 	if len(s) <= DetectLimit {
-		return s, nil
+		return s, -1
 	}
-	end := len(CutAt(s, DetectLimit)) - len(CutMark)
-	return s[:end], &rankedMatch{Match{end, len(s), CutKind}, -1}
+	cut := runeStart(s, DetectLimit)
+	return s[:runeStart(s, min(len(s), cut+scanOverlap))], cut
 }
 
-func withRest(ms []Match, rest *rankedMatch) []Match {
-	if rest == nil {
-		return ms
+func runeStart(s string, i int) int {
+	for i > 0 && i < len(s) && !utf8.RuneStart(s[i]) {
+		i--
 	}
-	if n := len(ms); n > 0 && ms[n-1].End > rest.Start {
-		ms[n-1].End = rest.End
-		return ms
+	return i
+}
+
+// finish merges matches and, when there is a cut (rest >= 0), makes the
+// rest of the source one CutKind match, starting earlier where a match
+// runs across the cut: no value is left in part.
+func finish(ms []rankedMatch, rest, srcLen int) []Match {
+	merged := mergeMatches(ms)
+	if rest < 0 || rest >= srcLen {
+		return merged
 	}
-	return append(ms, rest.Match)
+	for k, m := range merged {
+		if m.End > rest {
+			rest = min(rest, m.Start)
+			return append(merged[:k], Match{rest, srcLen, CutKind})
+		}
+	}
+	return append(merged, Match{rest, srcLen, CutKind})
 }
 
 // rankedMatch is a match with the position of its detector in the list it
@@ -132,27 +153,26 @@ func maskSpans(v View, spans []span) View {
 // zero-width character) is the range of s it was written with, whole.
 // Where matches of different kinds overlap, they make one match, of the
 // kind of the earliest detector in ds (an encoded value next to a plain one
-// may so take a neighbour's kind). Long texts are cut as by Find. Decodings
-// are not chained (percent inside an HTML reference is not decoded), and
-// match boundaries are not moved to escape boundaries: a raw match may start
+// may so take a neighbour's kind). Long texts are cut as by Find. Match
+// boundaries are not moved to escape boundaries: a raw match may start
 // inside an escape (the "n" of "\\n" before an address).
 func FindInViews(s string, ds []Detector) []Match {
 	if len(ds) == 0 {
 		return nil
 	}
+	srcLen := len(s)
 	s, rest := scanned(s)
 	out := find(s, ds, nil)
 	for _, v := range DetectionViews(s) {
 		if v.lo == nil && v.Text == s {
 			continue // s itself: already searched
 		}
-		if v.cut {
-			// Fail closed: what the cut view does not show is masked whole.
-			out = append(out, rankedMatch{Match{v.cutAt, len(s), CutKind}, -1})
+		if v.cut && (rest < 0 || v.cutAt < rest) {
+			rest = v.cutAt // what the cut view does not show is masked whole
 		}
 		out = append(out, find(v.Text, ds, &v)...)
 	}
-	return withRest(mergeMatches(out), rest)
+	return finish(out, rest, srcLen)
 }
 
 // mergeMatches sorts matches and joins those that overlap; a joined match
