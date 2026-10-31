@@ -601,3 +601,11 @@ func TestSchemeWordKeptAfterCRLF(t *testing.T) {
 		t.Error("escapeLen")
 	}
 }
+
+func TestSecretMaskKeepsUnicodeEscapesWhole(t *testing.T) {
+	in := `{"msg":"\u0022password\u0022:\u0022Hunter2Xyz\u0022"}`
+	want := `{"msg":"\u0022password\u0022:\u0022<redacted>\u0022"}`
+	if got := detector(t, "secret").Mask(in); got != want {
+		t.Errorf("secret.Mask(%q) = %q, want %q", in, got, want)
+	}
+}

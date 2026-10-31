@@ -309,7 +309,21 @@ func findSecretPairs(s string) []span { return secretPairs(s, pairWindow) }
 // secretPairs is findSecretPairs; a nil window searches from every
 // position (the reference the window is tested against).
 func secretPairs(s string, window func(string, int) (int, bool)) []span {
-	s = jsonEscapeView(s) // same offsets
+	out := viewPairs(jsonEscapeView(s), window) // same offsets
+	for i := range out {
+		// A value opened by a \u0022 escape starts after it, never
+		// on its hex digits (the output stays valid JSON).
+		for k := max(0, out[i].start-5); k < out[i].start; k++ {
+			if escapeLen(s, k) == 6 {
+				out[i].start = min(k+6, out[i].end)
+				break
+			}
+		}
+	}
+	return out
+}
+
+func viewPairs(s string, window func(string, int) (int, bool)) []span {
 	var out []span
 	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, window, func(start int) bool {
 		if escapeLen(s, start) > 0 {

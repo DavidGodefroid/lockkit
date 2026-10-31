@@ -41,7 +41,7 @@ func maskWith(s string, ms []Match) string {
 }
 
 func allDetectors(t testing.TB) []Detector {
-	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose"})
+	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "secret", "ip"})
 	if err != nil {
 		t.Fatal(err)
 	}
