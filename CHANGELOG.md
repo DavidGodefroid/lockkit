@@ -6,19 +6,23 @@ GUIDE.md is the contract between lockkit and the products built on it.
 ## Unreleased
 
 - The hub URL is `http(s)://host[:port]` only: `hubclient.New` and the
-  console's `--hub` check refuse a path, query or fragment as they refuse
-  a user or password, without quoting the URL. `hubclient.CanonicalURL`
+  console's `--hub` check refuse a path, query, fragment, IPv6 zone or a
+  port outside 1-65535 as they refuse a user or password, without quoting
+  the URL. `hubclient.CanonicalURL`
   returns that form, `Client.URL` the hub as the client prints it: the
   console's start line uses it, and `console.HubOptions.Args` passes the
-  hub on in that form only. A hub that cannot be reached is an
+  hub on in that form only (an invalid `--instance` or `--require-device`
+  as a placeholder the new console refuses). A hub that cannot be reached is an
   `ErrUnreachable` naming the hub by scheme and host, no longer net/http's
   error quoting the whole request URL.
 - More errors name the flag or key and the allowed form, never the value
   given (a token or URL pasted in the wrong place): `ticket.ParseRisk`
   (and `--require-device`), invalid instance names (`--instance`,
   `hubclient.New`, `InstanceKey`, `HubKeyCommand`, whose unknown flag is
-  no longer quoted), `config.CheckProfileName`, `ipc` socket names, and
-  `sysconf`'s `service_user` and `client_group` lookups.
+  no longer quoted), `config.CheckProfileName`, the console's `--profile`
+  mismatch, `ipc` socket names, `sysconf`'s `service_user` and
+  `client_group` lookups, and the console's wrong-account refusal (it
+  names `service_user`).
 - New: `ticket.RiskNames`.
 
 ## v0.8.0 (2026-10-31)

@@ -146,6 +146,7 @@ func TestHubURLRefusesPathQueryFragment(t *testing.T) {
 		"https://user:" + canary + "@h/path?token=" + canary, "https://h/path?token=" + canary,
 		"https://h?token=" + canary, "https://h/?" + canary, "https://h?", "https://h#" + canary, "https://h/#x",
 		"https://h/" + canary, "https://h/lockhub/", "https://h//", "https://h/%2F", "http://127.0.0.1:8443/v1",
+		"http://[fe80::1%25" + canary + "]:80", "https://h:99999", "https://h:0", "https://h:",
 	} {
 		if _, err := hubclient.New(transportCfg(t, u, false)); err == nil || strings.Contains(err.Error(), canary) ||
 			!strings.Contains(err.Error(), "want http(s)://host[:port]") {

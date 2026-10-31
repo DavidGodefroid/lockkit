@@ -373,6 +373,15 @@ func parseURL(raw string) (*url.URL, error) {
 	if u.User != nil {
 		return nil, errors.New("hubclient: the hub URL must not carry a user or password: want http(s)://host[:port]")
 	}
+	// An IPv6 zone is free text; a port is 1-65535.
+	if strings.Contains(u.Host, "%") {
+		return nil, errors.New("hubclient: the hub URL must not carry an IPv6 zone: want http(s)://host[:port]")
+	}
+	if p := u.Port(); p != "" || strings.HasSuffix(u.Host, ":") {
+		if n, err := strconv.Atoi(p); err != nil || n < 1 || n > 65535 {
+			return nil, errors.New("hubclient: bad hub URL port: want http(s)://host[:port], port 1-65535")
+		}
+	}
 	if u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.RawFragment != "" || strings.Contains(raw, "#") {
 		return nil, errors.New("hubclient: the hub URL must not carry a query or fragment: want http(s)://host[:port]")
 	}
@@ -387,7 +396,7 @@ func parseURL(raw string) (*url.URL, error) {
 func (c *Client) do(ctx context.Context, method, pathQuery string, body []byte, signed bool, out any) error {
 	req, err := http.NewRequestWithContext(ctx, method, c.base.String()+pathQuery, bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("hubclient: %w", err)
+		return fmt.Errorf("hubclient: %w", c.noURL(err))
 	}
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")

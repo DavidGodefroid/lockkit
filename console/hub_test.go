@@ -533,8 +533,8 @@ func TestHubOptionsNeverEchoValues(t *testing.T) {
 		if !errors.Is(err, ErrConfig) || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "--") {
 			t.Errorf("%+v: %v (want an ErrConfig naming the flag, not the value)", o, err)
 		}
-		if a := o.Args(); a[0] != "--hub" || strings.Contains(a[1], "Canary") {
-			t.Errorf("Args %q carries the hub URL's token", a)
+		if a := o.Args(); strings.Contains(strings.Join(a, " "), "Canary") {
+			t.Errorf("Args %q carries the token", a)
 		}
 	}
 	// Args passes the hub as scheme://host[:port] only; a URL OpenHub would
@@ -616,5 +616,32 @@ func TestRunHubStartLineAndErrorsShowHostOnly(t *testing.T) {
 	}
 	if !strings.Contains(out, "hub unreachable") || strings.Contains(out, "/v1/") {
 		t.Errorf("hub errors (want unreachable, without the request URL):\n%s", out)
+	}
+}
+
+// Args passes neither an invalid --instance nor an invalid
+// --require-device on; the console started with the placeholder refuses it.
+func TestHubArgsDropInvalidValues(t *testing.T) {
+	o := HubOptions{URL: "https://lockhub:8443", KeyFile: "/k", Instance: echoCanary, DevicesFile: "/d", RequireDevice: "write," + echoCanary}
+	a := o.Args()
+	if strings.Contains(strings.Join(a, " "), "Canary") {
+		t.Fatalf("Args %q", a)
+	}
+	var back HubOptions
+	fs := flag.NewFlagSet("console", flag.ContinueOnError)
+	back.Register(fs)
+	if err := fs.Parse(a); err != nil {
+		t.Fatal(err)
+	}
+	if err := back.check(); !errors.Is(err, ErrConfig) {
+		t.Errorf("placeholders accepted: %v", err)
+	}
+	back.Instance = "mq-uat"
+	if err := back.check(); !errors.Is(err, ErrConfig) {
+		t.Errorf("--require-device placeholder accepted: %v", err)
+	}
+	ok := HubOptions{URL: "https://lockhub:8443", KeyFile: "/k", Instance: "mq-uat", DevicesFile: "/d", RequireDevice: "write, prod-write"}
+	if a := strings.Join(ok.Args(), " "); !strings.Contains(a, "--instance mq-uat") || !strings.Contains(a, "--require-device write, prod-write") {
+		t.Errorf("valid values not passed on: %s", a)
 	}
 }

@@ -65,7 +65,8 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 }
 
 // Args are the flags of h, as Register reads them back: what a product
-// that starts its console again (a handoff) passes on. The hub URL goes
+// that starts its console again (a handoff) passes on. An invalid
+// --instance or --require-device goes as refusedValue. The hub URL goes
 // as scheme://host[:port] only (hubclient.CanonicalURL), a command line
 // being readable by every account of the machine; one OpenHub would
 // refuse goes as refusedHubURL, which the new console refuses too.
@@ -82,7 +83,11 @@ func (h HubOptions) Args() []string {
 		out = append(out, "--hub-key-file", h.KeyFile)
 	}
 	if h.Instance != "" {
-		out = append(out, "--instance", h.Instance)
+		inst := h.Instance
+		if !hubclient.ValidInstance(inst) {
+			inst = refusedValue
+		}
+		out = append(out, "--instance", inst)
 	}
 	if h.PlainHTTP {
 		out = append(out, "--hub-plain-http")
@@ -91,7 +96,11 @@ func (h HubOptions) Args() []string {
 		out = append(out, "--devices-file", h.DevicesFile)
 	}
 	if h.RequireDevice != "" {
-		out = append(out, "--require-device", h.RequireDevice)
+		rd := h.RequireDevice
+		if _, err := hubclient.ParseRisks(rd); err != nil {
+			rd = refusedValue
+		}
+		out = append(out, "--require-device", rd)
 	}
 	if h.SealClear {
 		out = append(out, "--seal-clear")
@@ -106,6 +115,11 @@ func (h HubOptions) Args() []string {
 // hubclient.CanonicalURL accepts, so the console started with it refuses
 // it, without the value.
 const refusedHubURL = "refused:hub-url"
+
+// refusedValue stands for an --instance or --require-device value Args
+// will not pass on (invalid, so possibly a token): the new console
+// refuses it, without the value.
+const refusedValue = "refused:value"
 
 // Enabled reports whether any hub flag is set.
 func (h HubOptions) Enabled() bool {

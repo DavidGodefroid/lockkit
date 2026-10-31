@@ -181,7 +181,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		return fmt.Errorf("%w: %v", ErrConfig, err)
 	}
 	if cur.Profile().Name != o.Profile {
-		return fmt.Errorf("%w: the backend loaded profile %q, not %q", ErrConfig, cur.Profile().Name, o.Profile)
+		return fmt.Errorf("%w: the backend loaded another profile than --profile names", ErrConfig)
 	}
 	key := config.ApprovedKey(o.ProjectRoot, o.Profile)
 	// A production profile, loaded or approved before, never runs in an
