@@ -10,6 +10,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   name corpus and 10 % on held-out names outside the gazetteer; false
   positives 0 % of 2 000 Loghub-style lines and 2.4 % of held-out ticket
   and prose lines.
+- `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
+  project's `.claude/settings.local.json` on a project `Init` (off by
+  default; GUIDE §12).
+- `agentwire`: merged `permissions.allow` entries (user and project scope)
+  and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
+  escapes.
 
 ## v0.7.2 (2026-10-31)
 
