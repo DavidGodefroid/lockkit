@@ -114,7 +114,7 @@ var tokenShapeRe = regexp.MustCompile(strings.Join([]string{
 	`AccountKey=[A-Za-z0-9+/]{40,}={0,2}`,
 }, "|"))
 
-func findTokenShapes(s string) []span {
+func scanTokenShapes(s string) []span {
 	var out []span
 	eachMatch(s, tokenShapeRe, func(start int) bool {
 		// Only a letter or a digit continues a token: "key=<token>",
@@ -152,13 +152,23 @@ func isLetterDigit(c byte) bool { return isDigit(c) || c >= 'a' && c <= 'z' || c
 // (the boundary RE2 cannot look behind for), then searches again from
 // the offset f returns; a refused match is retried one rune on.
 func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []int) int) {
-	eachMatchGlue(s, re, isAlnum, ok, f)
+	eachMatchGlue(s, re, isAlnum, nil, ok, f)
 }
 
 // eachMatchGlue is eachMatch where a refused match skips the rest of the
 // run of glue bytes it starts in (any match starting there is refused too).
-func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, ok func(start int) bool, f func(m []int) int) {
+//
+// window, when set, moves a search start forward to where a match can
+// begin (see pairWindow), or reports that none can.
+func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, window func(s string, pos int) (int, bool), ok func(start int) bool, f func(m []int) int) {
 	for pos := 0; pos <= len(s); {
+		if window != nil {
+			w, more := window(s, pos)
+			if !more {
+				return
+			}
+			pos = w
+		}
 		m := re.FindStringSubmatchIndex(s[pos:])
 		if m == nil {
 			return
@@ -201,7 +211,7 @@ var authSchemeRe = regexp.MustCompile(`(?i)(bearer|basic|token|apikey|api-key|ne
 // authentication", "bearer token required") stays in clear: a Basic
 // credential is base64 of "user:password"; another is at least 8 token
 // characters with a digit or a token separator, or at least 20.
-func findAuthSchemes(s string) []span {
+func scanAuthSchemes(s string) []span {
 	var out []span
 	eachMatch(s, authSchemeRe, func(start int) bool {
 		b := before(s, start)
@@ -273,7 +283,7 @@ var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#"'<>
 // (http://localhost:5173/@vite/client).
 var portPath = regexp.MustCompile(`^[0-9]{1,5}/`)
 
-func findUserinfo(s string) []span {
+func scanUserinfo(s string) []span {
 	var out []span
 	for _, m := range userinfoRe.FindAllStringSubmatchIndex(s, -1) {
 		if _, pw, _ := strings.Cut(s[m[2]:m[3]], ":"); portPath.MatchString(pw) {
@@ -288,16 +298,43 @@ func findUserinfo(s string) []span {
 
 // --- key=value and "key": "value" pairs
 
+// pairRe has no anchor and no \b: pairWindow, which starts a search
+// later in the text, relies on it.
+//
 // pairRe finds a key followed by "=" or ":" in logfmt, JSON, headers,
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
 var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=]|\\u003[dD])[ \t]*`)
 
-func findSecretPairs(s string) []span {
-	s = jsonEscapeView(s) // same offsets
+func findSecretPairs(s string) []span { return secretPairs(s, pairWindow) }
+
+// secretPairs is findSecretPairs; a nil window searches from every
+// position (the reference the window is tested against).
+func secretPairs(s string, window func(string, int) (int, bool)) []span {
+	pairs := viewPairs(jsonEscapeView(s), window) // same offsets
+	out := pairs[:0]
+	for i := range pairs {
+		out = append(out, pairs[i])
+		i := len(out) - 1
+		// A value opened by a \u0022 escape starts after it, never
+		// on its hex digits (the output stays valid JSON).
+		for k := max(0, out[i].start-5); k < out[i].start; k++ {
+			if escapeLen(s, k) == 6 {
+				out[i].start = min(k+6, out[i].end)
+				break
+			}
+		}
+		if out[i].start >= out[i].end {
+			out = out[:i] // only the escape's padding: an empty value
+		}
+	}
+	return out
+}
+
+func viewPairs(s string, window func(string, int) (int, bool)) []span {
 	var out []span
-	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, func(start int) bool {
+	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, window, func(start int) bool {
 		if escapeLen(s, start) > 0 {
 			return false // "\r\nauth=": the key starts after the escape
 		}
@@ -794,7 +831,7 @@ var spacePassRe = regexp.MustCompile(`(?:^|\s)-p(?:[ \t]+|=)?(?:"([^"\n]*)"|'([^
 // curlUserRe is curl's -u with the credentials glued on: "-ubob:pw".
 var curlUserRe = regexp.MustCompile(`(?:^|\s)-u([^\s"':-][^\s"':]*:[^\s"']+)`)
 
-func findMySQLPasswords(s string) []span {
+func scanMySQLPasswords(s string) []span {
 	s = blankEscapes(s) // "\\nmysql -p…" in a JSON string; same offsets
 	var out []span
 	done := 0

@@ -37,6 +37,10 @@ jobs:
             grep -E -- '--- FAIL|_test\.go:[0-9]+:|^FAIL|panic:' test.log | head -40 | sed 's/^/::error::/'
             exit 1
           }
+      - name: pii throughput floor
+        if: runner.os == 'Linux'
+        shell: bash
+        run: LOCKKIT_PII_FLOOR_MBPS=2.5 GOMAXPROCS=1 go test -run '^TestSecretThroughputFloor$' -count=1 -v ./pii/ | grep -E 'MB/s|^(ok|FAIL|---)'
       - name: windows build
         if: matrix.os == 'ubuntu-latest'
         run: GOOS=windows go vet ./...
