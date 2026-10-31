@@ -492,3 +492,70 @@ func TestFindInViewsReviewRepros4(t *testing.T) {
 		t.Errorf("FindInViews(%q) = %v, want it all", in, ms)
 	}
 }
+
+var ansiCanaries = []string{"jean.dupont@example.com", "+32 475 12 34 56", "BE68 5390 0754 7034", "4111 1111 1111 1111"}
+
+// A value after, inside or across every terminal sequence form,
+// terminated or not, is covered: stripping is an extra view, and only
+// well-formed short sequences are stripped whole.
+func TestFindInViewsTerminalSequences(t *testing.T) {
+	ds := AllDetectors()
+	esc := "\x1b"
+	forms := []struct{ open, close string }{
+		{esc + "]0;", "\x07"}, {esc + "]0;", esc + "\\"}, {esc + "]0;", ""},
+		{esc + "P", esc + "\\"}, {esc + "P", ""}, {esc + "_", ""}, {esc + "X", ""}, {esc + "^", ""},
+		{"\u009d", "\u009c"}, {"\u009d", ""}, {"\u0090", ""},
+		{esc + "[", ""}, {"\u009b", ""}, {esc + "[1;", esc + "[0m"}, {esc + "(", ""}, {esc + "#", ""}, {esc + "7", ""},
+	}
+	for _, v := range ansiCanaries {
+		for _, f := range forms {
+			for _, in := range []string{
+				"a " + f.open + f.close + " " + v + " z", // after
+				"a " + f.open + v + f.close + " z",       // inside
+				"a " + f.open + " " + v + " z",           // after an unterminated introducer
+			} {
+				start := strings.Index(in, v)
+				covered := false
+				for _, m := range FindInViews(in, ds) {
+					covered = covered || m.Start <= start && start+len(v) <= m.End
+				}
+				if !covered {
+					t.Errorf("FindInViews(%q) leaves %q", in, v)
+				}
+			}
+		}
+	}
+}
+
+// Differential: whatever terminal bytes surround a value written as its
+// own word, the value is covered.
+func FuzzFindAroundTerminalSequences(f *testing.F) {
+	f.Add("\x1b]0;", "\x07", uint8(0))
+	f.Add("\xc2\x9b12;", "m", uint8(1))
+	f.Add("\x1b(", "\x1bP", uint8(2))
+	ds := AllDetectors()
+	covers := func(in, v string) bool {
+		start := strings.Index(in, v)
+		for _, m := range FindInViews(in, ds) {
+			if m.Start <= start && start+len(v) <= m.End {
+				return true
+			}
+		}
+		return false
+	}
+	f.Fuzz(func(t *testing.T, before, after string, k uint8) {
+		if len(before)+len(after) > 512 {
+			return
+		}
+		v := ansiCanaries[int(k)%len(ansiCanaries)]
+		// Differential: the detectors' own plain-text behaviour with these
+		// neighbours (a card read inside a longer number...) is not this
+		// test's subject; only what the terminal bytes add is.
+		if !covers("x "+v+" "+after, v) || !covers(before+" "+v+" x", v) {
+			return
+		}
+		if in := before + " " + v + " " + after; !covers(in, v) {
+			t.Fatalf("FindInViews(%q) leaves %q", in, v)
+		}
+	})
+}

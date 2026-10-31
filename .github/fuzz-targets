@@ -4,3 +4,4 @@ FuzzRenderNoPanic ./render/
 FuzzFindCoversDetect ./pii/
 FuzzDetectionView ./pii/
 FuzzFindLongText ./pii/
+FuzzFindAroundTerminalSequences ./pii/
