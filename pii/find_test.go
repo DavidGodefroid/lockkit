@@ -172,12 +172,12 @@ func TestFindForeignDetectorFailsClosed(t *testing.T) {
 func TestFindCutsLongText(t *testing.T) {
 	s := strings.Repeat("x ", DetectLimit/2) + "jean@example.com"
 	ms := Find(s, AllDetectors())
-	if len(ms) != 0 {
-		t.Errorf("Find matched past DetectLimit: %v", ms)
+	if len(ms) != 1 || ms[0].Kind != CutKind || ms[0].End != len(s) {
+		t.Errorf("Find = %v, want the unscanned rest as one %s match", ms, CutKind)
 	}
 	s = "jean@example.com " + strings.Repeat("y", DetectLimit)
 	ms = Find(s, AllDetectors())
-	if len(ms) != 1 || ms[0] != (Match{0, 16, "email"}) {
+	if len(ms) != 2 || ms[0] != (Match{0, 16, "email"}) || ms[1].Kind != CutKind || ms[1].End != len(s) {
 		t.Errorf("Find = %v", ms)
 	}
 }

@@ -24,11 +24,41 @@ type Match struct {
 // cannot say where it found a value, so anything it masks makes the whole
 // text one match of its kind.
 //
-// A text longer than DetectLimit is scanned as Detect scans it, cut by
-// CutAt(s, DetectLimit), and the matches are ranges of that cut text,
-// which the caller must show instead of s.
+// A text longer than DetectLimit is scanned as Detect scans it, up to
+// where CutAt(s, DetectLimit) cuts it; the rest of s is one more match, of
+// kind CutKind, so the matches are always safe to apply to s itself.
 func Find(s string, ds []Detector) []Match {
-	return mergeMatches(find(cutForDetection(s), ds, nil))
+	if len(ds) == 0 {
+		return nil
+	}
+	t, rest := scanned(s)
+	return withRest(mergeMatches(find(t, ds, nil)), rest)
+}
+
+// CutKind is the kind of the match that covers the end of a text past
+// DetectLimit (or of a view past its cap), which no detector scanned: it
+// is masked whole.
+const CutKind = "cut"
+
+// scanned returns the part of s the detectors scan, and the match that
+// covers the rest, if any.
+func scanned(s string) (string, *rankedMatch) {
+	if len(s) <= DetectLimit {
+		return s, nil
+	}
+	end := len(CutAt(s, DetectLimit)) - len(CutMark)
+	return s[:end], &rankedMatch{Match{end, len(s), CutKind}, -1}
+}
+
+func withRest(ms []Match, rest *rankedMatch) []Match {
+	if rest == nil {
+		return ms
+	}
+	if n := len(ms); n > 0 && ms[n-1].End > rest.Start {
+		ms[n-1].End = rest.End
+		return ms
+	}
+	return append(ms, rest.Match)
 }
 
 // rankedMatch is a match with the position of its detector in the list it
@@ -101,17 +131,28 @@ func maskSpans(v View, spans []span) View {
 // value found only in a view (behind an escape, a look-alike or a
 // zero-width character) is the range of s it was written with, whole.
 // Where matches of different kinds overlap, they make one match, of the
-// kind of the earliest detector in ds. Long texts are cut as by Find.
+// kind of the earliest detector in ds (an encoded value next to a plain one
+// may so take a neighbour's kind). Long texts are cut as by Find. Decodings
+// are not chained (percent inside an HTML reference is not decoded), and
+// match boundaries are not moved to escape boundaries: a raw match may start
+// inside an escape (the "n" of "\\n" before an address).
 func FindInViews(s string, ds []Detector) []Match {
-	s = cutForDetection(s)
+	if len(ds) == 0 {
+		return nil
+	}
+	s, rest := scanned(s)
 	out := find(s, ds, nil)
 	for _, v := range DetectionViews(s) {
 		if v.lo == nil && v.Text == s {
 			continue // s itself: already searched
 		}
+		if v.cut {
+			// Fail closed: what the cut view does not show is masked whole.
+			out = append(out, rankedMatch{Match{v.cutAt, len(s), CutKind}, -1})
+		}
 		out = append(out, find(v.Text, ds, &v)...)
 	}
-	return mergeMatches(out)
+	return withRest(mergeMatches(out), rest)
 }
 
 // mergeMatches sorts matches and joins those that overlap; a joined match

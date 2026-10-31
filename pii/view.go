@@ -19,6 +19,10 @@ type View struct {
 	// non-decreasing in k.
 	lo, hi []int32
 	srcLen int
+	// cut: the view stopped at maxViewBytes; source bytes from cutAt on
+	// are not in it.
+	cut   bool
+	cutAt int
 }
 
 // Source returns the range of the source text that Text[start:end] was
@@ -54,7 +58,14 @@ func compose(v, w View) View {
 		return w
 	}
 	if w.lo == nil {
-		return View{Text: w.Text, lo: v.lo, hi: v.hi, srcLen: v.srcLen}
+		return View{Text: w.Text, lo: v.lo, hi: v.hi, srcLen: v.srcLen, cut: v.cut, cutAt: v.cutAt}
+	}
+	cut, cutAt := v.cut, v.cutAt
+	if w.cut {
+		at, _ := v.Source(w.cutAt, w.cutAt)
+		if !cut || at < cutAt {
+			cut, cutAt = true, at
+		}
 	}
 	lo := make([]int32, len(w.Text))
 	hi := make([]int32, len(w.Text))
@@ -62,7 +73,7 @@ func compose(v, w View) View {
 		l, h := v.Source(int(w.lo[k]), int(w.hi[k]))
 		lo[k], hi[k] = int32(l), int32(h)
 	}
-	return View{Text: w.Text, lo: lo, hi: hi, srcLen: v.srcLen}
+	return View{Text: w.Text, lo: lo, hi: hi, srcLen: v.srcLen, cut: cut, cutAt: cutAt}
 }
 
 // viewBuilder writes a view byte by byte, each from a range of the source.
@@ -92,12 +103,15 @@ func (vb *viewBuilder) view(srcLen int) View {
 // DetectionView is s as the detectors should see it: the characters fold
 // knows mapped to ASCII (the spaces digits are grouped with, full-width
 // digits), NFKC-normalised (full-width letters, ligatures, other
-// compatibility look-alikes), and without format characters (Unicode Cf:
-// zero-width spaces and joiners, bidi controls, the soft hyphen). An
+// compatibility look-alikes), and without default-ignorable characters
+// (Unicode Cf: zero-width spaces and joiners, bidi controls, the soft
+// hyphen; variation selectors, the combining grapheme joiner, Hangul
+// fillers). An
 // invalid UTF-8 byte is kept as is. Texts longer than DetectLimit are cut
 // as by Find.
 func DetectionView(s string) View {
-	return detectionView(cutForDetection(s))
+	t, _ := scanned(s)
+	return detectionView(t)
 }
 
 func detectionView(s string) View {
@@ -113,10 +127,16 @@ func detectionView(s string) View {
 	}
 	var vb viewBuilder
 	vb.b = make([]byte, 0, len(s))
+	vb.lo, vb.hi = make([]int32, 0, len(s)), make([]int32, 0, len(s))
 	var it norm.Iter
 	it.InitString(norm.NFKC, s)
 	for !it.Done() {
 		from := it.Pos()
+		if len(vb.b) >= maxViewBytes {
+			v := vb.view(len(s))
+			v.cut, v.cutAt = true, from
+			return v
+		}
 		seg := it.Next()
 		to := it.Pos()
 		for len(seg) > 0 {
@@ -126,7 +146,7 @@ func detectionView(s string) View {
 				vb.add(seg[:1], from, to)
 			case folded:
 				vb.add([]byte{c}, from, to)
-			case unicode.Is(unicode.Cf, r):
+			case ignorable(r):
 				// dropped: the next byte's range starts after it, and a
 				// range of the view spanning it covers it
 			default:
@@ -138,12 +158,23 @@ func detectionView(s string) View {
 	return vb.view(len(s))
 }
 
+// ignorable reports whether r is a default-ignorable code point (format
+// characters, variation selectors, combining grapheme joiner, Hangul
+// fillers...): invisible, so it may sit inside a value and hide it.
+func ignorable(r rune) bool {
+	return unicode.In(r, unicode.Cf, unicode.Other_Default_Ignorable_Code_Point, unicode.Variation_Selector)
+}
+
+// maxViewBytes caps a view's text: NFKC can expand a text about tenfold.
+// A view cut there makes the rest of the source one match (find).
+const maxViewBytes = 2 * DetectLimit
+
 // DetectionViews returns the detection view of s, then the detection view
 // of each decoding of s that changes it: percent-decoded once and twice,
 // JSON string escapes, HTML character references. Texts are distinct.
 // Texts longer than DetectLimit are cut as by Find.
 func DetectionViews(s string) []View {
-	s = cutForDetection(s)
+	s, _ = scanned(s)
 	base := detectionView(s)
 	out := []View{base}
 	seen := map[string]bool{base.Text: true}
