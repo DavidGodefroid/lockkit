@@ -194,6 +194,14 @@ func TestAllDetectorsLeavesOptInOut(t *testing.T) {
 }
 
 // A secret's mask carries neither its first character nor its length.
+// A key at the very end of the text, with no value, is no crash.
+func TestSecretKeyAtEnd(t *testing.T) {
+	d := detector(t, "secret")
+	for _, in := range []string{"Cookie:", "password=", "Authorization: ", "--password", "x=password:", "Bearer", "mysql -p", `"token":`, `\"`} {
+		_ = d.Mask(in)
+	}
+}
+
 func TestSecretMaskCarriesNothing(t *testing.T) {
 	d := detector(t, "secret")
 	a := d.Mask("password=a")

@@ -286,6 +286,9 @@ func findSecretPairs(s string) []span {
 			}
 			return start
 		}
+		if start >= len(s) {
+			return start // "password=" ends the text
+		}
 		var v string
 		var vs int
 		if c := s[start]; headerLike(key) && m[2] == m[3] && c != '"' && c != '\'' && c != '\\' {
