@@ -571,3 +571,18 @@ func TestEpochRotateFailedSyncKeepsStoreOpenable(t *testing.T) {
 		t.Error("the retried rotation is not current after reopening")
 	}
 }
+
+func TestEpochReviewRound3Gaps(t *testing.T) {
+	if a, b := Normalise("phone", "tel:+32 475 12 34 56"), Normalise("phone", "+32475123456"); a != b {
+		t.Errorf("tel: URI splits: %q vs %q", a, b)
+	}
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, err := OpenEpochStore(dir, true, t0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Get("ZZZZZZZZ"); !errors.Is(err, ErrUnknownEpoch) {
+		t.Errorf("Get(unknown) = %v, want ErrUnknownEpoch", err)
+	}
+	s.Close()
+}

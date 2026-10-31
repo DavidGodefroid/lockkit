@@ -250,7 +250,11 @@ func Normalise(kind, value string) string {
 	case "email":
 		return strings.ToLower(strings.TrimSpace(v))
 	case "phone", "phone_loose":
-		t := strings.TrimLeft(v, " (")
+		// From the first "+" or digit: "tel:+32...", "(+32)", " (0475".
+		t := v
+		if k := strings.IndexFunc(v, func(r rune) bool { return r == '+' || r >= '0' && r <= '9' }); k > 0 {
+			t = v[k:]
+		}
 		if strings.HasPrefix(t, "+") || strings.HasPrefix(t, "00") {
 			// "+32 (0)475...": the trunk 0 is not dialled from abroad.
 			t = strings.Replace(t, "(0)", "", 1)

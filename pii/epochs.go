@@ -43,8 +43,10 @@ const keyFileMagic = "lockkit pseudonym epoch v1\n"
 // under it can be re-read until then). A corrupt or exposed key file
 // refuses the store: nothing is repaired silently. Epochs are ordered by
 // a sequence number, not by the clock. The store locks its directory
-// (one process at a time; Close releases it) and is safe for concurrent
-// use within that process.
+// (one process at a time; Close releases it; opening creates the .lock
+// file even when create is false) and is safe for concurrent use within
+// that process. On non-unix platforms there are no permission, owner,
+// symbolic-link or lock checks: keep one process per store there.
 type EpochStore struct {
 	dir  string
 	lock io.Closer // the directory's lock, held until Close
@@ -184,7 +186,13 @@ func (s *EpochStore) writeKeyFile(p *Pseudonymizer) error {
 	b.WriteString(keyFileMagic)
 	key := p.keyBytes()
 	defer clear(key)
-	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nseq=%d\nkey=%s\n", p.epoch, p.created.Format(time.RFC3339), p.seq, base64.StdEncoding.EncodeToString(key))
+	enc := make([]byte, base64.StdEncoding.EncodedLen(len(key)))
+	defer clear(enc)
+	base64.StdEncoding.Encode(enc, key)
+	b.Grow(256)
+	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nseq=%d\nkey=", p.epoch, p.created.Format(time.RFC3339), p.seq)
+	b.Write(enc)
+	b.WriteByte('\n')
 	defer func() { clear(b.Bytes()) }()
 	return writeFileAtomic(s.dir, p.epoch+keyFileSuffix, b.Bytes())
 }
