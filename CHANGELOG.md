@@ -10,6 +10,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
   `AllDetectors`: a product masks exactly what it masked before until it
   names them (GUIDE §8).
+- `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
+  project's `.claude/settings.local.json` on a project `Init` (off by
+  default; GUIDE §12).
+- `agentwire`: merged `permissions.allow` entries (user and project scope)
+  and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
+  escapes.
 
 ## v0.7.2 (2026-10-31)
 

@@ -625,6 +625,16 @@ then `Wiring.Init(agentwire.ProjectRoot(P, cwd), agent)` for `<name> init
 (`env, _ := agentwire.SystemEnv()`), `agentwire.Detect(env)` and
 `Wiring.Unwired(env)` for your doctor's "agent wiring" line. Only list in
 `ClaudeAllow` calls that never touch data without the console's approval.
+`ClaudeAllow` is merged into `permissions.allow` at user scope by
+`InitUser`; a project `Init` only lists it in the notes, unless
+`ClaudeAllowProject` is set: then `Init(root, "claude")` also merges it into
+the project's `.claude/settings.local.json` (personal, never the shared
+`.claude/settings.json`), keeping the file's other keys and entries, and
+the notes say what was written. Set it only when every listed call answers
+with masked data and every approved operation is approved at the console
+or the hub (the human, not the allow list, decides). Codex and Gemini get
+600 s tool timeouts from agentwire, which cover the console's 5 minute
+approval and a queued call.
 
 ## 13. Hub tickets (`ticket`)
 

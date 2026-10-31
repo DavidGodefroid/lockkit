@@ -72,6 +72,11 @@ type Assets struct {
 	// permissions.allow at user scope, and listed in the project notes:
 	// only calls that never touch data without the console's approval.
 	ClaudeAllow []string
+	// ClaudeAllowProject also merges ClaudeAllow into the project's
+	// .claude/settings.local.json (personal, not the shared
+	// .claude/settings.json) on a project init: for a product whose listed
+	// calls only ever see masked data.
+	ClaudeAllowProject bool
 	// ClaudeNote ends the Claude Code notes of a project init (optional).
 	ClaudeNote string
 }
@@ -168,6 +173,9 @@ func (w Wiring) Init(root, agent string) (Result, error) {
 		steps = []step{
 			w.mcpEntry(".mcp.json", w.mcpServer(map[string]any{"type": "stdio"})),
 			w.plainFile(".claude/skills/"+n+"/SKILL.md", w.Assets.Skill),
+		}
+		if w.Assets.ClaudeAllowProject && len(w.Assets.ClaudeAllow) > 0 {
+			steps = append(steps, w.localSettings(w.jsonStrings(".claude/settings.local.json", []string{"permissions", "allow"}, w.Assets.ClaudeAllow)))
 		}
 		notes = w.claudeNotes()
 	case "codex":
@@ -603,16 +611,50 @@ func writeAtomic(path string, data []byte, mode fs.FileMode, pattern string) err
 	return os.Rename(tmp, path)
 }
 
+// localSettings guards the project's personal settings step: a
+// settings.local.json that is a symlink (to the shared settings.json or
+// anywhere else) is refused, so the shared file is never written.
+func (w Wiring) localSettings(st step) step {
+	return func(b base) (change, error) {
+		rel := ".claude/settings.local.json"
+		p := filepath.Join(b.root, filepath.FromSlash(rel))
+		if fi, err := os.Lstat(p); err == nil && fi.Mode()&fs.ModeSymlink != 0 {
+			return change{}, fmt.Errorf("%s: a symlink; refusing to write through it (add the %s entries by hand)", rel, w.name())
+		}
+		c, err := st(b)
+		if err != nil {
+			return c, err
+		}
+		if shared, err := resolve(b, ".claude/settings.json"); err == nil && shared == c.target {
+			return change{}, fmt.Errorf("%s: resolves to the shared .claude/settings.json; refusing", rel)
+		}
+		return c, nil
+	}
+}
+
 // claudeNotes lists the calls the human may allow, then ClaudeNote.
 func (w Wiring) claudeNotes() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "Claude Code asks once whether to use the project MCP server %q; approve it.\n", w.name())
-	if len(w.Assets.ClaudeAllow) > 0 {
+	if len(w.Assets.ClaudeAllow) > 0 && w.Assets.ClaudeAllowProject {
+		b.WriteString("The calls below never touch data without the console's approval; they are in\n" +
+			"\"permissions.allow\" in .claude/settings.local.json (personal: check that git\n" +
+			"ignores it), so Claude Code does not prompt for them. Remove them there to be\n" +
+			"asked again:\n\n")
+		for i, a := range w.Assets.ClaudeAllow {
+			q, _ := marshalPlain(a)
+			b.WriteString("  " + string(q))
+			if i < len(w.Assets.ClaudeAllow)-1 {
+				b.WriteString(",")
+			}
+			b.WriteString("\n")
+		}
+	} else if len(w.Assets.ClaudeAllow) > 0 {
 		b.WriteString("Optional: the calls below never touch data without the console's approval. To stop\n" +
 			"Claude Code prompting for them, add them to \"permissions.allow\" in\n" +
 			".claude/settings.local.json (personal) or .claude/settings.json (shared):\n\n")
 		for i, a := range w.Assets.ClaudeAllow {
-			q, _ := json.Marshal(a)
+			q, _ := marshalPlain(a)
 			b.WriteString("  " + string(q))
 			if i < len(w.Assets.ClaudeAllow)-1 {
 				b.WriteString(",")
