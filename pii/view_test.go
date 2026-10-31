@@ -603,6 +603,16 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 		"mail jean&#6\xff4;example.com",
 		"mail jean\\u00\xff40example.com",
 		"mail jean%4%ff0example.com",
+		"card 41111111\x1b\x07[31m11111111 end",
+		"card 4111 1111 \x1b\x07[31m1111 1111 end",
+		"mail jean@exa\x1b\x07[31mmple.com end",
+		"iban BE68 5390 0754 \x1b\x07[31m7034 end",
+		"card 41111111\x1b\x07\x07[31m11111111 end",
+		"card 41111111\x1b\x077" + "11111111 end",
+		"card 41111111\x1b\x07]0;t\x0711111111 end",
+		"card 41111111\x1b\x07P\x1b\\11111111 end",
+		"card 41111111\x1b(\x07B11111111 end",
+		`{"m":"card 41111111\u001b\u0007[31m11111111 end"}`,
 		"4111\x1b[\x1b[m1111\x1b[\x1b[m1111\x1b[\x1b[m1111",
 		"BE68\x1b[\x1b[m5390 0754 7034",
 		"+32\x1b[\x1b[m475 12 34 56",
@@ -654,7 +664,7 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 func FuzzFindValueSplitByTerminal(f *testing.F) {
 	f.Add([]byte{0, 1, 2}, uint8(0), uint8(3), uint8(0))
 	f.Add([]byte{5, 9}, uint8(2), uint8(8), uint8(1))
-	units := []string{"\x1b[1m", "\x1b[0;31m", "\x1b[1\x07m", "\x1b]0;t\x07", "\x1b]0;t\x1b\\", "\x1b(B", "\x1b7", "​", "\u009b1m", "\x1b[1\x18", "\x9b1m", "\x1b[m", "\x1b[38;5;196m", "\x1b[\x1b[m", "\x1b[1;\x1b[m", "\x1b[?\x1b\\", "\x1b(\x1b7", "\x1b#\x1b[0m", "\x1b[\x7f\x1b[m"} // an aborted sequence, then a whole one: a final byte would eat the next character
+	units := []string{"\x1b[1m", "\x1b[0;31m", "\x1b[1\x07m", "\x1b]0;t\x07", "\x1b]0;t\x1b\\", "\x1b(B", "\x1b7", "​", "\u009b1m", "\x1b[1\x18", "\x9b1m", "\x1b[m", "\x1b[38;5;196m", "\x1b[\x1b[m", "\x1b[1;\x1b[m", "\x1b[?\x1b\\", "\x1b(\x1b7", "\x1b#\x1b[0m", "\x1b[\x7f\x1b[m", "\x1b\x07[31m", "\x1b\x00\x7f7", "\x1b(\x07B"} // an aborted sequence, then a whole one: a final byte would eat the next character
 	ds := AllDetectors()
 	f.Fuzz(func(t *testing.T, picks []byte, k, at, enc uint8) {
 		if len(picks) == 0 || len(picks) > 8 {
