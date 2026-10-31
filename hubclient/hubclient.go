@@ -216,16 +216,23 @@ func New(cfg Config) (*Client, error) {
 	}
 	base, err := url.Parse(strings.TrimRight(cfg.URL, "/"))
 	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" {
-		return nil, fmt.Errorf("hubclient: bad hub URL %q", cfg.URL)
+		return nil, errors.New("hubclient: bad hub URL: want http(s)://host[:port]")
 	}
+	// A user or token in the URL would reach net/http's errors, the
+	// console's lines and the hub as a Basic header: the hub
+	// authenticates by signature, so a URL never carries one.
+	if base.User != nil {
+		return nil, errors.New("hubclient: the hub URL must not carry a user or password")
+	}
+	shown := base.Scheme + "://" + base.Host
 	// Signatures protect integrity, not privacy: tickets carry masked
 	// screens and the kinds of personal data touched.
 	if base.Scheme == "http" && !loopback(base.Hostname()) {
 		switch {
 		case !cfg.PlainHTTP:
-			return nil, fmt.Errorf("hubclient: hub URL %q: use https; plain http only to a loopback address, or with --hub-plain-http to a hub on a network of its own", cfg.URL)
+			return nil, fmt.Errorf("hubclient: hub URL %s: use https; plain http only to a loopback address, or with --hub-plain-http to a hub on a network of its own", shown)
 		case !internalHost(base.Hostname()):
-			return nil, fmt.Errorf("hubclient: hub URL %q: --hub-plain-http is only for a service name without a dot or a private address; use https", cfg.URL)
+			return nil, fmt.Errorf("hubclient: hub URL %s: --hub-plain-http is only for a service name without a dot or a private address; use https", shown)
 		}
 	}
 	if cfg.MaxPending <= 0 {

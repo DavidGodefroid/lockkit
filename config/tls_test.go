@@ -98,3 +98,17 @@ func TestSSHString(t *testing.T) {
 		t.Fatal(got)
 	}
 }
+
+// A secret pasted in a closed-set key never reaches the error.
+func TestParseSSHErrorsDoNotEchoValues(t *testing.T) {
+	const canary = "glsa_CanarySecretToken123"
+	for key, r := range map[string]RawSSH{
+		"ssh.credentials": {Host: "b", User: "u", Auth: SSHAuthAgent, Credentials: canary},
+		"ssh.auth":        {Host: "b", User: "u", Auth: canary},
+	} {
+		_, err := ParseSSH(testProduct, r, CredentialsAsk, errf)
+		if err == nil || strings.Contains(err.Error(), canary) || !strings.Contains(err.Error(), key) {
+			t.Errorf("%s: error %v (want the key, never the value)", key, err)
+		}
+	}
+}
