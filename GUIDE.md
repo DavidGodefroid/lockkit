@@ -225,6 +225,21 @@ bastion reaches; no local port is ever opened.
   `pii.FindInViews(s, ds)` is `Find` over `s` and every view, mapped back:
   a value written behind an escape or a look-alike is masked whole, in its
   written form.
+- Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
+  base32 (60 bits) of `HMAC-SHA256(key, kind || 0 || pii.Normalise(kind,
+  value))`, stable within one epoch. `Normalise` folds spellings of one
+  value together: the detection view (or the decoding that is a whole
+  value of the kind), then lower-case email, phone digits with `+` for
+  international numbers (`00` → `+`), compact upper-case IBAN, digits of
+  cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
+  with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
+  in a private directory (0700, owned by the process user; anything else,
+  a symbolic link or a corrupt file refuses the store); `Current()`,
+  `Get(epoch)` for a reference minted earlier, `Rotate(now)`,
+  `RotationDue(now, every)`, `Prune(now, keep)` deletes keys replaced
+  `keep` ago. `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither
+  type prints or marshals its key. Do not show the ID without the kind it
+  was taken for.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
