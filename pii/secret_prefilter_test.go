@@ -37,7 +37,7 @@ func prefilterCorpus(t testing.TB) []string {
 	in := strings.Split(string(data), "\n")
 	in = append(in, tokenShapeExamples(t)...)
 	return append(in,
-		"Authorization: BEARER abcdef123456", "toKen abcdef123456", "baſic dXNlcjpwYXNz",
+		"Authorization: BEARER abcdef123456", "to\u212aen abcdef123456", "\u212aEY toKen abcdef123456", "ba\u017fic dXNlcjpwYXNz", "Authorization: Bearer abcdef123456",
 		"curl -ubob:pw https://x", "mysql -uroot -phunter2", "https://bob:pw@example.com/",
 		"x "+fakeGH, "AccountKey="+strings.Repeat("A", 44), "123456789:AA"+strings.Repeat("b", 33),
 	)
@@ -53,6 +53,17 @@ func TestSecretPrefiltersAreExact(t *testing.T) {
 // tokenShapeRe (each alternative, each member of a small class) yields a
 // match that contains one of tokenShapeLits: a shape added without its
 // literal fails here.
+func TestAuthSchemeFoldRunes(t *testing.T) {
+	for _, r := range "\u212a\u017f" {
+		if !strings.ContainsRune(authSchemeFold, r) {
+			t.Errorf("authSchemeFold lacks %U", r)
+		}
+	}
+	if !authSchemeRe.MatchString("to\u212aen ") || findAuthSchemes("Authorization: to\u212aen abcdef123456") == nil {
+		t.Error("the Kelvin sign in token is not found")
+	}
+}
+
 func TestTokenShapeLitsCoverEveryAlternative(t *testing.T) {
 	ex := tokenShapeExamples(t)
 	if len(ex) < 60 {

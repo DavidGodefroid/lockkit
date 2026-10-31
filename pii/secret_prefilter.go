@@ -1,6 +1,9 @@
 package pii
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // --- literal prefilters
 //
@@ -60,12 +63,13 @@ func containsAny(s string, lits []string) bool {
 }
 
 // containsAnyFold reports whether s contains one of words, ignoring ASCII
-// case; words are lower case. The (?i) of authSchemeRe also folds "K" to
-// the Kelvin sign U+212A, which no word contains, and "s" to the long s
-// U+017F, which "basic" and "aws4-hmac-sha256" contain: a text with
-// U+017F passes, so that the regexp decides.
-func containsAnyFold(s string, words []string) bool {
-	if strings.Contains(s, "ſ") {
+// case; words are lower case ASCII. The (?i) of authSchemeRe also folds
+// some ASCII letters to runes outside ASCII ("k" to the Kelvin sign
+// U+212A, "s" to the long s U+017F): a text that holds one of those runes
+// passes, so that the regexp decides; folds holds them
+// (nonASCIIFolds(words)).
+func containsAnyFold(s string, words []string, folds string) bool {
+	if strings.ContainsAny(s, folds) {
 		return true
 	}
 	for i := 0; i < len(s); i++ {
@@ -86,6 +90,26 @@ func containsAnyFold(s string, words []string) bool {
 	return false
 }
 
+var authSchemeFold = nonASCIIFolds(authSchemeWords)
+
+// nonASCIIFolds returns every rune outside ASCII that unicode.SimpleFold
+// relates to a letter of words.
+func nonASCIIFolds(words []string) string {
+	var b strings.Builder
+	seen := map[rune]bool{}
+	for _, w := range words {
+		for _, r := range w {
+			for f := unicode.SimpleFold(r); f != r; f = unicode.SimpleFold(f) {
+				if f > unicode.MaxASCII && !seen[f] {
+					seen[f] = true
+					b.WriteRune(f)
+				}
+			}
+		}
+	}
+	return b.String()
+}
+
 func lowerASCII(c byte) byte {
 	if c >= 'A' && c <= 'Z' {
 		return c + 'a' - 'A'
@@ -101,7 +125,7 @@ func findTokenShapes(s string) []span {
 }
 
 func findAuthSchemes(s string) []span {
-	if !containsAnyFold(s, authSchemeWords) {
+	if !containsAnyFold(s, authSchemeWords, authSchemeFold) {
 		return nil
 	}
 	return scanAuthSchemes(s)
