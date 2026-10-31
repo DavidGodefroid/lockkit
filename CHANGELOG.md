@@ -10,6 +10,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
   `AllDetectors`: a product masks exactly what it masked before until it
   names them (GUIDE §8).
+- `pii`: every detector reads a `\n`, `\r` or `\t` escape (JSON written by
+  zap, logrus or bunyan) as the blank it stands for, so a value right after
+  one is found: `{"msg":"tel:\t0475123456"}` is now masked. This is the
+  only output change for products that keep `AllDetectors`.
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
   name corpus and 10 % on held-out names outside the gazetteer; false
