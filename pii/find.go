@@ -153,9 +153,8 @@ func maskSpans(v View, spans []span) View {
 // zero-width character) is the range of s it was written with, whole.
 // Where matches of different kinds overlap, they make one match, of the
 // kind of the earliest detector in ds (an encoded value next to a plain one
-// may so take a neighbour's kind). Long texts are cut as by Find. Decodings
-// are not chained (percent inside an HTML reference is not decoded), and
-// match boundaries are not moved to escape boundaries: a raw match may start
+// may so take a neighbour's kind). Long texts are cut as by Find. Match
+// boundaries are not moved to escape boundaries: a raw match may start
 // inside an escape (the "n" of "\\n" before an address).
 func FindInViews(s string, ds []Detector) []Match {
 	if len(ds) == 0 {
