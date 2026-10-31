@@ -164,3 +164,6 @@ mysql -uroot shop -e 'select 1' | grep -pattern
 version=1.8.0.201 oid 2.5.4.3
 file=src/main/java/com/Example/Abc123DefGhiJklMnoPqr.java line=12
 pass=10 fail=0 skip=2
+GET http://localhost:5173/@vite/client 200
+docker run -d -p 8080:80 nginx
+"GET / HTTP/1.1" 200 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"

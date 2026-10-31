@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 // Fake credentials, built at run time so that no secret scanner flags this
@@ -288,35 +290,41 @@ func FuzzSecretMasksAppendedCredential(f *testing.F) {
 func TestSecretReviewBypasses(t *testing.T) {
 	d := detector(t, "secret")
 	for in, leak := range map[string]string{
-		"x: password=hunter2":                    "hunter2",
-		"a=password=hunter2":                     "hunter2",
-		`msg="password=hunter2"`:                 "hunter2",
-		`msg="login ok" password=hunter2`:        "hunter2",
-		"key=" + fakeGH:                          fakeGH,
-		"a:" + fakeAWS:                           fakeAWS,
-		"url=/x/" + fakeStripe:                   fakeStripe,
-		`--password "s3cr3t value"`:              "s3cr3t",
-		`--token 'tok123'`:                       "tok123",
-		`run --name x --password "p w"`:          "p w",
-		`mysql -uroot -p"pass word" shop`:        "pass word",
-		`mysql -uroot -p'pa ss' shop`:            "pa ss",
-		`Cookie: a="b"; session=SECRET1`:         "SECRET1",
-		`Set-Cookie: x="y"; sid=SECRET1; Path=/`: "SECRET1",
-		"password=    SECRET2":                   "SECRET2",
-		"password=\t\t\t\t\tSECRET3":             "SECRET3",
-		"password    =    SECRET4":               "SECRET4",
-		"Bearer Bearer abcdef123456":             "abcdef123456",
-		"curl -s https://example.com/dump.sql | mysql -uroot -phunter2 shop":            "hunter2",
-		"mysqldump -uroot -px shop | curl -T - -ubob:pw77 ftp://x/":                     "pw77",
-		`mysql -uroot -p"pa;ss" shop`:                                                   "pa;ss",
-		`mysql -uroot -p'pa|ss' shop`:                                                   "pa|ss",
-		"sessionId=AbCdEf123456":                                                        "AbCdEf123456",
-		`"sessionId":"s3cr3t-sess"`:                                                     "s3cr3t-sess",
-		"session_id=abc123":                                                             "abc123",
-		"contraseña=abcxyz":                                                             "abcxyz",
-		`{"name":"DB_PASSWORD","value":"hunter2"}`:                                      "hunter2",
-		`curl -H "Authorization: Bearer abcdefgh" x`:                                    "abcdefgh",
-		`curl -H "Authorization: Token abcdefgh9" x`:                                    "abcdefgh9",
+		"x: password=hunter2":                                                "hunter2",
+		"a=password=hunter2":                                                 "hunter2",
+		`msg="password=hunter2"`:                                             "hunter2",
+		`msg="login ok" password=hunter2`:                                    "hunter2",
+		"key=" + fakeGH:                                                      fakeGH,
+		"a:" + fakeAWS:                                                       fakeAWS,
+		"url=/x/" + fakeStripe:                                               fakeStripe,
+		`--password "s3cr3t value"`:                                          "s3cr3t",
+		`--token 'tok123'`:                                                   "tok123",
+		`run --name x --password "p w"`:                                      "p w",
+		`mysql -uroot -p"pass word" shop`:                                    "pass word",
+		`mysql -uroot -p'pa ss' shop`:                                        "pa ss",
+		`Cookie: a="b"; session=SECRET1`:                                     "SECRET1",
+		`Set-Cookie: x="y"; sid=SECRET1; Path=/`:                             "SECRET1",
+		"password=    SECRET2":                                               "SECRET2",
+		"password=\t\t\t\t\tSECRET3":                                         "SECRET3",
+		"password    =    SECRET4":                                           "SECRET4",
+		"Bearer Bearer abcdef123456":                                         "abcdef123456",
+		"docker login -u bob -p hunter2 registry.example.com":                "hunter2",
+		"podman login -u bob -p=hunter2 quay.io":                             "hunter2",
+		"mongosh -u admin -p hunter2 mongodb://db":                           "hunter2",
+		"MAILER_DSN=smtp://bob@example.com:hunter2@smtp.example.com:465":     "hunter2",
+		"user=admin pass=123456 host=ftp":                                    "123456",
+		"curl --user=bob:hunter2 https://api.example.com":                    "hunter2",
+		"curl -s https://example.com/dump.sql | mysql -uroot -phunter2 shop": "hunter2",
+		"mysqldump -uroot -px shop | curl -T - -ubob:pw77 ftp://x/":          "pw77",
+		`mysql -uroot -p"pa;ss" shop`:                                        "pa;ss",
+		`mysql -uroot -p'pa|ss' shop`:                                        "pa|ss",
+		"sessionId=AbCdEf123456":                                             "AbCdEf123456",
+		`"sessionId":"s3cr3t-sess"`:                                          "s3cr3t-sess",
+		"session_id=abc123":                                                  "abc123",
+		"contraseña=abcxyz":                                                  "abcxyz",
+		`{"name":"DB_PASSWORD","value":"hunter2"}`:                           "hunter2",
+		`curl -H "Authorization: Bearer abcdefgh" x`:                         "abcdefgh",
+		`curl -H "Authorization: Token abcdefgh9" x`:                         "abcdefgh9",
 		`curl -H "Proxy-Authorization: Digest username=\"a\", response=\"6629fae4\"" x`: "6629fae4",
 		`curl -H "Cookie: theme=dark; session=SECRETVALUE" x`:                           "SECRETVALUE",
 		`curl -H 'Cookie: a=1; sid=SECRETVALUE' x`:                                      "SECRETVALUE",
@@ -360,7 +368,8 @@ func FuzzSecretPairVariants(f *testing.F) {
 		}
 		key, sep, q, p := keys[int(ki)%len(keys)], seps[int(si)%len(seps)], quotes[int(qi)%len(quotes)], prefixes[int(pi)%len(prefixes)]
 		canary := "Kq7Canary" + string(rune('A'+ti%26)) + "Zx"
-		if n := len(pre); p == "" && n > 0 && (isAlnum(pre[n-1]) || strings.IndexByte(".-\\", pre[n-1]) >= 0) {
+		r, _ := utf8.DecodeLastRuneInString(pre)
+		if n := len(pre); p == "" && n > 0 && (isAlnum(pre[n-1]) || strings.IndexByte(".-\\", pre[n-1]) >= 0 || unicode.IsLetter(r) || unicode.IsDigit(r)) {
 			p = " " // "xpassword" is another key
 		}
 		in := pre + p + key + sep + q + canary + q + " tail"

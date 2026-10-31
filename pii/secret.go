@@ -255,11 +255,19 @@ func looksCredential(v string) bool {
 // --- URL userinfo: scheme://user:password@host
 
 // The password runs to the last "@" before a blank: it may hold "@" or "/".
-var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#@"'<>:]*:[^\s?#"'<>]*)@`)
+// The user may be an e-mail address (smtp://bob@example.com:pw@host).
+var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#"'<>:]*:[^\s?#"'<>]*)@`)
+
+// portPath is "5173/…": a port and a path, not a password
+// (http://localhost:5173/@vite/client).
+var portPath = regexp.MustCompile(`^[0-9]{1,5}/`)
 
 func findUserinfo(s string) []span {
 	var out []span
 	for _, m := range userinfoRe.FindAllStringSubmatchIndex(s, -1) {
+		if _, pw, _ := strings.Cut(s[m[2]:m[3]], ":"); portPath.MatchString(pw) {
+			continue
+		}
 		if m[3] > m[2] {
 			out = append(out, span{m[2], m[3]})
 		}
@@ -285,6 +293,13 @@ func findSecretPairs(s string) []span {
 		start := m[1]
 		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
 			return start // a URL: "https://"
+		}
+		if (key == "--user" || key == "--proxy-user") && s[m[8]] == '=' {
+			if v, vs, ve := pairValue(s, start, false, 0); strings.Contains(v, ":") {
+				out = append(out, span{vs, ve})
+				return ve
+			}
+			return start
 		}
 		if !isSecretHeader(key) && !LooksSecret(key) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
@@ -366,7 +381,14 @@ func passCount(s, key string, i int) bool {
 	for j < len(s) && isDigit(s[j]) {
 		j++
 	}
-	return j > i && !isAlnum(after(s, j))
+	if j == i || isAlnum(after(s, j)) {
+		return false
+	}
+	// A count only next to its test-runner siblings ("pass=10 fail=0").
+	end := lineEnd(s, j, true)
+	start := strings.LastIndexByte(s[:i], '\n') + 1
+	line := strings.ToLower(s[start:end])
+	return strings.Contains(line, "fail") || strings.Contains(line, "skip")
 }
 
 // hashName reports a key that names a digest, whose value is high-entropy
@@ -615,8 +637,11 @@ func findNameValuePairs(s string) []span {
 
 // --- MySQL and MariaDB clients: "mysql -uroot -phunter2"
 
-var mysqlRe = regexp.MustCompile(`\b(?:curl|mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
+var mysqlRe = regexp.MustCompile(`\b(?:docker|podman|nerdctl|buildah|mongo|mongosh|mongodump|mongorestore|curl|mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
 var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p(?:"([^"\n]*)"|'([^'\n]*)'|([^\s"'|;&]+))`)
+
+// spacePassRe is "-p value" (docker login, mongosh), also glued or "=".
+var spacePassRe = regexp.MustCompile(`(?:^|\s)-p(?:[ \t]+|=)?(?:"([^"\n]*)"|'([^'\n]*)'|([^\s"'|;&-][^\s"'|;&]*))`)
 
 // curlUserRe is curl's -u with the credentials glued on: "-ubob:pw".
 var curlUserRe = regexp.MustCompile(`(?:^|\s)-u([^\s"':-][^\s"':]*:[^\s"']+)`)
@@ -632,8 +657,16 @@ func findMySQLPasswords(s string) []span {
 		done = end
 		seg := s[m[1]:end]
 		re := mysqlPassRe
-		if strings.HasPrefix(s[m[0]:], "curl") {
+		switch cmd := s[m[0]:m[1]]; cmd {
+		case "curl":
 			re = curlUserRe
+		case "docker", "podman", "nerdctl", "buildah":
+			if !strings.Contains(seg, " login") {
+				continue // "docker run -p 8080:80": a port
+			}
+			re = spacePassRe
+		case "mongo", "mongosh", "mongodump", "mongorestore":
+			re = spacePassRe
 		}
 		for _, p := range re.FindAllStringSubmatchIndex(seg, -1) {
 			for g := 2; g+1 < len(p); g += 2 {

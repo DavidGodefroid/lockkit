@@ -48,6 +48,9 @@ func findIPs(s string) []span {
 // versionContext reports a run that a version or an OID label precedes
 // ("version=1.8.0.201", "oid 2.5.4.3"): a dotted quad there is no address.
 func versionContext(s string, i int) bool {
+	if i >= 2 && s[i-1] == '/' && (s[i-2] >= 'A' && s[i-2] <= 'Z' || s[i-2] >= 'a' && s[i-2] <= 'z') {
+		return true // a product token: "Chrome/124.0.0.0"
+	}
 	pre := strings.ToLower(s[max(0, i-12):i])
 	pre = strings.TrimRight(pre, " \t:=\"'")
 	for _, l := range []string{"version", "oid", "build", "release"} {

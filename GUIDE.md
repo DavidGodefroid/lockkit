@@ -234,10 +234,12 @@ bastion reaches; no local port is ever opened.
     its key (YAML), XML elements (`<password>x</password>`), URL-encoded
     pairs (`password%3Dx`, unless the caller decodes first), `:=`
     assignments, an unquoted value cut by `;` or `,`, protocol commands
-    (`PASS x`, `AUTH x`), `redis-cli -a`, `sshpass -p`, SQL `IDENTIFIED BY`.
+    (`PASS x`, `AUTH x`), `redis-cli -a`, `sshpass -p`, SQL `IDENTIFIED BY`,
+    a URL password holding `#` or `?`. `docker`/`podman`/`nerdctl`/`buildah
+    login -p` and `mongo*` `-p` are masked; `-p` elsewhere is not.
     Status words under a secret name (`auth=failed`) are masked too. A
-    dotted quad after `version`, `build`, `release` or `oid` is no
-    address.
+    dotted quad after `version`, `build`, `release`, `oid` or a product
+    token (`Chrome/124.0.0.0`) is no address.
 - `pii.LooksSecret(name)`: a field, header or flag name that holds a
   credential (`password`, `client_secret`, `api_key`, `X-Api-Key`,
   `Authorization`, `Cookie`, `PHPSESSID`, en/fr/nl/de/es); metadata about one
