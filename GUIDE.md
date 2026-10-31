@@ -239,7 +239,8 @@ bastion reaches; no local port is ever opened.
   `RotationDue(now, every)`, `Prune(now, keep)` deletes keys replaced
   `keep` ago. `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither
   type prints or marshals its key. Do not show the ID without the kind it
-  was taken for.
+  was taken for. `ID` returns `ErrForgottenEpoch` once `Prune` deleted
+  the epoch's key (never an ID from a cleared key): redact the value then.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in

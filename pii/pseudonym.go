@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/netip"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 )
@@ -36,8 +37,14 @@ const crockford = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 type Pseudonymizer struct {
 	epoch   string
 	created time.Time
-	key     []byte
+
+	mu  sync.RWMutex
+	key []byte // nil once forgotten
 }
+
+// ErrForgottenEpoch is the error of ID on an epoch whose key was deleted
+// (EpochStore.Prune): the caller must redact the value, never show it.
+var ErrForgottenEpoch = errors.New("pii: pseudonym epoch key deleted")
 
 // NewEpoch returns a Pseudonymizer for a new epoch, with a random id and
 // key, kept in memory only (a session epoch). EpochStore keeps them on
@@ -99,13 +106,28 @@ func (p *Pseudonymizer) Created() time.Time { return p.created }
 // ID returns the pseudonym of value as a value of kind (a detector name:
 // "email", "phone", ...): the first PseudonymLen characters of the
 // Crockford base32 of HMAC-SHA256(key, kind || 0x00 || Normalise(kind,
-// value)). Different kinds give different IDs for the same text.
-func (p *Pseudonymizer) ID(kind, value string) string {
+// value)). Different kinds give different IDs for the same text. Once the
+// epoch's key was deleted (EpochStore.Prune), ID fails with
+// ErrForgottenEpoch and never computes an ID: the caller redacts the value.
+func (p *Pseudonymizer) ID(kind, value string) (string, error) {
+	norm := Normalise(kind, value)
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	if len(p.key) != KeyLen {
+		return "", ErrForgottenEpoch
+	}
 	m := hmac.New(sha256.New, p.key)
 	m.Write([]byte(kind))
 	m.Write([]byte{0})
-	m.Write([]byte(Normalise(kind, value)))
-	return encodeID(m.Sum(nil))
+	m.Write([]byte(norm))
+	return encodeID(m.Sum(nil)), nil
+}
+
+// Forgotten reports whether the epoch's key was deleted.
+func (p *Pseudonymizer) Forgotten() bool {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return len(p.key) != KeyLen
 }
 
 // encodeID writes the first 60 bits of sum in Crockford base32.
@@ -148,7 +170,13 @@ func (p *Pseudonymizer) MarshalJSON() ([]byte, error) {
 
 // forget overwrites the key in memory (best effort: the runtime may have
 // copied it).
-func (p *Pseudonymizer) forget() { clear(p.key) }
+// ID fails from then on.
+func (p *Pseudonymizer) forget() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	clear(p.key)
+	p.key = nil
+}
 
 // Normalise returns the form of value whose pseudonym is taken, so that
 // one value written differently is one pseudonym: the detection view of

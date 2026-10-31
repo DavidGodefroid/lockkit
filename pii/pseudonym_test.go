@@ -9,11 +9,22 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
 
 var t0 = time.Date(2026, 10, 30, 12, 0, 0, 0, time.UTC)
+
+// mustID is p.ID for a live epoch.
+func mustID(t testing.TB, p *Pseudonymizer, kind, value string) string {
+	t.Helper()
+	id, err := p.ID(kind, value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return id
+}
 
 func fixedPseudonymizer(t *testing.T) *Pseudonymizer {
 	t.Helper()
@@ -29,7 +40,7 @@ func fixedPseudonymizer(t *testing.T) *Pseudonymizer {
 // minted under an epoch must stay readable by the next release).
 func TestPseudonymGolden(t *testing.T) {
 	p := fixedPseudonymizer(t)
-	got := p.ID("email", "Jean.Dupont@Example.com")
+	got := mustID(t, p, "email", "Jean.Dupont@Example.com")
 	if got != goldenEmailID {
 		t.Errorf("ID = %s, want %s", got, goldenEmailID)
 	}
@@ -70,20 +81,20 @@ func TestPseudonymsStableAcrossCalls(t *testing.T) {
 		{"ip", "192.0.2.1", "::ffff:192.0.2.1"},
 	}
 	for _, group := range same {
-		kind, want := group[0], p.ID(group[0], group[1])
+		kind, want := group[0], mustID(t, p, group[0], group[1])
 		for _, v := range group[2:] {
-			if got := p.ID(kind, v); got != want {
+			if got := mustID(t, p, kind, v); got != want {
 				t.Errorf("ID(%s, %q) = %s, want %s (as %q): Normalise %q vs %q", kind, v, got, want, group[1], Normalise(kind, v), Normalise(kind, group[1]))
 			}
 		}
-		if again := p.ID(kind, group[1]); again != want {
+		if again := mustID(t, p, kind, group[1]); again != want {
 			t.Errorf("ID not stable: %s then %s", want, again)
 		}
 	}
 	// Different values, different kinds: different IDs.
 	ids := map[string]string{}
 	for _, kv := range [][2]string{{"email", "a@example.com"}, {"email", "b@example.com"}, {"phone", "+32475123456"}, {"phone", "+32475123457"}, {"card", "4111111111111111"}, {"be_niss", "4111111111111111"}, {"ip", "192.0.2.1"}, {"ip", "192.0.2.2"}} {
-		id := p.ID(kv[0], kv[1])
+		id := mustID(t, p, kv[0], kv[1])
 		if prev, dup := ids[id]; dup {
 			t.Errorf("ID collision: %v and %s", kv, prev)
 		}
@@ -94,12 +105,12 @@ func TestPseudonymsStableAcrossCalls(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s2.Current().Epoch() != p.Epoch() || s2.Current().ID("email", "jean.dupont@example.com") != p.ID("email", "jean.dupont@example.com") {
+	if s2.Current().Epoch() != p.Epoch() || mustID(t, s2.Current(), "email", "jean.dupont@example.com") != mustID(t, p, "email", "jean.dupont@example.com") {
 		t.Error("a reopened store gives other pseudonyms")
 	}
 	// Another epoch, other IDs.
 	q, _ := NewEpoch(t0)
-	if q.ID("email", "jean.dupont@example.com") == p.ID("email", "jean.dupont@example.com") || q.Epoch() == p.Epoch() {
+	if mustID(t, q, "email", "jean.dupont@example.com") == mustID(t, p, "email", "jean.dupont@example.com") || q.Epoch() == p.Epoch() {
 		t.Error("two epochs give the same pseudonym")
 	}
 }
@@ -111,7 +122,7 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	old := s.Current()
-	oldID := old.ID("email", "a@example.com")
+	oldID := mustID(t, old, "email", "a@example.com")
 	if s.RotationDue(t0.Add(6*24*time.Hour), 7*24*time.Hour) || !s.RotationDue(t0.Add(7*24*time.Hour), 7*24*time.Hour) {
 		t.Error("RotationDue wrong around 7 days")
 	}
@@ -120,11 +131,11 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s.Current() != cur || cur.Epoch() == old.Epoch() || cur.ID("email", "a@example.com") == oldID {
+	if s.Current() != cur || cur.Epoch() == old.Epoch() || mustID(t, cur, "email", "a@example.com") == oldID {
 		t.Fatal("rotation kept the epoch or the pseudonyms")
 	}
 	// The previous epoch is still readable, here and after a reopen.
-	if g, err := s.Get(old.Epoch()); err != nil || g.ID("email", "a@example.com") != oldID {
+	if g, err := s.Get(old.Epoch()); err != nil || mustID(t, g, "email", "a@example.com") != oldID {
 		t.Errorf("Get(previous) = %v, %v", g, err)
 	}
 	s2, err := OpenEpochStore(dir, false, rotated)
@@ -145,8 +156,9 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, old.Epoch()+keyFileSuffix)); !os.IsNotExist(err) {
 		t.Errorf("pruned key file still there: %v", err)
 	}
-	if !bytes.Equal(old.key, make([]byte, KeyLen)) {
-		t.Error("pruned key not cleared from memory")
+	// The pruned epoch is forgotten: no ID with a cleared key.
+	if id, err := old.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) || id != "" || !old.Forgotten() || old.key != nil {
+		t.Errorf("ID after prune = %q, %v (want ErrForgottenEpoch)", id, err)
 	}
 	// The current epoch is never pruned.
 	if gone, _ := s.Prune(rotated.Add(1000*24*time.Hour), time.Nanosecond); len(gone) != 0 || s.Current() != cur {
@@ -256,7 +268,7 @@ func TestPseudonymKeyNeverPrinted(t *testing.T) {
 	j1, _ := json.Marshal(p)
 	j2, _ := json.Marshal(s)
 	j3, _ := json.Marshal(struct{ P *Pseudonymizer }{p})
-	outs := []string{fmt.Sprint(p), fmt.Sprintf("%v %+v %#v %s", p, p, p, p), fmt.Sprintf("%v %+v %#v", s, s, s), string(j1), string(j2), string(j3), fmt.Sprintf("%v", *p)}
+	outs := []string{fmt.Sprint(p), fmt.Sprintf("%v %+v %#v %s", p, p, p, p), fmt.Sprintf("%v %+v %#v", s, s, s), string(j1), string(j2), string(j3)}
 	for _, o := range outs {
 		if strings.Contains(o, raw) || strings.Contains(o, b64) || strings.Contains(o, hexKey) {
 			t.Errorf("key printed: %s", o)
@@ -288,5 +300,39 @@ func TestNewPseudonymizerValidates(t *testing.T) {
 	key[0] = 2
 	if p.key[0] != 1 {
 		t.Error("NewPseudonymizer keeps the caller's slice")
+	}
+}
+
+// ID and forget race: every ID is either the live one or refused, never an
+// ID computed with a cleared key (run with -race).
+func TestPseudonymForgetConcurrent(t *testing.T) {
+	for range 20 {
+		p := fixedPseudonymizer(t)
+		want := mustID(t, p, "email", "a@example.com")
+		zero, _ := NewPseudonymizer("E7Q2M9ZD", t0, make([]byte, KeyLen))
+		zeroID := mustID(t, zero, "email", "a@example.com")
+		var wg sync.WaitGroup
+		errs := make(chan string, 400)
+		for range 4 {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for range 100 {
+					id, err := p.ID("email", "a@example.com")
+					if err == nil && id != want || id == zeroID || err != nil && !errors.Is(err, ErrForgottenEpoch) {
+						errs <- id
+					}
+				}
+			}()
+		}
+		p.forget()
+		wg.Wait()
+		close(errs)
+		for id := range errs {
+			t.Fatalf("ID during forget = %q", id)
+		}
+		if _, err := p.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) {
+			t.Fatalf("ID after forget: %v", err)
+		}
 	}
 }

@@ -133,7 +133,7 @@ func readKeyFile(path, epoch string) (*Pseudonymizer, error) {
 func (s *EpochStore) writeKeyFile(p *Pseudonymizer) error {
 	var b bytes.Buffer
 	b.WriteString(keyFileMagic)
-	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nkey=%s\n", p.epoch, p.created.Format(time.RFC3339), base64.StdEncoding.EncodeToString(p.key))
+	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nkey=%s\n", p.epoch, p.created.Format(time.RFC3339), base64.StdEncoding.EncodeToString(p.key)) // p is new: not shared yet
 	defer func() { clear(b.Bytes()) }()
 	return writeFileAtomic(s.dir, p.epoch+keyFileSuffix, b.Bytes())
 }
