@@ -334,6 +334,13 @@ func findSecretPairs(s string) []span {
 			}
 			v = strings.TrimRight(s[vs:end], " \t")
 		} else {
+			if s[start] == '[' {
+				// A JSON array (Go's http.Header: "X-Api-Key":["v"]): the
+				// whole list, to its closing bracket on the line.
+				end := arrayEnd(s, start)
+				out = append(out, span{start + 1, end})
+				return end
+			}
 			v, vs, _ = pairValue(s, start, false, 0)
 		}
 		scheme := 0
@@ -349,6 +356,30 @@ func findSecretPairs(s string) []span {
 		return start
 	})
 	return out
+}
+
+// arrayEnd returns the offset of the "]" that closes the array opened at
+// s[i] (quoted strings skipped), or the end of the line.
+func arrayEnd(s string, i int) int {
+	var q byte
+	for j := i + 1; j < len(s); j++ {
+		c := s[j]
+		switch {
+		case c == '\n' || c == '\r':
+			return j
+		case q != 0 && c == '\\':
+			j++
+		case q != 0:
+			if c == q {
+				q = 0
+			}
+		case c == '"' || c == '\'':
+			q = c
+		case c == ']':
+			return j
+		}
+	}
+	return len(s)
 }
 
 // closingQuote returns the offset of the quote that closes open (", ' or
@@ -386,6 +417,12 @@ func passCount(s, key string, i int) bool {
 	}
 	// A count only right beside a sibling count pair, within 64 bytes
 	// ("pass=10 fail=0 skip=2"), never a failed-login line.
+	win := strings.ToLower(s[max(0, i-64):min(len(s), j+64)])
+	for _, w := range []string{"user", "login", "auth"} {
+		if strings.Contains(win, w) {
+			return false // a login line: the digits are a password
+		}
+	}
 	return siblingCount.MatchString(s[j:min(len(s), j+64)]) || siblingCount.MatchString(s[max(0, i-64):i])
 }
 

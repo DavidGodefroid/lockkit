@@ -291,24 +291,29 @@ func FuzzSecretMasksAppendedCredential(f *testing.F) {
 func TestSecretReviewBypasses(t *testing.T) {
 	d := detector(t, "secret")
 	for in, leak := range map[string]string{
-		"x: password=hunter2":                                                           "hunter2",
-		"a=password=hunter2":                                                            "hunter2",
-		`msg="password=hunter2"`:                                                        "hunter2",
-		`msg="login ok" password=hunter2`:                                               "hunter2",
-		"key=" + fakeGH:                                                                 fakeGH,
-		"a:" + fakeAWS:                                                                  fakeAWS,
-		"url=/x/" + fakeStripe:                                                          fakeStripe,
-		`--password "s3cr3t value"`:                                                     "s3cr3t",
-		`--token 'tok123'`:                                                              "tok123",
-		`run --name x --password "p w"`:                                                 "p w",
-		`mysql -uroot -p"pass word" shop`:                                               "pass word",
-		`mysql -uroot -p'pa ss' shop`:                                                   "pa ss",
-		`Cookie: a="b"; session=SECRET1`:                                                "SECRET1",
-		`Set-Cookie: x="y"; sid=SECRET1; Path=/`:                                        "SECRET1",
-		"password=    SECRET2":                                                          "SECRET2",
-		"password=\t\t\t\t\tSECRET3":                                                    "SECRET3",
-		"password    =    SECRET4":                                                      "SECRET4",
-		"Bearer Bearer abcdef123456":                                                    "abcdef123456",
+		"x: password=hunter2":                    "hunter2",
+		"a=password=hunter2":                     "hunter2",
+		`msg="password=hunter2"`:                 "hunter2",
+		`msg="login ok" password=hunter2`:        "hunter2",
+		"key=" + fakeGH:                          fakeGH,
+		"a:" + fakeAWS:                           fakeAWS,
+		"url=/x/" + fakeStripe:                   fakeStripe,
+		`--password "s3cr3t value"`:              "s3cr3t",
+		`--token 'tok123'`:                       "tok123",
+		`run --name x --password "p w"`:          "p w",
+		`mysql -uroot -p"pass word" shop`:        "pass word",
+		`mysql -uroot -p'pa ss' shop`:            "pa ss",
+		`Cookie: a="b"; session=SECRET1`:         "SECRET1",
+		`Set-Cookie: x="y"; sid=SECRET1; Path=/`: "SECRET1",
+		"password=    SECRET2":                   "SECRET2",
+		"password=\t\t\t\t\tSECRET3":             "SECRET3",
+		"password    =    SECRET4":               "SECRET4",
+		"Bearer Bearer abcdef123456":             "abcdef123456",
+		`{"headers":{"Accept":["*/*"],"X-Api-Key":["s3cr3tkeyvalue"]}}`:                 "s3cr3tkeyvalue",
+		`{"X-Auth-Token":["tok-12345"]}`:                                                "tok-12345",
+		`{"Authorization":["Bearer s3cr3t"]}`:                                           "s3cr3t",
+		`{"password": [ "hunter2" ]}`:                                                   "hunter2",
+		"login: user=bob pass=1234 status=failed errors=0":                              "1234",
 		"login failed user=admin pass=1234":                                             "1234",
 		"ERROR auth failed: user=bob pass=0000":                                         "0000",
 		"user=admin pass=123456 failures=0":                                             "123456",
@@ -367,7 +372,7 @@ func FuzzSecretPairVariants(f *testing.F) {
 	f.Add(uint8(3), uint8(1), uint8(5), uint8(2), uint8(4), "a=")
 	keys := []string{"password", "client_secret", "api_key", "X-Api-Key", "access_token", "--password", "Authorization", "Cookie", "db_pwd", `\"password\"`, `"token"`, "'secret'"}
 	seps := []string{"=", ":", " = ", ": ", "=\t\t\t\t\t", ":      "}
-	quotes := []string{"", `"`, "'", `\"`}
+	quotes := []string{"", `"`, "'", `\"`, `["`}
 	prefixes := []string{"", " ", "x: ", "a=", `msg="`, "{", ",", "\t", "&", "?", "; ", "k=v "}
 	f.Fuzz(func(t *testing.T, ki, si, qi, pi, ti uint8, pre string) {
 		if len(pre) > 256 || strings.ContainsAny(pre, "\n\r") {
@@ -379,7 +384,11 @@ func FuzzSecretPairVariants(f *testing.F) {
 		if n := len(pre); p == "" && n > 0 && (isAlnum(pre[n-1]) || strings.IndexByte(".-\\", pre[n-1]) >= 0 || unicode.IsLetter(r) || unicode.IsDigit(r)) {
 			p = " " // "xpassword" is another key
 		}
-		in := pre + p + key + sep + q + canary + q + " tail"
+		closeQ := q
+		if q == `["` {
+			closeQ = `"]`
+		}
+		in := pre + p + key + sep + q + canary + closeQ + " tail"
 		out, _ := Detect(in, mustDetectors(t, "secret")).(string)
 		if strings.Contains(out, canary) && !strings.Contains(pre, canary) {
 			t.Errorf("Detect(%q) = %q keeps the canary", in, out)
