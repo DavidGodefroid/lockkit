@@ -90,8 +90,9 @@ type ServerConfig struct {
 	// profile (an X11 session, core dumps that could not be disabled) when
 	// the policy in force becomes production; nil refuses nothing.
 	RefuseProduction func() error
-	// Hub is the console's hub (Run always sets it, HubOptions being
-	// required); nil only in tests of the server itself.
+	// Hub is the console's hub (Run sets it, HubOptions being required);
+	// nil for a policy-only console (Options.PolicyOnly) and in tests of
+	// the server itself.
 	Hub *Hub
 }
 

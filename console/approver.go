@@ -50,6 +50,41 @@ type AsyncApprover interface {
 // AsyncApprover.
 const HubApproval = "hub"
 
+// ErrPolicyOnly refuses a request on a policy-only console
+// (Options.PolicyOnly, PolicyOnlyApprover): it serves its policy and
+// decides no request, which another process's hub decides.
+var ErrPolicyOnly = errors.New("this console serves its policy only and approves no request")
+
+// ErrPolicyOnlyHub refuses a policy-only console given hub options: it
+// has no hub, and a console with both would be ambiguous about who
+// decides its requests.
+var ErrPolicyOnlyHub = fmt.Errorf("%w: a policy-only console takes no hub options (--hub, --hub-key-file, --instance, ...)", ErrConfig)
+
+// PolicyOnlyApprover is the approver of a policy-only console
+// (Options.PolicyOnly): every request (a Decision with a Screen, through
+// Asker.Ask) is refused with ErrPolicyOnly, never asked on the terminal
+// nor approved; the console's own decisions (a policy change, unmask) go
+// to base. Run uses it; a product with its own console lifecycle uses it
+// in place of Hub.Approver.
+func PolicyOnlyApprover(base Approver) AsyncApprover { return policyOnlyApprover{Approver: base} }
+
+type policyOnlyApprover struct{ Approver }
+
+// Approve takes the console's own decisions on base; a request (a
+// Decision with a Screen) that reaches it other than through Submit is
+// denied, never asked.
+func (a policyOnlyApprover) Approve(ctx context.Context, d Decision) Result {
+	if d.Screen != nil {
+		return Result{Outcome: Denied, Err: ErrPolicyOnly}
+	}
+	return a.Approver.Approve(ctx, d)
+}
+
+// Submit refuses d: no ticket, no prompt.
+func (policyOnlyApprover) Submit(context.Context, Decision) (Pending, error) {
+	return Pending{}, ErrPolicyOnly
+}
+
 // Withdrawer is an AsyncApprover that can take back a ticket it submitted:
 // a pending request the console could not record is withdrawn.
 type Withdrawer interface {

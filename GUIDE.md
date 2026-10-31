@@ -182,7 +182,7 @@ separated setup (`ipc.ListenShared(P, path, gid)`, dir 0710/2710, socket
 0660). `ipc.PeerCred` is the kernel's word on who is calling.
 
 ```go
-c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole) names the start command
+c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole): its hint asks the user to run `lox up`
 err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side timeout; ctx cancel closes the connection
 ```
 
@@ -438,7 +438,8 @@ image refuses.
 
 Your `console` command is one call, and it is launched by `lox up` only:
 the hub options are required (see **Hub mode** below; there is no
-standalone console):
+standalone console), unless the console only serves its policy
+(**Policy-only console** below):
 
 ```go
 var hub console.HubOptions
@@ -451,7 +452,7 @@ err := console.Run(ctx, P, backend, console.Options{
 
 `Run` does, in order: the hub options (without `--hub`, `--hub-key-file`
 and `--instance` it refuses with `console.ErrNoHub`, "launched by `lox up`
-only", before anything else), the isolation checks (separated account, session or
+only", before anything else; with `Options.PolicyOnly`, none), the isolation checks (separated account, session or
 desktop shape, X11, relays; refuses before any prompt or file write), core
 dumps off (refused on production if it fails), the policy review (first
 start: describe and approve; since the approved policy: tightenings apply,
@@ -603,11 +604,34 @@ digests recomputed now: the human then
 sees which inputs moved, and an unchanged non-production renewal is one
 click.
 
-**No standalone mode.** A console started without its hub is refused,
-so there is no rollback of hub mode any more. `console.WithdrawStandalone`,
-`console.WithdrawnResp`, `console.StandaloneReason` and `console.Withdrawn`
-are deprecated (kept for a product with its own console lifecycle that
-still calls them) and go in the next minor release.
+**Policy-only console.** A lock whose requests are decided by another
+process (lockhttp: its gate asks lockhub, its console only serves the
+policy to the gate) runs its console with `Options.PolicyOnly`; `lox up`
+starts such a console without hub flags. `Run` then needs no hub, and
+refuses hub options (`console.ErrPolicyOnlyHub`: who decides would be
+ambiguous) and `Options.OnHub`. It opens no hub and no plans store, and
+every request a handler hands to `env.Approve` is refused
+(`console.ErrPolicyOnly`, `ipc.CodeDenied`, audited `refused` with
+reason `policy-only console`): never asked on the terminal, never
+approved. `console.HubOf(env)` is nil. The console's own decisions (its
+policy at start and at a loosening, `:unmask`) are still asked on its
+terminal. A product with its own console lifecycle uses
+`console.PolicyOnlyApprover(base)` in place of `hub.Approver(base)`.
+
+```go
+err := console.Run(ctx, P, backend, console.Options{
+	Profile: profile, IO: term, TTY: os.Stdin, PolicyOnly: true, // no Hub
+})
+```
+
+**No standalone mode.** A console started without its hub (and not
+policy-only) is refused, so there is no rollback of hub mode any more.
+`console.WithdrawStandalone` is inert (it withdraws nothing);
+it, `console.WithdrawnResp`, `console.StandaloneReason` and
+`console.Withdrawn` are deprecated and go in the next minor release.
+With no console started by hand, `client.StartCommand` is `lox up` and
+the `client.NoConsoleError` hint (`client.StartHint`) asks the user to
+run `lox up`, naming no profile or project.
 
 A minimal product:
 

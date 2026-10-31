@@ -133,7 +133,8 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 	return Approval{Refusal: ErrResp(id, ipc.CodeDenied, msg)}
 }
 
-// submit hands d to an asynchronous approver. Whatever the approver
+// submit hands d to an asynchronous approver. A policy-only approver
+// refuses it (ErrPolicyOnly, audited as refused). Whatever another approver
 // answers, the request is pending: a hub that refuses the ticket or cannot
 // be reached never turns into a prompt here. The pending request is passed
 // to record (audit.EventPending, with its ticket).
@@ -142,6 +143,11 @@ func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncAppro
 	if p.Ticket == "" {
 		if err == nil {
 			err = errors.New("no ticket")
+		}
+		if errors.Is(err, ErrPolicyOnly) {
+			record(audit.Base{Event: audit.EventRefused, Decision: "refused", Reason: "policy-only console", Error: err.Error()})
+			a.IO.Println(Paint.Paint(frame, "╰─ ") + Paint.Fail("refused: "+err.Error()))
+			return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "refused: this console serves its policy only and approves no request; do not retry")}
 		}
 		a.IO.Println(Paint.Fail("not submitted: " + sanitize.Terminal(err.Error(), false)))
 		if errors.Is(err, hubclient.ErrRateLimited) {
