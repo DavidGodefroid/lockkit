@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -34,10 +36,13 @@ const keyFileMagic = "lockkit pseudonym epoch v1\n"
 // an epoch is replaced when a newer one is created, and its key is deleted
 // by Prune once it has been replaced for long enough (references minted
 // under it can be re-read until then). A corrupt or exposed key file
-// refuses the store: nothing is repaired silently. It is safe for
-// concurrent use within one process.
+// refuses the store: nothing is repaired silently. Epochs are ordered by
+// a sequence number, not by the clock. The store locks its directory
+// (one process at a time; Close releases it) and is safe for concurrent
+// use within that process.
 type EpochStore struct {
-	dir string
+	dir  string
+	lock io.Closer // the directory's lock, held until Close
 
 	mu     sync.Mutex
 	epochs []*Pseudonymizer // oldest first; the last is current
@@ -56,15 +61,31 @@ func OpenEpochStore(dir string, create bool, now time.Time) (*EpochStore, error)
 	if err := checkPrivate(dir, true); err != nil {
 		return nil, err
 	}
+	lock, err := lockDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	s.lock = lock
+	ok := false
+	defer func() {
+		if !ok {
+			lock.Close()
+		}
+	}()
 	names, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("pii: epoch store: %w", err)
 	}
 	for _, e := range names {
 		name := e.Name()
-		epoch, ok := strings.CutSuffix(name, keyFileSuffix)
-		if !ok || !validEpochID(epoch) {
-			continue // temporary or foreign file
+		if strings.HasPrefix(name, ".tmp-") {
+			// A write that crashed before its rename: it may hold a key.
+			os.Remove(filepath.Join(dir, name))
+			continue
+		}
+		epoch, isKey := strings.CutSuffix(name, keyFileSuffix)
+		if !isKey || !validEpochID(epoch) {
+			continue // a foreign file
 		}
 		p, err := readKeyFile(filepath.Join(dir, name), epoch)
 		if err != nil {
@@ -72,7 +93,12 @@ func OpenEpochStore(dir string, create bool, now time.Time) (*EpochStore, error)
 		}
 		s.epochs = append(s.epochs, p)
 	}
-	sort.SliceStable(s.epochs, func(i, j int) bool { return s.epochs[i].created.Before(s.epochs[j].created) })
+	sort.Slice(s.epochs, func(i, j int) bool { return s.epochs[i].seq < s.epochs[j].seq })
+	for i := 1; i < len(s.epochs); i++ {
+		if s.epochs[i].seq == s.epochs[i-1].seq {
+			return nil, fmt.Errorf("pii: epochs %s and %s have the same sequence number", s.epochs[i-1].epoch, s.epochs[i].epoch)
+		}
+	}
 	if len(s.epochs) == 0 {
 		if !create {
 			return nil, ErrNoEpoch
@@ -81,6 +107,7 @@ func OpenEpochStore(dir string, create bool, now time.Time) (*EpochStore, error)
 			return nil, err
 		}
 	}
+	ok = true
 	return s, nil
 }
 
@@ -98,7 +125,7 @@ func readKeyFile(path, epoch string) (*Pseudonymizer, error) {
 	if !ok {
 		return nil, bad
 	}
-	var gotEpoch, created, key []byte
+	var gotEpoch, created, seq, key []byte
 	for _, line := range bytes.Split(bytes.TrimSuffix(rest, []byte("\n")), []byte("\n")) {
 		k, v, ok := bytes.Cut(line, []byte("="))
 		switch {
@@ -108,6 +135,8 @@ func readKeyFile(path, epoch string) (*Pseudonymizer, error) {
 			gotEpoch = v
 		case string(k) == "created" && created == nil:
 			created = v
+		case string(k) == "seq" && seq == nil:
+			seq = v
 		case string(k) == "key" && key == nil:
 			key = v
 		default:
@@ -121,19 +150,30 @@ func readKeyFile(path, epoch string) (*Pseudonymizer, error) {
 	if err != nil {
 		return nil, bad
 	}
+	n64, err := strconv.ParseUint(string(seq), 10, 64)
+	if err != nil || n64 == 0 {
+		return nil, bad
+	}
 	raw := make([]byte, base64.StdEncoding.DecodedLen(len(key)))
 	n, err := base64.StdEncoding.Decode(raw, key)
 	defer clear(raw)
 	if err != nil || n != KeyLen {
 		return nil, bad
 	}
-	return NewPseudonymizer(epoch, t, raw[:n])
+	p, err := NewPseudonymizer(epoch, t, raw[:n])
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", bad, err)
+	}
+	p.seq = n64
+	return p, nil
 }
 
 func (s *EpochStore) writeKeyFile(p *Pseudonymizer) error {
 	var b bytes.Buffer
 	b.WriteString(keyFileMagic)
-	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nkey=%s\n", p.epoch, p.created.Format(time.RFC3339), base64.StdEncoding.EncodeToString(p.key)) // p is new: not shared yet
+	key := p.keyBytes()
+	defer clear(key)
+	fmt.Fprintf(&b, "epoch=%s\ncreated=%s\nseq=%d\nkey=%s\n", p.epoch, p.created.Format(time.RFC3339), p.seq, base64.StdEncoding.EncodeToString(key))
 	defer func() { clear(b.Bytes()) }()
 	return writeFileAtomic(s.dir, p.epoch+keyFileSuffix, b.Bytes())
 }
@@ -183,10 +223,9 @@ func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 			break
 		}
 	}
-	if n := len(s.epochs); n > 0 && !p.created.After(s.epochs[n-1].created) {
-		// Keep the order by creation time even when the clock went back or
-		// two rotations fall in the same second.
-		p.created = s.epochs[n-1].created.Add(time.Second)
+	p.seq = 1
+	if n := len(s.epochs); n > 0 {
+		p.seq = s.epochs[n-1].seq + 1
 	}
 	if err := s.writeKeyFile(p); err != nil {
 		return nil, err
@@ -204,9 +243,16 @@ func (s *EpochStore) has(epoch string) bool {
 	return false
 }
 
-// RotationDue reports whether the current epoch began at least every ago.
+// ClockSkew is how far in the future an epoch's creation time may be
+// before the store treats it as wrong (a clock that was ahead).
+const ClockSkew = time.Hour
+
+// RotationDue reports whether the current epoch began at least every ago,
+// or claims to begin more than ClockSkew in the future (a clock that was
+// ahead must not keep an epoch alive).
 func (s *EpochStore) RotationDue(now time.Time, every time.Duration) bool {
-	return now.Sub(s.Current().created) >= every
+	c := s.Current().created
+	return now.Sub(c) >= every || c.After(now.Add(ClockSkew))
 }
 
 // Prune deletes the keys of the epochs replaced at least keep ago (an
@@ -218,7 +264,7 @@ func (s *EpochStore) Prune(now time.Time, keep time.Duration) ([]string, error) 
 	var gone []string
 	kept := s.epochs[:0]
 	for i, p := range s.epochs {
-		if i < len(s.epochs)-1 && now.Sub(s.epochs[i+1].created) >= keep {
+		if i < len(s.epochs)-1 && replacedLongAgo(now, s.epochs[i+1].created, keep) {
 			if err := os.Remove(filepath.Join(s.dir, p.epoch+keyFileSuffix)); err != nil && !errors.Is(err, os.ErrNotExist) {
 				s.epochs = append(kept, s.epochs[i:]...)
 				return gone, fmt.Errorf("pii: delete epoch %s: %w", p.epoch, err)
@@ -230,10 +276,34 @@ func (s *EpochStore) Prune(now time.Time, keep time.Duration) ([]string, error) 
 		kept = append(kept, p)
 	}
 	s.epochs = kept
+	if names, err := os.ReadDir(s.dir); err == nil {
+		for _, e := range names {
+			if strings.HasPrefix(e.Name(), ".tmp-") {
+				os.Remove(filepath.Join(s.dir, e.Name()))
+			}
+		}
+	}
 	if len(gone) > 0 {
 		syncDir(s.dir)
 	}
 	return gone, nil
+}
+
+// replacedLongAgo reports whether an epoch replaced at replaced (its
+// successor's creation) was replaced keep ago, a time in the future
+// (a clock that was ahead) counting as long ago.
+func replacedLongAgo(now, replaced time.Time, keep time.Duration) bool {
+	return now.Sub(replaced) >= keep || replaced.After(now.Add(ClockSkew))
+}
+
+// Close releases the directory's lock. The epochs stay usable in memory.
+func (s *EpochStore) Close() error {
+	if s.lock == nil {
+		return nil
+	}
+	err := s.lock.Close()
+	s.lock = nil
+	return err
 }
 
 // String shows the directory and the epochs, never a key.

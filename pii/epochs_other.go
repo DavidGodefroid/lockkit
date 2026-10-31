@@ -32,3 +32,10 @@ func readNoFollow(path string) ([]byte, error) {
 	defer f.Close()
 	return io.ReadAll(io.LimitReader(f, 4096))
 }
+
+type noLock struct{}
+
+func (noLock) Close() error { return nil }
+
+// lockDir does not lock on this platform: one process per store.
+func lockDir(string) (io.Closer, error) { return noLock{}, nil }

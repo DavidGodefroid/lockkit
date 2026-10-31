@@ -231,21 +231,26 @@ bastion reaches; no local port is ever opened.
     unscanned rest is one more match of kind `pii.CutKind`: the matches
     are always safe to apply to `s` itself.
 - Keyed pseudonyms: `p.ID(kind, value)` is 12 characters of Crockford
-  base32 (60 bits) of `HMAC-SHA256(key, kind || 0 || pii.Normalise(kind,
-  value))`, stable within one epoch. `Normalise` folds spellings of one
-  value together: the detection view (or the decoding that is a whole
-  value of the kind), then lower-case email, phone digits with `+` for
-  international numbers (`00` → `+`), compact upper-case IBAN, digits of
+  base32 (60 bits) of `HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0 ||
+  kind || 0 || pii.Normalise(kind, value))`, stable within one epoch; a
+  kind is 1 to 32 of `[a-z0-9_]` (`ErrInvalidKind`). `Normalise` folds
+  spellings of one value together: the detection view (or the decoding
+  that is a whole value of the kind), then lower-case email (the local
+  part too), phone digits with `+` for international numbers (`00`, `+00`
+  → `+`, `+32 (0)475` → `+32475`), compact upper-case IBAN, digits of
   cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
   with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
   in a private directory (0700, owned by the process user; anything else,
-  a symbolic link or a corrupt file refuses the store); `Current()`,
-  `Get(epoch)` for a reference minted earlier, `Rotate(now)`,
-  `RotationDue(now, every)`, `Prune(now, keep)` deletes keys replaced
-  `keep` ago. `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither
-  type prints or marshals its key. Do not show the ID without the kind it
-  was taken for. `ID` returns `ErrForgottenEpoch` once `Prune` deleted
-  the epoch's key (never an ID from a cleared key): redact the value then.
+  a symbolic link, a corrupt file or an all-zero key refuses the store),
+  ordered by a sequence number, the directory locked for one process
+  until `Close`. `Current()`, `Get(epoch)` for a reference minted earlier,
+  `Rotate(now)`, `RotationDue(now, every)` (also true for an epoch
+  created more than `ClockSkew` in the future), `Prune(now, keep)`
+  deletes keys replaced `keep` ago and leftover temporary files.
+  `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
+  prints or marshals its key. `ID` returns `ErrForgottenEpoch` once
+  `Prune` deleted the key, through every copy of the value: redact the
+  value then. Do not show an ID without the kind it was taken for.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in

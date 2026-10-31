@@ -60,7 +60,7 @@ func TestPseudonymGolden(t *testing.T) {
 }
 
 // goldenEmailID was computed independently (Python hmac + Crockford).
-const goldenEmailID = "BJYSN2C98Y4R"
+const goldenEmailID = "MMEHXXJMBQJ0"
 
 func TestPseudonymsStableAcrossCalls(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "epochs")
@@ -101,6 +101,7 @@ func TestPseudonymsStableAcrossCalls(t *testing.T) {
 		ids[id] = fmt.Sprint(kv)
 	}
 	// A reopened store gives the same IDs.
+	s.Close()
 	s2, err := OpenEpochStore(dir, false, t0.Add(time.Hour))
 	if err != nil {
 		t.Fatal(err)
@@ -138,10 +139,12 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 	if g, err := s.Get(old.Epoch()); err != nil || mustID(t, g, "email", "a@example.com") != oldID {
 		t.Errorf("Get(previous) = %v, %v", g, err)
 	}
+	s.Close()
 	s2, err := OpenEpochStore(dir, false, rotated)
 	if err != nil || s2.Current().Epoch() != cur.Epoch() || len(s2.Epochs()) != 2 {
 		t.Fatalf("reopen after rotation: %v, %v", s2, err)
 	}
+	s2.Close()
 	// Not yet 24 h: nothing pruned.
 	if gone, err := s.Prune(rotated.Add(23*time.Hour), 24*time.Hour); err != nil || len(gone) != 0 {
 		t.Errorf("Prune before 24 h = %v, %v", gone, err)
@@ -157,7 +160,7 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 		t.Errorf("pruned key file still there: %v", err)
 	}
 	// The pruned epoch is forgotten: no ID with a cleared key.
-	if id, err := old.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) || id != "" || !old.Forgotten() || old.key != nil {
+	if id, err := old.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) || id != "" || !old.Forgotten() || old.key.b != nil {
 		t.Errorf("ID after prune = %q, %v (want ErrForgottenEpoch)", id, err)
 	}
 	// The current epoch is never pruned.
@@ -165,16 +168,21 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 		t.Errorf("Prune deleted the current epoch: %v", gone)
 	}
 	s3, err := OpenEpochStore(dir, false, rotated.Add(25*time.Hour))
+	if s3 != nil {
+		defer s3.Close()
+	}
 	if err != nil || len(s3.Epochs()) != 1 {
 		t.Errorf("reopen after prune: %v, %v", s3, err)
 	}
 	// Rotations in the same second keep their order.
 	a, _ := s.Rotate(rotated)
 	b, _ := s.Rotate(rotated)
-	if s.Current() != b || !b.Created().After(a.Created()) {
+	if s.Current() != b || b.seq != a.seq+1 {
 		t.Error("same-second rotations out of order")
 	}
+	s3.Close()
 	s4, _ := OpenEpochStore(dir, false, rotated)
+	defer s4.Close()
 	if s4.Current().Epoch() != b.Epoch() {
 		t.Error("reopen picked another current epoch")
 	}
@@ -195,6 +203,7 @@ func TestEpochStoreRefusals(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		s.Close()
 		return dir, filepath.Join(dir, s.Current().Epoch()+keyFileSuffix)
 	}
 	corrupt := map[string]func(string) []byte{
@@ -262,15 +271,18 @@ func TestPseudonymKeyNeverPrinted(t *testing.T) {
 		t.Fatal(err)
 	}
 	p := s.Current()
-	raw := string(p.key)
+	raw := string(p.key.b)
 	b64 := strings.TrimSuffix(strings.SplitAfter(mustRead(t, filepath.Join(dir, p.Epoch()+keyFileSuffix)), "key=")[1], "\n")
-	hexKey := fmt.Sprintf("%x", p.key)
+	hexKey := fmt.Sprintf("%x", p.key.b)
+	decimal := strings.Trim(fmt.Sprint(p.key.b), "[]")
+	held := struct{ P Pseudonymizer }{*p} // a value copy, as a careless caller would hold it
 	j1, _ := json.Marshal(p)
 	j2, _ := json.Marshal(s)
 	j3, _ := json.Marshal(struct{ P *Pseudonymizer }{p})
 	outs := []string{fmt.Sprint(p), fmt.Sprintf("%v %+v %#v %s", p, p, p, p), fmt.Sprintf("%v %+v %#v", s, s, s), string(j1), string(j2), string(j3)}
+	outs = append(outs, fmt.Sprintf("%v %+v %#v", held, held, held), fmt.Sprint(*p))
 	for _, o := range outs {
-		if strings.Contains(o, raw) || strings.Contains(o, b64) || strings.Contains(o, hexKey) {
+		if strings.Contains(o, raw) || strings.Contains(o, b64) || strings.Contains(o, hexKey) || strings.Contains(o, decimal) {
 			t.Errorf("key printed: %s", o)
 		}
 	}
@@ -298,7 +310,7 @@ func TestNewPseudonymizerValidates(t *testing.T) {
 	key := bytes.Repeat([]byte{1}, KeyLen)
 	p, _ := NewPseudonymizer("E7Q2M9ZD", t0, key)
 	key[0] = 2
-	if p.key[0] != 1 {
+	if p.key.b[0] != 1 {
 		t.Error("NewPseudonymizer keeps the caller's slice")
 	}
 }
@@ -309,8 +321,6 @@ func TestPseudonymForgetConcurrent(t *testing.T) {
 	for range 20 {
 		p := fixedPseudonymizer(t)
 		want := mustID(t, p, "email", "a@example.com")
-		zero, _ := NewPseudonymizer("E7Q2M9ZD", t0, make([]byte, KeyLen))
-		zeroID := mustID(t, zero, "email", "a@example.com")
 		var wg sync.WaitGroup
 		errs := make(chan string, 400)
 		for range 4 {
@@ -319,7 +329,7 @@ func TestPseudonymForgetConcurrent(t *testing.T) {
 				defer wg.Done()
 				for range 100 {
 					id, err := p.ID("email", "a@example.com")
-					if err == nil && id != want || id == zeroID || err != nil && !errors.Is(err, ErrForgottenEpoch) {
+					if err == nil && id != want || err != nil && (id != "" || !errors.Is(err, ErrForgottenEpoch)) {
 						errs <- id
 					}
 				}
@@ -334,5 +344,119 @@ func TestPseudonymForgetConcurrent(t *testing.T) {
 		if _, err := p.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) {
 			t.Fatalf("ID after forget: %v", err)
 		}
+	}
+}
+
+// A copy of a Pseudonymizer taken before Prune is forgotten with it: no
+// ID from a cleared key, through any copy.
+func TestPseudonymCopyForgotten(t *testing.T) {
+	p := fixedPseudonymizer(t)
+	cp := *p
+	p.forget()
+	if _, err := cp.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) {
+		t.Errorf("copy ID after forget: %v", err)
+	}
+	var zero Pseudonymizer
+	if _, err := zero.ID("email", "a@example.com"); !errors.Is(err, ErrForgottenEpoch) {
+		t.Errorf("zero Pseudonymizer ID: %v", err)
+	}
+}
+
+func TestPseudonymZeroKeyRefused(t *testing.T) {
+	if _, err := NewPseudonymizer("E7Q2M9ZD", t0, make([]byte, KeyLen)); err == nil {
+		t.Error("all-zero key accepted")
+	}
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, _ := OpenEpochStore(dir, true, t0)
+	file := filepath.Join(dir, s.Current().Epoch()+keyFileSuffix)
+	s.Close()
+	b, _ := os.ReadFile(file)
+	k := strings.Index(string(b), "key=")
+	os.WriteFile(file, []byte(string(b[:k])+"key="+strings.Repeat("A", 43)+"=\n"), 0o600)
+	if _, err := OpenEpochStore(dir, false, t0); err == nil {
+		t.Error("a key file with an all-zero key accepted")
+	}
+}
+
+// Kinds are 1 to 32 of [a-z0-9_]: a NUL cannot shift bytes between kind
+// and value.
+func TestPseudonymKindValidated(t *testing.T) {
+	p := fixedPseudonymizer(t)
+	for _, k := range []string{"", "x\x00y", "Email", "e-mail", strings.Repeat("a", 33), "⟦x⟧"} {
+		if _, err := p.ID(k, "z"); !errors.Is(err, ErrInvalidKind) {
+			t.Errorf("ID(%q) = %v, want ErrInvalidKind", k, err)
+		}
+	}
+	if _, err := p.ID("person_name", "x"); err != nil {
+		t.Error(err)
+	}
+}
+
+// A clock that was ahead neither keeps an epoch alive nor keeps an old
+// key past its time.
+func TestEpochClockAhead(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "epochs")
+	future := t0.Add(365 * 24 * time.Hour)
+	s, err := OpenEpochStore(dir, true, future)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	old := s.Current()
+	if !s.RotationDue(t0, 7*24*time.Hour) {
+		t.Error("an epoch created in the future is not due for rotation")
+	}
+	cur, _ := s.Rotate(t0)
+	if s.Current() != cur || !cur.Created().Equal(t0) {
+		t.Errorf("rotation chained off the future: %v", cur.Created())
+	}
+	if gone, _ := s.Prune(t0.Add(25*time.Hour), 24*time.Hour); len(gone) != 1 || gone[0] != old.Epoch() {
+		t.Errorf("Prune = %v, want the future epoch deleted", gone)
+	}
+	s.Close()
+	s2, err := OpenEpochStore(dir, false, t0)
+	if err != nil || s2.Current().Epoch() != cur.Epoch() {
+		t.Errorf("reopen: %v", err)
+	}
+	s2.Close()
+}
+
+// Leftover temporary files (a crash before a rename) are removed; a
+// second store on the same directory is refused while the first is open.
+func TestEpochStoreTempFilesAndLock(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, _ := OpenEpochStore(dir, true, t0)
+	tmp := filepath.Join(dir, ".tmp-ABCDEFGH.key-123")
+	os.WriteFile(tmp, []byte("key material"), 0o600)
+	if runtime.GOOS != "windows" {
+		if _, err := OpenEpochStore(dir, false, t0); err == nil {
+			t.Error("a second store on a locked directory opened")
+		}
+	}
+	s.Prune(t0, time.Hour)
+	if _, err := os.Stat(tmp); !os.IsNotExist(err) {
+		t.Error("Prune left a temporary key file")
+	}
+	os.WriteFile(tmp, []byte("key material"), 0o600)
+	s.Close()
+	s2, err := OpenEpochStore(dir, false, t0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s2.Close()
+	if _, err := os.Stat(tmp); !os.IsNotExist(err) {
+		t.Error("open left a temporary key file")
+	}
+}
+
+func TestNormalisePhoneTrunk(t *testing.T) {
+	for in, want := range map[string]string{"+32 (0)475 12 34 56": "+32475123456", "+0032475123456": "+32475123456", "0032 475 12 34 56": "+32475123456"} {
+		if got := Normalise("phone", in); got != want {
+			t.Errorf("Normalise(phone, %q) = %q, want %q", in, got, want)
+		}
+	}
+	long := strings.Repeat("a", DetectLimit) + "x"
+	if Normalise("person_name", long) == Normalise("person_name", strings.Repeat("a", DetectLimit)+"y") {
+		t.Error("long values sharing a prefix normalise alike")
 	}
 }

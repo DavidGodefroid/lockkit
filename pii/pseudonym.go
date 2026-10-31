@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -37,9 +38,37 @@ const crockford = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 type Pseudonymizer struct {
 	epoch   string
 	created time.Time
+	seq     uint64 // order in an EpochStore
+	// key is shared by every copy of the value, so forgetting it reaches
+	// them all; fmt prints a nested pointer as an address.
+	key *epochKey
+}
 
-	mu  sync.RWMutex
-	key []byte // nil once forgotten
+// epochKey is an epoch's key; b is nil once forgotten.
+type epochKey struct {
+	mu sync.RWMutex
+	b  []byte
+}
+
+// ErrInvalidKind is the error of ID on a kind that is not 1 to 32 of
+// [a-z0-9_].
+var ErrInvalidKind = errors.New("pii: invalid pseudonym kind")
+
+// idLabel separates this scheme's input from any other use of a key.
+const idLabel = "lockkit-pseudonym-v1\x00"
+
+// ValidKind reports whether kind may name a pseudonym's kind: 1 to 32
+// characters of [a-z0-9_].
+func ValidKind(kind string) bool {
+	if kind == "" || len(kind) > 32 {
+		return false
+	}
+	for i := 0; i < len(kind); i++ {
+		if c := kind[i]; !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_') {
+			return false
+		}
+	}
+	return true
 }
 
 // ErrForgottenEpoch is the error of ID on an epoch whose key was deleted
@@ -58,7 +87,7 @@ func NewEpoch(now time.Time) (*Pseudonymizer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Pseudonymizer{epoch: id, created: now.UTC().Truncate(time.Second), key: key}, nil
+	return &Pseudonymizer{epoch: id, created: now.UTC().Truncate(time.Second), key: &epochKey{b: key}}, nil
 }
 
 // NewPseudonymizer returns the Pseudonymizer of an existing epoch: its id
@@ -71,7 +100,10 @@ func NewPseudonymizer(epoch string, created time.Time, key []byte) (*Pseudonymiz
 	if len(key) != KeyLen {
 		return nil, errors.New("pii: an epoch key is 32 bytes")
 	}
-	return &Pseudonymizer{epoch: epoch, created: created.UTC(), key: append([]byte(nil), key...)}, nil
+	if subtle.ConstantTimeCompare(key, make([]byte, KeyLen)) == 1 {
+		return nil, errors.New("pii: an all-zero epoch key")
+	}
+	return &Pseudonymizer{epoch: epoch, created: created.UTC(), key: &epochKey{b: append([]byte(nil), key...)}}, nil
 }
 
 func randomEpochID() (string, error) {
@@ -85,17 +117,7 @@ func randomEpochID() (string, error) {
 	return string(b[:]), nil
 }
 
-func validEpochID(s string) bool {
-	if len(s) != EpochLen {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		if strings.IndexByte(crockford, s[i]) < 0 {
-			return false
-		}
-	}
-	return true
-}
+func validEpochID(s string) bool { return len(s) == EpochLen && crockfordOnly(s) }
 
 // Epoch returns the epoch id: random, it says nothing about the key.
 func (p *Pseudonymizer) Epoch() string { return p.epoch }
@@ -105,18 +127,26 @@ func (p *Pseudonymizer) Created() time.Time { return p.created }
 
 // ID returns the pseudonym of value as a value of kind (a detector name:
 // "email", "phone", ...): the first PseudonymLen characters of the
-// Crockford base32 of HMAC-SHA256(key, kind || 0x00 || Normalise(kind,
-// value)). Different kinds give different IDs for the same text. Once the
+// Crockford base32 of HMAC-SHA256(key, "lockkit-pseudonym-v1" || 0x00 ||
+// kind || 0x00 || Normalise(kind, value)); kind is 1 to 32 of [a-z0-9_]
+// (ErrInvalidKind otherwise). Different kinds give different IDs for the same text. Once the
 // epoch's key was deleted (EpochStore.Prune), ID fails with
 // ErrForgottenEpoch and never computes an ID: the caller redacts the value.
 func (p *Pseudonymizer) ID(kind, value string) (string, error) {
+	if !ValidKind(kind) {
+		return "", ErrInvalidKind
+	}
 	norm := Normalise(kind, value)
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	if len(p.key) != KeyLen {
+	if p == nil || p.key == nil {
 		return "", ErrForgottenEpoch
 	}
-	m := hmac.New(sha256.New, p.key)
+	p.key.mu.RLock()
+	defer p.key.mu.RUnlock()
+	if len(p.key.b) != KeyLen {
+		return "", ErrForgottenEpoch
+	}
+	m := hmac.New(sha256.New, p.key.b)
+	m.Write([]byte(idLabel))
 	m.Write([]byte(kind))
 	m.Write([]byte{0})
 	m.Write([]byte(norm))
@@ -125,9 +155,12 @@ func (p *Pseudonymizer) ID(kind, value string) (string, error) {
 
 // Forgotten reports whether the epoch's key was deleted.
 func (p *Pseudonymizer) Forgotten() bool {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return len(p.key) != KeyLen
+	if p == nil || p.key == nil {
+		return true
+	}
+	p.key.mu.RLock()
+	defer p.key.mu.RUnlock()
+	return len(p.key.b) != KeyLen
 }
 
 // encodeID writes the first 60 bits of sum in Crockford base32.
@@ -142,10 +175,9 @@ func encodeID(sum []byte) string {
 }
 
 // ValidID reports whether s has the form of a pseudonym ID.
-func ValidID(s string) bool {
-	if len(s) != PseudonymLen {
-		return false
-	}
+func ValidID(s string) bool { return len(s) == PseudonymLen && crockfordOnly(s) }
+
+func crockfordOnly(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if strings.IndexByte(crockford, s[i]) < 0 {
 			return false
@@ -172,10 +204,18 @@ func (p *Pseudonymizer) MarshalJSON() ([]byte, error) {
 // copied it).
 // ID fails from then on.
 func (p *Pseudonymizer) forget() {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	clear(p.key)
-	p.key = nil
+	p.key.mu.Lock()
+	defer p.key.mu.Unlock()
+	clear(p.key.b)
+	p.key.b = nil
+}
+
+// keyBytes returns a copy of the key for the store's file, nil once
+// forgotten.
+func (p *Pseudonymizer) keyBytes() []byte {
+	p.key.mu.RLock()
+	defer p.key.mu.RUnlock()
+	return append([]byte(nil), p.key.b...)
 }
 
 // Normalise returns the form of value whose pseudonym is taken, so that
@@ -192,13 +232,23 @@ func (p *Pseudonymizer) forget() {
 //     one; zones dropped);
 //   - other kinds: the detection view with surrounding blanks trimmed.
 func Normalise(kind, value string) string {
+	if len(value) > DetectLimit {
+		return value // past what views cover: the value itself, whole
+	}
 	v := wholeValueView(kind, value)
 	switch kind {
 	case "email":
 		return strings.ToLower(strings.TrimSpace(v))
 	case "phone", "phone_loose":
-		d := digitsOf(v)
-		switch t := strings.TrimLeft(v, " ("); {
+		t := strings.TrimLeft(v, " (")
+		if strings.HasPrefix(t, "+") {
+			// "+32 (0)475...": the trunk 0 is not dialled from abroad.
+			t = strings.Replace(t, "(0)", "", 1)
+		}
+		d := digitsOf(t)
+		switch {
+		case strings.HasPrefix(t, "+") && strings.HasPrefix(d, "00"):
+			return "+" + d[2:]
 		case strings.HasPrefix(t, "+"):
 			return "+" + d
 		case strings.HasPrefix(d, "00"):
