@@ -85,8 +85,12 @@ func auditRecords(t *testing.T, state string) []map[string]any {
 // A policy-only console starts without any hub option: its policy is
 // reviewed on its terminal, it listens, and a request a handler hands to
 // Env.Approve is refused, never asked here nor approved, though the
-// terminal would answer y. No hub state is written.
+// terminal would answer y. No hub client is opened: no hub state, no
+// instance key in the home.
 func TestRunPolicyOnlyStartsWithoutHubAndApprovesNoRequest(t *testing.T) {
+	// The home, where OpenHub would make the instance key: left empty.
+	home := t.TempDir()
+	t.Setenv("HOME", home)
 	b := &fakeBackend{policy: uat()}
 	io := &fakeIO{answers: []string{"y", "y", "y", "y"}, secrets: []string{"s3cret"}}
 	state := t.TempDir()
@@ -125,6 +129,9 @@ func TestRunPolicyOnlyStartsWithoutHubAndApprovesNoRequest(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(state, testProduct.Name, "hub")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("hub state written: %v", err)
+	}
+	if entries, _ := os.ReadDir(home); len(entries) != 0 {
+		t.Fatalf("home written (no hub client, no instance key): %v", entries)
 	}
 }
 
