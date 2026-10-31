@@ -273,7 +273,7 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}\pL[\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}[A-Za-z][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span

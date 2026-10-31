@@ -52,9 +52,11 @@ var detectorFinders = map[string]func(string) []span{
 // secret (credentials, tokens and private keys, masked as Redacted).
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
-	for _, n := range names {
+	for i, n := range names {
 		if _, ok := detectorFinders[n]; !ok {
-			return nil, fmt.Errorf("pii: unknown detector %q (known: %s)", n, strings.Join(detectorOrder, ", "))
+			// The name is not echoed: a value pasted in the wrong key
+			// may be a secret.
+			return nil, fmt.Errorf("pii: unknown detector (entry %d; known: %s)", i+1, strings.Join(detectorOrder, ", "))
 		}
 		want[n] = true
 	}
