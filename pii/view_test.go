@@ -603,6 +603,17 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 		"mail jean&#6\xff4;example.com",
 		"mail jean\\u00\xff40example.com",
 		"mail jean%4%ff0example.com",
+		"x \x1b]0;4111 1111\x1b[1m 1111 1111\x07 y",
+		"x \x1b]0;BE68 5390\x1b[1m 0754 7034\x07 y",
+		"x \x1b_ 4111111111\x1b[m111111\x07 y",
+		"title \x1b]2; started; log: card 4111 1111\x1b[0m 1111 1111 done \x1b\\",
+		"x %1b]0;4111111111%1b[1m111111%07 y",
+		`{"m":"\u001b]0;jean.dupont\u001b[1m@example.com\u0007"}`,
+		"x 4111111111\x1b[1\x07m111111 y",
+		"x BE68539007\x1b[0\x07m547034 y",
+		"x jean.dupont\x1b[\x071m@example.com y",
+		"x 4111111111\x1b[1\x18111111 y",
+		"x 4111111111\x1b[1\nm111111 y",
 		"card 4111 1111\x1b[3\u200b1m 1111 1111",
 		"mail jean%4\x1b[m0example.com",
 		"mail jean\\x4\x1b[m0example.com",
@@ -624,4 +635,44 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 			}
 		}
 	}
+}
+
+// Differential: any run of invisible terminal units (sequences a terminal
+// executes without showing anything), raw or escaped, inside a value
+// never leaves it readable.
+func FuzzFindValueSplitByTerminal(f *testing.F) {
+	f.Add([]byte{0, 1, 2}, uint8(0), uint8(3), uint8(0))
+	f.Add([]byte{5, 9}, uint8(2), uint8(8), uint8(1))
+	units := []string{"\x1b[1m", "\x1b[0;31m", "\x1b[1\x07m", "\x1b]0;t\x07", "\x1b]0;t\x1b\\", "\x1b(B", "\x1b7", "​", "\u009b1m", "\x1b[1\x18", "\x9b1m", "\x1b[m", "\x1b[38;5;196m"}
+	ds := AllDetectors()
+	f.Fuzz(func(t *testing.T, picks []byte, k, at, enc uint8) {
+		if len(picks) == 0 || len(picks) > 8 {
+			return
+		}
+		v := []string{"jean.dupont@example.com", "BE68539007547034", "4111111111111111", "+32475123456"}[int(k)%4]
+		p := 1 + int(at)%(len(v)-1)
+		var mid strings.Builder
+		for _, b := range picks {
+			mid.WriteString(units[int(b)%len(units)])
+		}
+		m := mid.String()
+		switch enc % 3 {
+		case 1:
+			if !utf8.ValidString(m) {
+				return
+			}
+			m = strings.NewReplacer(`\`, `\\`, "\x1b", `\u001b`, "\x07", `\u0007`, "\x18", `\u0018`).Replace(m)
+		case 2:
+			m = strings.ReplaceAll(strings.ReplaceAll(m, "\x1b", "%1b"), "\x07", "%07")
+		}
+		in := `{"log":"to ` + v[:p] + m + v[p:] + ` now"}`
+		start := strings.Index(in, v[:p])
+		end := strings.LastIndex(in, v[p:]) + len(v[p:])
+		for _, mt := range FindInViews(in, ds) {
+			if mt.Start <= start && end <= mt.End {
+				return
+			}
+		}
+		t.Fatalf("FindInViews(%q) leaves %q", in, v)
+	})
 }

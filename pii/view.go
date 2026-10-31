@@ -123,11 +123,24 @@ func ansiView(s string) (View, bool) {
 	if !mayHaveTerminal(s) {
 		return View{}, false
 	}
-	a, ok := stripANSI(s)
+	a, ok := stripANSI(s, false)
 	if !ok {
 		return View{}, false
 	}
 	return compose(a, cleanView(a.Text)), true
+}
+
+// ansiPayloadView is ansiView keeping the payload of terminal strings
+// (OSC, DCS...: only their introducer and terminator dropped), so a value
+// in a title split by a colour code is found; false when that is
+// ansiView's text.
+func ansiPayloadView(s string, plain View) (View, bool) {
+	a, ok := stripANSI(s, true)
+	if !ok {
+		return View{}, false
+	}
+	v := compose(a, cleanView(a.Text))
+	return v, v.Text != plain.Text
 }
 
 // mayHaveTerminal reports whether s may hold a terminal-sequence
@@ -150,7 +163,7 @@ func rawC1(s string, i int) bool {
 // stripANSI drops terminal control sequences (CSI "ESC [ ... final", OSC
 // "ESC ] ... BEL" or "ESC ] ... ESC \\", and two-byte escapes) whole:
 // colour codes inside a value would split it.
-func stripANSI(s string) (View, bool) {
+func stripANSI(s string, keepPayload bool) (View, bool) {
 	var next []int32 // stringTerminators(s), computed on the first string
 	var vb viewBuilder
 	vb.b = make([]byte, 0, len(s))
@@ -179,15 +192,11 @@ func stripANSI(s string) (View, bool) {
 		j := body
 		switch {
 		case kind == '[': // CSI: parameters, intermediates, a final byte
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
-				j++
+			if f, _ := csiEnd(s, body); f >= 0 {
+				end = f
 			}
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
-				j++
-			}
-			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
-				end = j + 1
-			}
+		case keepPayload && (kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_'):
+			end = body // the introducer; the terminator goes as a control or an Fe escape
 		case kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_':
 			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST.
 			// No length bound (a long title costs an attacker nothing);
@@ -204,7 +213,7 @@ func stripANSI(s string) (View, bool) {
 			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
 				end = j + 1
 			}
-		case kind >= 0x40 && kind <= 0x5f && intro == 1: // two-byte Fe escapes
+		case kind >= 0x30 && kind <= 0x7e && intro == 1: // two-byte Fp, Fe, Fs escapes ("ESC 7", "ESC c")
 			end = body
 		}
 		if end < 0 {
@@ -257,14 +266,8 @@ func separateANSI(s string) (string, bool) {
 			if s[i] == 0x9b {
 				j = i + 1
 			}
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
-				j++
-			}
-			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
-				j++
-			}
-			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
-				blank(j, j+1)
+			if _, f := csiEnd(s, j); f >= 0 {
+				blank(f, f+1)
 			}
 		}
 	}
@@ -284,18 +287,44 @@ func sepView(s, sep string) View {
 	return vb.view(len(s))
 }
 
-// stringTerminators returns, for each position k of s (and len(s)), the
-// end of the first string terminator (BEL, ESC \\, C1 ST, a raw 8-bit ST)
-// at or after k, or -1.
+// csiEnd returns the end of the CSI whose parameters start at body (after
+// its final byte, or after a CAN or SUB that cancels it) and the position
+// of its final byte (-1 when cancelled), or -1, -1 when it is not well
+// formed. Other C0 controls inside are executed by a terminal without
+// ending the sequence: they are skipped.
+func csiEnd(s string, body int) (end, final int) {
+	for j := body; j < len(s); j++ {
+		switch c := s[j]; {
+		case c == 0x18 || c == 0x1a:
+			return j + 1, -1
+		case c == 0x1b:
+			return -1, -1
+		case c < 0x20, c <= 0x3f:
+			// a C0 control, a parameter or an intermediate byte
+		case c <= 0x7e:
+			return j + 1, j
+		default:
+			return -1, -1
+		}
+	}
+	return -1, -1
+}
+
+// stringTerminators returns, for each position k of s (and len(s)), where
+// a terminal string running at k ends: after its terminator (BEL, ESC \\,
+// C1 ST, a raw 8-bit ST, a cancelling CAN or SUB), or before an ESC or a C1
+// control that aborts it; -1 when it runs to the end.
 func stringTerminators(s string) []int32 {
 	next := make([]int32, len(s)+1)
 	next[len(s)] = -1
 	for k := len(s) - 1; k >= 0; k-- {
 		switch {
-		case s[k] == 0x07 || s[k] == 0x9c && rawC1(s, k):
+		case s[k] == 0x07 || s[k] == 0x18 || s[k] == 0x1a || s[k] == 0x9c && rawC1(s, k):
 			next[k] = int32(k + 1)
 		case k+1 < len(s) && (s[k] == 0x1b && s[k+1] == '\\' || s[k] == 0xc2 && s[k+1] == 0x9c):
 			next[k] = int32(k + 2)
+		case s[k] == 0x1b || rawC1(s, k) || s[k] == 0xc2 && k+1 < len(s) && s[k+1] >= 0x80 && s[k+1] <= 0x9f:
+			next[k] = int32(k) // aborted: the next sequence starts here
 		default:
 			next[k] = next[k+1]
 		}
@@ -451,6 +480,9 @@ func DetectionViews(s string) []View {
 		}
 		if a, ok := ansiView(v.Text); ok {
 			add(compose(v, a))
+			if b, ok := ansiPayloadView(v.Text, a); ok {
+				add(compose(v, b))
+			}
 			// An invisible character inside a sequence ("ESC [3" ZWSP "1m")
 			// would keep it from being stripped whole.
 			if k := cleanViewKeeping(v.Text, true); k.Text != v.Text {
@@ -546,7 +578,7 @@ func decodeChain(src View, mode chainMode) (chain View, rounds int, sawTerminal 
 			if w, ok := dropInvalid(chain.Text); ok {
 				chain = compose(chain, w)
 			}
-			if a, ok := stripANSI(chain.Text); ok {
+			if a, ok := stripANSI(chain.Text, false); ok {
 				chain = compose(chain, a)
 			}
 		}
