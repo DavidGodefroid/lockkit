@@ -642,7 +642,7 @@ func (w Wiring) claudeNotes() string {
 			"ignores it), so Claude Code does not prompt for them. Remove them there to be\n" +
 			"asked again:\n\n")
 		for i, a := range w.Assets.ClaudeAllow {
-			q, _ := json.Marshal(a)
+			q, _ := marshalPlain(a)
 			b.WriteString("  " + string(q))
 			if i < len(w.Assets.ClaudeAllow)-1 {
 				b.WriteString(",")
@@ -654,7 +654,7 @@ func (w Wiring) claudeNotes() string {
 			"Claude Code prompting for them, add them to \"permissions.allow\" in\n" +
 			".claude/settings.local.json (personal) or .claude/settings.json (shared):\n\n")
 		for i, a := range w.Assets.ClaudeAllow {
-			q, _ := json.Marshal(a)
+			q, _ := marshalPlain(a)
 			b.WriteString("  " + string(q))
 			if i < len(w.Assets.ClaudeAllow)-1 {
 				b.WriteString(",")
