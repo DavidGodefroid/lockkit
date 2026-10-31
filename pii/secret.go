@@ -114,7 +114,7 @@ var tokenShapeRe = regexp.MustCompile(strings.Join([]string{
 	`AccountKey=[A-Za-z0-9+/]{40,}={0,2}`,
 }, "|"))
 
-func findTokenShapes(s string) []span {
+func scanTokenShapes(s string) []span {
 	var out []span
 	eachMatch(s, tokenShapeRe, func(start int) bool {
 		// Only a letter or a digit continues a token: "key=<token>",
@@ -201,7 +201,7 @@ var authSchemeRe = regexp.MustCompile(`(?i)(bearer|basic|token|apikey|api-key|ne
 // authentication", "bearer token required") stays in clear: a Basic
 // credential is base64 of "user:password"; another is at least 8 token
 // characters with a digit or a token separator, or at least 20.
-func findAuthSchemes(s string) []span {
+func scanAuthSchemes(s string) []span {
 	var out []span
 	eachMatch(s, authSchemeRe, func(start int) bool {
 		b := before(s, start)
@@ -273,7 +273,7 @@ var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#"'<>
 // (http://localhost:5173/@vite/client).
 var portPath = regexp.MustCompile(`^[0-9]{1,5}/`)
 
-func findUserinfo(s string) []span {
+func scanUserinfo(s string) []span {
 	var out []span
 	for _, m := range userinfoRe.FindAllStringSubmatchIndex(s, -1) {
 		if _, pw, _ := strings.Cut(s[m[2]:m[3]], ":"); portPath.MatchString(pw) {
@@ -794,7 +794,7 @@ var spacePassRe = regexp.MustCompile(`(?:^|\s)-p(?:[ \t]+|=)?(?:"([^"\n]*)"|'([^
 // curlUserRe is curl's -u with the credentials glued on: "-ubob:pw".
 var curlUserRe = regexp.MustCompile(`(?:^|\s)-u([^\s"':-][^\s"':]*:[^\s"']+)`)
 
-func findMySQLPasswords(s string) []span {
+func scanMySQLPasswords(s string) []span {
 	s = blankEscapes(s) // "\\nmysql -p…" in a JSON string; same offsets
 	var out []span
 	done := 0
