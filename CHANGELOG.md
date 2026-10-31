@@ -3,48 +3,49 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.8.0 (2026-10-31)
 
+- `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
+  ranges with their kind, also behind percent, JSON, HTML, `\xHH`, `\e`,
+  `\033` and form escapes (alone or chained), look-alikes, invisible
+  characters, control sequences (also escaped), invalid UTF-8 bytes and
+  values cut by the scan limit (#93, #94). New dependency:
+  `golang.org/x/text` v0.43.0 (`unicode/norm`); `golang.org/x/sync` moves
+  to v0.24.0.
 - `pii`: two opt-in detectors, `ip` (public IPv4 and IPv6 addresses,
   IPv4-mapped) and `secret` (credentials, tokens, private keys, masked as
   `<redacted>` and run first), and `pii.LooksSecret(name)`. Neither is in
   `AllDetectors`: a product masks exactly what it masked before until it
-  names them (GUIDE §8).
+  names them (GUIDE §8, #96, #97).
 - `pii`: every detector reads a `\n`, `\r` or `\t` escape, and the
   `\u0026`-style escapes of `&`, `<`, `>`, `=` and quotes (JSON written by
   zap, logrus, bunyan or Go's `encoding/json`), as the blank or delimiter
-  it stands for, so a value right after one is found: `{"msg":"tel:\t0475123456"}` is now masked. This is the
-  only output change for products that keep `AllDetectors`.
-- `pii`: keyed pseudonyms: `Pseudonymizer.ID(kind, value)` (HMAC-SHA256,
-  per-epoch key, 12 Crockford base32 characters), `Normalise` (one ID per
-  spelling of a value), `NewEpoch` and `OpenEpochStore` (private 0600/0700
-  key files, one process per directory, `Rotate`, `RotationDue`, `Prune`)
-  (GUIDE §8, #95).
+  it stands for, so a value right after one is found:
+  `{"msg":"tel:\t0475123456"}` is now masked. This is the only output
+  change for products that keep `AllDetectors` (#97).
 - `pii`: the `secret` detector checks for a literal its token, scheme,
   userinfo and command-line regexps need before running them, and starts
   its key=value search near the next separator: about 7 MB/s per core on
   plain log lines instead of 1 MB/s (`BenchmarkSecretBenignCorpus`), same
   findings. CI fails under 2.5 MB/s (`TestSecretThroughputFloor`). A value
   opened by a `\u0022` escape is masked after the escape, not from inside
-  it, so the output stays valid JSON.
+  it, so the output stays valid JSON (#105).
+- `pii`: keyed pseudonyms: `Pseudonymizer.ID(kind, value)` (HMAC-SHA256,
+  per-epoch key, 12 Crockford base32 characters), `Normalise` (one ID per
+  spelling of a value), `NewEpoch` and `OpenEpochStore` (private 0600/0700
+  key files, one process per directory, `Rotate`, `RotationDue`, `Prune`)
+  (GUIDE §8, #95, #98).
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
   name corpus and 10 % on held-out names outside the gazetteer; false
   positives 0 % of 2 000 Loghub-style lines and 2.4 % of held-out ticket
-  and prose lines.
+  and prose lines (#101).
 - `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
   project's `.claude/settings.local.json` on a project `Init` (off by
-  default; GUIDE §12).
+  default; GUIDE §12, #103).
 - `agentwire`: merged `permissions.allow` entries (user and project scope)
   and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
-  escapes.
-- `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
-  ranges with their kind, also behind percent, JSON, HTML, `\xHH`, `\e`,
-  `\033` and form escapes (alone or chained),
-  look-alikes, invisible characters, control sequences (also escaped),
-  invalid UTF-8 bytes and values cut by
-  the scan limit (#93). New dependency: `golang.org/x/text` v0.43.0
-  (`unicode/norm`); `golang.org/x/sync` moves to v0.24.0.
+  escapes (#103).
 
 ## v0.7.2 (2026-10-31)
 
