@@ -153,7 +153,12 @@ func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []
 			}
 		}
 		next := m[0] + 1
-		if ok(m[0]) {
+		if !ok(m[0]) {
+			// Refused: any match starting inside the same word is too.
+			for next < len(s) && isAlnum(s[next]) && isAlnum(s[next-1]) {
+				next++
+			}
+		} else {
 			if n := f(m); n > m[0] {
 				next = n
 			}
@@ -261,7 +266,7 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["']?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["']?)[ \t]*([:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
@@ -291,12 +296,25 @@ func findSecretPairs(s string) []span {
 		}
 		var v string
 		var vs int
-		if c := s[start]; headerLike(key) && m[2] == m[3] && c != '"' && c != '\'' && c != '\\' {
+		if c := s[start]; headerLike(key) && m[6] == m[7] && c != '"' && c != '\'' && c != '\\' {
 			// A raw header line (the key is not a quoted JSON key): its
 			// value runs to the end of the line, quotes included
 			// (`Cookie: a="b"; session=…`, Digest parameters).
 			vs = start
-			v = strings.TrimRight(s[vs:lineEnd(s, vs, true)], " \t")
+			end := lineEnd(s, vs, true)
+			if open := s[m[2]:m[3]]; m[6] == m[7] && (strings.HasSuffix(open, `"`) || strings.HasSuffix(open, "'")) {
+				// `-H "Authorization: Bearer x" next`: the header sits in
+				// a quoted argument, which its closing quote ends.
+				nl := strings.IndexAny(s[vs:], "\r\n")
+				if nl < 0 {
+					nl = len(s) - vs
+				}
+				end = vs + nl
+				if k := closingQuote(s, vs, end, open); k >= 0 {
+					end = k
+				}
+			}
+			v = strings.TrimRight(s[vs:end], " \t")
 		} else {
 			v, vs, _ = pairValue(s, start, false, 0)
 		}
@@ -313,6 +331,25 @@ func findSecretPairs(s string) []span {
 		return start
 	})
 	return out
+}
+
+// closingQuote returns the offset of the quote that closes open (", ' or
+// an escaped \") in s[i:end], an escaped quote of the plain kind skipped,
+// or -1.
+func closingQuote(s string, i, end int, open string) int {
+	q := open[len(open)-1]
+	escaped := strings.HasPrefix(open, "\\")
+	for j := i; j < end; j++ {
+		switch {
+		case escaped && s[j] == '\\' && j+1 < end && s[j+1] == q:
+			return j
+		case !escaped && s[j] == '\\':
+			j++
+		case !escaped && s[j] == q:
+			return j
+		}
+	}
+	return -1
 }
 
 // hashName reports a key that names a digest, whose value is high-entropy
@@ -538,8 +575,11 @@ func allDigits(s string) bool {
 
 // --- MySQL and MariaDB clients: "mysql -uroot -phunter2"
 
-var mysqlRe = regexp.MustCompile(`\b(?:mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
-var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p(?:"([^"\n]*)"|'([^'\n]*)'|([^\s"']+))`)
+var mysqlRe = regexp.MustCompile(`\b(?:curl|mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
+var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p(?:"([^"\n]*)"|'([^'\n]*)'|([^\s"'|;&]+))`)
+
+// curlUserRe is curl's -u with the credentials glued on: "-ubob:pw".
+var curlUserRe = regexp.MustCompile(`(?:^|\s)-u([^\s"':-][^\s"':]*:[^\s"']+)`)
 
 func findMySQLPasswords(s string) []span {
 	var out []span
@@ -554,7 +594,18 @@ func findMySQLPasswords(s string) []span {
 		}
 		done = end
 		line := s[m[1]:end]
-		for _, p := range mysqlPassRe.FindAllStringSubmatchIndex(line, -1) {
+		// The command ends at a pipe or a command separator.
+		if k := strings.IndexAny(line, "|;"); k >= 0 {
+			line = line[:k]
+		}
+		if k := strings.Index(line, "&&"); k >= 0 {
+			line = line[:k]
+		}
+		re := mysqlPassRe
+		if strings.HasPrefix(s[m[0]:], "curl") {
+			re = curlUserRe
+		}
+		for _, p := range re.FindAllStringSubmatchIndex(line, -1) {
 			for g := 2; g+1 < len(p); g += 2 {
 				if p[g] >= 0 && p[g+1] > p[g] {
 					out = append(out, span{m[1] + p[g], m[1] + p[g+1]})

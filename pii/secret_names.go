@@ -70,6 +70,9 @@ func LooksSecret(name string) bool {
 	if strings.Contains(strings.Join(toks, ""), "motdepasse") {
 		return true // "mot_de_passe", "motDePasse"
 	}
+	if last == "session" {
+		return true // a session cookie: "session", "laravel_session"
+	}
 	if slices.ContainsFunc(toks, func(t string) bool { return secretTokens[t] }) {
 		return true
 	}

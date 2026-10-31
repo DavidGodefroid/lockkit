@@ -160,3 +160,5 @@ ssh -o PasswordAuthentication=no deploy@10.0.0.5
 token count=42 elapsed=3ms
 TLS negotiate cipher-suite ok
 mapping ::dead:beef to nothing
+mysql -uroot shop -e 'select 1' | grep -pattern
+version=1.8.0.201 oid 2.5.4.3

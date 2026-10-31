@@ -220,7 +220,7 @@ bastion reaches; no local port is ever opened.
     length), and run before every other detector. It finds the values of
     `Authorization`/`Proxy-Authorization` (the scheme word stays),
     `Cookie`/`Set-Cookie` (to the end of the line), `*-Token`/`*-Key`
-    headers, any `key=value`/`"key": "value"`/`--flag value` whose name
+    headers, any `key=value`/`"key": "value"`/`key => value`/`--flag value` whose name
     `LooksSecret`, a high-entropy value (≥ 32 base64 characters, mixed
     case and digits, ≥ 4 bits/char, not a dotted class name) in a key
     position (not under a digest name such as `sha256`), `Bearer`/`Basic`/`Token` credentials in text,
@@ -230,7 +230,14 @@ bastion reaches; no local port is ever opened.
     `mysql -p<password>`. Not found: secrets without a known shape or label
     (short or low-entropy tokens, passwords in prose, session ids in URL
     paths, connection strings without userinfo), hex and encoded content
-    outside a key position, doubly escaped JSON.
+    outside a key position, doubly escaped JSON, a value on the line after
+    its key (YAML), XML elements (`<password>x</password>`), URL-encoded
+    pairs (`password%3Dx`, unless the caller decodes first), `:=`
+    assignments, an unquoted value cut by `;` or `,`, protocol commands
+    (`PASS x`, `AUTH x`), `redis-cli -a`, `sshpass -p`, SQL `IDENTIFIED BY`.
+    Status words under a secret name (`auth=failed`) are masked too. A
+    dotted quad after `version`, `build`, `release` or `oid` is no
+    address.
 - `pii.LooksSecret(name)`: a field, header or flag name that holds a
   credential (`password`, `client_secret`, `api_key`, `X-Api-Key`,
   `Authorization`, `Cookie`, `PHPSESSID`, en/fr/nl/de/es); metadata about one

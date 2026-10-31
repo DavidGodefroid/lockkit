@@ -37,10 +37,26 @@ func findIPs(s string) []span {
 		}
 		// A run glued to a letter ("client:203.0.113.9", "v1.2.3.4") is
 		// tried only after its separators.
-		out = ipsInRun(s, i, j, isAlnum(before(s, i)), out)
+		if strings.IndexByte(s[i:j], ':') >= 0 || !versionContext(s, i) {
+			out = ipsInRun(s, i, j, isAlnum(before(s, i)), out)
+		}
 		i = j - 1
 	}
 	return out
+}
+
+// versionContext reports a run that a version or an OID label precedes
+// ("version=1.8.0.201", "oid 2.5.4.3"): a dotted quad there is no address.
+func versionContext(s string, i int) bool {
+	pre := strings.ToLower(s[max(0, i-12):i])
+	pre = strings.TrimRight(pre, " \t:=\"'")
+	for _, l := range []string{"version", "oid", "build", "release"} {
+		if strings.HasSuffix(pre, l) {
+			k := len(pre) - len(l)
+			return k == 0 || !isAlnum(pre[k-1])
+		}
+	}
+	return false
 }
 
 func isIPByte(c byte) bool { return isHex(c) || c == ':' || c == '.' }

@@ -56,7 +56,7 @@ func TestIPKeeps(t *testing.T) {
 		"12:30:45", "2026-10-30T14:02:11.204Z", "aa:bb:cc:dd:ee:ff", "00:1A:2B:3C:4D:5E",
 		"std::string", "add::face", "dead:beef::1", "Foo::Bar::baz", "a::b",
 		"sha 3f786850e387550fdab836ed7e6dc881de23001b", "uuid 123e4567-e89b-12d3-a456-426614174000",
-		"took 1.234.567 ms", "list 1.5.2.0.1",
+		"took 1.234.567 ms", "list 1.5.2.0.1", "version=1.8.0.201", "oid 2.5.4.3", `"version":"5.15.0.91"`, "build 20.11.3.4",
 	} {
 		if got := d.Mask(in); got != in {
 			t.Errorf("ip.Mask(%q) = %q, want unchanged", in, got)
@@ -111,6 +111,9 @@ func FuzzIPCanaryAfterPrefix(f *testing.F) {
 			// "v203.0.113.77", "1.203.0.113.77", "ab::2001:db8:…": not
 			// an address boundary; only a separator is checked.
 			pre += " "
+		}
+		if !v6 && versionContext(pre+canary, len(pre)) {
+			return // "version 203.0.113.77": a version by design
 		}
 		in := pre + canary + " end"
 		out := d[0].Mask(in)
