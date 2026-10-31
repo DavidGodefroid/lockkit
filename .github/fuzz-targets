@@ -1,3 +1,5 @@
 FuzzReadMsgNoPanic ./ipc/
 FuzzDetectorsNoPanic ./pii/
 FuzzRenderNoPanic ./render/
+FuzzFindCoversDetect ./pii/
+FuzzDetectionView ./pii/
