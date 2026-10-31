@@ -187,7 +187,12 @@ func crockfordOnly(s string) bool {
 }
 
 // String shows the epoch, never the key.
-func (p *Pseudonymizer) String() string { return "pii.Pseudonymizer{epoch: " + p.epoch + "}" }
+func (p *Pseudonymizer) String() string {
+	if p == nil {
+		return "pii.Pseudonymizer(nil)"
+	}
+	return "pii.Pseudonymizer{epoch: " + p.epoch + "}"
+}
 
 // GoString shows the epoch, never the key.
 func (p *Pseudonymizer) GoString() string { return p.String() }
@@ -218,7 +223,8 @@ func (p *Pseudonymizer) keyBytes() []byte {
 	return append([]byte(nil), p.key.b...)
 }
 
-// Normalise returns the form of value whose pseudonym is taken, so that
+// Normalise returns the form of value (one detected value: digits of two
+// phone numbers would be joined) whose pseudonym is taken, so that
 // one value written differently is one pseudonym: the detection view of
 // the value, or of its decoding (percent, JSON escape, HTML reference)
 // when only that is a whole value of kind; then, by kind:
@@ -241,7 +247,7 @@ func Normalise(kind, value string) string {
 		return strings.ToLower(strings.TrimSpace(v))
 	case "phone", "phone_loose":
 		t := strings.TrimLeft(v, " (")
-		if strings.HasPrefix(t, "+") {
+		if strings.HasPrefix(t, "+") || strings.HasPrefix(t, "00") {
 			// "+32 (0)475...": the trunk 0 is not dialled from abroad.
 			t = strings.Replace(t, "(0)", "", 1)
 		}
@@ -257,7 +263,7 @@ func Normalise(kind, value string) string {
 		return d
 	case "iban":
 		return strings.ToUpper(strings.Map(func(r rune) rune {
-			if unicode.IsSpace(r) {
+			if unicode.IsSpace(r) || r == '-' || r == '.' {
 				return -1
 			}
 			return r

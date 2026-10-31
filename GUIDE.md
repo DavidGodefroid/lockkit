@@ -243,10 +243,12 @@ bastion reaches; no local port is ever opened.
   in a private directory (0700, owned by the process user; anything else,
   a symbolic link, a corrupt file or an all-zero key refuses the store),
   ordered by a sequence number, the directory locked for one process
-  until `Close`. `Current()`, `Get(epoch)` for a reference minted earlier,
+  until `Close` (after which `Rotate` and `Prune` fail with `ErrClosed`;
+  opening creates the `.lock` file). `Current()`, `Get(epoch)` for a reference minted earlier,
   `Rotate(now)`, `RotationDue(now, every)` (also true for an epoch
   created more than `ClockSkew` in the future), `Prune(now, keep)`
-  deletes keys replaced `keep` ago and leftover temporary files.
+  deletes keys replaced `keep` ago and leftover temporary files (a clock
+  that jumped forward may delete a key early, never keep one late).
   `pii.NewEpoch(now)` is an in-memory (session) epoch. Neither type
   prints or marshals its key. `ID` returns `ErrForgottenEpoch` once
   `Prune` deleted the key, through every copy of the value: redact the

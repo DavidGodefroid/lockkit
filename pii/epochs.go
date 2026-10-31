@@ -20,6 +20,9 @@ import (
 var (
 	// ErrNoEpoch: the store holds no epoch and was not asked to create one.
 	ErrNoEpoch = errors.New("pii: no pseudonym epoch key")
+	// ErrClosed: Rotate or Prune on a closed store (it no longer holds the
+	// directory's lock).
+	ErrClosed = errors.New("pii: epoch store closed")
 	// ErrUnknownEpoch: the epoch was never kept here, or was pruned.
 	ErrUnknownEpoch = errors.New("pii: unknown or deleted pseudonym epoch")
 )
@@ -45,6 +48,7 @@ type EpochStore struct {
 	lock io.Closer // the directory's lock, held until Close
 
 	mu     sync.Mutex
+	closed bool
 	epochs []*Pseudonymizer // oldest first; the last is current
 }
 
@@ -213,6 +217,9 @@ func (s *EpochStore) Epochs() []string {
 func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.closed {
+		return nil, ErrClosed
+	}
 	var p *Pseudonymizer
 	for {
 		var err error
@@ -261,6 +268,9 @@ func (s *EpochStore) RotationDue(now time.Time, every time.Duration) bool {
 func (s *EpochStore) Prune(now time.Time, keep time.Duration) ([]string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.closed {
+		return nil, ErrClosed
+	}
 	var gone []string
 	kept := s.epochs[:0]
 	for i, p := range s.epochs {
@@ -296,8 +306,12 @@ func replacedLongAgo(now, replaced time.Time, keep time.Duration) bool {
 	return now.Sub(replaced) >= keep || replaced.After(now.Add(ClockSkew))
 }
 
-// Close releases the directory's lock. The epochs stay usable in memory.
+// Close releases the directory's lock. The epochs stay readable in memory
+// (Current, Get, ID); Rotate and Prune fail with ErrClosed.
 func (s *EpochStore) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.closed = true
 	if s.lock == nil {
 		return nil
 	}

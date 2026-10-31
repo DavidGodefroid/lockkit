@@ -144,16 +144,16 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 	if err != nil || s2.Current().Epoch() != cur.Epoch() || len(s2.Epochs()) != 2 {
 		t.Fatalf("reopen after rotation: %v, %v", s2, err)
 	}
-	s2.Close()
+	old, _ = s2.Get(old.Epoch()) // the handle this store will forget
 	// Not yet 24 h: nothing pruned.
-	if gone, err := s.Prune(rotated.Add(23*time.Hour), 24*time.Hour); err != nil || len(gone) != 0 {
+	if gone, err := s2.Prune(rotated.Add(23*time.Hour), 24*time.Hour); err != nil || len(gone) != 0 {
 		t.Errorf("Prune before 24 h = %v, %v", gone, err)
 	}
-	gone, err := s.Prune(rotated.Add(24*time.Hour), 24*time.Hour)
+	gone, err := s2.Prune(rotated.Add(24*time.Hour), 24*time.Hour)
 	if err != nil || len(gone) != 1 || gone[0] != old.Epoch() {
 		t.Fatalf("Prune = %v, %v", gone, err)
 	}
-	if _, err := s.Get(old.Epoch()); !errors.Is(err, ErrUnknownEpoch) {
+	if _, err := s2.Get(old.Epoch()); !errors.Is(err, ErrUnknownEpoch) {
 		t.Errorf("Get(pruned) = %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(dir, old.Epoch()+keyFileSuffix)); !os.IsNotExist(err) {
@@ -164,9 +164,10 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 		t.Errorf("ID after prune = %q, %v (want ErrForgottenEpoch)", id, err)
 	}
 	// The current epoch is never pruned.
-	if gone, _ := s.Prune(rotated.Add(1000*24*time.Hour), time.Nanosecond); len(gone) != 0 || s.Current() != cur {
+	if gone, _ := s2.Prune(rotated.Add(1000*24*time.Hour), time.Nanosecond); len(gone) != 0 || s2.Current().Epoch() != cur.Epoch() {
 		t.Errorf("Prune deleted the current epoch: %v", gone)
 	}
+	s2.Close()
 	s3, err := OpenEpochStore(dir, false, rotated.Add(25*time.Hour))
 	if s3 != nil {
 		defer s3.Close()
@@ -175,9 +176,9 @@ func TestEpochRotationAndDeletion(t *testing.T) {
 		t.Errorf("reopen after prune: %v, %v", s3, err)
 	}
 	// Rotations in the same second keep their order.
-	a, _ := s.Rotate(rotated)
-	b, _ := s.Rotate(rotated)
-	if s.Current() != b || b.seq != a.seq+1 {
+	a, _ := s3.Rotate(rotated)
+	b, _ := s3.Rotate(rotated)
+	if s3.Current() != b || b.seq != a.seq+1 {
 		t.Error("same-second rotations out of order")
 	}
 	s3.Close()
@@ -450,7 +451,7 @@ func TestEpochStoreTempFilesAndLock(t *testing.T) {
 }
 
 func TestNormalisePhoneTrunk(t *testing.T) {
-	for in, want := range map[string]string{"+32 (0)475 12 34 56": "+32475123456", "+0032475123456": "+32475123456", "0032 475 12 34 56": "+32475123456"} {
+	for in, want := range map[string]string{"+32 (0)475 12 34 56": "+32475123456", "+0032475123456": "+32475123456", "0032 (0)475 12 34 56": "+32475123456", "0032 475 12 34 56": "+32475123456"} {
 		if got := Normalise("phone", in); got != want {
 			t.Errorf("Normalise(phone, %q) = %q, want %q", in, got, want)
 		}
@@ -459,4 +460,27 @@ func TestNormalisePhoneTrunk(t *testing.T) {
 	if Normalise("person_name", long) == Normalise("person_name", strings.Repeat("a", DetectLimit)+"y") {
 		t.Error("long values sharing a prefix normalise alike")
 	}
+}
+
+// A closed store no longer writes: two handles on one directory cannot
+// both rotate.
+func TestEpochStoreClosedRefusesWrites(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "epochs")
+	s, _ := OpenEpochStore(dir, true, t0)
+	cur := s.Current()
+	s.Close()
+	if _, err := s.Rotate(t0); !errors.Is(err, ErrClosed) {
+		t.Errorf("Rotate after Close: %v", err)
+	}
+	if _, err := s.Prune(t0, 0); !errors.Is(err, ErrClosed) {
+		t.Errorf("Prune after Close: %v", err)
+	}
+	if mustID(t, s.Current(), "email", "a@example.com") != mustID(t, cur, "email", "a@example.com") {
+		t.Error("reads changed after Close")
+	}
+	if _, err := s.Get("ZZZZZZZZ"); !errors.Is(err, ErrUnknownEpoch) {
+		t.Errorf("Get(never existed) = %v", err)
+	}
+	var nilP *Pseudonymizer
+	_ = fmt.Sprint(nilP)
 }
