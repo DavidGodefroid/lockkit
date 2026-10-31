@@ -6,15 +6,8 @@ package console
 // them, and go in the next minor release.
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
-	"sort"
-
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/kit"
-	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
@@ -34,52 +27,16 @@ type Withdrawn struct {
 	Tickets []string
 }
 
-// WithdrawStandalone is the rollback of hub mode (a console started
-// without --hub after running with it): every pending plan of every hub
-// instance under stateDir (as Options.StateDir) ends Withdrawn, marked for
-// the hub to hear of at the next start in hub mode
-// (hubclient.Client.Sync). An instance whose plans another console holds
-// open (plans.ErrLocked: it runs in hub mode now) is left alone.
+// WithdrawStandalone was the rollback of hub mode (a console started
+// without --hub after running with it). It is inert now: it withdraws
+// nothing, touches no file and returns nil, nil. A console is hub-attached
+// only (or policy-only, without plans), so there is no standalone start
+// whose withdrawals it would do, and a call left in a product must not end
+// the pending plans of a hub instance whose console is merely stopped.
 //
 // Deprecated: there is no standalone start any more; Run no longer calls
-// it.
-func WithdrawStandalone(p kit.Product, stateDir string) ([]Withdrawn, error) {
-	dirs, err := filepath.Glob(filepath.Join(stateDir, p.Name, "hub", "*", "plans"))
-	if err != nil {
-		return nil, err
-	}
-	sort.Strings(dirs)
-	var out []Withdrawn
-	var errs []error
-	for _, d := range dirs {
-		if fi, err := os.Lstat(d); err != nil || !fi.IsDir() {
-			continue
-		}
-		inst := filepath.Base(filepath.Dir(d))
-		st, err := plans.Open(d)
-		if errors.Is(err, plans.ErrLocked) {
-			continue
-		}
-		if err != nil {
-			errs = append(errs, fmt.Errorf("hub plans of %s: %w", inst, err))
-			continue
-		}
-		ws, err := st.WithdrawAll(StandaloneReason)
-		_ = st.Close()
-		if err != nil {
-			errs = append(errs, fmt.Errorf("hub plans of %s: %w", inst, err))
-		}
-		if len(ws) == 0 {
-			continue
-		}
-		w := Withdrawn{Instance: inst}
-		for _, pl := range ws {
-			w.Tickets = append(w.Tickets, pl.Ticket)
-		}
-		out = append(out, w)
-	}
-	return out, errors.Join(errs...)
-}
+// it. It goes in the next minor release.
+func WithdrawStandalone(kit.Product, string) ([]Withdrawn, error) { return nil, nil }
 
 // WithdrawnResp is the explicit answer of a standalone console to a run
 // of hub ticket tk: the ticket was withdrawn, plan again.
