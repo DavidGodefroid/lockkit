@@ -115,7 +115,7 @@ func DetectionView(s string) View {
 }
 
 func detectionView(s string) View {
-	if strings.IndexByte(s, 0x1b) >= 0 {
+	if strings.IndexByte(s, 0x1b) >= 0 || strings.IndexByte(s, 0xc2) >= 0 {
 		if a, ok := stripANSI(s); ok {
 			return compose(a, cleanView(a.Text))
 		}
@@ -131,20 +131,22 @@ func stripANSI(s string) (View, bool) {
 	vb.b = make([]byte, 0, len(s))
 	changed := false
 	for i := 0; i < len(s); {
-		if s[i] != 0x1b || i+1 >= len(s) {
+		// The introducer: ESC and a byte, or a C1 control (UTF-8 C2 80-9F).
+		var kind byte
+		body := i
+		switch {
+		case s[i] == 0x1b && i+1 < len(s):
+			kind, body = s[i+1], i+2
+		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
+			kind, body = s[i+1]-0x40, i+2 // C1 x is ESC (x - 0x40)
+		default:
 			vb.add([]byte{s[i]}, i, i+1)
 			i++
 			continue
 		}
-		j := i + 1 // ESC alone, unless a known sequence follows
-		switch c := s[i+1]; {
-		case c >= 0x40 && c <= 0x5f && c != '[' && c != ']':
-			j = i + 2 // a two-byte escape ("ESC c", "ESC M")
-		case c == '[' || c == ']':
-			j = i + 2
-		}
-		switch s[i+1] {
-		case '[':
+		j := body
+		switch {
+		case kind == '[': // CSI: parameters, intermediates, a final byte
 			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
 				j++
 			}
@@ -154,14 +156,28 @@ func stripANSI(s string) (View, bool) {
 			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
 				j++
 			}
-		case ']':
-			for j < len(s) && s[j] != 0x07 && !(s[j] == 0x1b && j+1 < len(s) && s[j+1] == '\\') {
+		case kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_':
+			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST (ESC \ or C1 9C).
+			for j < len(s) && s[j] != 0x07 && !(s[j] == 0x1b && j+1 < len(s) && s[j+1] == '\\') && !(s[j] == 0xc2 && j+1 < len(s) && s[j+1] == 0x9c) {
 				j++
 			}
 			if j < len(s) && s[j] == 0x07 {
 				j++
 			} else if j+1 < len(s) {
 				j += 2
+			}
+		case kind >= 0x20 && kind <= 0x2f: // nF: intermediates, a final byte ("ESC ( B")
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
+				j++
+			}
+			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
+				j++
+			}
+		case kind >= 0x30 && kind <= 0x7e: // a two-byte escape ("ESC c", "ESC M")
+		default:
+			j = i + 1 // ESC alone (a non-ASCII byte follows: keep it)
+			if s[i] == 0xc2 {
+				j = i + 2
 			}
 		}
 		i = min(j, len(s))
@@ -204,13 +220,16 @@ func cleanView(s string) View {
 				vb.add(seg[:1], from, to)
 			case folded:
 				vb.add([]byte{c}, from, to)
-			case ignorable(r) || dropControl(r) || r == '\u2800' ||
-				unicode.In(r, unicode.Mn, unicode.Me) && len(vb.b) > 0 && isDigit(vb.b[len(vb.b)-1]):
+			case droppedInView(r):
 				// dropped (invisible, a control, a mark on a digit): the
 				// next byte's range starts after it, and a range of the view
 				// spanning it covers it
-			case r >= 0x2010 && r <= 0x2015 || r == 0x2212 || r == 0xfe63 || r == 0xff0d:
+			case isDash(r):
 				vb.add([]byte{'-'}, from, to) // hyphens, dashes and minus signs
+			case r == 0x3002 || r == 0xff61 || r == 0xfe12:
+				vb.add([]byte{'.'}, from, to) // ideographic full stops (IDNA label separators)
+			case latinLookalike(r) != 0:
+				vb.add([]byte{latinLookalike(r)}, from, to)
 			case r >= utf8.RuneSelf && unicode.Is(unicode.Nd, r):
 				vb.add([]byte{'0' + ndValue(r)}, from, to) // ٤ ३ → 4 3
 			default:
@@ -229,6 +248,36 @@ func cleanView(s string) View {
 // fillers...): invisible, so it may sit inside a value and hide it.
 func ignorable(r rune) bool {
 	return unicode.In(r, unicode.Cf, unicode.Other_Default_Ignorable_Code_Point, unicode.Variation_Selector)
+}
+
+// droppedInView reports a rune the detection view drops: invisible
+// (default-ignorable), a control, the braille blank, a combining mark.
+func droppedInView(r rune) bool {
+	return ignorable(r) || dropControl(r) || r == '\u2800' || unicode.In(r, unicode.Mn, unicode.Me)
+}
+
+func isDash(r rune) bool {
+	switch r {
+	case 0x2212, 0xfe63, 0xff0d, 0x2043, 0x058a, 0x05be, 0x2e3a, 0x2e3b, 0x30fc, 0x2e17, 0x2027:
+		return true
+	}
+	return r >= 0x2010 && r <= 0x2015
+}
+
+// lookalikes are the Cyrillic and Greek letters drawn like a Latin one
+// (a country code, a domain): read as that letter.
+var lookalikes = map[rune]byte{
+	'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H', 'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'Х': 'X', 'У': 'Y', 'Ѕ': 'S', 'І': 'I', 'Ј': 'J',
+	'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'х': 'x', 'у': 'y', 'ѕ': 's', 'і': 'i', 'ј': 'j', 'һ': 'h', 'ԁ': 'd',
+	'Α': 'A', 'Β': 'B', 'Ε': 'E', 'Ζ': 'Z', 'Η': 'H', 'Ι': 'I', 'Κ': 'K', 'Μ': 'M', 'Ν': 'N', 'Ο': 'O', 'Ρ': 'P', 'Τ': 'T', 'Υ': 'Y', 'Χ': 'X',
+	'ο': 'o', 'ν': 'v', 'ι': 'i', 'κ': 'k',
+}
+
+func latinLookalike(r rune) byte {
+	if r < 0x370 {
+		return 0
+	}
+	return lookalikes[r]
 }
 
 // dropControl reports a control character a value may hide behind: C0
@@ -309,6 +358,9 @@ func DetectionViews(s string) []View {
 			break
 		}
 		rounds++
+	}
+	if rounds == 16 {
+		chain.cut, chain.cutAt = true, 0 // still decoding: mask it all
 	}
 	addDecoded(chain, rounds > 0)
 	// Form encoding: "+" for a space, then percent ("tel=%2B32+475+12").

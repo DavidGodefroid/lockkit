@@ -219,8 +219,12 @@ bastion reaches; no local port is ever opened.
     without what a value can hide behind: default-ignorable characters
     (format characters, variation selectors, the combining grapheme
     joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
-    the braille blank, marks on a digit, terminal colour and control
-    sequences (`ESC [ ... m`); hyphens, dashes and minus signs read as `-`. `View.Source(start, end)` maps a
+    the braille blank, combining marks, terminal sequences (CSI, OSC, DCS,
+    SOS, PM, APC, nF and two-byte escapes, in their ESC or C1 forms); hyphens,
+    dashes and minus signs read as `-`, ideographic full stops as `.`, and
+    Cyrillic and Greek letters drawn like Latin ones as those. Invalid
+    UTF-8 bytes are kept: replace or drop them before the text leaves your
+    product, and only after masking if you drop them. `View.Source(start, end)` maps a
     range of `View.Text` back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds the detection view of `s` percent-decoded
     (once, twice), with JSON escapes decoded (`\u0040`), with HTML
@@ -646,6 +650,16 @@ then `Wiring.Init(agentwire.ProjectRoot(P, cwd), agent)` for `<name> init
 (`env, _ := agentwire.SystemEnv()`), `agentwire.Detect(env)` and
 `Wiring.Unwired(env)` for your doctor's "agent wiring" line. Only list in
 `ClaudeAllow` calls that never touch data without the console's approval.
+`ClaudeAllow` is merged into `permissions.allow` at user scope by
+`InitUser`; a project `Init` only lists it in the notes, unless
+`ClaudeAllowProject` is set: then `Init(root, "claude")` also merges it into
+the project's `.claude/settings.local.json` (personal, never the shared
+`.claude/settings.json`), keeping the file's other keys and entries, and
+the notes say what was written. Set it only when every listed call answers
+with masked data and every approved operation is approved at the console
+or the hub (the human, not the allow list, decides). Codex and Gemini get
+600 s tool timeouts from agentwire, which cover the console's 5 minute
+approval and a queued call.
 
 ## 13. Hub tickets (`ticket`)
 

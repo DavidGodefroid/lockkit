@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- `agentwire`: `Assets.ClaudeAllowProject` merges `ClaudeAllow` into the
+  project's `.claude/settings.local.json` on a project `Init` (off by
+  default; GUIDE §12).
+- `agentwire`: merged `permissions.allow` entries (user and project scope)
+  and the notes keep `&`, `<` and `>` as written instead of `\u0026`-style
+  escapes.
 - `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
   ranges with their kind, also behind percent, JSON and HTML escapes,
   look-alikes, invisible characters, control sequences and values cut by
