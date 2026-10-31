@@ -248,6 +248,19 @@ func separateANSI(s string) (string, bool) {
 	return string(b), changed
 }
 
+// sepView maps sep, s with some bytes blanked, to s: a blanked byte of a
+// multi-byte rune (a C1 control) comes from the whole rune.
+func sepView(s, sep string) View {
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	for i := 0; i < len(s); {
+		_, n := utf8.DecodeRuneInString(s[i:])
+		vb.add([]byte(sep[i:i+n]), i, i+n)
+		i += n
+	}
+	return vb.view(len(s))
+}
+
 // maxSeq bounds a terminal sequence the view drops whole.
 const maxSeq = 256
 
@@ -394,7 +407,7 @@ func DetectionViews(s string) []View {
 		out = append(out, a)
 	}
 	if sep, ok := separateANSI(s); ok {
-		if v := compose(View{Text: s}, cleanView(sep)); !seen[v.Text] {
+		if v := compose(sepView(s, sep), cleanView(sep)); !seen[v.Text] {
 			seen[v.Text] = true
 			out = append(out, v)
 		}
