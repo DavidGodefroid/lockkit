@@ -257,6 +257,9 @@ func (s *EpochStore) Rotate(now time.Time) (*Pseudonymizer, error) {
 	s.lastSeq = p.seq
 	if err := s.writeKeyFile(p); err != nil {
 		p.forget()
+		// Best effort: a file renamed into place before the sync failed
+		// would become current at the next open.
+		_ = os.Remove(filepath.Join(s.dir, p.epoch+keyFileSuffix))
 		return nil, err
 	}
 	p.store = s

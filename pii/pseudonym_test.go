@@ -570,6 +570,9 @@ func TestEpochRotateFailedSyncKeepsStoreOpenable(t *testing.T) {
 	if s2.Current().Epoch() != cur.Epoch() {
 		t.Error("the retried rotation is not current after reopening")
 	}
+	if n := len(s2.Epochs()); n != 2 {
+		t.Errorf("%d epochs after reopening, want 2 (the failed rotation's file removed)", n)
+	}
 }
 
 func TestEpochReviewRound3Gaps(t *testing.T) {
