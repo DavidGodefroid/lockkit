@@ -6,8 +6,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 ## Unreleased
 
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
-  names, titles), not in `AllDetectors` (GUIDE §8). Recall 95.0 % on the
-  name corpus, 0 false positives on 2 000 Loghub-style lines.
+  names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
+  name corpus and 2.5 % on held-out names outside the gazetteer; false
+  positives 0 % of 2 000 Loghub-style lines and 2.4 % of held-out ticket
+  and prose lines.
 
 ## v0.7.1 (2026-10-30)
 

@@ -1,0 +1,86 @@
+# Held-out benign lines for person_name: tickets, release notes, systemd
+# and Kubernetes messages, written after the gazetteer was frozen. They
+# hold no real person's name. A hit here is reported, and gated at 5 %.
+Started Docker Application Container Engine.
+Started Daily Cleanup of Temporary Directories.
+Starting Network Manager Wait Online...
+Reached target Graphical Interface.
+Finished Load Kernel Modules.
+Stopped User Login Management.
+Created slice Slice /system/getty.
+Mounted Huge Pages File System.
+Listening on Journal Socket (/dev/log).
+Started Session 42 of User deploy.
+pod/shop-api-7c9f8d6b5-x2k4m created
+deployment.apps/shop-worker scaled
+Successfully assigned shop/api-7c9f8d6b5-x2k4m to node-3
+Back-off restarting failed container api in pod api-7c9f8d6b5-x2k4m
+Readiness probe failed: HTTP probe failed with statuscode: 503
+Pulling image "ghcr.io/acme/shop:1.4.2"
+Container image already present on machine
+Release Notes: Faster Checkout, New Payment Methods, Bug Fixes
+Feature Request: Dark Mode for the Admin Dashboard
+Bug: Checkout Button Unresponsive on Safari
+Customer reports Order Confirmation Email never arrived
+Please Review the Pull Request before Friday
+Merge Request: Upgrade Spring Boot to 3.3
+Jira Ticket SHOP-4471 moved to In Progress
+Sprint Review scheduled with Product Owner
+Quarterly Business Review slides attached
+Payment Gateway Timeout during Black Friday
+Apple Pay and Google Pay enabled in Belgium
+Amazon Web Services outage in Frankfurt Region
+Microsoft Azure Active Directory sync failed
+Cloudflare Workers deployment succeeded
+GitHub Actions workflow Build and Test passed
+GitLab Runner registration token rotated
+Elastic Stack upgrade to 8.15 completed
+Grafana Loki retention set to 30 days
+Prometheus Alertmanager silenced alert HighLatency
+New Relic agent disabled on staging
+Sentry Issue SHOP-1A2 resolved in release 1.4.2
+Stripe Webhook signature verification failed
+PayPal Sandbox credentials expired
+Mollie Payment status changed to paid
+Bancontact Payconiq transaction declined
+Visa Mastercard Maestro accepted
+Christmas Sale starts Monday
+Easter Promotion banner updated
+Valentine Campaign email scheduled
+Spring Collection now online
+Summer Clearance ends soon
+Winter Boots back in stock
+Golden Gate Bridge photo uploaded
+Grand Place tour booked
+Atomium tickets sold out
+Manneken Pis costume changed
+Mont Blanc expedition postponed
+Victoria Falls trip itinerary
+Lake Geneva cruise cancelled
+Rio Grande valley shipment delayed
+Santa Claus parcel delivered
+Tom Tom navigation update available
+Rolling Stones tribute night
+Pink Floyd vinyl reissue
+Harry Potter box set restocked
+Sherlock Holmes audiobook download link
+Romeo Alfa Bravo Charlie Delta Echo
+Alpha Bravo team on call
+Delta Lake table optimized
+Apache Spark job succeeded
+Apache Kafka consumer lag high
+Rust Analyzer crashed
+Visual Studio Code update installed
+Unity Editor license renewed
+Unreal Engine build failed
+Blender Foundation donation receipt
+Linus Torvalds merged the pull request
+Kernel Panic not syncing
+Fatal Error in Production
+Unknown Host Exception thrown
+Null Pointer Exception in OrderService
+Connection Refused by Upstream
+Service Unavailable for Maintenance
+Gateway Timeout after 30 seconds
+Too Many Requests from client
+Internal Server Error on Checkout

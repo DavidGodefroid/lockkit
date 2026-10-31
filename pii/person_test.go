@@ -65,7 +65,7 @@ func TestPersonNameRecall(t *testing.T) {
 			out := d.Mask(in)
 			leak := false
 			for _, w := range strings.FieldsFunc(bare, func(r rune) bool { return r == ' ' || r == '.' }) {
-				if len(w) > 2 && strings.Contains(out, w) && !strings.Contains(fmt.Sprintf(tpl, ""), w) {
+				if len(w) >= 2 && strings.Contains(out, w) && !strings.Contains(fmt.Sprintf(tpl, ""), w) {
 					leak = true
 				}
 			}
@@ -83,6 +83,80 @@ func TestPersonNameRecall(t *testing.T) {
 			t.Log("missed:", m)
 		}
 		t.Errorf("recall %.3f < 0.90", recall)
+	}
+}
+
+// TestPersonNameHeldOutRecall reports recall on names whose given names
+// the gazetteer was not tuned for: an honest number, not a gate.
+func TestPersonNameHeldOutRecall(t *testing.T) {
+	d := detector(t, "person_name")
+	names := readLines(t, "testdata/person-names-heldout.txt")
+	found := 0
+	for _, n := range names {
+		in := "refund approved for " + n + " (ticket 991)"
+		out := d.Mask(in)
+		leak := false
+		for _, w := range strings.Fields(n) {
+			if strings.Contains(out, w) {
+				leak = true
+			}
+		}
+		if !leak {
+			found++
+		}
+	}
+	recall := float64(found) / float64(len(names))
+	t.Logf("person_name held-out recall: %.1f %% (%d/%d)", 100*recall, found, len(names))
+	// Report only: names outside the gazetteer are found only after a
+	// title (GUIDE §8), so this number is low by design.
+	_ = recall
+}
+
+// Words, products and abbreviations reviewers found masked: never names.
+func TestPersonNameKeepsWords(t *testing.T) {
+	d := detector(t, "person_name")
+	for _, in := range []string{
+		"MS Teams crashed", "MX Lookup failed", "MR Approved by bot", "MR Merged into main",
+		"DR Failover completed", "SR Ticket 4471", "Sr Developer role", "Sr. Software Engineer opening",
+		"L2 Cache Miss Ratio", "max_price=100", "MAX_PRICE=100", "order.bill.price=12", "mark_hall=1",
+		"rate=max_wood", "Max Price: 120 EUR", "MAX PRICE EXCEEDED", "Felix ServiceRegistry",
+		"Hugo Theme", "Started Hugo Static Site.", "Cassandra Keyspace", "Bruno Collection",
+		"Leon Fixture", "Adam Optimizer", "Tim Sort", "Kelly Criterion", "Simon Says",
+		"Milan Cathedral", "Oscar Nominee", "Charlotte Hornets", "Morgan Stanley",
+		"Stella Artois", "Kevin Workflow", "the customer said black screen", "per de week",
+	} {
+		if got := d.Mask(in); got != in {
+			t.Errorf("person_name.Mask(%q) = %q, want unchanged", in, got)
+		}
+	}
+	for _, in := range []string{"Kevin VANDEPUTTE called", "J. Smith called", "Jean\tDupont called", "MR SMITH called", "Ms Smith called"} {
+		if got := d.Mask(in); got == in {
+			t.Errorf("person_name.Mask(%q) unchanged, want the name masked", in)
+		}
+	}
+}
+
+// TestPersonNameHeldOutFalsePositives: held-out tickets, release notes,
+// systemd and Kubernetes lines with no real person's name; at most 5 %
+// hit (prose in title case is harder than log lines). "Linus Torvalds"
+// and "Harry Potter" are people, real or fictional: masking them is right.
+func TestPersonNameHeldOutFalsePositives(t *testing.T) {
+	d := detector(t, "person_name")
+	lines := readLines(t, "testdata/person-fp-heldout.txt")
+	fp := 0
+	for _, l := range lines {
+		if strings.HasPrefix(l, "Linus Torvalds") || strings.HasPrefix(l, "Harry Potter") {
+			continue
+		}
+		if got := d.Mask(l); got != l {
+			fp++
+			t.Logf("fp: %s => %s", l, got)
+		}
+	}
+	rate := float64(fp) / float64(len(lines))
+	t.Logf("person_name held-out false positives: %.1f %% (%d/%d)", 100*rate, fp, len(lines))
+	if rate > 0.05 {
+		t.Errorf("held-out false-positive rate %.3f > 0.05", rate)
 	}
 }
 

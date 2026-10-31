@@ -151,7 +151,39 @@ func shapeOf(w string) wordShape {
 // gap returns the text between two words.
 func gap(s string, a, b word) string { return s[a.end:b.start] }
 
-func blankGap(g string) bool { return g == " " || g == "  " || g == " " }
+func blankGap(g string) bool { return g == " " || g == "  " || g == "\t" || g == "\u00a0" }
+
+// camelCase reports a word with a capital inside it that no surname
+// prefix explains ("ServiceRegistry", not "McDonald", "MacLeod",
+// "O'Brien", "DeVito", "LeBlanc").
+func camelCase(w string) bool {
+	if shapeOf(w) == shapeUpper {
+		return false // "SMITH": upper case, not camel case
+	}
+	rs := []rune(w)
+	for i := 1; i < len(rs); i++ {
+		if !unicode.IsUpper(rs[i]) {
+			continue
+		}
+		prev := rs[i-1]
+		if prev == '\'' || prev == '’' || prev == '-' {
+			continue
+		}
+		head := strings.ToLower(string(rs[:i]))
+		switch head {
+		case "mc", "mac", "de", "di", "da", "le", "la", "van", "von", "du", "del", "della":
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+// weakTitles are titles that are also abbreviations or words ("MS
+// Teams", "Sr Developer", "L2 Cache Miss"): a name only when a known
+// given or family name follows.
+var weakTitles = set("sr", "sra", "srta", "miss", "sir", "don", "dona", "ms", "mx", "m", "dott", "sig",
+	"signor", "signora", "madam", "dhr", "prof")
 
 func capitalised(w word) bool { return w.shape == shapeTitle || w.shape == shapeUpper }
 
@@ -198,10 +230,17 @@ func findPersonNames(s string) []span {
 // ending on a capitalised one. It returns the index of the last word.
 func titledName(s string, ws []word, i int) (int, bool) {
 	t := ws[i]
-	if !capitalised(t) && !(t.end-t.start == 1 && unicode.IsUpper(rune(s[t.start]))) || !honorifics[t.key] {
+	single := t.end-t.start == 1 && unicode.IsUpper(rune(s[t.start]))
+	if t.shape != shapeTitle && t.shape != shapeUpper && !single || !honorifics[t.key] {
 		return 0, false
 	}
 	if i+1 >= len(ws) {
+		return 0, false
+	}
+	if t.shape == shapeUpper && ws[i+1].shape != shapeUpper {
+		return 0, false // "MR Approved", "DR Failover": acronyms
+	}
+	if weakTitles[t.key] && !givenNames[ws[i+1].key] && !familyNames[ws[i+1].key] {
 		return 0, false
 	}
 	g := gap(s, t, ws[i+1])
@@ -219,7 +258,7 @@ func titledName(s string, ws []word, i int) (int, bool) {
 			break
 		}
 		switch {
-		case capitalised(w) && !commonWords[w.key] && !honorifics[w.key]:
+		case capitalised(w) && (!commonWords[w.key] || familyNames[w.key]) && !honorifics[w.key] && !camelCase(s[w.start:w.end]):
 			last = j
 			continue
 		case nameParticles[w.key] && last >= 0 || nameParticles[w.key] && j == i+1:
@@ -238,6 +277,14 @@ func titledName(s string, ws []word, i int) (int, bool) {
 func givenAndSurname(s string, ws []word, i int) (int, bool) {
 	g := ws[i]
 	ambiguous := ambiguousNames[g.key]
+	if isInitial(s, g) && i+1 < len(ws) {
+		// "J. Smith": an initial and a known surname that is no word.
+		u := ws[i+1]
+		if blankGap(strings.TrimPrefix(gap(s, g, u), ".")) && familyNames[u.key] && !commonWords[u.key] && capitalised(u) {
+			return i + 1, true
+		}
+		return 0, false
+	}
 	if !givenNames[g.key] && !ambiguous && !compoundGiven(g.key) {
 		return 0, false
 	}
@@ -255,8 +302,10 @@ func givenAndSurname(s string, ws []word, i int) (int, bool) {
 	}
 	if joined {
 		// "john.smith", "John_Smith": both names known, same case.
+		// Ambiguous given names and common-word surnames are config
+		// keys ("max_price", "order.bill.price"), not people.
 		u := ws[j]
-		if familyNames[u.key] && u.shape == g.shape && g.shape != shapeOther {
+		if !ambiguous && familyNames[u.key] && !commonWords[u.key] && u.shape == g.shape && g.shape != shapeOther {
 			return j, true
 		}
 		return 0, false
@@ -279,15 +328,22 @@ func givenAndSurname(s string, ws []word, i int) (int, bool) {
 		return 0, false
 	}
 	known := familyNames[u.key]
+	common := commonWords[u.key]
+	if ambiguous && (!known || common) {
+		return 0, false // "Will retry", "Max Price", "Mark Hall"
+	}
 	switch {
-	case known && u.shape == g.shape && (g.shape != shapeLower || !commonWords[u.key] && !ambiguous):
-		// "Will Smith", "JOHN SMITH", "john smith" (both known).
-		return j, true
+	case known && g.shape == shapeLower:
+		// "john smith": both known, lower case, the surname no word.
+		if u.shape == shapeLower && !common {
+			return j, true
+		}
 	case known && capitalised(g) && capitalised(u):
+		// "Will Smith", "JOHN SMITH", "Thomas King".
 		return j, true
-	case !ambiguous && g.shape == shapeTitle && u.shape == shapeTitle && !commonWords[u.key] &&
-		!honorifics[u.key] && utf8.RuneCountInString(s[u.start:u.end]) >= 2:
-		// "Kevin Vandeputte": an unknown capitalised surname.
+	case g.shape == shapeTitle && (u.shape == shapeTitle || u.shape == shapeUpper) && !common &&
+		!honorifics[u.key] && !camelCase(s[u.start:u.end]) && utf8.RuneCountInString(s[u.start:u.end]) >= 2:
+		// "Kevin Vandeputte", "Kevin VANDEPUTTE": an unknown surname.
 		return j, true
 	}
 	return 0, false

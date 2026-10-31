@@ -211,16 +211,22 @@ bastion reaches; no local port is ever opened.
   text, from embedded gazetteers (given names, family names, titles, in
   the languages above and common immigrant names). A known given name
   followed by a known surname in the same case ("Jean Dupont", "JOHN
-  SMITH", "john smith", "john.smith"), or, in title case, by any
-  capitalised word that is not a common word ("Kevin Vandeputte"); a
-  title before capitalised words ("Mr. Smith", "Mme Lefebvre", "Dr
-  Janssens"); middle initials, particles ("van der") and hyphenated given
+  SMITH", "john smith", "john.smith", "john_smith"), or, in title case,
+  by a title-case or upper-case word that is neither a common word nor
+  camel case ("Kevin Vandeputte", "Kevin VANDEPUTTE"); an initial and a
+  known surname ("J. Smith"); a title-case title before capitalised words
+  ("Mr. Smith", "Mme Lefebvre", "Dr Janssens"; an upper-case title only
+  before an upper-case name; "Ms", "Sr", "Miss" only before a known
+  name); middle initials, particles ("van der") and hyphenated given
   names. Given names that are also words, places or months ("Will",
-  "Max", "Jan", "Austin") need a known surname. Not found: a given or
-  family name alone, "Smith, John", names outside the gazetteer without a
-  title, user names that are not first.last. `TestPersonNameRecall` and
-  `TestPersonNameFalsePositives` log the recall and false-positive rate of
-  each release.
+  "Max", "Jan", "Austin") need a known surname that is no common word,
+  and are never joined by `.`/`_` ("max_price"). Not found: a given or
+  family name alone, surname first ("DUPONT Jean", "Smith, John"), names
+  whose given name is outside the gazetteer without a title (most
+  Hungarian, Greek, West African, South Indian names today: see the
+  held-out recall), user names other than first.last. `TestPersonNameRecall`,
+  `TestPersonNameHeldOutRecall` and `TestPersonNameFalsePositives` log the
+  numbers of each release.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
