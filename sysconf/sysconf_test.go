@@ -137,8 +137,14 @@ func TestLoadFinger(t *testing.T) {
 		t.Fatalf("no finger: %+v, %v", c, err)
 	}
 	withFile(t, "finger = \"pinky\"\n")
-	if _, err := Load(testProduct); err == nil || !strings.Contains(err.Error(), `system.toml: finger: unknown finger name "pinky"`) {
+	if _, err := Load(testProduct); err == nil || !strings.Contains(err.Error(), `system.toml: finger: not an fprintd finger name`) {
 		t.Fatalf("Load = %v", err)
+	}
+	// A value pasted in the wrong key is never echoed.
+	const canary = "glsa_CanarySecretToken123"
+	withFile(t, "finger = \""+canary+"\"\n")
+	if _, err := Load(testProduct); err == nil || strings.Contains(err.Error(), canary) {
+		t.Fatalf("Load = %v (echoes the value)", err)
 	}
 }
 

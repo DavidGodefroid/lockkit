@@ -163,3 +163,15 @@ func TestAllDetectorsSkipsOptIn(t *testing.T) {
 		t.Fatalf("AllDetectors = %s", got)
 	}
 }
+
+// A secret pasted in a detector list never reaches the error.
+func TestDetectorsErrorDoesNotEchoName(t *testing.T) {
+	const canary = "glsa_CanarySecretToken123"
+	_, err := Detectors([]string{"email", canary})
+	if err == nil || strings.Contains(err.Error(), canary) {
+		t.Fatalf("error %v echoes the name", err)
+	}
+	if !strings.Contains(err.Error(), "entry 2") || !strings.Contains(err.Error(), "known: email") {
+		t.Errorf("error %v: want the entry's position and the known names", err)
+	}
+}
