@@ -1,0 +1,169 @@
+# Benign log lines: neither the secret nor the ip detector may change one.
+# Versions, hashes, trace and request ids, timestamps, private addresses,
+# metadata about credentials, prose about authentication.
+10.0.0.12 - - [30/Oct/2026:14:02:11 +0000] "GET /api/orders/4812 HTTP/1.1" 502 157 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36"
+192.168.1.20 - - [30/Oct/2026:14:02:12 +0000] "POST /login HTTP/2.0" 200 512 "https://shop.example.com/" "curl/8.5.0"
+172.17.0.3 - - [30/Oct/2026:14:02:13 +0000] "GET /healthz HTTP/1.1" 200 2 "-" "kube-probe/1.29"
+127.0.0.1 - - [30/Oct/2026:14:02:14 +0000] "GET /static/app.3f786850e387.js HTTP/1.1" 304 0 "-" "-"
+2026/10/30 14:02:11 [error] 1234#1234: *5678 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 10.0.0.12, server: shop.example.com, request: "GET /api/orders/4812 HTTP/1.1", upstream: "http://172.18.0.5:8080/api/orders/4812", host: "shop.example.com"
+Oct 30 14:02:11 web1 systemd[1]: Started nginx.service - A high performance web server and a reverse proxy server.
+Oct 30 14:02:11 web1 kernel: [12345.678901] eth0: link up, 1000 Mbps, full-duplex
+Oct 30 14:02:11 web1 sshd[2201]: Accepted publickey for deploy from 10.1.2.3 port 52144 ssh2: ED25519 SHA256:abcdEFGHijklMNOPqrstUVWXyz0123456789+/AB
+Oct 30 14:02:12 web1 sshd[2202]: Failed password for invalid user admin from 192.168.0.44 port 40022 ssh2
+Oct 30 14:02:12 web1 sudo[2203]: deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/systemctl restart shop
+Oct 30 14:02:13 web1 CRON[2204]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Oct 30 14:02:13 web1 dockerd[901]: time="2026-10-30T14:02:13.123456789Z" level=info msg="Container failed to exit within 10s of signal 15 - using the force" container=5f2c1a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f
+Oct 30 14:02:14 web1 containerd[880]: time="2026-10-30T14:02:14Z" level=info msg="shim disconnected" id=9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a
+{"ts":"2026-10-30T14:02:11.204Z","level":"error","msg":"render pdf failed: upstream timed out","order_id":4812,"status":502,"trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"00f067aa0ba902b7"}
+{"ts":"2026-10-30T14:02:11.205Z","level":"info","msg":"request completed","request_id":"9f86d081884c7d659a2feaa0c55ad015","duration_ms":1532,"bytes":20480}
+{"level":"info","event":"token refreshed","token_type":"Bearer","expires_in":3600,"scope":"openid profile"}
+{"level":"warn","msg":"password policy updated","password_policy":"min12","password_changed_at":"2026-10-30T14:02:11Z"}
+{"level":"info","msg":"llm call","model":"claude-opus","prompt_tokens":1532,"completion_tokens":211,"total_tokens":1743,"max_tokens":4096}
+{"level":"debug","msg":"cache hit","cache_key":"users:42:profile","ttl":300}
+{"level":"info","msg":"migration applied","version":"20261030140211","checksum":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"level":"error","msg":"authentication failed: invalid token","reason":"expired","auth_method":"oidc"}
+{"level":"info","msg":"user logged in","user_id":42,"session_id_hash":"d41d8cd98f00b204e9800998ecf8427e"}
+{"uuid":"123e4567-e89b-12d3-a456-426614174000","parent":"00000000-0000-0000-0000-000000000000"}
+{"git_sha":"3f786850e387550fdab836ed7e6dc881de23001b","build":"v2.14.3+build.7","go":"go1.26.1"}
+level=info ts=2026-10-30T14:02:11.204Z caller=main.go:123 msg="Starting Loki" version="(version=3.2.1, branch=HEAD, revision=a1b2c3d4)"
+level=warn ts=2026-10-30T14:02:12Z caller=retry.go:56 msg="retrying" attempt=3 backoff=1.5s err="context deadline exceeded"
+level=debug component=distributor msg="pushing" streams=12 entries=4096 bytes=1048576
+time=2026-10-30T14:02:11Z level=INFO source=server.go:88 msg="listening" addr=0.0.0.0:8080
+time=2026-10-30T14:02:11Z level=INFO msg="connected to postgres" host=db.internal port=5432 database=shop sslmode=verify-full
+time=2026-10-30T14:02:12Z level=ERROR msg="query failed" sql_state=40001 attempt=2
+time=2026-10-30T14:02:13Z level=INFO msg="token bucket refilled" tokens=100 rate=10
+time=2026-10-30T14:02:14Z level=INFO msg="key rotated" key_id=k-2026-10 rotation=30d
+time=2026-10-30T14:02:15Z level=INFO msg="secret mounted" secret_name=shop-db secret_version=7
+time=2026-10-30T14:02:16Z level=WARN msg="api key expires soon" api_key_id=ak_42 expires=2026-11-30
+I1030 14:02:11.204567       1 controller.go:123] "Reconciling" pod="shop/api-7c9f8d6b5-x2k4m" uid="1b4e28ba-2fa1-11d2-883f-0016d3cca427"
+E1030 14:02:12.000001       1 reflector.go:150] k8s.io/client-go/informers/factory.go:160: Failed to watch *v1.Pod: the server could not find the requested resource
+2026-10-30T14:02:11.204Z stdout F {"msg":"ok","n":1}
+2026-10-30T14:02:11.204Z stderr P partial line of a long stack trace
+Traceback (most recent call last):
+  File "/app/shop/pdf.py", line 88, in render
+    raise TimeoutError("upstream timed out after 30.0 s")
+TimeoutError: upstream timed out after 30.0 s
+java.lang.NullPointerException: Cannot invoke "String.length()" because "s" is null
+	at com.example.shop.PdfRenderer.render(PdfRenderer.java:142)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+panic: runtime error: index out of range [5] with length 5
+goroutine 42 [running]:
+main.handler(0xc000123450, 0x1, 0x2)
+	/src/main.go:88 +0x1f5
+Error: connect ECONNREFUSED 127.0.0.1:5432
+    at TCPConnectWrapper.afterConnect [as oncomplete] (node:net:1607:16)
+npm WARN deprecated uuid@3.4.0: Please upgrade to version 7 or higher.
+Downloading golang.org/x/crypto v0.43.0 (h1:dummyHashValueForGoSumNotASecret=)
+Step 4/12 : RUN apk add --no-cache ca-certificates
+ ---> Using cache
+ ---> 4f9d8c7b6a5e
+Successfully built 4f9d8c7b6a5e
+Successfully tagged shop/api:1.4.2
+gcc -O2 -pthread -pipe -fPIC -c foo.c -o foo.o
+mkdir -p /var/lib/shop && chown -R shop:shop /var/lib/shop
+docker run -d -p 8080:80 -u 1000:1000 --name web nginx:1.27
+sudo -u postgres psql -c "select 1"
+ps -u root -o pid,cmd
+ssh -p 2222 deploy@10.0.0.5
+curl -sS -o /dev/null -w "%{http_code}" https://shop.example.com/healthz
+The client must send a bearer token in the Authorization header.
+Basic authentication is disabled; use a bearer token instead.
+Token validation failed: signature mismatch
+token expired at 2026-10-30T14:02:11Z, refreshing
+Please enter your password to continue.
+Password reset email sent to the user.
+Cookie consent banner shown
+Set the API key in the settings page.
+secret rotation scheduled for 2026-11-01
+using auth method oidc, provider keycloak
+Bearer realm="example", error="invalid_token"
+Authorization header missing
+WWW-Authenticate: Bearer realm="api"
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+User-Agent: Go-http-client/2.0
+X-Request-Id: 9f86d081884c7d659a2feaa0c55ad015
+X-B3-TraceId: 4bf92f3577b34da6a3ce929d0e0e4736
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+Cache-Control: no-cache, no-store
+Server: nginx/1.27.2
+Location: https://shop.example.com/orders/4812
+Via: 1.1 varnish (Varnish/7.4)
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+https://shop.example.com/search?q=shoes&page=2&sort=price
+https://github.com/DavidGodefroid/lockkit/commit/3f786850e387550fdab836ed7e6dc881de23001b
+ssh://git@github.com/DavidGodefroid/lockkit.git
+postgres://db.internal:5432/shop?sslmode=verify-full
+redis://cache:6379/0
+mailto:support@example.com
+file:///var/log/nginx/access.log
+s3://bucket-name/path/to/object.gz
+listening on [::]:8080
+listening on [::1]:8080
+bound to 0.0.0.0:443 and [::]:443
+route add 10.0.0.0/8 via 10.0.0.1 dev eth0
+inet 192.168.1.20/24 brd 192.168.1.255 scope global eth0
+inet6 fe80::1c4e:9d3f:ab12:77e1/64 scope link
+inet6 fd12:3456:789a::1/64 scope global
+link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff
+metadata service 169.254.169.254 timed out
+Linux web1 6.8.0-45-generic #45-Ubuntu SMP PREEMPT_DYNAMIC x86_64 GNU/Linux
+Chrome/120.0.6099.109
+Windows 10.0.19041.1 build
+OpenSSL 3.0.13 30 Jan 2024
+Python 3.12.3
+node v20.11.1
+nginx version: nginx/1.27.2
+loki, version 3.2.1 (branch: HEAD, revision: 659f5421)
+elasticsearch 8.15.3
+took 1.234 s, 12.5 MB/s, 99.9% done
+memory: 1.5GiB/4GiB, cpu: 12.3%
+duration=1h2m3.456s
+latency p50=12ms p99=1.2s
+2026-10-30 14:02:11,204 INFO [main] o.s.b.StartupInfoLogger: Started ShopApplication in 3.456 seconds (process running for 4.012)
+2026-10-30 14:02:12.345 UTC [123] LOG:  checkpoint complete: wrote 42 buffers (0.3%); 0 WAL file(s) added, 0 removed, 1 recycled
+2026-10-30 14:02:13.456 UTC [124] FATAL:  password authentication failed for user "shop"
+2026-10-30 14:02:14.567 UTC [125] ERROR:  duplicate key value violates unique constraint "orders_pkey"
+2026-10-30T14:02:11+01:00 mysqld[777]: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-30 14:02:11] production.ERROR: SQLSTATE[HY000] [2002] Connection refused
+order 4812 failed after 3 attempts
+invoice INV-2026-000123 paid
+sku ABC-123-XYZ out of stock
+build 1.2.3 deployed to staging
+release v0.8.0 tagged at 68b724d
+commit 68b724d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f70
+hash=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+etag="W/5f2c1a9e8b7d6c5f"
+content_md5=1B2M2Y8AsgTpgAmY7PhCfg==
+user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5)"
+path=/var/lib/docker/containers/5f2c1a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f/5f2c1a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f-json.log
+image=ghcr.io/davidgodefroid/locklog@sha256:9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a
+key=users:42 value=cached
+sort_key=created_at partition_key=tenant-7
+primary_key=id
+token_count=12 max_tokens=4096
+password_length=12
+auth_type=basic
+std::vector<int> v; std::string s;
+Foo::Bar::baz() called
+add::face
+12:30:45.678
+--- PASS: TestFoo (0.00s)
+PASS: test_login.py
+FAIL: test_checkout.py
+ok  	github.com/DavidGodefroid/lockkit/pii	2.042s
+logger=com.amazonaws.services.s3.AmazonS3ClientBuilder level=WARN
+{"logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","level":"INFO"}
+routing-key=orders.created exchange=shop
+Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+ssh -o PasswordAuthentication=no deploy@10.0.0.5
+token count=42 elapsed=3ms
+TLS negotiate cipher-suite ok
+mapping ::dead:beef to nothing
+mysql -uroot shop -e 'select 1' | grep -pattern
+version=1.8.0.201 oid 2.5.4.3
+file=src/main/java/com/Example/Abc123DefGhiJklMnoPqr.java line=12
+pass=10 fail=0 skip=2
+GET http://localhost:5173/@vite/client 200
+docker run -d -p 8080:80 nginx
+"GET / HTTP/1.1" 200 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"

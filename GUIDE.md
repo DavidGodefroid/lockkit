@@ -207,6 +207,57 @@ bastion reaches; no local port is ever opened.
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
+- Opt-in, never in `AllDetectors` (name them):
+  - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
+    IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
+    link-local, multicast, unspecified, broadcast and reserved addresses
+    stay in clear; shared CGNAT (100.64/10) and the other IANA
+    special-purpose ranges (documentation, benchmarking, 192.0.0/24) are
+    masked. An address glued to a letter, a digit, `_` or a dot (`v1.2.3.4`, `ip_8.8.8.8`,
+    `1.2.3.4.5`) is not one; a four-part version in public ranges
+    (`5.15.0.91`) is masked.
+  - `secret`: credentials, masked as `<redacted>` (no first character, no
+    length), and run before every other detector. It finds the values of
+    `Authorization`/`Proxy-Authorization` (the scheme word stays),
+    `Cookie`/`Set-Cookie` (to the end of the line), `*-Token`/`*-Key`
+    headers, any `key=value`/`"key": "value"`/`key => value`/`--flag value` whose name
+    `LooksSecret`, a high-entropy value (≥ 32 base64 characters, mixed
+    case and digits, ≥ 4 bits/char, not a dotted class name) in a key
+    position (not under a digest name such as `sha256`), `Bearer`/`Basic`/`Token` credentials in text,
+    JWTs, AWS/GitHub/GitLab/Slack/Stripe/Google/OpenAI/npm/PyPI/... token
+    shapes, PEM private keys (to their END line, or the end of the text),
+    URL userinfo (`postgres://app:pw@db`), `curl -u user:pw` and
+    `mysql -p<password>`. Not found: secrets without a known shape or label
+    (short or low-entropy tokens, passwords in prose, session ids in URL
+    paths, connection strings without userinfo), hex and encoded content
+    outside a key position, doubly escaped JSON, a value on the line after
+    its key (YAML), XML elements (`<password>x</password>`), URL-encoded
+    pairs (`password%3Dx`, unless the caller decodes first), `:=`
+    assignments, an unquoted value cut by `;` or `,`, protocol commands
+    (`PASS x`, `AUTH x`), `redis-cli -a`, `sshpass -p`, SQL `IDENTIFIED BY`,
+    a URL password holding `#` or `?`, a value that opens with a
+    delimiter (`password=<x>`, `password=|x|`), a key quoted inside
+    brackets (`params["password"]="x"`), a key in full-width letters,
+    `STRIPE_KEY`-style names whose owner is not listed, PuTTY `.ppk`
+    bodies, plural names (`api_keys`, `tokens`), and JSON logged inside a
+    string that is itself inside a string, and a flag and its value as
+    separate list elements (`["--password", "x"]`), URLs with escaped
+    slashes (PHP's `https:\/\/user:pw@host`), Go MySQL DSNs without a scheme
+    (`app:pw@tcp(db:3306)/x`), and other clients' password flags
+    (`ldapsearch -w`, `sqlcmd -P`, `smbclient -U user%pw`, `sqlplus u/pw@db`). A secret name with a JSON
+    array or object value masks it whole, across lines, and to the end of
+    the text when it never closes; `Pwd=` (ODBC) is a password unless its
+    value is a path. `docker`/`podman`/`nerdctl`/`buildah
+    login -p` and `mongo*` `-p` are masked; `-p` elsewhere is not.
+    Status words under a secret name (`auth=failed`) are masked too. A
+    dotted quad after `version`, `build`, `release`, `oid` or a product
+    token (`Chrome/124.0.0.0`) is no address.
+- `pii.LooksSecret(name)`: a field, header or flag name that holds a
+  credential (`password`, `client_secret`, `api_key`, `X-Api-Key`,
+  `Authorization`, `Cookie`, `PHPSESSID`, en/fr/nl/de/es); metadata about one
+  (`token_type`, `password_changed_at`, `api_key_id`), token counts
+  (`max_tokens`) and `PWD` are not. Check it before `LooksPersonal`: a
+  secret is redacted, never pseudonymised or unmasked.
 - For text bound for a model, use `pii.FindInViews(s, ds)`: the values
   found in `s` and in every detection view of it, as byte ranges of `s`
   (`[]pii.Match{Start, End, Kind}`, sorted, non-overlapping; `Kind` is the

@@ -120,7 +120,9 @@ func FuzzDetectorsNoPanic(f *testing.F) {
 	f.Add("+32 475 12 34 56 BE68 5390 0754 7034 a@b.c 4111 1111 1111 1111")
 	f.Add("2 69 05 2A 001 123 07 111222333 123-45-6789 85.07.30-033.28")
 	f.Add("+32\u00a0475\u202f12\u200934 56 josé@exämple.de (415) 555-2671 ４１１１")
-	ds, _ := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "person_name"})
+	f.Add("Authorization: Bearer abc123def456 password=\"x\\\"y\" ::ffff:203.0.113.9 [2001:db8::1]:443")
+	f.Add("-----BEGIN PRIVATE KEY-----\nabc postgres://u:p@h curl -u a:b mysql -pX AKIAIOSFODNN7EXAMPLE")
+	ds, _ := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "person_name", "ip", "secret"})
 	f.Fuzz(func(t *testing.T, s string) {
 		for _, d := range ds {
 			s = d.Mask(s)
@@ -171,7 +173,7 @@ func TestDetectorsErrorDoesNotEchoName(t *testing.T) {
 	if err == nil || strings.Contains(err.Error(), canary) {
 		t.Fatalf("error %v echoes the name", err)
 	}
-	if !strings.Contains(err.Error(), "entry 2") || !strings.Contains(err.Error(), "known: email") {
+	if !strings.Contains(err.Error(), "entry 2") || !strings.Contains(err.Error(), "known: secret, email") {
 		t.Errorf("error %v: want the entry's position and the known names", err)
 	}
 }

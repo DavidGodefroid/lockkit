@@ -18,9 +18,17 @@ type Detector interface {
 }
 
 // detectorOrder is the order detectors run in, whatever the order they are
-// configured in: emails first (their digits are not phone numbers), the
-// checksummed numbers next, phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "phone", "phone_loose"}
+// configured in: secrets first (a password in a URL is not an e-mail
+// address), emails next (their digits are not phone numbers), the
+// checksummed numbers, IP addresses (their digits are not phone numbers
+// either), phone numbers, the loosest pattern, last.
+var detectorOrder = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "ip", "phone", "phone_loose"}
+
+// optInDetectors are left out of AllDetectors: phone_loose and
+// person_name for their false positives; ip and secret so that a product
+// upgrading lockkit masks exactly what it masked before until it names
+// them.
+var optInDetectors = set("phone_loose", "person_name", "ip", "secret")
 
 var detectorFinders = map[string]func(string) []span{
 	"email":       findEmails,
@@ -31,6 +39,8 @@ var detectorFinders = map[string]func(string) []span{
 	"nl_bsn":      findBSN,
 	"us_ssn":      findSSN,
 	"phone":       findPhones,
+	"ip":          findIPs,
+	"secret":      findSecrets,
 	"person_name": findPersonNames,
 	// phone_loose is opt-in: it adds national numbers written without a
 	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
@@ -40,7 +50,8 @@ var detectorFinders = map[string]func(string) []span{
 
 // Detectors returns the named detectors, de-duplicated, in their fixed run
 // order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn,
-// phone_loose.
+// and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses) and
+// secret (credentials, tokens and private keys, masked as Redacted).
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for i, n := range names {
@@ -60,12 +71,13 @@ func Detectors(names []string) ([]Detector, error) {
 	return out, nil
 }
 
-// AllDetectors is every detector but the opt-in ones (phone_loose), in
-// their run order: what masking falls back to when it was given none.
+// AllDetectors is every detector but the opt-in ones (phone_loose, ip,
+// secret), in their run order: what masking falls back to when it was
+// given none.
 func AllDetectors() []Detector {
 	var names []string
 	for _, n := range detectorOrder {
-		if n != "phone_loose" && n != "person_name" {
+		if !optInDetectors[n] {
 			names = append(names, n)
 		}
 	}
@@ -110,7 +122,12 @@ func (d finderDetector) Mask(s string) string {
 	last := 0
 	for _, sp := range spans {
 		b.WriteString(s[last:sp.start])
-		b.WriteString(MaskText(s[sp.start:sp.end]))
+		if d.name == "secret" {
+			// Neither the first character nor the length of a secret.
+			b.WriteString(Redacted)
+		} else {
+			b.WriteString(MaskText(s[sp.start:sp.end]))
+		}
 		last = sp.end
 	}
 	b.WriteString(s[last:])
@@ -247,9 +264,49 @@ func isAlnum(c byte) bool {
 }
 
 // before and after return the byte around a range, or 0 at the edges.
+// before reads a \n, \r or \t escape (JSON or a logged string) as the
+// blank it stands for, so a word after it starts there.
 func before(s string, i int) byte {
+	if escapeBoundary(s, i) {
+		return ' '
+	}
 	if i > 0 {
 		return s[i-1]
+	}
+	return 0
+}
+
+// escapeBoundary reports that s[:i] ends with an escape that stands for
+// a blank or a delimiter: \n, \r, \t, or \u0026 (&), \u003c (<),
+// \u003e (>), \u003d (=), \u0027 ('), \u0022 (") as Go's encoding/json
+// and logrus write them.
+func escapeBoundary(s string, i int) bool {
+	return escapeLen(s, i-2) == 2 || escapeLen(s, i-6) == 6
+}
+
+// escapeLen returns the length of a boundary escape that starts at s[i]
+// (its backslash unescaped), or 0.
+func escapeLen(s string, i int) int {
+	if i < 0 || i+1 >= len(s) || s[i] != '\\' || strings.IndexByte("nrtu", s[i+1]) < 0 {
+		return 0 // checked before the run is counted, so a run is read once
+	}
+	n := 0
+	for k := i; k >= 0 && s[k] == '\\'; k-- {
+		n++
+	}
+	if n%2 == 0 {
+		return 0 // an escaped backslash
+	}
+	switch s[i+1] {
+	case 'n', 'r', 't':
+		return 2
+	case 'u':
+		if i+6 <= len(s) {
+			switch strings.ToLower(s[i+2 : i+6]) {
+			case "0026", "003c", "003e", "003d", "0027", "0022":
+				return 6
+			}
+		}
 	}
 	return 0
 }
