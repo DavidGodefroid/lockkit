@@ -229,9 +229,9 @@ bastion reaches; no local port is ever opened.
     back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds views without terminal sequences
     (introduced by ESC, a C1 control or a raw 8-bit C1 byte): CSI (C0
-    controls inside skipped, CAN and SUB cancelling it), OSC, DCS, SOS,
-    PM and APC strings (ended by their terminator, CAN or SUB, or aborted
-    by the next ESC or C1 control), nF and two-byte escapes, dropped whole
+    controls and DEL inside skipped, CAN and SUB cancelling it), OSC, DCS,
+    SOS, PM and APC strings (ended by their terminator, CAN or SUB), nF
+    and two-byte escapes, each aborted by the next ESC or C1 control, dropped whole
     whatever their length (otherwise only their introducer); one view
     keeps the strings' payload. These views are also made of every
     decoded view below, so `\u001b[31m` inside a value does not split it.

@@ -207,11 +207,13 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 			end = int(next[j])
 		case kind >= 0x20 && kind <= 0x2f && intro == 1: // nF ("ESC ( B")
 			j = body
-			for j < len(s) && j-body < 4 && s[j] >= 0x20 && s[j] <= 0x2f {
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x30 && s[j] <= 0x7e {
 				end = j + 1
+			} else if j < len(s) && (s[j] == 0x1b || rawC1(s, j) || s[j] == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f) {
+				end = j // aborted by the next sequence
 			}
 		case kind >= 0x30 && kind <= 0x7e && intro == 1: // two-byte Fp, Fe, Fs escapes ("ESC 7", "ESC c")
 			end = body
@@ -290,16 +292,17 @@ func sepView(s, sep string) View {
 // csiEnd returns the end of the CSI whose parameters start at body (after
 // its final byte, or after a CAN or SUB that cancels it) and the position
 // of its final byte (-1 when cancelled), or -1, -1 when it is not well
-// formed. Other C0 controls inside are executed by a terminal without
-// ending the sequence: they are skipped.
+// formed. Other C0 controls (and DEL) inside are executed or ignored by a
+// terminal without ending the sequence: they are skipped. An ESC or a C1
+// control aborts it: it ends before them, cancelled.
 func csiEnd(s string, body int) (end, final int) {
 	for j := body; j < len(s); j++ {
 		switch c := s[j]; {
 		case c == 0x18 || c == 0x1a:
 			return j + 1, -1
-		case c == 0x1b:
-			return -1, -1
-		case c < 0x20, c <= 0x3f:
+		case c == 0x1b || rawC1(s, j) || c == 0xc2 && j+1 < len(s) && s[j+1] >= 0x80 && s[j+1] <= 0x9f:
+			return j, -1 // aborted: the next sequence starts here
+		case c < 0x20, c <= 0x3f, c == 0x7f:
 			// a C0 control, a parameter or an intermediate byte
 		case c <= 0x7e:
 			return j + 1, j
