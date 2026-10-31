@@ -120,7 +120,7 @@ func detectionView(s string) View { return cleanView(s) }
 // false when it has none. It is one more view, never a replacement: text
 // inside a sequence (an OSC title) is still scanned in the others.
 func ansiView(s string) (View, bool) {
-	if strings.IndexByte(s, 0x1b) < 0 && strings.IndexByte(s, 0xc2) < 0 {
+	if !mayHaveTerminal(s) {
 		return View{}, false
 	}
 	a, ok := stripANSI(s)
@@ -128,6 +128,23 @@ func ansiView(s string) (View, bool) {
 		return View{}, false
 	}
 	return compose(a, cleanView(a.Text)), true
+}
+
+// mayHaveTerminal reports whether s may hold a terminal-sequence
+// introducer: ESC, a C1 control (UTF-8 C2 80-9F) or a raw 8-bit C1 byte
+// (invalid UTF-8).
+func mayHaveTerminal(s string) bool {
+	return strings.IndexByte(s, 0x1b) >= 0 || strings.IndexByte(s, 0xc2) >= 0 || !utf8.ValidString(s)
+}
+
+// rawC1 reports whether s[i] is a raw 8-bit C1 control (0x80-0x9F) that
+// is not part of a valid UTF-8 rune: a terminal reads it as a control.
+func rawC1(s string, i int) bool {
+	if s[i] < 0x80 || s[i] > 0x9f {
+		return false
+	}
+	r, n := utf8.DecodeRuneInString(s[i:])
+	return r == utf8.RuneError && n == 1
 }
 
 // stripANSI drops terminal control sequences (CSI "ESC [ ... final", OSC
@@ -146,9 +163,13 @@ func stripANSI(s string) (View, bool) {
 			kind, body, intro = s[i+1], i+2, 1
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
 			kind, body, intro = s[i+1]-0x40, i+2, 2 // C1 x is ESC (x - 0x40)
+		case rawC1(s, i):
+			kind, body, intro = s[i]-0x40, i+1, 3 // a raw 8-bit C1 byte
 		default:
-			vb.add([]byte{s[i]}, i, i+1)
-			i++
+			// A whole rune: a continuation byte is never read as a C1.
+			_, n := utf8.DecodeRuneInString(s[i:])
+			vb.addString(s[i:i+n], i, i+n)
+			i += n
 			continue
 		}
 		// A sequence is dropped whole only when well formed and short;
@@ -170,6 +191,10 @@ func stripANSI(s string) (View, bool) {
 			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST.
 			for j < len(s) && j-body < maxSeq {
 				if s[j] == 0x07 {
+					end = j + 1
+					break
+				}
+				if rawC1(s, j) && s[j] == 0x9c {
 					end = j + 1
 					break
 				}
@@ -208,6 +233,9 @@ func stripANSI(s string) (View, bool) {
 // glued to one ("ESC P" + an IBAN) stands as its own word. Byte for byte:
 // the map is the identity.
 func separateANSI(s string) (string, bool) {
+	if !mayHaveTerminal(s) && strings.IndexByte(s, 0x07) < 0 {
+		return s, false
+	}
 	b := []byte(s)
 	changed := false
 	blank := func(from, to int) {
@@ -226,14 +254,17 @@ func separateANSI(s string) (string, bool) {
 		case s[i] == 0xc2 && i+1 < len(s) && s[i+1] >= 0x80 && s[i+1] <= 0x9f:
 			blank(i, i+2)
 			i++
-		case s[i] == 0x07:
+		case s[i] == 0x07 || rawC1(s, i):
 			blank(i, i+1)
 		}
 	}
 	// The final byte of a CSI: blank it when a CSI introducer precedes it.
 	for i := 0; i+1 < len(s); i++ {
-		if s[i] == 0x1b && s[i+1] == '[' || s[i] == 0xc2 && s[i+1] == 0x9b {
+		if s[i] == 0x1b && s[i+1] == '[' || s[i] == 0xc2 && s[i+1] == 0x9b || s[i] == 0x9b && rawC1(s, i) {
 			j := i + 2
+			if s[i] == 0x9b {
+				j = i + 1
+			}
 			for j < len(s) && j-i < maxSeq && s[j] >= 0x20 && s[j] <= 0x3f {
 				j++
 			}
@@ -392,27 +423,44 @@ func DetectionViews(s string) []View {
 	base := detectionView(s)
 	out := []View{base}
 	seen := map[string]bool{base.Text: true}
-	addDecoded := func(v View, ok bool) {
-		if !ok {
-			return
-		}
-		dv := compose(v, detectionView(v.Text))
-		if !seen[dv.Text] {
-			seen[dv.Text] = true
-			out = append(out, dv)
-		}
-	}
-	if a, ok := ansiView(s); ok && !seen[a.Text] {
-		seen[a.Text] = true
-		out = append(out, a)
-	}
-	if sep, ok := separateANSI(s); ok {
-		if v := compose(sepView(s, sep), cleanView(sep)); !seen[v.Text] {
+	add := func(v View) {
+		if !seen[v.Text] {
 			seen[v.Text] = true
 			out = append(out, v)
 		}
 	}
+	// viewsOf adds the detection view of v and, when v.Text holds terminal
+	// sequences, the views without them and with them as blanks: a decoding
+	// can write an escape ("\u001b[31m") inside a value.
+	viewsOf := func(v View, clean bool) {
+		if clean {
+			add(compose(v, detectionView(v.Text)))
+		}
+		if a, ok := ansiView(v.Text); ok {
+			add(compose(v, a))
+		}
+		if sep, ok := separateANSI(v.Text); ok {
+			add(compose(v, compose(sepView(v.Text, sep), cleanView(sep))))
+		}
+	}
+	// withoutInvalid adds the views of v without its invalid UTF-8 bytes:
+	// one inside a value would hide it, and dropping it later would join
+	// the value back.
+	withoutInvalid := func(v View) {
+		if w, ok := dropInvalid(v.Text); ok {
+			viewsOf(compose(v, w), true)
+		}
+	}
+	addDecoded := func(v View, ok bool) {
+		if !ok {
+			return
+		}
+		viewsOf(v, true)
+		withoutInvalid(v)
+	}
 	src := View{Text: s}
+	viewsOf(src, false)
+	withoutInvalid(src)
 	if p, ok := decodePercent(s); ok {
 		pv := compose(src, p)
 		addDecoded(pv, true)
@@ -429,9 +477,41 @@ func DetectionViews(s string) []View {
 	// Every decoding in turn, a few rounds: a value written with two
 	// encodings ("jean%40example&#46;com", "jean&#37;40...") or three
 	// percent rounds.
-	chain, rounds := src, 0
+	chain, rounds, sawTerminal := decodeChain(src, false)
+	addDecoded(chain, rounds > 0)
+	if sawTerminal {
+		// A decoding wrote a terminal sequence ("\\x1b[31m" inside a
+		// value): the cleanup between rounds would drop its introducer and
+		// leave the rest splitting the value, so chain once more, stripping
+		// the sequences between rounds.
+		chain, rounds, _ = decodeChain(src, true)
+		addDecoded(chain, rounds > 0)
+	}
+	// Form encoding: "+" for a space, then percent ("tel=%2B32+475+12").
+	if f, ok := decodeForm(s); ok {
+		fv := compose(src, f)
+		if p, ok := decodePercent(fv.Text); ok {
+			fv = compose(fv, p)
+		}
+		addDecoded(fv, true)
+	}
+	return out
+}
+
+// decodeChain applies every decoding in turn, a few rounds, cleaning up
+// between rounds (and, with strip, dropping terminal sequences): a value
+// written with two encodings ("jean%40example&#46;com", "jean&#37;40...")
+// or three percent rounds. sawTerminal reports a round's output with a
+// terminal-sequence introducer.
+func decodeChain(src View, strip bool) (chain View, rounds int, sawTerminal bool) {
+	chain = src
 	for round := 0; round < 16; round++ {
 		changed := false
+		if strip {
+			if a, ok := stripANSI(chain.Text); ok {
+				chain = compose(chain, a)
+			}
+		}
 		// Clean up between decodings: an escape written with a look-alike
 		// or broken by an invisible character ("jean％40", "%4\u200b0").
 		if c := detectionView(chain.Text); c.Text != chain.Text {
@@ -440,6 +520,7 @@ func DetectionViews(s string) []View {
 		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML, decodeHexEscapes} {
 			if d, ok := dec(chain.Text); ok {
 				chain, changed = compose(chain, d), true
+				sawTerminal = sawTerminal || mayHaveTerminal(d.Text)
 			}
 		}
 		if !changed {
@@ -450,16 +531,25 @@ func DetectionViews(s string) []View {
 	if rounds == 16 {
 		chain.cut, chain.cutAt = true, 0 // still decoding: mask it all
 	}
-	addDecoded(chain, rounds > 0)
-	// Form encoding: "+" for a space, then percent ("tel=%2B32+475+12").
-	if f, ok := decodeForm(s); ok {
-		fv := compose(src, f)
-		if p, ok := decodePercent(fv.Text); ok {
-			fv = compose(fv, p)
-		}
-		addDecoded(fv, true)
+	return chain, rounds, sawTerminal
+}
+
+// dropInvalid is s without its invalid UTF-8 bytes, or false when it has
+// none.
+func dropInvalid(s string) (View, bool) {
+	if utf8.ValidString(s) {
+		return View{}, false
 	}
-	return out
+	var vb viewBuilder
+	vb.b = make([]byte, 0, len(s))
+	for i := 0; i < len(s); {
+		r, n := utf8.DecodeRuneInString(s[i:])
+		if r != utf8.RuneError || n != 1 {
+			vb.addString(s[i:i+n], i, i+n)
+		}
+		i += n
+	}
+	return vb.view(len(s)), true
 }
 
 // decodeHexEscapes decodes "\\xHH" (nginx, Python, Go %q logs).
