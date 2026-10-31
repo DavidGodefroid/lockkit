@@ -5,7 +5,6 @@ package agentwire
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 )
@@ -82,7 +81,7 @@ func TestInitClaudeAllowProjectMerges(t *testing.T) {
 		t.Fatalf("merged = %q", got)
 	}
 	st, err := os.Stat(filepath.Join(dir, "settings.local.json"))
-	if err != nil || runtime.GOOS != "windows" && st.Mode().Perm() != 0o600 {
+	if err != nil || st.Mode().Perm() != 0o600 {
 		t.Fatalf("mode = %v, %v (want the file's own 0600 kept)", st.Mode(), err)
 	}
 }
