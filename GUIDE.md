@@ -222,9 +222,11 @@ bastion reaches; no local port is ever opened.
   "Max", "Jan", "Austin") need a known surname that is no common word,
   and are never joined by `.`/`_` ("max_price"). Not found: a given or
   family name alone, surname first ("DUPONT Jean", "Smith, John"), names
-  whose given name is outside the gazetteer without a title (most
-  Hungarian, Greek, West African, South Indian names today: see the
-  held-out recall), user names other than first.last. `TestPersonNameRecall`,
+  whose given name is outside the gazetteer (about 1 350 given and 500
+  family names, Latin script only: Cyrillic, Arabic, CJK names are never
+  found) without a title (see the held-out recall), user names other than
+  first.last and first_last. Three-word names extend over one more
+  title-case word. `TestPersonNameRecall`,
   `TestPersonNameHeldOutRecall` and `TestPersonNameFalsePositives` log the
   numbers of each release.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,

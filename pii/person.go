@@ -218,6 +218,13 @@ func findPersonNames(s string) []span {
 			continue
 		}
 		if end, ok := givenAndSurname(s, ws, i); ok {
+			// A second surname ("Lars Løkke Rasmussen", "Thi Lan Nguyen"):
+			// one more title-case word that is no common word.
+			if n := end + 1; n < len(ws) && ws[end].shape == shapeTitle && ws[n].shape == shapeTitle &&
+				blankGap(gap(s, ws[end], ws[n])) && !commonWords[ws[n].key] && !honorifics[ws[n].key] &&
+				!camelCase(s[ws[n].start:ws[n].end]) && (familyNames[ws[n].key] || !givenNames[ws[n].key]) {
+				end = n
+			}
 			out = append(out, span{ws[i].start, ws[end].end})
 			i = end
 		}

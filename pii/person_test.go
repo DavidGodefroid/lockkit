@@ -120,6 +120,9 @@ func TestPersonNameKeepsWords(t *testing.T) {
 		"DR Failover completed", "SR Ticket 4471", "Sr Developer role", "Sr. Software Engineer opening",
 		"L2 Cache Miss Ratio", "max_price=100", "MAX_PRICE=100", "order.bill.price=12", "mark_hall=1",
 		"rate=max_wood", "Max Price: 120 EUR", "MAX PRICE EXCEEDED", "Felix ServiceRegistry",
+		"gpgv: Signature made Thu Apr 23 10:00:00 2026 UTC", "Date:   Thu Oct 23 10:00:00 2026 +0200",
+		"Thu Oct 29 14:02:11 CET 2026", "Can Reach Host? false", "Lan Interface eth0 up",
+		"Nand Flash ECC error at block 12", "Mai Juni 2026",
 		"Hugo Theme", "Started Hugo Static Site.", "Cassandra Keyspace", "Bruno Collection",
 		"Leon Fixture", "Adam Optimizer", "Tim Sort", "Kelly Criterion", "Simon Says",
 		"Milan Cathedral", "Oscar Nominee", "Charlotte Hornets", "Morgan Stanley",
@@ -127,6 +130,11 @@ func TestPersonNameKeepsWords(t *testing.T) {
 	} {
 		if got := d.Mask(in); got != in {
 			t.Errorf("person_name.Mask(%q) = %q, want unchanged", in, got)
+		}
+	}
+	for in, gone := range map[string]string{"Lars Løkke Rasmussen said": "Rasmussen", "ticket for Mike Kowalczyk": "Kowalczyk"} {
+		if got := d.Mask(in); strings.Contains(got, gone) {
+			t.Errorf("person_name.Mask(%q) = %q, keeps %q", in, got, gone)
 		}
 	}
 	for _, in := range []string{"Kevin VANDEPUTTE called", "J. Smith called", "Jean\tDupont called", "MR SMITH called", "Ms Smith called"} {
