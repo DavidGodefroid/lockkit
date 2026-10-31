@@ -290,7 +290,7 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=]|\\u003[dD])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
@@ -309,14 +309,14 @@ func findSecretPairs(s string) []span {
 		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
 			return start // a URL: "https://"
 		}
-		if (key == "--user" || key == "--proxy-user") && s[m[8]] == '=' {
+		if (key == "--user" || key == "--proxy-user") && s[m[8]] != ':' {
 			v, vs, ve := pairValue(s, start, false, 0)
 			if strings.Contains(v, ":") {
 				out = append(out, span{vs, ve})
 			}
 			return max(ve, start) // read once: "--user=--user=…"
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] == '=' || m[3] > m[2] || m[7] > m[6]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
+		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] != ':' || m[3] > m[2] || m[7] > m[6]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
 			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
@@ -710,6 +710,7 @@ func entropy(v string) float64 {
 var flagRe = regexp.MustCompile(`(--?[A-Za-z][A-Za-z0-9_-]{0,63})[ \t]+`)
 
 func findSecretFlags(s string) []span {
+	s = blankEscapes(s) // "a\\n--password\\tx" in a JSON string; same offsets
 	var out []span
 	eachMatch(s, flagRe, func(start int) bool {
 		b := before(s, start)
@@ -791,6 +792,7 @@ var spacePassRe = regexp.MustCompile(`(?:^|\s)-p(?:[ \t]+|=)?(?:"([^"\n]*)"|'([^
 var curlUserRe = regexp.MustCompile(`(?:^|\s)-u([^\s"':-][^\s"':]*:[^\s"']+)`)
 
 func findMySQLPasswords(s string) []span {
+	s = blankEscapes(s) // "\\nmysql -p…" in a JSON string; same offsets
 	var out []span
 	done := 0
 	for _, m := range mysqlRe.FindAllStringIndex(s, -1) {
@@ -843,4 +845,26 @@ func commandEnd(s string, i int) int {
 		}
 	}
 	return len(s)
+}
+
+// blankEscapes returns s with each \n, \r and \t escape (an odd run of
+// backslashes, then the letter) replaced by a space and the character it
+// stands for: the same length, so offsets stay valid, and commands and
+// flags written in a JSON string read as on a terminal.
+func blankEscapes(s string) string {
+	i := strings.IndexByte(s, '\\')
+	if i < 0 {
+		return s
+	}
+	b := []byte(s)
+	for ; i+1 < len(b); i++ {
+		if b[i] != '\\' {
+			continue
+		}
+		if escapeLen(s, i) == 2 {
+			b[i], b[i+1] = ' ', map[byte]byte{'n': '\n', 'r': '\r', 't': '\t'}[b[i+1]]
+		}
+		i++ // an escape pair, or a backslash and the byte it escapes
+	}
+	return string(b)
 }

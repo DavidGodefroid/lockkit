@@ -52,6 +52,12 @@ func LooksSecret(name string) bool {
 	if len(toks) == 0 {
 		return false
 	}
+	for i, t := range toks {
+		// "password1", "new_password2": a numbered field (Django forms).
+		if u := strings.TrimRight(t, "0123456789"); u != "" && u != t {
+			toks[i] = u
+		}
+	}
 	if len(toks) == 1 && (toks[0] == "pwd" || toks[0] == "oldpwd") {
 		return false
 	}
