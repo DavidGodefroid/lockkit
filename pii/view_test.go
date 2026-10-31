@@ -439,3 +439,56 @@ func TestFindInViewsReviewRepros(t *testing.T) {
 		}
 	}
 }
+
+// The round-4 review's inputs.
+func TestFindInViewsReviewRepros4(t *testing.T) {
+	ds := AllDetectors()
+	zw := "\u200b"
+	pad := strings.Repeat("x ", (DetectLimit-100)/2)
+	for _, c := range []struct{ prefix, value string }{
+		{pad, "jean.dupont" + strings.Repeat("\x0b", 5001) + "@example.com"},
+		{pad, "jean.dupont" + strings.Repeat("\x0c", 5001) + "@example.com"},
+		{pad, "jean.dupont" + strings.Repeat("\u0085", 3000) + "@example.com"},
+		{pad, "0475 " + strings.Repeat(zw, 2000) + "12 34 56"},
+	} {
+		s := c.prefix + c.value + " tail"
+		start := len(c.prefix)
+		covered := false
+		for _, m := range FindInViews(s, ds) {
+			covered = covered || m.Start <= start && start+len(c.value) <= m.End
+		}
+		if !covered {
+			t.Errorf("padded value (%d bytes) across DetectLimit not covered whole", len(c.value))
+		}
+	}
+	for _, c := range []struct{ in, value string }{
+		{"mail jean\x1b(B\x1b[mmple@example.com x", "jean\x1b(B\x1b[mmple@example.com"},
+		{"mail jean@exa\x1b(B\x1b[mmple.com x", "jean@exa\x1b(B\x1b[mmple.com"},
+		{"mail jean@exa\x1bP;\x1b\\mple.com x", "jean@exa\x1bP;\x1b\\mple.com"},
+		{"mail jean@exa\x1b_;\x1b\\mple.com x", "jean@exa\x1b_;\x1b\\mple.com"},
+		{"mail jean@exa\u009b;31mmple.com x", "jean@exa\u009b;31mmple.com"},
+		{"pay B\u0332E68539007547034 x", "B\u0332E68539007547034"},
+		{"call +\u033232 475 12 34 56 x", "+\u033232 475 12 34 56"},
+		{"mail jean@example.\u0301com x", "jean@example.\u0301com"},
+		{"mail jean@example\u3002com x", "jean@example\u3002com"},
+		{"mail jean@example\uff61com x", "jean@example\uff61com"},
+		{"iban \u0412\u041568539007547034 x", "\u0412\u041568539007547034"},
+		{"iban \u0392\u039568539007547034 x", "\u0392\u039568539007547034"},
+		{"ssn 123\u204345\u20436789 x", "123\u204345\u20436789"},
+	} {
+		start := strings.Index(c.in, c.value)
+		covered := false
+		ms := FindInViews(c.in, ds)
+		for _, m := range ms {
+			covered = covered || m.Start <= start && start+len(c.value) <= m.End
+		}
+		if !covered {
+			t.Errorf("FindInViews(%q) = %v, want %q covered", c.in, ms, c.value)
+		}
+	}
+	// Still decoding after the last round: everything is masked.
+	in := "jean&" + strings.Repeat("amp;", 16) + "#64;example.com"
+	if ms := FindInViews(in, ds); len(ms) != 1 || ms[0].Start != 0 || ms[0].End != len(in) {
+		t.Errorf("FindInViews(%q) = %v, want it all", in, ms)
+	}
+}

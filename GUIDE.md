@@ -219,8 +219,12 @@ bastion reaches; no local port is ever opened.
     without what a value can hide behind: default-ignorable characters
     (format characters, variation selectors, the combining grapheme
     joiner, Hangul fillers), controls (C0 but tab and line ends, DEL, C1),
-    the braille blank, marks on a digit, terminal colour and control
-    sequences (`ESC [ ... m`); hyphens, dashes and minus signs read as `-`. `View.Source(start, end)` maps a
+    the braille blank, combining marks, terminal sequences (CSI, OSC, DCS,
+    SOS, PM, APC, nF and two-byte escapes, in their ESC or C1 forms); hyphens,
+    dashes and minus signs read as `-`, ideographic full stops as `.`, and
+    Cyrillic and Greek letters drawn like Latin ones as those. Invalid
+    UTF-8 bytes are kept: replace or drop them before the text leaves your
+    product, and only after masking if you drop them. `View.Source(start, end)` maps a
     range of `View.Text` back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds the detection view of `s` percent-decoded
     (once, twice), with JSON escapes decoded (`\u0040`), with HTML

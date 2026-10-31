@@ -92,18 +92,41 @@ func finish(ms []rankedMatch, rest int, src string) []Match {
 func backOverWord(s string, i int) int {
 	for i > 0 {
 		r, n := utf8.DecodeLastRuneInString(s[:i])
-		if !unicode.IsSpace(r) || ignorable(r) {
-			i -= n
+		if droppedInView(r) || !unicode.IsSpace(r) {
+			i -= n // part of the word, or invisible to the detectors
 			continue
 		}
-		// A single blank between digits (a grouped number) does not end it.
-		if r == ' ' && i-n > 0 && isDigit(s[i-n-1]) && i < len(s) && isDigit(s[i]) {
+		// A blank between digit groups (or after a group separator) does
+		// not end a number: look at the nearest kept runes on both sides.
+		if numberSide(s[:i-n], true) && numberSide(s[i:], false) {
 			i -= n
 			continue
 		}
 		break
 	}
 	return i
+}
+
+// numberSide reports whether the nearest rune of t that the view keeps
+// (the last one when last, else the first) is a digit or a group
+// separator ('.', '-', '/', ')').
+func numberSide(t string, last bool) bool {
+	for t != "" {
+		var r rune
+		var n int
+		if last {
+			r, n = utf8.DecodeLastRuneInString(t)
+			t = t[:len(t)-n]
+		} else {
+			r, n = utf8.DecodeRuneInString(t)
+			t = t[n:]
+		}
+		if droppedInView(r) {
+			continue
+		}
+		return r >= '0' && r <= '9' || r == '.' || r == '-' || r == '/' || r == ')' || r == '(' || r == '+'
+	}
+	return false
 }
 
 // rankedMatch is a match with the position of its detector in the list it
