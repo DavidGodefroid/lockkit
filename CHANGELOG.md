@@ -21,9 +21,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
   key files, one process per directory, `Rotate`, `RotationDue`, `Prune`)
   (GUIDE §8, #95).
 - `pii`: the `secret` detector checks for a literal its token, scheme,
-  userinfo and command-line regexps need before running them: about
-  5 MB/s per core on plain log lines instead of 1 MB/s
-  (`BenchmarkSecretBenignCorpus`), same output.
+  userinfo and command-line regexps need before running them, and starts
+  its key=value search near the next separator: about 7 MB/s per core on
+  plain log lines instead of 1 MB/s (`BenchmarkSecretBenignCorpus`), same
+  output. CI fails under 3 MB/s (`TestSecretThroughputFloor`).
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
   name corpus and 10 % on held-out names outside the gazetteer; false

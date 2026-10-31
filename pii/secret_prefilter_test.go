@@ -4,6 +4,7 @@ import (
 	"os"
 	"reflect"
 	"regexp/syntax"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -16,6 +17,7 @@ var prefiltered = []struct {
 	{"authSchemes", findAuthSchemes, scanAuthSchemes},
 	{"userinfo", findUserinfo, scanUserinfo},
 	{"mysql", findMySQLPasswords, scanMySQLPasswords},
+	{"pairs", findSecretPairs, func(s string) []span { return secretPairs(s, nil) }},
 }
 
 func checkPrefilters(t *testing.T, s string) {
@@ -151,6 +153,29 @@ func FuzzSecretPrefiltersAreExact(f *testing.F) {
 		}
 		checkPrefilters(t, s)
 	})
+}
+
+// TestSecretThroughputFloor fails when the secret detector masks the benign
+// corpus slower than LOCKKIT_PII_FLOOR_MBPS (MB/s on one goroutine). CI
+// sets it well under the measured speed (about 7 MB/s per core), so that
+// only a regression, not a noisy runner, fails it; locklog needs at least
+// 4 MiB/s per core for an approved scan to fit its approval.
+func TestSecretThroughputFloor(t *testing.T) {
+	floor, err := strconv.ParseFloat(os.Getenv("LOCKKIT_PII_FLOOR_MBPS"), 64)
+	if err != nil {
+		t.Skip("LOCKKIT_PII_FLOOR_MBPS not set")
+	}
+	best := 0.0
+	for range 3 { // the best of three runs, against scheduler noise
+		r := testing.Benchmark(BenchmarkSecretBenignCorpus)
+		if mbps := float64(r.Bytes) * float64(r.N) / r.T.Seconds() / 1e6; mbps > best {
+			best = mbps
+		}
+	}
+	t.Logf("secret: %.2f MB/s", best)
+	if best < floor {
+		t.Fatalf("secret masks %.2f MB/s, under the floor of %.2f MB/s", best, floor)
+	}
 }
 
 // BenchmarkSecretBenignCorpus is the secret detector on benign log lines,

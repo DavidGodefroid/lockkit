@@ -152,13 +152,23 @@ func isLetterDigit(c byte) bool { return isDigit(c) || c >= 'a' && c <= 'z' || c
 // (the boundary RE2 cannot look behind for), then searches again from
 // the offset f returns; a refused match is retried one rune on.
 func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []int) int) {
-	eachMatchGlue(s, re, isAlnum, ok, f)
+	eachMatchGlue(s, re, isAlnum, nil, ok, f)
 }
 
 // eachMatchGlue is eachMatch where a refused match skips the rest of the
 // run of glue bytes it starts in (any match starting there is refused too).
-func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, ok func(start int) bool, f func(m []int) int) {
+//
+// window, when set, moves a search start forward to where a match can
+// begin (see pairWindow), or reports that none can.
+func eachMatchGlue(s string, re *regexp.Regexp, glue func(byte) bool, window func(s string, pos int) (int, bool), ok func(start int) bool, f func(m []int) int) {
 	for pos := 0; pos <= len(s); {
+		if window != nil {
+			w, more := window(s, pos)
+			if !more {
+				return
+			}
+			pos = w
+		}
 		m := re.FindStringSubmatchIndex(s[pos:])
 		if m == nil {
 			return
@@ -294,10 +304,14 @@ func scanUserinfo(s string) []span {
 // string (\"password\":\"x\").
 var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=]|\\u003[dD])[ \t]*`)
 
-func findSecretPairs(s string) []span {
+func findSecretPairs(s string) []span { return secretPairs(s, pairWindow) }
+
+// secretPairs is findSecretPairs; a nil window searches from every
+// position (the reference the window is tested against).
+func secretPairs(s string, window func(string, int) (int, bool)) []span {
 	s = jsonEscapeView(s) // same offsets
 	var out []span
-	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, func(start int) bool {
+	eachMatchGlue(s, pairRe, func(c byte) bool { return isAlnum(c) || c == '.' || c == '-' }, window, func(start int) bool {
 		if escapeLen(s, start) > 0 {
 			return false // "\r\nauth=": the key starts after the escape
 		}

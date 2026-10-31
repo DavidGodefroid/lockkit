@@ -3,6 +3,7 @@ package pii
 import (
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // --- literal prefilters
@@ -143,4 +144,29 @@ func findMySQLPasswords(s string) []span {
 		return nil
 	}
 	return scanMySQLPasswords(s)
+}
+
+// pairKeyBytes bounds what pairRe matches before the blanks ahead of its
+// separator: a 2-byte opening quote, "--", four "_", a 64-rune key of at
+// most 4 bytes a rune, a 2-byte closing quote.
+const pairKeyBytes = 2 + 2 + 4 + 64*utf8.UTFMax + 2
+
+// pairWindow returns where a pairRe search from pos may start without
+// missing its leftmost match, or false when none can follow. Every match
+// holds a separator ("=", ":" or "=>"), and the bytes before the first one
+// it holds are an opening quote (which may itself be ":"), a key, a
+// closing quote and blanks, none of them "=" or ":" but that quote: the
+// leftmost match starts at most pairKeyBytes before the blanks ahead of
+// the first separator after pos. Go's regexp otherwise runs its automaton
+// over every byte of a text without one.
+func pairWindow(s string, pos int) (int, bool) {
+	k := strings.IndexAny(s[pos:], "=:")
+	if k < 0 {
+		return 0, false
+	}
+	k += pos
+	for k > pos && (s[k-1] == ' ' || s[k-1] == '\t') {
+		k--
+	}
+	return max(pos, k-pairKeyBytes), true
 }
