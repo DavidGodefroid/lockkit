@@ -318,9 +318,11 @@ func findSecretPairs(s string) []span {
 		}
 		if s[start] == '[' {
 			// A JSON array (Go's http.Header: "X-Api-Key":["v"]): the
-			// whole list, to its closing bracket on the line.
+			// whole list, to its closing bracket.
 			end := arrayEnd(s, start)
-			out = append(out, span{start + 1, end})
+			if end > start+1 {
+				out = append(out, span{start + 1, end})
+			}
 			return end
 		}
 		var v string
@@ -359,24 +361,47 @@ func findSecretPairs(s string) []span {
 }
 
 // arrayEnd returns the offset of the "]" that closes the array opened at
-// s[i] (quoted strings skipped), or the end of the line.
+// s[i]: nested arrays and quoted strings (plain, or escaped as \" in a
+// logged JSON string) are skipped, and the array may span lines
+// (json.MarshalIndent). An array that does not close within maxCandidate
+// bytes (cut, or not JSON) ends at the end of the line where that bound
+// falls, so a later element on another line is never left in clear.
 func arrayEnd(s string, i int) int {
-	var q byte
+	var q byte   // the open quote, 0 outside a string
+	esc := false // the open quote is an escaped \"
+	depth := 0
+	limit := i + 1 + maxCandidate
 	for j := i + 1; j < len(s); j++ {
+		if j >= limit {
+			return lineEnd(s, j, true)
+		}
 		c := s[j]
 		switch {
-		case c == '\n' || c == '\r':
-			return j
+		case esc:
+			if c == '\\' && j+1 < len(s) {
+				if s[j+1] == '"' {
+					q, esc = 0, false
+				}
+				j++
+			}
 		case q != 0 && c == '\\':
 			j++
 		case q != 0:
 			if c == q {
 				q = 0
 			}
+		case c == '\\' && j+1 < len(s) && s[j+1] == '"':
+			q, esc = '"', true
+			j++
 		case c == '"' || c == '\'':
 			q = c
+		case c == '[':
+			depth++
 		case c == ']':
-			return j
+			if depth == 0 {
+				return j
+			}
+			depth--
 		}
 	}
 	return len(s)

@@ -309,54 +309,61 @@ func TestSecretReviewBypasses(t *testing.T) {
 		"password=\t\t\t\t\tSECRET3":             "SECRET3",
 		"password    =    SECRET4":               "SECRET4",
 		"Bearer Bearer abcdef123456":             "abcdef123456",
-		`{"headers":{"Accept":["*/*"],"X-Api-Key":["s3cr3tkeyvalue"]}}`:                 "s3cr3tkeyvalue",
-		`{"X-Auth-Token":["tok-12345"]}`:                                                "tok-12345",
-		`{"Authorization":["Bearer s3cr3t"]}`:                                           "s3cr3t",
-		`{"password": [ "hunter2" ]}`:                                                   "hunter2",
-		"login: user=bob pass=1234 status=failed errors=0":                              "1234",
-		"login failed user=admin pass=1234":                                             "1234",
-		"ERROR auth failed: user=bob pass=0000":                                         "0000",
-		"user=admin pass=123456 failures=0":                                             "123456",
-		"pass=123456 reason=failed_login":                                               "123456",
-		`{"user":"bob","pass":1234,"status":"failed"}`:                                  "1234",
-		"keytool -importkeystore -storepass changeit -keypass changeit2":                "changeit",
-		"docker login -u bob -p hunter2 registry.example.com":                           "hunter2",
-		"podman login -u bob -p=hunter2 quay.io":                                        "hunter2",
-		"mongosh -u admin -p hunter2 mongodb://db":                                      "hunter2",
-		"MAILER_DSN=smtp://bob@example.com:hunter2@smtp.example.com:465":                "hunter2",
-		"user=admin pass=123456 host=ftp":                                               "123456",
-		"curl --user=bob:hunter2 https://api.example.com":                               "hunter2",
-		"curl -s https://example.com/dump.sql | mysql -uroot -phunter2 shop":            "hunter2",
-		"mysqldump -uroot -px shop | curl -T - -ubob:pw77 ftp://x/":                     "pw77",
-		`mysql -uroot -p"pa;ss" shop`:                                                   "pa;ss",
-		`mysql -uroot -p'pa|ss' shop`:                                                   "pa|ss",
-		"sessionId=AbCdEf123456":                                                        "AbCdEf123456",
-		`"sessionId":"s3cr3t-sess"`:                                                     "s3cr3t-sess",
-		"session_id=abc123":                                                             "abc123",
-		"contraseña=abcxyz":                                                             "abcxyz",
-		`{"name":"DB_PASSWORD","value":"hunter2"}`:                                      "hunter2",
-		`curl -H "Authorization: Bearer abcdefgh" x`:                                    "abcdefgh",
-		`curl -H "Authorization: Token abcdefgh9" x`:                                    "abcdefgh9",
-		`curl -H "Proxy-Authorization: Digest username=\"a\", response=\"6629fae4\"" x`: "6629fae4",
-		`curl -H "Cookie: theme=dark; session=SECRETVALUE" x`:                           "SECRETVALUE",
-		`curl -H 'Cookie: a=1; sid=SECRETVALUE' x`:                                      "SECRETVALUE",
-		`{"password"=>"hunter2"}`:                                                       "hunter2",
-		`{:password=>"hunter2"}`:                                                        "hunter2",
-		`'password' => 'hunter2'`:                                                       "hunter2",
-		"[password] => hunter2":                                                         "hunter2",
-		"curl -ubob:hunter2 x":                                                          "hunter2",
-		"session=SECRETVALUE laravel_session=SECRET2":                                   "SECRET",
-		"git clone https://" + fakeGH + "@github.com/o/r.git":                           fakeGH,
-		"next=/login/" + fakeJWT:                                                        fakeJWT[40:60],
-		"https://example.com/cb/" + fakeSlack:                                           fakeSlack,
-		"path=/hooks/" + fakeOpenAI:                                                     fakeOpenAI,
-		"file:///home/u/" + fakeAWS:                                                     fakeAWS,
-		"url=/api/v1?x=" + fakeStripe:                                                   fakeStripe,
-		"PGPASSWORD=hunter2 psql -h db":                                                 "hunter2",
-		"DBPASS_WORD=x GITHUBTOKEN=tok77":                                               "tok77",
-		"postgres://app:p@ss@db.example.com/x":                                          "ss@db",
-		"postgres://app:pa/ss@db/x":                                                     "pa/ss",
-		`"authorization": \"Bearer tok123456\"`:                                         "tok123456",
+		`{"headers":{"Accept":["*/*"],"X-Api-Key":["s3cr3tkeyvalue"]}}`:                    "s3cr3tkeyvalue",
+		`{"X-Auth-Token":["tok-12345"]}`:                                                   "tok-12345",
+		"{\n  \"X-Api-Key\": [\n    \"s3cr3tkeyvalue\"\n  ]\n}":                            "s3cr3tkeyvalue",
+		"{\"X-Api-Key\": [\"a\",\r\n \"s3cr3tkeyvalue\"]}":                                 "s3cr3tkeyvalue",
+		`{"password":[["a"],["hunter2"]]}`:                                                 "hunter2",
+		`{"password":[["a]"],"hunter2"]}`:                                                  "hunter2",
+		`{"password":["a","b\"]","hunter2"]}`:                                              "hunter2",
+		`msg="{\"token\":[\"a]\",\"tok-12345\"]}"`:                                         "tok-12345",
+		"{\"password\": [\"a\",\n" + strings.Repeat("  \"x\",\n", 50) + "  \"hunter2\"]}": "hunter2",
+		`{"Authorization":["Bearer s3cr3t"]}`:                                              "s3cr3t",
+		`{"password": [ "hunter2" ]}`:                                                      "hunter2",
+		"login: user=bob pass=1234 status=failed errors=0":                                 "1234",
+		"login failed user=admin pass=1234":                                                "1234",
+		"ERROR auth failed: user=bob pass=0000":                                            "0000",
+		"user=admin pass=123456 failures=0":                                                "123456",
+		"pass=123456 reason=failed_login":                                                  "123456",
+		`{"user":"bob","pass":1234,"status":"failed"}`:                                     "1234",
+		"keytool -importkeystore -storepass changeit -keypass changeit2":                   "changeit",
+		"docker login -u bob -p hunter2 registry.example.com":                              "hunter2",
+		"podman login -u bob -p=hunter2 quay.io":                                           "hunter2",
+		"mongosh -u admin -p hunter2 mongodb://db":                                         "hunter2",
+		"MAILER_DSN=smtp://bob@example.com:hunter2@smtp.example.com:465":                   "hunter2",
+		"user=admin pass=123456 host=ftp":                                                  "123456",
+		"curl --user=bob:hunter2 https://api.example.com":                                  "hunter2",
+		"curl -s https://example.com/dump.sql | mysql -uroot -phunter2 shop":               "hunter2",
+		"mysqldump -uroot -px shop | curl -T - -ubob:pw77 ftp://x/":                        "pw77",
+		`mysql -uroot -p"pa;ss" shop`:                                                      "pa;ss",
+		`mysql -uroot -p'pa|ss' shop`:                                                      "pa|ss",
+		"sessionId=AbCdEf123456":                                                           "AbCdEf123456",
+		`"sessionId":"s3cr3t-sess"`:                                                        "s3cr3t-sess",
+		"session_id=abc123":                                                                "abc123",
+		"contraseña=abcxyz":                                                                "abcxyz",
+		`{"name":"DB_PASSWORD","value":"hunter2"}`:                                         "hunter2",
+		`curl -H "Authorization: Bearer abcdefgh" x`:                                       "abcdefgh",
+		`curl -H "Authorization: Token abcdefgh9" x`:                                       "abcdefgh9",
+		`curl -H "Proxy-Authorization: Digest username=\"a\", response=\"6629fae4\"" x`:    "6629fae4",
+		`curl -H "Cookie: theme=dark; session=SECRETVALUE" x`:                              "SECRETVALUE",
+		`curl -H 'Cookie: a=1; sid=SECRETVALUE' x`:                                         "SECRETVALUE",
+		`{"password"=>"hunter2"}`:                                                          "hunter2",
+		`{:password=>"hunter2"}`:                                                           "hunter2",
+		`'password' => 'hunter2'`:                                                          "hunter2",
+		"[password] => hunter2":                                                            "hunter2",
+		"curl -ubob:hunter2 x":                                                             "hunter2",
+		"session=SECRETVALUE laravel_session=SECRET2":                                      "SECRET",
+		"git clone https://" + fakeGH + "@github.com/o/r.git":                              fakeGH,
+		"next=/login/" + fakeJWT:                                                           fakeJWT[40:60],
+		"https://example.com/cb/" + fakeSlack:                                              fakeSlack,
+		"path=/hooks/" + fakeOpenAI:                                                        fakeOpenAI,
+		"file:///home/u/" + fakeAWS:                                                        fakeAWS,
+		"url=/api/v1?x=" + fakeStripe:                                                      fakeStripe,
+		"PGPASSWORD=hunter2 psql -h db":                                                    "hunter2",
+		"DBPASS_WORD=x GITHUBTOKEN=tok77":                                                  "tok77",
+		"postgres://app:p@ss@db.example.com/x":                                             "ss@db",
+		"postgres://app:pa/ss@db/x":                                                        "pa/ss",
+		`"authorization": \"Bearer tok123456\"`:                                            "tok123456",
 	} {
 		if got := d.Mask(in); strings.Contains(got, leak) {
 			t.Errorf("secret.Mask(%q) = %q, keeps %q", in, got, leak)
@@ -372,7 +379,7 @@ func FuzzSecretPairVariants(f *testing.F) {
 	f.Add(uint8(3), uint8(1), uint8(5), uint8(2), uint8(4), "a=")
 	keys := []string{"password", "client_secret", "api_key", "X-Api-Key", "access_token", "--password", "Authorization", "Cookie", "db_pwd", `\"password\"`, `"token"`, "'secret'"}
 	seps := []string{"=", ":", " = ", ": ", "=\t\t\t\t\t", ":      "}
-	quotes := []string{"", `"`, "'", `\"`, `["`}
+	quotes := []string{"", `"`, "'", `\"`, `["`, "[\n  \"", `[["a"],["`, "[\"x\",\r\n\t\"", `[\"a]\",\"`}
 	prefixes := []string{"", " ", "x: ", "a=", `msg="`, "{", ",", "\t", "&", "?", "; ", "k=v "}
 	f.Fuzz(func(t *testing.T, ki, si, qi, pi, ti uint8, pre string) {
 		if len(pre) > 256 || strings.ContainsAny(pre, "\n\r") {
@@ -385,8 +392,17 @@ func FuzzSecretPairVariants(f *testing.F) {
 			p = " " // "xpassword" is another key
 		}
 		closeQ := q
-		if q == `["` {
+		switch q {
+		case `["`:
 			closeQ = `"]`
+		case "[\n  \"":
+			closeQ = "\"\n]"
+		case `[["a"],["`:
+			closeQ = `"]]`
+		case "[\"x\",\r\n\t\"":
+			closeQ = `"]`
+		case `[\"a]\",\"`:
+			closeQ = `\"]`
 		}
 		in := pre + p + key + sep + q + canary + closeQ + " tail"
 		out, _ := Detect(in, mustDetectors(t, "secret")).(string)
@@ -402,4 +418,17 @@ func mustDetectors(t *testing.T, names ...string) []Detector {
 		t.Fatal(err)
 	}
 	return ds
+}
+
+func TestSecretEmptyArrayHasNoSpan(t *testing.T) {
+	for _, in := range []string{`{"X-Api-Key":[]}`, `{"password":[ ]} ok`} {
+		for _, sp := range findSecretPairs(in) {
+			if sp.end <= sp.start {
+				t.Errorf("findSecretPairs(%q) has the empty span %v", in, sp)
+			}
+		}
+	}
+	if out := detector(t, "secret").Mask(`{"X-Api-Key":[]}`); out != `{"X-Api-Key":[]}` {
+		t.Errorf("an empty array changed: %q", out)
+	}
 }
