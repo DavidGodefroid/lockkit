@@ -253,3 +253,28 @@ func TestFindInViewsPlantedEncodings(t *testing.T) {
 		}
 	}
 }
+
+// A value straddling the point where an expanded view stops is masked
+// whole: the fail-closed match starts before it.
+func TestFindInViewsValueAcrossViewCap(t *testing.T) {
+	ds := AllDetectors()
+	// Values only a view finds whole: in the source, an invisible
+	// character cuts each.
+	values := []string{"jean\u200b.dupont@example.com", "BE68\u200b5390\u200b0754\u200b7034", "+32\u200b475123456", "4111\u200b1111\u200b1111\u200b1111"}
+	// U+FDFA expands to 33 bytes: after k of them the view is 33k bytes
+	// long; padding moves the point where it stops across the value.
+	k := maxViewBytes / 33
+	for _, v := range values {
+		for pad := 0; pad <= maxViewBytes-33*k+len(v); pad++ {
+			s := strings.Repeat("\ufdfa", k) + strings.Repeat(",", pad) + " " + v + " " + strings.Repeat("\ufdfa", 100)
+			start := strings.Index(s, v)
+			covered := false
+			for _, m := range FindInViews(s, ds) {
+				covered = covered || m.Start <= start && start+len(v) <= m.End
+			}
+			if !covered {
+				t.Fatalf("value %q after %d commas not covered whole: %v", v, pad, FindInViews(s, ds))
+			}
+		}
+	}
+}
