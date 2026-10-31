@@ -3,6 +3,30 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console.Options.PolicyOnly`: a console that serves its policy and
+  decides no request, for a lock whose requests another process's hub
+  decides (lockhttp: its gate asks lockhub; `lox up` starts its console
+  without hub flags). `Run` starts without hub options and refuses them
+  with it (`console.ErrPolicyOnlyHub`), and refuses `Options.OnHub`; it
+  opens no hub. Every request handed to `Env.Approve` is refused
+  (`console.ErrPolicyOnly`, `ipc.CodeDenied`, audited `refused`), never
+  asked on the terminal nor approved; the console's own decisions (its
+  policy at start and at a loosening, `:unmask`) are still asked on its
+  terminal. `console.PolicyOnlyApprover(base)` is its approver, for a
+  product with its own console lifecycle. Fixes lockhttp's console, which
+  lockkit v0.9.0 refused to start under `lox up`.
+- `console.WithdrawStandalone` (deprecated) is inert: it withdraws
+  nothing and touches no file. Called by a product, it ended the pending
+  plans of every hub instance whose console was not running.
+- `client.StartCommand` is `lox up` (its arguments are no longer used),
+  and the `client.NoConsoleError` hint is `client.StartHint`, "the console
+  is started by `lox up` only: ask the user to run `lox up`", with no
+  profile or project in it: `<lock> console --profile …` refuses to start
+  since v0.9.0. `mcpkit.NoConsole` answers the same for a bare
+  `client.ErrNoConsole`.
+
 ## v0.9.0 (2026-10-31)
 
 Breaking: a console is hub-attached only. There is no standalone console
