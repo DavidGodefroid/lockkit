@@ -280,8 +280,8 @@ func escapeBoundary(s string, i int) bool {
 // escapeLen returns the length of a boundary escape that starts at s[i]
 // (its backslash unescaped), or 0.
 func escapeLen(s string, i int) int {
-	if i < 0 || i+1 >= len(s) || s[i] != '\\' {
-		return 0
+	if i < 0 || i+1 >= len(s) || s[i] != '\\' || strings.IndexByte("nrtu", s[i+1]) < 0 {
+		return 0 // checked before the run is counted, so a run is read once
 	}
 	n := 0
 	for k := i; k >= 0 && s[k] == '\\'; k-- {

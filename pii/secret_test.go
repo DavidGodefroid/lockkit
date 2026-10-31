@@ -241,6 +241,7 @@ func TestSecretPathologicalInputs(t *testing.T) {
 		"curl users":  strings.Repeat("--user=", DetectLimit/7),
 		"proxy users": strings.Repeat("--proxy-user=", DetectLimit/13),
 		"escapes":     strings.Repeat(`\npassword`, DetectLimit/10),
+		"backslashes": "password=" + strings.Repeat(`\`, DetectLimit),
 		"quotes":      strings.Repeat(`x="`, DetectLimit/3),
 		"tokens":      strings.Repeat("k="+fakeRandom[:31]+" ", DetectLimit/40),
 		"aws4":        strings.Repeat("AWS4-HMAC-SHA256 ", DetectLimit/17),

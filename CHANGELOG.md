@@ -13,7 +13,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - `pii`: every detector reads a `\n`, `\r` or `\t` escape, and the
   `\u0026`-style escapes of `&`, `<`, `>`, `=` and quotes (JSON written by
   zap, logrus, bunyan or Go's `encoding/json`), as the blank or delimiter
-  it stands for, so a value right after one is found: `{"msg":"tel:\t0475123456"}` is now masked. This is the
+  it stands for, so a word right after one is found (a value made of
+  digits right after a `\u00XX` escape may still glue to its hex digits): `{"msg":"tel:\t0475123456"}` is now masked. This is the
   only output change for products that keep `AllDetectors`.
 - `pii`: opt-in `person_name` detector (gazetteer of given and family
   names, titles), not in `AllDetectors` (GUIDE §8). Recall 98.9 % on the
