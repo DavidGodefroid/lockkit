@@ -71,3 +71,51 @@ func TestIPHexDumpStaysLinear(t *testing.T) {
 		t.Error("address after a long hex run not masked")
 	}
 }
+
+// Addresses glued to a long hex or colon run are still found.
+func TestIPInsideLongRuns(t *testing.T) {
+	d := detector(t, "ip")
+	for _, in := range []string{
+		strings.Repeat("deadbeef:", 12) + "203.0.113.9",
+		strings.Repeat("ab:", 40) + "203.0.113.9 x",
+		strings.Repeat("ab:", 40) + "2001:db8::7 x",
+		"aa:bb:cc:dd:ee:ff:2001:db8::7",
+		strings.Repeat("0", 80) + ":203.0.113.9",
+	} {
+		got := d.Mask(in)
+		if strings.Contains(got, "203.0.113.9") || strings.Contains(got, "2001:db8::7") {
+			t.Errorf("ip.Mask(%q) = %q", in, got)
+		}
+	}
+}
+
+// A canary address after any prefix is masked, or the prefix glues it
+// into a word or a version (letter, digit or dot right before it).
+func FuzzIPCanaryAfterPrefix(f *testing.F) {
+	for _, s := range []string{"", "x:", strings.Repeat("ab:", 30), "::", "fe80::", "1.2.", "deadbeef"} {
+		f.Add(s, false)
+	}
+	d, _ := Detectors([]string{"ip"})
+	f.Fuzz(func(t *testing.T, pre string, v6 bool) {
+		if len(pre) > 512 {
+			return
+		}
+		canary := "203.0.113.77"
+		if v6 {
+			canary = "2001:db8:77::77"
+		}
+		if strings.Contains(pre, canary) {
+			return
+		}
+		if b := before(pre+" ", len(pre)); isAlnum(b) || b == '.' || v6 && b == ':' {
+			// "v203.0.113.77", "1.203.0.113.77", "ab::2001:db8:…": not
+			// an address boundary; only a separator is checked.
+			pre += " "
+		}
+		in := pre + canary + " end"
+		out := d[0].Mask(in)
+		if strings.Contains(out, canary) {
+			t.Errorf("Mask(%q) = %q keeps %s", in, out, canary)
+		}
+	})
+}

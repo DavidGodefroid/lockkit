@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 // --- secrets: credentials, tokens and keys written in a text
@@ -114,11 +115,12 @@ var tokenShapeRe = regexp.MustCompile(strings.Join([]string{
 
 func findTokenShapes(s string) []span {
 	var out []span
-	for _, m := range tokenShapeRe.FindAllStringIndex(s, -1) {
+	eachMatch(s, tokenShapeRe, func(start int) bool {
+		// Only a letter or a digit continues a token: "key=<token>",
+		// "a:<token>" and "/<token>" start one.
+		return !isLetterDigit(before(s, start)) || strings.HasPrefix(s[start:], "hooks.")
+	}, func(m []int) int {
 		start, end := m[0], m[1]
-		if isTokenByte(before(s, start)) && !strings.HasPrefix(s[start:], "hooks.") {
-			continue
-		}
 		// A longer token than the shape allows is still one token.
 		for end < len(s) && isTokenByte(s[end]) {
 			end++
@@ -129,8 +131,38 @@ func findTokenShapes(s string) []span {
 			start += strings.IndexByte(s[start:end], '/') + 1 // the host stays in clear
 		}
 		out = append(out, span{start, end})
-	}
+		return end
+	})
 	return out
+}
+
+func isLetterDigit(c byte) bool { return isDigit(c) || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' }
+
+// eachMatch calls f with every match of re in s whose start passes ok
+// (the boundary RE2 cannot look behind for), then searches again from
+// the offset f returns; a refused match is retried one rune on.
+func eachMatch(s string, re *regexp.Regexp, ok func(start int) bool, f func(m []int) int) {
+	for pos := 0; pos <= len(s); {
+		m := re.FindStringSubmatchIndex(s[pos:])
+		if m == nil {
+			return
+		}
+		for k := range m {
+			if m[k] >= 0 {
+				m[k] += pos
+			}
+		}
+		next := m[0] + 1
+		if ok(m[0]) {
+			if n := f(m); n > m[0] {
+				next = n
+			}
+		}
+		for next < len(s) && !utf8.RuneStart(s[next]) {
+			next++
+		}
+		pos = next
+	}
 }
 
 // isTokenByte reports a byte that may continue a token: base64, base64url
@@ -141,7 +173,7 @@ func isTokenByte(c byte) bool {
 
 // --- Authorization schemes: "Bearer <token>", "Basic <base64>"
 
-var authSchemeRe = regexp.MustCompile(`(?i)(?:^|[^A-Za-z0-9_])(bearer|basic|token|apikey|api-key|negotiate|ntlm|aws4-hmac-sha256)[ \t]+`)
+var authSchemeRe = regexp.MustCompile(`(?i)(bearer|basic|token|apikey|api-key|negotiate|ntlm|aws4-hmac-sha256)[ \t]+`)
 
 // findAuthSchemes masks the credential after an authorization scheme
 // word. A credential must look like one, so that prose ("basic
@@ -150,19 +182,17 @@ var authSchemeRe = regexp.MustCompile(`(?i)(?:^|[^A-Za-z0-9_])(bearer|basic|toke
 // characters with a digit or a token separator, or at least 20.
 func findAuthSchemes(s string) []span {
 	var out []span
-	done := 0
-	for _, m := range authSchemeRe.FindAllStringSubmatchIndex(s, -1) {
+	eachMatch(s, authSchemeRe, func(start int) bool {
+		b := before(s, start)
+		return !isAlnum(b)
+	}, func(m []int) int {
 		scheme := strings.ToLower(s[m[2]:m[3]])
 		start := m[1]
-		if start < done {
-			continue // inside a credential already masked
-		}
 		if scheme == "aws4-hmac-sha256" {
 			// "AWS4-HMAC-SHA256 Credential=…, SignedHeaders=…, Signature=…"
-			end := lineEnd(s, start, false)
+			end := lineEnd(s, start, true)
 			out = append(out, span{start, end})
-			done = end
-			continue
+			return end
 		}
 		end := start
 		for end < len(s) && isCredentialByte(s[end]) {
@@ -172,16 +202,18 @@ func findAuthSchemes(s string) []span {
 		switch {
 		case scheme == "basic":
 			if !basicCredential(v) {
-				continue
+				return start
 			}
-		case scheme == "token" && !strings.ContainsAny(v, "0123456789"):
-			continue // "token expired", "token validation failed"
+		case scheme == "token" && (!strings.ContainsAny(v, "0123456789") || strings.Contains(strings.TrimRight(v, "="), "=")):
+			return start // "token expired", "token count=42"
+		case (scheme == "negotiate" || scheme == "ntlm") && (len(v) < 16 || strings.ContainsAny(v, "-._~")):
+			return start // "negotiate cipher-suite": SPNEGO and NTLM are base64
 		case !looksCredential(v):
-			continue
+			return start // "Bearer Bearer <token>": the next word may be the scheme
 		}
 		out = append(out, span{start, end})
-		done = end
-	}
+		return end
+	})
 	return out
 }
 
@@ -210,7 +242,8 @@ func looksCredential(v string) bool {
 
 // --- URL userinfo: scheme://user:password@host
 
-var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#@"'<>:]*:[^\s/?#@"'<>]*)@`)
+// The password runs to the last "@" before a blank: it may hold "@" or "/".
+var userinfoRe = regexp.MustCompile(`[A-Za-z][A-Za-z0-9+.-]{0,31}://([^\s/?#@"'<>:]*:[^\s?#"'<>]*)@`)
 
 func findUserinfo(s string) []span {
 	var out []span
@@ -228,46 +261,54 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(?:^|[^A-Za-z0-9_.\\-])(\\?["']?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["']?)[ \t]{0,3}([:=])[ \t]{0,3}`)
+var pairRe = regexp.MustCompile(`(\\?["']?)(-{0,2}[A-Za-z][A-Za-z0-9_.-]{0,63})(\\?["']?)[ \t]*([:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
-	done := 0
-	for _, m := range pairRe.FindAllStringSubmatchIndex(s, -1) {
+	eachMatch(s, pairRe, func(start int) bool {
+		b := before(s, start)
+		return !isAlnum(b) && b != '.' && b != '-' && b != '\\'
+	}, func(m []int) int {
 		key := s[m[4]:m[5]]
 		start := m[1]
-		if start < done {
-			continue // inside a secret already masked
-		}
 		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
-			continue // a URL: "https://"
+			return start // a URL: "https://"
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) {
+		if !isSecretHeader(key) && !LooksSecret(key) || key == "PASS" && s[m[8]] == ':' {
+			// Search again from the value: a pair may sit inside it
+			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
-				continue // "SHA256:…" fingerprints, checksums, digests
+				return start // "SHA256:…" fingerprints, checksums, digests
 			}
 			if v, vs, ve := pairValue(s, start, false, maxCandidate+1); ve > vs && highEntropy(v) {
 				out = append(out, span{vs, ve})
+				return ve
 			}
-			continue
+			return start
 		}
-		toLineEnd := headerLike(key)
-		v, vs, _ := pairValue(s, start, toLineEnd, len(s))
+		var v string
+		var vs int
+		if c := s[start]; headerLike(key) && m[2] == m[3] && c != '"' && c != '\'' && c != '\\' {
+			// A raw header line (the key is not a quoted JSON key): its
+			// value runs to the end of the line, quotes included
+			// (`Cookie: a="b"; session=…`, Digest parameters).
+			vs = start
+			v = strings.TrimRight(s[vs:lineEnd(s, vs, true)], " \t")
+		} else {
+			v, vs, _ = pairValue(s, start, false, 0)
+		}
 		scheme := 0
 		if isAuthorization(key) {
 			scheme = authSchemePrefix(v)
-			if toLineEnd && strings.EqualFold(strings.TrimSpace(v[:scheme]), "digest") {
-				// Digest parameters are quoted: the line, not the first quote.
-				v = s[vs:lineEnd(s, vs, true)]
-			}
 		}
 		ve := vs + len(v)
 		vs += scheme // keep "Bearer " in clear
 		if ve > vs {
 			out = append(out, span{vs, ve})
-			done = ve
+			return ve
 		}
-	}
+		return start
+	})
 	return out
 }
 
@@ -285,10 +326,9 @@ func hashName(key string) bool {
 }
 
 // pairValue reads the value that starts at s[i]: quoted (to its closing
-// quote, escaped quotes skipped, or the end of the line), to the end of
-// the line for a header whose value has blanks (a cookie, an
-// authorization), or unquoted (to a blank or a delimiter). It reads at
-// most limit bytes when limit > 0.
+// quote, escaped quotes skipped, or the end of the line), or unquoted (to
+// a blank or a delimiter; with toLineEnd, to the end of the line). It
+// reads at most limit bytes when limit > 0.
 func pairValue(s string, i int, toLineEnd bool, limit int) (string, int, int) {
 	if i >= len(s) {
 		return "", i, i
@@ -325,7 +365,7 @@ func pairValue(s string, i int, toLineEnd bool, limit int) (string, int, int) {
 	}
 	end := i
 	if toLineEnd {
-		end = min(stop, lineEnd(s, i, false))
+		end = min(stop, lineEnd(s, i, true))
 	} else {
 		for end < stop && strings.IndexByte(" \t\r\n,;&\"'<>|)}]", s[end]) < 0 {
 			end++
@@ -374,7 +414,7 @@ func isSecretHeader(key string) bool {
 		return false
 	}
 	last := toks[len(toks)-1]
-	return last == "token" || last == "key"
+	return last == "token" || last == "key" && secretKeyOwners[toks[len(toks)-2]]
 }
 
 // authSchemePrefix returns the length of an authorization scheme word and
@@ -415,8 +455,12 @@ func highEntropy(v string) bool {
 			return false
 		}
 	}
-	return upper && lower && digit && entropy(v) >= 4.0
+	return upper && lower && digit && !qualifiedName.MatchString(v) && entropy(v) >= 4.0
 }
+
+// qualifiedName is a dotted identifier: a Java class or a package, a
+// logger name, a module path.
+var qualifiedName = regexp.MustCompile(`^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)+$`)
 
 // entropy is the Shannon entropy of the bytes of v, in bits per byte.
 func entropy(v string) float64 {
@@ -436,23 +480,47 @@ func entropy(v string) float64 {
 
 // --- command-line flags: "--password hunter2", "curl -u user:pass"
 
-var flagRe = regexp.MustCompile(`(?:^|[\s"'])(--?[A-Za-z][A-Za-z0-9_-]{0,63})[ \t]+([^\s"'-][^\s"']*)`)
+var flagRe = regexp.MustCompile(`(--?[A-Za-z][A-Za-z0-9_-]{0,63})[ \t]+`)
 
 func findSecretFlags(s string) []span {
 	var out []span
-	for _, m := range flagRe.FindAllStringSubmatchIndex(s, -1) {
-		flag, v := s[m[2]:m[3]], s[m[4]:m[5]]
+	eachMatch(s, flagRe, func(start int) bool {
+		b := before(s, start)
+		return b == 0 || b == ' ' || b == '\t' || b == '\n' || b == '\r' || b == '"' || b == '\''
+	}, func(m []int) int {
+		flag, start := s[m[2]:m[3]], m[1]
+		if start >= len(s) {
+			return start
+		}
+		var v string
+		vs, ve := start, start
+		if c := s[start]; c == '"' || c == '\'' || c == '\\' {
+			v, vs, ve = pairValue(s, start, false, 0)
+		} else {
+			if c == '-' {
+				return start // another flag
+			}
+			for ve < len(s) && strings.IndexByte(" \t\r\n\"'", s[ve]) < 0 {
+				ve++
+			}
+			v = s[vs:ve]
+		}
+		secret := false
 		switch {
 		case flag == "-u" || flag == "--user" || flag == "--proxy-user":
 			// curl: user:password. "-u 1000:1000" (a uid) and "-u root"
 			// are not credentials.
-			if u, p, ok := strings.Cut(v, ":"); ok && p != "" && !allDigits(u+p) {
-				out = append(out, span{m[4], m[5]})
-			}
+			u, p, ok := strings.Cut(v, ":")
+			secret = ok && p != "" && !allDigits(u+p)
 		case len(flag) > 2 && flag[1] == '-' && LooksSecret(flag):
-			out = append(out, span{m[4], m[5]})
+			secret = true
 		}
-	}
+		if !secret || ve <= vs {
+			return start
+		}
+		out = append(out, span{vs, ve})
+		return ve
+	})
 	return out
 }
 
@@ -468,7 +536,7 @@ func allDigits(s string) bool {
 // --- MySQL and MariaDB clients: "mysql -uroot -phunter2"
 
 var mysqlRe = regexp.MustCompile(`\b(?:mysql|mysqldump|mysqladmin|mysqlimport|mysqlshow|mysqlcheck|mysqlpump|mysqlsh|mariadb|mariadb-dump|mariadb-admin)\b`)
-var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p([^\s"']+)`)
+var mysqlPassRe = regexp.MustCompile(`(?:^|\s)-p(?:"([^"\n]*)"|'([^'\n]*)'|([^\s"']+))`)
 
 func findMySQLPasswords(s string) []span {
 	var out []span
@@ -484,7 +552,11 @@ func findMySQLPasswords(s string) []span {
 		done = end
 		line := s[m[1]:end]
 		for _, p := range mysqlPassRe.FindAllStringSubmatchIndex(line, -1) {
-			out = append(out, span{m[1] + p[2], m[1] + p[3]})
+			for g := 2; g+1 < len(p); g += 2 {
+				if p[g] >= 0 && p[g+1] > p[g] {
+					out = append(out, span{m[1] + p[g], m[1] + p[g+1]})
+				}
+			}
 		}
 	}
 	return out

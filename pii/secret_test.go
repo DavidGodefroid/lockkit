@@ -236,7 +236,7 @@ func TestSecretPathologicalInputs(t *testing.T) {
 	for name, in := range inputs {
 		start := time.Now()
 		Detect(in, ds)
-		if d := time.Since(start); d > 2*time.Second {
+		if d := time.Since(start); d > 500*time.Millisecond {
 			t.Errorf("%s: %v over %d bytes", name, d, len(in))
 		}
 	}
@@ -253,20 +253,96 @@ func FuzzSecretMasksAppendedCredential(f *testing.F) {
 		if len(s) > 4096 {
 			return
 		}
-		for _, tail := range []string{
-			"\nAuthorization: Bearer " + fakeRandom + "\n",
-			"\npassword=" + fakeRandom + "\n",
-			"\n" + fakeJWT + "\n",
+		for _, c := range []struct{ tail, secret string }{
+			{"\nAuthorization: Bearer " + fakeRandom + "\n", fakeRandom},
+			{"\npassword=" + fakeRandom + "\n", fakeRandom},
+			{"\n" + fakeJWT + "\n", fakeJWT[10:30]},
+			{" https://" + fakeGH + "@h", fakeGH},
+			{"/" + fakeJWT, fakeJWT[40:60]},
+			{"=" + fakeAWS, fakeAWS},
 		} {
-			in := s + tail
+			in := s + c.tail
 			out, _ := Detect(in, ds).(string)
-			secret := fakeRandom
-			if strings.Contains(tail, fakeJWT) {
-				secret = fakeJWT[10:30]
-			}
-			if strings.Contains(out, secret) && strings.Count(out, secret) > strings.Count(s, secret) {
+			if strings.Count(out, c.secret) > strings.Count(s, c.secret) {
 				t.Errorf("Detect(%q) = %q keeps the appended credential", in, out)
 			}
 		}
 	})
+}
+
+// Bypasses found in review: a credential is found wherever its key sits
+// (inside another value, after a separator), whatever its quoting and the
+// blanks around it.
+func TestSecretReviewBypasses(t *testing.T) {
+	d := detector(t, "secret")
+	for in, leak := range map[string]string{
+		"x: password=hunter2":                                 "hunter2",
+		"a=password=hunter2":                                  "hunter2",
+		`msg="password=hunter2"`:                              "hunter2",
+		`msg="login ok" password=hunter2`:                     "hunter2",
+		"key=" + fakeGH:                                       fakeGH,
+		"a:" + fakeAWS:                                        fakeAWS,
+		"url=/x/" + fakeStripe:                                fakeStripe,
+		`--password "s3cr3t value"`:                           "s3cr3t",
+		`--token 'tok123'`:                                    "tok123",
+		`run --name x --password "p w"`:                       "p w",
+		`mysql -uroot -p"pass word" shop`:                     "pass word",
+		`mysql -uroot -p'pa ss' shop`:                         "pa ss",
+		`Cookie: a="b"; session=SECRET1`:                      "SECRET1",
+		`Set-Cookie: x="y"; sid=SECRET1; Path=/`:              "SECRET1",
+		"password=    SECRET2":                                "SECRET2",
+		"password=\t\t\t\t\tSECRET3":                          "SECRET3",
+		"password    =    SECRET4":                            "SECRET4",
+		"Bearer Bearer abcdef123456":                          "abcdef123456",
+		"git clone https://" + fakeGH + "@github.com/o/r.git": fakeGH,
+		"next=/login/" + fakeJWT:                              fakeJWT[40:60],
+		"https://example.com/cb/" + fakeSlack:                 fakeSlack,
+		"path=/hooks/" + fakeOpenAI:                           fakeOpenAI,
+		"file:///home/u/" + fakeAWS:                           fakeAWS,
+		"url=/api/v1?x=" + fakeStripe:                         fakeStripe,
+		"PGPASSWORD=hunter2 psql -h db":                       "hunter2",
+		"DBPASS_WORD=x GITHUBTOKEN=tok77":                     "tok77",
+		"postgres://app:p@ss@db.example.com/x":                "ss@db",
+		"postgres://app:pa/ss@db/x":                           "pa/ss",
+		`"authorization": \"Bearer tok123456\"`:               "tok123456",
+	} {
+		if got := d.Mask(in); strings.Contains(got, leak) {
+			t.Errorf("secret.Mask(%q) = %q, keeps %q", in, got, leak)
+		}
+	}
+}
+
+// A differential fuzz over the shapes a credential pair takes: key,
+// separator, blanks, quoting and what precedes it. The canary never
+// survives.
+func FuzzSecretPairVariants(f *testing.F) {
+	f.Add(uint8(0), uint8(0), uint8(0), uint8(0), uint8(0), "x")
+	f.Add(uint8(3), uint8(1), uint8(5), uint8(2), uint8(4), "a=")
+	keys := []string{"password", "client_secret", "api_key", "X-Api-Key", "access_token", "--password", "Authorization", "Cookie", "db_pwd", `\"password\"`, `"token"`, "'secret'"}
+	seps := []string{"=", ":", " = ", ": ", "=\t\t\t\t\t", ":      "}
+	quotes := []string{"", `"`, "'", `\"`}
+	prefixes := []string{"", " ", "x: ", "a=", `msg="`, "{", ",", "\t", "&", "?", "; ", "k=v "}
+	f.Fuzz(func(t *testing.T, ki, si, qi, pi, ti uint8, pre string) {
+		if len(pre) > 256 || strings.ContainsAny(pre, "\n\r") {
+			return
+		}
+		key, sep, q, p := keys[int(ki)%len(keys)], seps[int(si)%len(seps)], quotes[int(qi)%len(quotes)], prefixes[int(pi)%len(prefixes)]
+		canary := "Kq7Canary" + string(rune('A'+ti%26)) + "Zx"
+		if n := len(pre); p == "" && n > 0 && (isAlnum(pre[n-1]) || strings.IndexByte(".-\\", pre[n-1]) >= 0) {
+			p = " " // "xpassword" is another key
+		}
+		in := pre + p + key + sep + q + canary + q + " tail"
+		out, _ := Detect(in, mustDetectors(t, "secret")).(string)
+		if strings.Contains(out, canary) && !strings.Contains(pre, canary) {
+			t.Errorf("Detect(%q) = %q keeps the canary", in, out)
+		}
+	})
+}
+
+func mustDetectors(t *testing.T, names ...string) []Detector {
+	ds, err := Detectors(names)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ds
 }

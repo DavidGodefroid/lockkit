@@ -148,3 +148,15 @@ std::vector<int> v; std::string s;
 Foo::Bar::baz() called
 add::face
 12:30:45.678
+--- PASS: TestFoo (0.00s)
+PASS: test_login.py
+FAIL: test_checkout.py
+ok  	github.com/DavidGodefroid/lockkit/pii	2.042s
+logger=com.amazonaws.services.s3.AmazonS3ClientBuilder level=WARN
+{"logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","level":"INFO"}
+routing-key=orders.created exchange=shop
+Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+ssh -o PasswordAuthentication=no deploy@10.0.0.5
+token count=42 elapsed=3ms
+TLS negotiate cipher-suite ok
+mapping ::dead:beef to nothing

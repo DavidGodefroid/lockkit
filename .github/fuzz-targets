@@ -2,3 +2,5 @@ FuzzReadMsgNoPanic ./ipc/
 FuzzDetectorsNoPanic ./pii/
 FuzzRenderNoPanic ./render/
 FuzzSecretMasksAppendedCredential ./pii/
+FuzzSecretPairVariants ./pii/
+FuzzIPCanaryAfterPrefix ./pii/

@@ -211,7 +211,8 @@ bastion reaches; no local port is ever opened.
   - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
     IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
     link-local, multicast, unspecified, broadcast and reserved addresses
-    stay in clear; shared CGNAT (100.64/10) and documentation ranges are
+    stay in clear; shared CGNAT (100.64/10) and the other IANA
+    special-purpose ranges (documentation, benchmarking, 192.0.0/24) are
     masked. An address glued to a letter, a digit or a dot (`v1.2.3.4`,
     `1.2.3.4.5`) is not one; a four-part version in public ranges
     (`5.15.0.91`) is masked.
@@ -221,15 +222,15 @@ bastion reaches; no local port is ever opened.
     `Cookie`/`Set-Cookie` (to the end of the line), `*-Token`/`*-Key`
     headers, any `key=value`/`"key": "value"`/`--flag value` whose name
     `LooksSecret`, a high-entropy value (≥ 32 base64 characters, mixed
-    case and digits, ≥ 4 bits/char) in a key position (not under a digest
-    name such as `sha256`), `Bearer`/`Basic`/`Token` credentials in text,
+    case and digits, ≥ 4 bits/char, not a dotted class name) in a key
+    position (not under a digest name such as `sha256`), `Bearer`/`Basic`/`Token` credentials in text,
     JWTs, AWS/GitHub/GitLab/Slack/Stripe/Google/OpenAI/npm/PyPI/... token
     shapes, PEM private keys (to their END line, or the end of the text),
     URL userinfo (`postgres://app:pw@db`), `curl -u user:pw` and
     `mysql -p<password>`. Not found: secrets without a known shape or label
     (short or low-entropy tokens, passwords in prose, session ids in URL
-    paths, connection strings without userinfo), hex and other encoded
-    content.
+    paths, connection strings without userinfo), hex and encoded content
+    outside a key position, doubly escaped JSON.
 - `pii.LooksSecret(name)`: a field, header or flag name that holds a
   credential (`password`, `client_secret`, `api_key`, `X-Api-Key`,
   `Authorization`, `Cookie`, `PHPSESSID`, en/fr/nl/de/es); metadata about one

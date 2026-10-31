@@ -37,7 +37,7 @@ var secretNeutralLast = set(
 	"name", "names", "hint", "policy", "rotation", "rotated", "version", "scope", "scopes", "issuer",
 	"audience", "required", "present", "missing", "changed", "updated", "created", "file", "path",
 	"dir", "env", "url", "uri", "endpoint", "header", "field", "param", "label", "source", "provider",
-	"method", "mode", "error", "errors", "result", "ok", "failed", "strength", "score", "age", "date",
+	"method", "mode", "authentication", "error", "errors", "result", "ok", "failed", "strength", "score", "age", "date",
 	"time", "ms", "manager", "store", "ref", "arn",
 )
 
@@ -70,5 +70,16 @@ func LooksSecret(name string) bool {
 	if strings.Contains(strings.Join(toks, ""), "motdepasse") {
 		return true // "mot_de_passe", "motDePasse"
 	}
-	return slices.ContainsFunc(toks, func(t string) bool { return secretTokens[t] })
+	if slices.ContainsFunc(toks, func(t string) bool { return secretTokens[t] }) {
+		return true
+	}
+	// Unsplit environment names: PGPASSWORD, DBSECRET, GITHUBTOKEN.
+	for _, t := range toks {
+		for _, suffix := range []string{"password", "passwd", "secret", "token"} {
+			if strings.HasSuffix(t, suffix) && len(t) > len(suffix) {
+				return true
+			}
+		}
+	}
+	return false
 }
