@@ -223,13 +223,13 @@ bastion reaches; no local port is ever opened.
     read as `-`, ideographic full stops as `.`, and
     Cyrillic and Greek letters drawn like Latin ones as those. Invalid
     UTF-8 bytes are kept in it; `DetectionViews` adds a view without them,
-    so a value an invalid byte splits is found whole: replace or drop them
-    before the text leaves your product, after masking. `View.Source(start, end)` maps a
+    so a value an invalid byte splits is found whole: after masking, replace
+    them (U+FFFD) rather than drop them before the text leaves your product. `View.Source(start, end)` maps a
     range of `View.Text` back to `s`, covering what was dropped inside it.
     `pii.DetectionViews(s)` adds a view without terminal sequences (CSI,
     OSC, DCS, SOS, PM, APC, nF, two-byte escapes, introduced by ESC, a C1
-    control or a raw 8-bit C1 byte; only well-formed ones up to 256 bytes
-    whole, otherwise their introducer; also in every decoded view below,
+    control or a raw 8-bit C1 byte; well-formed ones whole, whatever their
+    length, otherwise their introducer; also in every decoded view below,
     so `\u001b[31m` inside a value does not split it) and a view where introducers
     and final bytes read as spaces, the payload kept, the detection view
     of `s` percent-decoded

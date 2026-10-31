@@ -593,9 +593,35 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 		`{"log":"card 4111 1111\u001b[1m 1111 1111\u001b[0m"}`,
 		`{"log":"tel +32 475\u001b[1m 12 34 56\u001b[0m"}`,
 		"pay BE68\x1b[1m5390%200754%207034",
+		`card 4111 1111 \x1b]0;t\x071111 1111`,
+		`card 4111 1111 \x9d0;t\x071111 1111`,
+		`card 4111 1111 %1b]0;t&#7;1111 1111`,
+		`card 4111 1111 %1b]0;t\x071111 1111`,
+		"card 4111 1111 \x1b]0;t\\x071111 1111",
+		"mail jean%4\xff0example.com",
+		"mail jean\\x4\xff0example.com",
+		"mail jean&#6\xff4;example.com",
+		"mail jean\\u00\xff40example.com",
+		"mail jean%4%ff0example.com",
+		"card 4111 1111\x1b[3\u200b1m 1111 1111",
+		"mail jean%4\x1b[m0example.com",
+		"mail jean\\x4\x1b[m0example.com",
+		"iban BE68 5390 \x1b]0;" + strings.Repeat("a", 260) + "\x07" + "0754 7034",
+		"iban BE68 5390 \x1b[" + strings.Repeat("1", 260) + "m0754 7034",
 	} {
-		if len(FindInViews(in, ds)) == 0 {
-			t.Errorf("FindInViews(%q) finds nothing", in)
+		ms := FindInViews(in, ds)
+		var b strings.Builder
+		last := 0
+		for _, m := range ms {
+			b.WriteString(in[last:m.Start])
+			b.WriteString("#")
+			last = m.End
+		}
+		b.WriteString(in[last:])
+		for _, piece := range []string{"4111", "1111", "+32", "BE68", "7034", "jean", "example"} {
+			if strings.Contains(b.String(), piece) {
+				t.Errorf("FindInViews(%q) leaves %q: %q", in, piece, b.String())
+			}
 		}
 	}
 }
