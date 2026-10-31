@@ -9,6 +9,17 @@ GUIDE.md is the contract between lockkit and the products built on it.
   ranges with their kind, also behind percent, JSON and HTML escapes,
   look-alikes and invisible characters (#93).
 
+## v0.7.2 (2026-10-31)
+
+- Errors no longer echo a value that may be a secret pasted in the wrong
+  key (locklog LL-02): `config.ParseSSH` names `ssh.credentials` and the
+  allowed modes, `pii.Detectors` the entry's position and the known
+  detectors, `sysconf.Load` the `finger` key, and `hubclient.New` the hub
+  by scheme and host only (#99).
+- `hubclient.New` refuses a hub URL that carries a user or password: it
+  reached net/http's errors, the console's start line and the hub as a
+  Basic header (the hub authenticates by signature) (#99).
+
 ## v0.7.1 (2026-10-30)
 
 - A policy change that ends the session when applied (a tightening read
