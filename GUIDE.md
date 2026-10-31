@@ -241,8 +241,10 @@ bastion reaches; no local port is ever opened.
     `STRIPE_KEY`-style names whose owner is not listed, PuTTY `.ppk`
     bodies, plural names (`api_keys`, `tokens`), and JSON logged inside a
     string that is itself inside a string, and a flag and its value as
-    separate list elements (`["--password", "x"]`), and URLs with escaped
-    slashes (PHP's `https:\/\/user:pw@host`). A secret name with a JSON
+    separate list elements (`["--password", "x"]`), URLs with escaped
+    slashes (PHP's `https:\/\/user:pw@host`), Go MySQL DSNs without a scheme
+    (`app:pw@tcp(db:3306)/x`), and other clients' password flags
+    (`ldapsearch -w`, `sqlcmd -P`, `smbclient -U user%pw`, `sqlplus u/pw@db`). A secret name with a JSON
     array or object value masks it whole, across lines, and to the end of
     the text when it never closes; `Pwd=` (ODBC) is a password unless its
     value is a path. `docker`/`podman`/`nerdctl`/`buildah
