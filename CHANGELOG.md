@@ -3,7 +3,11 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.8.1 (2026-10-31)
+
+Behaviour change: a hub URL with a path (`https://h/lockhub`), accepted
+before, is now refused; lockhub serves `/v1/` at its root and the request
+signature covers the path, so such a URL never reached a working hub.
 
 - The hub URL is `http(s)://host[:port]` only: `hubclient.New` and the
   console's `--hub` check refuse a path (`https://h//` included), query,
@@ -15,7 +19,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   hub on in that form only (an invalid `--instance` or `--require-device`
   as a placeholder the new console refuses). A hub that cannot be reached is an
   `ErrUnreachable` naming the hub by scheme and host, no longer net/http's
-  error quoting the whole request URL.
+  error quoting the whole request URL (#107).
 - More errors name the flag or key and the allowed form, never the value
   given (a token or URL pasted in the wrong place): `ticket.ParseRisk`
   (and `--require-device`), invalid instance names (`--instance`,
@@ -23,8 +27,8 @@ GUIDE.md is the contract between lockkit and the products built on it.
   no longer quoted), `config.CheckProfileName`, the console's `--profile`
   mismatch, `ipc` socket names, `sysconf`'s `service_user` and
   `client_group` lookups, and the console's wrong-account and
-  console-is-a-client refusals (they name `service_user`, `client_group`).
-- New: `ticket.RiskNames`.
+  console-is-a-client refusals (they name `service_user`, `client_group`) (#107).
+- New: `ticket.RiskNames` (#107).
 
 ## v0.8.0 (2026-10-31)
 
