@@ -137,6 +137,15 @@ func findTokenShapes(s string) []span {
 	return out
 }
 
+func hasLetter(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if c := s[i]; c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= 0x80 {
+			return true
+		}
+	}
+	return false
+}
+
 func isLetterDigit(c byte) bool { return isDigit(c) || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' }
 
 // eachMatch calls f with every match of re in s whose start passes ok
@@ -281,7 +290,7 @@ func findUserinfo(s string) []span {
 // query strings, connection strings and command lines ("--password=x").
 // A JSON key may be quoted, and escaped when the JSON is logged inside a
 // string (\"password\":\"x\").
-var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
+var pairRe = regexp.MustCompile(`(\\?["'\[:]?)(-{0,2}_{0,4}[A-Za-z0-9][\pL0-9_.-]{0,63})(\\?["'\]]?)[ \t]*(=>|[:=])[ \t]*`)
 
 func findSecretPairs(s string) []span {
 	var out []span
@@ -291,6 +300,9 @@ func findSecretPairs(s string) []span {
 	}, func(m []int) int {
 		key := s[m[4]:m[5]]
 		start := m[1]
+		if !hasLetter(key) {
+			return start // "12:30", "8080=": a number, not a key ("2fa_secret" is one)
+		}
 		if s[m[8]] == ':' && strings.HasPrefix(s[start:], "//") {
 			return start // a URL: "https://"
 		}
@@ -301,7 +313,7 @@ func findSecretPairs(s string) []span {
 			}
 			return start
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] == '=' || m[3] > m[2]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
+		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] == '=' || m[3] > m[2] || m[7] > m[6]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
 			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
@@ -448,20 +460,48 @@ func odbcPwd(key, v string) bool {
 // of the end of the line when there is none.
 func closingQuote(s string, i int, open string) int {
 	q := open[len(open)-1]
-	escaped := strings.HasPrefix(open, "\\")
+	if strings.HasPrefix(open, "\\") {
+		return escapedEnd(s, i, q, len(s))
+	}
 	for j := i; j < len(s); j++ {
 		switch {
 		case s[j] == '\n' || s[j] == '\r':
 			return j
-		case escaped && s[j] == '\\' && j+1 < len(s) && s[j+1] == q:
-			return j
-		case !escaped && s[j] == '\\':
+		case s[j] == '\\':
 			j++
-		case !escaped && s[j] == q:
+		case s[j] == q:
 			return j
 		}
 	}
 	return len(s)
+}
+
+// escapedEnd returns the offset of the escaped quote (\" or \') that
+// closes a string of JSON logged inside a string, from s[i], or of the
+// end of the line, or stop. The text is escaped once: `\\` is one inner
+// backslash, and an inner quote it escapes (`\\\"`) does not close.
+func escapedEnd(s string, i int, q byte, stop int) int {
+	inner := false // the last inner character was an unpaired backslash
+	for j := i; j < stop; j++ {
+		c := s[j]
+		if c == '\n' || c == '\r' {
+			return j
+		}
+		if c != '\\' || j+1 >= len(s) {
+			inner = false
+			continue
+		}
+		switch n := s[j+1]; {
+		case inner:
+			inner = false
+		case n == '\\':
+			inner = true
+		case n == q:
+			return j
+		}
+		j++
+	}
+	return stop
 }
 
 // passCount reports a test runner's "pass=10": a count, not a password.
@@ -522,13 +562,15 @@ func pairValue(s string, i int, toLineEnd bool, limit int) (string, int, int) {
 		if limit > 0 {
 			stop = min(stop, start+limit)
 		}
+		if escaped {
+			j := escapedEnd(s, start, q, stop)
+			return s[start:j], start, j
+		}
 		for j := start; j < stop; j++ {
 			switch {
-			case escaped && s[j] == '\\' && j+1 < len(s) && s[j+1] == q:
-				return s[start:j], start, j
-			case !escaped && s[j] == '\\':
+			case s[j] == '\\':
 				j++ // an escaped character, maybe the quote
-			case !escaped && s[j] == q:
+			case s[j] == q:
 				return s[start:j], start, j
 			case s[j] == '\n':
 				return s[start:j], start, j
