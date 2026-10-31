@@ -156,8 +156,16 @@ func rawC1(s string, i int) bool {
 	if s[i] < 0x80 || s[i] > 0x9f {
 		return false
 	}
-	r, n := utf8.DecodeRuneInString(s[i:])
-	return r == utf8.RuneError && n == 1
+	// Not a continuation byte of a valid rune starting up to 3 bytes back.
+	for back := 1; back <= 3 && i-back >= 0; back++ {
+		if c := s[i-back]; c >= 0xc0 {
+			r, n := utf8.DecodeRuneInString(s[i-back:])
+			return !(r != utf8.RuneError || n > 1) || i-back+n <= i
+		} else if c < 0x80 {
+			break
+		}
+	}
+	return true
 }
 
 // stripANSI drops terminal control sequences (CSI "ESC [ ... final", OSC
@@ -198,8 +206,9 @@ func stripANSI(s string, keepPayload bool) (View, bool) {
 			if f, _ := csiEnd(s, body); f >= 0 {
 				end = f
 			}
-		case kind == 'Z' && body < len(s) && s[body] >= 0x20:
-			// SCI (VTE): the next character is swallowed with it.
+		case kind == 'Z' && !keepPayload && body < len(s) && s[body] >= 0x20 && !c1At(s, body):
+			// SCI (VTE): the next character is swallowed with it; xterm
+			// reads DECID and shows it, as the payload view does.
 			end = body + runeLen(s, body)
 		case kind >= 0x80 && intro == 1 && !c1At(s, body-1):
 			// A non-ASCII character in the escape state: xterm and VTE
