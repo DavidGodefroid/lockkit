@@ -1,0 +1,45 @@
+# Held-out names: written after the gazetteer was frozen, from groups it
+# covers least (Hungarian, Greek, West African, South Indian, Nordic,
+# Baltic, Slavic, Hebrew, Persian). Their given names were not added to
+# the gazetteer afterwards. Recall on them is reported, with a low floor
+# that only catches regressions.
+Bence Horváth
+Zsófia Nagy
+Levente Kovács
+Eleni Papadopoulou
+Giorgos Nikolaidis
+Dimitra Georgiou
+Kwame Mensah
+Chidi Okafor
+Amara Diallo
+Moussa Traoré
+Aminata Coulibaly
+Ngozi Eze
+Siddharth Rao
+Ananya Iyer
+Karthik Subramanian
+Lakshmi Narayanan
+Sigrid Halvorsen
+Eirik Lunde
+Ingeborg Solberg
+Aigars Ozols
+Rasa Kazlauskienė
+Mindaugas Petrauskas
+Dragan Jovanović
+Milica Petrović
+Goran Nikolić
+Yael Cohen
+Avi Levi
+Noam Mizrahi
+Dariush Tehrani
+Shirin Ebadi
+Arash Karimi
+Kenji Watanabe
+Haruka Suzuki
+Jae-won Park
+Seo-yeon Kim
+Tunde Bakare
+Folake Adeyemi
+Oluwaseun Ogunleye
+Zanele Dlamini
+Thabo Nkosi
