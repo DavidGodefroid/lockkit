@@ -134,7 +134,7 @@ func detectionView(s string) View {
 		from := it.Pos()
 		if len(vb.b) >= maxViewBytes {
 			v := vb.view(len(s))
-			v.cut, v.cutAt = true, from
+			v.cut, v.cutAt = true, backOverValue(s, from)
 			return v
 		}
 		seg := it.Next()
@@ -163,6 +163,21 @@ func detectionView(s string) View {
 // fillers...): invisible, so it may sit inside a value and hide it.
 func ignorable(r rune) bool {
 	return unicode.In(r, unicode.Cf, unicode.Other_Default_Ignorable_Code_Point, unicode.Variation_Selector)
+}
+
+// backOverValue returns where the unscanned part of s must start when a
+// view stops at source offset at: back over up to cutTail value-like or
+// ignorable characters, as CutAt does, so that a value the stop splits is
+// masked whole rather than left in part.
+func backOverValue(s string, at int) int {
+	for back := 0; back < cutTail && at > 0; back++ {
+		r, size := utf8.DecodeLastRuneInString(s[:at])
+		if !valueRune(r) && !ignorable(r) {
+			break
+		}
+		at -= size
+	}
+	return at
 }
 
 // maxViewBytes caps a view's text: NFKC can expand a text about tenfold.
