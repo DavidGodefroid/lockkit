@@ -237,7 +237,7 @@ bastion reaches; no local port is ever opened.
     character references decoded (`&#64;`, `&commat;`), with all of them
     chained (`jean%40example&#46;com`; until nothing changes, at most 16
     rounds, the view cleaned up between rounds: `jean％40`, `%4`+zero-width+`0`),
-    with `\xHH` escapes decoded, and form-decoded
+    with `\xHH`, `\e` and `\033` escapes decoded, and form-decoded
     (`+` as a space) then percent-decoded. A view of a long text may stop
     early: apply only the matches of `Find`/`FindInViews` to a text, never
     ranges you computed on a view yourself.

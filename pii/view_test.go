@@ -568,6 +568,10 @@ func TestFindInViewsSplitByEscapedSequenceOrInvalidByte(t *testing.T) {
 	splitters := []string{
 		`\u001b[31m`, `\u001b[1m`, `\u001B[0;1m`, `\x1b[31m`, `%1b[31m`, `%1B[1m`, `&#x1b;[31m`, `&#27;[1m`,
 		"\xff", "\x9b", "\xc0\x80", "\x9b31m", "\x1b[1m\xff",
+		// The introducer decoded one chain round before the rest.
+		`%1b&amp;#91;31m`, `\u001b&amp;#91;31m`, `\x1b&amp;#91;31m`, `&#x1b;%255b31m`,
+		// Shell spellings.
+		`\033[31m`, `\e[1m`,
 	}
 	for _, v := range []string{"jean.dupont@example.com", "BE68539007547034", "4111111111111111", "+32475123456"} {
 		for _, sp := range splitters {

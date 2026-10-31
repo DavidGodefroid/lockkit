@@ -295,7 +295,12 @@ func sepView(s, sep string) View {
 // maxSeq bounds a terminal sequence the view drops whole.
 const maxSeq = 256
 
-func cleanView(s string) View {
+func cleanView(s string) View { return cleanViewKeeping(s, false) }
+
+// cleanViewKeeping is cleanView; with keepIntroducers it keeps ESC and the
+// C1 controls, so a terminal sequence decoded over several chain rounds
+// comes out whole (and is stripped at the end).
+func cleanViewKeeping(s string, keepIntroducers bool) View {
 	plain := true
 	for i := 0; i < len(s); i++ {
 		if c := s[i]; c >= utf8.RuneSelf || dropControl(rune(c)) {
@@ -329,7 +334,7 @@ func cleanView(s string) View {
 				vb.add(seg[:1], from, to)
 			case folded:
 				vb.add([]byte{c}, from, to)
-			case droppedInView(r):
+			case droppedInView(r) && !(keepIntroducers && (r == 0x1b || r >= 0x80 && r < 0xa0)):
 				// dropped (invisible, a control, a mark on a digit): the
 				// next byte's range starts after it, and a range of the view
 				// spanning it covers it
@@ -416,7 +421,7 @@ const viewOverlap = 16 << 10
 // DetectionViews returns the detection view of s, then the detection view
 // of each decoding of s that changes it: percent-decoded once and twice,
 // JSON string escapes, HTML character references, all of them chained (until
-// nothing changes, at most 16 rounds, cleaned up between rounds), \\xHH escapes, and form encoding ("+" as a space) then percent. Texts are distinct.
+// nothing changes, at most 16 rounds, cleaned up between rounds), \\xHH, \\e and \\033 escapes, and form encoding ("+" as a space) then percent. Texts are distinct.
 // Texts longer than DetectLimit are cut as by Find.
 func DetectionViews(s string) []View {
 	s, _ = scanned(s)
@@ -482,8 +487,9 @@ func DetectionViews(s string) []View {
 	if sawTerminal {
 		// A decoding wrote a terminal sequence ("\\x1b[31m" inside a
 		// value): the cleanup between rounds would drop its introducer and
-		// leave the rest splitting the value, so chain once more, stripping
-		// the sequences between rounds.
+		// leave the rest splitting the value, so chain once more keeping
+		// introducers between rounds: a sequence decoded over several
+		// rounds comes out whole, and viewsOf strips it.
 		chain, rounds, _ = decodeChain(src, true)
 		addDecoded(chain, rounds > 0)
 	}
@@ -499,22 +505,17 @@ func DetectionViews(s string) []View {
 }
 
 // decodeChain applies every decoding in turn, a few rounds, cleaning up
-// between rounds (and, with strip, dropping terminal sequences): a value
+// between rounds (with keepIntroducers, keeping ESC and C1 controls): a value
 // written with two encodings ("jean%40example&#46;com", "jean&#37;40...")
 // or three percent rounds. sawTerminal reports a round's output with a
 // terminal-sequence introducer.
-func decodeChain(src View, strip bool) (chain View, rounds int, sawTerminal bool) {
+func decodeChain(src View, keepIntroducers bool) (chain View, rounds int, sawTerminal bool) {
 	chain = src
 	for round := 0; round < 16; round++ {
 		changed := false
-		if strip {
-			if a, ok := stripANSI(chain.Text); ok {
-				chain = compose(chain, a)
-			}
-		}
 		// Clean up between decodings: an escape written with a look-alike
 		// or broken by an invisible character ("jean％40", "%4\u200b0").
-		if c := detectionView(chain.Text); c.Text != chain.Text {
+		if c := cleanViewKeeping(chain.Text, keepIntroducers); c.Text != chain.Text {
 			chain = compose(chain, c)
 		}
 		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML, decodeHexEscapes} {
@@ -554,13 +555,25 @@ func dropInvalid(s string) (View, bool) {
 
 // decodeHexEscapes decodes "\\xHH" (nginx, Python, Go %q logs).
 func decodeHexEscapes(s string) (View, bool) {
-	if !strings.Contains(s, `\x`) {
+	if !strings.Contains(s, `\x`) && !strings.Contains(s, `\e`) && !strings.Contains(s, `\033`) {
 		return View{}, false
 	}
 	var vb viewBuilder
 	vb.b = make([]byte, 0, len(s))
 	changed := false
 	for i := 0; i < len(s); {
+		if s[i] == '\\' && i+1 < len(s) && s[i+1] == 'e' {
+			vb.add([]byte{0x1b}, i, i+2) // "\\e" (shells, printf)
+			i += 2
+			changed = true
+			continue
+		}
+		if s[i] == '\\' && i+3 < len(s) && s[i+1:i+4] == "033" {
+			vb.add([]byte{0x1b}, i, i+4) // "\\033" (octal ESC)
+			i += 4
+			changed = true
+			continue
+		}
 		if s[i] == '\\' && i+3 < len(s) && s[i+1] == 'x' {
 			h, ok1 := unhex(s[i+2])
 			l, ok2 := unhex(s[i+3])
