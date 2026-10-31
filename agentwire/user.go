@@ -332,27 +332,43 @@ func (w Wiring) jsonStrings(rel string, path []string, items []string) step {
 			c.action.Status = StatusUnchanged
 			return c, nil
 		}
-		arr, err := json.Marshal(have)
+		arr, err := marshalPlain(have)
 		if err != nil {
 			return change{}, err
 		}
 		parent.set(path[1], arr)
-		pj, err := json.Marshal(&parent)
+		pj, err := marshalPlain(&parent)
 		if err != nil {
 			return change{}, err
 		}
 		top.set(path[0], pj)
-		out, err := json.MarshalIndent(&top, "", "  ")
+		flat, err := marshalPlain(&top)
 		if err != nil {
 			return change{}, err
 		}
-		c.content = append(out, '\n')
+		var out bytes.Buffer
+		if err := json.Indent(&out, flat, "", "  "); err != nil {
+			return change{}, err
+		}
+		c.content = append(out.Bytes(), '\n')
 		c.action.Status = StatusCreated
 		if exists {
 			c.action.Status = StatusUpdated
 		}
 		return c, nil
 	}
+}
+
+// marshalPlain is json.Marshal without HTML escaping: an entry the human
+// wrote as "Bash(a && b <x>)" is written back as it was.
+func marshalPlain(v any) ([]byte, error) {
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(b.Bytes(), "\n"), nil
 }
 
 // claudeMCP registers the user-scope MCP server through Claude Code's own
