@@ -1,6 +1,8 @@
 package pii
 
 import (
+	"fmt"
+	"math/rand/v2"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -156,4 +158,98 @@ func FuzzDetectionView(f *testing.F) {
 			}
 		}
 	})
+}
+
+// Invisible characters that are not format characters (Cf) still do not
+// hide a value: every default-ignorable code point is dropped.
+func TestFindInViewsDefaultIgnorables(t *testing.T) {
+	ds := AllDetectors()
+	for _, x := range []string{"\u200b", "\u2061", "͏", "️", "\U000E0100", "᠋", "឴", "ᅟ", "ᅠ", "ㅤ", "ﾠ", "\u00ad"} {
+		for _, c := range []struct{ value, kind string }{
+			{"4111" + x + "1111" + x + "1111" + x + "1111", "card"},
+			{"+32" + x + "475123456", "phone"},
+			{"jo" + x + "hn@example.com", "email"},
+		} {
+			in := "v " + c.value + " ok"
+			ms := FindInViews(in, ds)
+			if len(ms) != 1 || in[ms[0].Start:ms[0].End] != c.value {
+				t.Errorf("FindInViews(%q) = %v, want the whole %s", in, ms, c.kind)
+			}
+		}
+	}
+}
+
+// Dropping an invisible character can join the neighbouring words to a
+// value: that masks more, never less.
+func TestFindInViewsJoinsAcrossDropped(t *testing.T) {
+	in := "x\u200bjean@example.com\u200by"
+	ms := FindInViews(in, AllDetectors())
+	if len(ms) != 1 || ms[0].Start != 0 {
+		t.Errorf("FindInViews = %v", ms)
+	}
+}
+
+// Past DetectLimit, the unscanned rest of the text is one match of kind
+// CutKind: matches are always safe to apply to the text itself.
+func TestFindCoversUnscannedRest(t *testing.T) {
+	s := strings.Repeat("x ", DetectLimit/2) + "jean@example.com and more"
+	for name, f := range map[string]func(string, []Detector) []Match{"Find": Find, "FindInViews": FindInViews} {
+		ms := f(s, AllDetectors())
+		if len(ms) == 0 || ms[len(ms)-1].Kind != CutKind || ms[len(ms)-1].End != len(s) || ms[len(ms)-1].Start > DetectLimit {
+			t.Errorf("%s: last match %v, want the rest as %s", name, ms, CutKind)
+		}
+	}
+	// A view expanded past its cap (NFKC: U+FDFA is 3 bytes, about 33
+	// after) masks what it could not scan.
+	s = strings.Repeat("ﷺ", DetectLimit/3)
+	ms := FindInViews(s, AllDetectors())
+	if len(ms) != 1 || ms[0].Kind != CutKind || ms[0].End != len(s) {
+		t.Errorf("FindInViews over an expanded view = %v", ms)
+	}
+}
+
+// Planted values, each character encoded at random (percent, double
+// percent, JSON, HTML, full-width, default-ignorables inserted), in
+// JSON, HTML and query contexts: the written form is covered whole.
+func TestFindInViewsPlantedEncodings(t *testing.T) {
+	r := rand.New(rand.NewPCG(7, 9))
+	values := map[string]string{"email": "jean.dupont@example.com", "iban": "BE68539007547034", "card": "4111111111111111", "phone": "+32475123456", "be_niss": "85073003328", "us_ssn": "123-45-6789"}
+	kinds := []string{"email", "iban", "card", "phone", "be_niss", "us_ssn"}
+	ds := AllDetectors()
+	for range 3000 {
+		kind := kinds[r.IntN(len(kinds))]
+		v := values[kind]
+		scheme := r.IntN(6)
+		var b strings.Builder
+		for i, c := range v {
+			switch {
+			case scheme == 0 && r.IntN(2) == 0:
+				fmt.Fprintf(&b, "%%%02X", c)
+			case scheme == 1 && r.IntN(2) == 0:
+				fmt.Fprintf(&b, "%%25%02X", c)
+			case scheme == 2 && r.IntN(2) == 0:
+				fmt.Fprintf(&b, `\u%04x`, c)
+			case scheme == 3 && r.IntN(2) == 0:
+				fmt.Fprintf(&b, "&#%d;", c)
+			case scheme == 4 && c >= '0' && c <= '9' && r.IntN(2) == 0:
+				b.WriteRune('０' + c - '0')
+			default:
+				b.WriteRune(c)
+			}
+			if scheme == 5 && i < len(v)-1 && r.IntN(3) == 0 {
+				b.WriteString([]string{"\u200b", "͏", "️", "\u2060"}[r.IntN(4)])
+			}
+		}
+		enc := b.String()
+		ctx := []string{`{"v":"%s","n":1}`, "<td>%s</td>", "GET /?q=%s&x=1", "v=%s ok"}[r.IntN(4)]
+		in := fmt.Sprintf(ctx, enc)
+		start := strings.Index(in, enc)
+		covered := false
+		for _, m := range FindInViews(in, ds) {
+			covered = covered || m.Start <= start && start+len(enc) <= m.End
+		}
+		if !covered {
+			t.Fatalf("FindInViews(%q) does not cover %q (%s)", in, enc, kind)
+		}
+	}
 }

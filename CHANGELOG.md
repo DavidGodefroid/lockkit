@@ -3,6 +3,12 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `pii`: `FindInViews`, `Find` and `DetectionView(s)`: detected values as
+  ranges with their kind, also behind percent, JSON and HTML escapes,
+  look-alikes and invisible characters (#93).
+
 ## v0.7.1 (2026-10-30)
 
 - A policy change that ends the session when applied (a tightening read

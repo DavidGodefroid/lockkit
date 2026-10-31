@@ -207,24 +207,29 @@ bastion reaches; no local port is ever opened.
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
-- `pii.Find(s, ds)` returns what `Detect` masks as byte ranges of `s`
+- For text bound for a model, use `pii.FindInViews(s, ds)`: the values
+  found in `s` and in every detection view of it, as byte ranges of `s`
   (`[]pii.Match{Start, End, Kind}`, sorted, non-overlapping; `Kind` is the
-  detector name), for a product that writes its own placeholder (a
-  pseudonym) instead of the partial mask. Masking each match with
-  `pii.MaskText` gives `Detect`'s output, except that Find masks more where
-  a later detector matched across an earlier mask, and a `Detector` of your
-  own (no ranges) makes the whole text one match. Texts over `DetectLimit`
-  are cut as `Detect` cuts them: show `pii.CutAt(s, pii.DetectLimit)`.
-- `pii.DetectionView(s)` is `s` as detectors should see it: folded, NFKC
-  (full-width letters, ligatures) and without format characters (zero-width,
-  bidi controls, soft hyphen); `View.Source(start, end)` maps a range of
-  `View.Text` back to `s`, covering what was dropped inside it.
-  `pii.DetectionViews(s)` adds the detection view of `s` percent-decoded
-  (once, twice), with JSON escapes decoded (`\u0040`) and with HTML
-  character references decoded (`&#64;`, `&commat;`).
-  `pii.FindInViews(s, ds)` is `Find` over `s` and every view, mapped back:
-  a value written behind an escape or a look-alike is masked whole, in its
-  written form.
+  detector name; overlapping matches merge, the earliest detector naming
+  the kind). A value written behind an escape, a look-alike or an
+  invisible character is covered whole, in its written form. Replace each
+  match with your own placeholder (a pseudonym).
+  - `pii.DetectionView(s)` is `s` folded, NFKC (full-width letters,
+    ligatures) and without default-ignorable characters (format
+    characters, variation selectors, the combining grapheme joiner, Hangul
+    fillers); `View.Source(start, end)` maps a range of `View.Text` back
+    to `s`, covering what was dropped inside it. `pii.DetectionViews(s)`
+    adds the detection view of `s` percent-decoded (once, twice), with
+    JSON escapes decoded (`\u0040`) and with HTML character references
+    decoded (`&#64;`, `&commat;`). Decodings are not chained, and `\xHH`
+    and `+` are not decoded.
+  - `pii.Find(s, ds)` is what `Detect` masks, as ranges: masking each with
+    `pii.MaskText` gives `Detect`'s output, except that Find masks more
+    where a later detector matched across an earlier mask, and a
+    `Detector` of your own (no ranges) makes the whole text one match.
+  - Past `DetectLimit` (and where a view expands past twice that) the
+    unscanned rest is one more match of kind `pii.CutKind`: the matches
+    are always safe to apply to `s` itself.
 - `pii.MaskValue(v, mode)` / `pii.Mask(mode, s)`: `redact` → `<redacted>`,
   `partial` → `j***(12)`, `email` → `j***@example.com`.
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
