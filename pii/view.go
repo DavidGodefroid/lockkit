@@ -151,6 +151,7 @@ func rawC1(s string, i int) bool {
 // "ESC ] ... BEL" or "ESC ] ... ESC \\", and two-byte escapes) whole:
 // colour codes inside a value would split it.
 func stripANSI(s string) (View, bool) {
+	var next []int32 // stringTerminators(s), computed on the first string
 	var vb viewBuilder
 	vb.b = make([]byte, 0, len(s))
 	changed := false
@@ -178,10 +179,10 @@ func stripANSI(s string) (View, bool) {
 		j := body
 		switch {
 		case kind == '[': // CSI: parameters, intermediates, a final byte
-			for j < len(s) && j-body < maxSeq && s[j] >= 0x20 && s[j] <= 0x3f {
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
 				j++
 			}
-			for j < len(s) && j-body < maxSeq && s[j] >= 0x20 && s[j] <= 0x2f {
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
@@ -189,21 +190,12 @@ func stripANSI(s string) (View, bool) {
 			}
 		case kind == ']' || kind == 'P' || kind == 'X' || kind == '^' || kind == '_':
 			// OSC, DCS, SOS, PM, APC: a string up to BEL or ST.
-			for j < len(s) && j-body < maxSeq {
-				if s[j] == 0x07 {
-					end = j + 1
-					break
-				}
-				if rawC1(s, j) && s[j] == 0x9c {
-					end = j + 1
-					break
-				}
-				if j+1 < len(s) && (s[j] == 0x1b && s[j+1] == '\\' || s[j] == 0xc2 && s[j+1] == 0x9c) {
-					end = j + 2
-					break
-				}
-				j++
+			// No length bound (a long title costs an attacker nothing);
+			// the terminators are found once, so this stays linear.
+			if next == nil {
+				next = stringTerminators(s)
 			}
+			end = int(next[j])
 		case kind >= 0x20 && kind <= 0x2f && intro == 1: // nF ("ESC ( B")
 			j = body
 			for j < len(s) && j-body < 4 && s[j] >= 0x20 && s[j] <= 0x2f {
@@ -265,10 +257,10 @@ func separateANSI(s string) (string, bool) {
 			if s[i] == 0x9b {
 				j = i + 1
 			}
-			for j < len(s) && j-i < maxSeq && s[j] >= 0x20 && s[j] <= 0x3f {
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x3f {
 				j++
 			}
-			for j < len(s) && j-i < maxSeq && s[j] >= 0x20 && s[j] <= 0x2f {
+			for j < len(s) && s[j] >= 0x20 && s[j] <= 0x2f {
 				j++
 			}
 			if j < len(s) && s[j] >= 0x40 && s[j] <= 0x7e {
@@ -292,13 +284,29 @@ func sepView(s, sep string) View {
 	return vb.view(len(s))
 }
 
-// maxSeq bounds a terminal sequence the view drops whole.
-const maxSeq = 256
+// stringTerminators returns, for each position k of s (and len(s)), the
+// end of the first string terminator (BEL, ESC \\, C1 ST, a raw 8-bit ST)
+// at or after k, or -1.
+func stringTerminators(s string) []int32 {
+	next := make([]int32, len(s)+1)
+	next[len(s)] = -1
+	for k := len(s) - 1; k >= 0; k-- {
+		switch {
+		case s[k] == 0x07 || s[k] == 0x9c && rawC1(s, k):
+			next[k] = int32(k + 1)
+		case k+1 < len(s) && (s[k] == 0x1b && s[k+1] == '\\' || s[k] == 0xc2 && s[k+1] == 0x9c):
+			next[k] = int32(k + 2)
+		default:
+			next[k] = next[k+1]
+		}
+	}
+	return next
+}
 
 func cleanView(s string) View { return cleanViewKeeping(s, false) }
 
 // cleanViewKeeping is cleanView; with keepIntroducers it keeps ESC and the
-// C1 controls, so a terminal sequence decoded over several chain rounds
+// C1 controls and BEL, so a terminal sequence decoded over several chain rounds
 // comes out whole (and is stripped at the end).
 func cleanViewKeeping(s string, keepIntroducers bool) View {
 	plain := true
@@ -334,7 +342,7 @@ func cleanViewKeeping(s string, keepIntroducers bool) View {
 				vb.add(seg[:1], from, to)
 			case folded:
 				vb.add([]byte{c}, from, to)
-			case droppedInView(r) && !(keepIntroducers && (r == 0x1b || r >= 0x80 && r < 0xa0)):
+			case droppedInView(r) && !(keepIntroducers && (r == 0x1b || r == 0x07 || r >= 0x80 && r < 0xa0)):
 				// dropped (invisible, a control, a mark on a digit): the
 				// next byte's range starts after it, and a range of the view
 				// spanning it covers it
@@ -443,6 +451,13 @@ func DetectionViews(s string) []View {
 		}
 		if a, ok := ansiView(v.Text); ok {
 			add(compose(v, a))
+			// An invisible character inside a sequence ("ESC [3" ZWSP "1m")
+			// would keep it from being stripped whole.
+			if k := cleanViewKeeping(v.Text, true); k.Text != v.Text {
+				if b, ok := ansiView(k.Text); ok {
+					add(compose(v, compose(k, b)))
+				}
+			}
 		}
 		if sep, ok := separateANSI(v.Text); ok {
 			add(compose(v, compose(sepView(v.Text, sep), cleanView(sep))))
@@ -482,15 +497,20 @@ func DetectionViews(s string) []View {
 	// Every decoding in turn, a few rounds: a value written with two
 	// encodings ("jean%40example&#46;com", "jean&#37;40...") or three
 	// percent rounds.
-	chain, rounds, sawTerminal := decodeChain(src, false)
+	chain, rounds, sawTerminal := decodeChain(src, chainPlain)
 	addDecoded(chain, rounds > 0)
-	if sawTerminal {
+	if sawTerminal || mayHaveTerminal(s) {
 		// A decoding wrote a terminal sequence ("\\x1b[31m" inside a
 		// value): the cleanup between rounds would drop its introducer and
 		// leave the rest splitting the value, so chain once more keeping
 		// introducers between rounds: a sequence decoded over several
 		// rounds comes out whole, and viewsOf strips it.
-		chain, rounds, _ = decodeChain(src, true)
+		chain, rounds, _ = decodeChain(src, chainKeepIntroducers)
+		addDecoded(chain, rounds > 0)
+		// And once scrubbing between rounds: a sequence or an invalid
+		// byte inside an escape ("%4" ESC "[m0", "%4\xff0") would keep
+		// it from being decoded.
+		chain, rounds, _ = decodeChain(src, chainScrub)
 		addDecoded(chain, rounds > 0)
 	}
 	// Form encoding: "+" for a space, then percent ("tel=%2B32+475+12").
@@ -504,18 +524,35 @@ func DetectionViews(s string) []View {
 	return out
 }
 
+// chainMode is how decodeChain cleans up between rounds.
+type chainMode int
+
+const (
+	chainPlain           chainMode = iota // the detection view
+	chainKeepIntroducers                  // keeping ESC, BEL and C1 controls
+	chainScrub                            // without invalid bytes and terminal sequences first
+)
+
 // decodeChain applies every decoding in turn, a few rounds, cleaning up
-// between rounds (with keepIntroducers, keeping ESC and C1 controls): a value
+// between rounds as mode says: a value
 // written with two encodings ("jean%40example&#46;com", "jean&#37;40...")
 // or three percent rounds. sawTerminal reports a round's output with a
 // terminal-sequence introducer.
-func decodeChain(src View, keepIntroducers bool) (chain View, rounds int, sawTerminal bool) {
+func decodeChain(src View, mode chainMode) (chain View, rounds int, sawTerminal bool) {
 	chain = src
 	for round := 0; round < 16; round++ {
 		changed := false
+		if mode == chainScrub {
+			if w, ok := dropInvalid(chain.Text); ok {
+				chain = compose(chain, w)
+			}
+			if a, ok := stripANSI(chain.Text); ok {
+				chain = compose(chain, a)
+			}
+		}
 		// Clean up between decodings: an escape written with a look-alike
 		// or broken by an invisible character ("jean％40", "%4\u200b0").
-		if c := cleanViewKeeping(chain.Text, keepIntroducers); c.Text != chain.Text {
+		if c := cleanViewKeeping(chain.Text, mode == chainKeepIntroducers); c.Text != chain.Text {
 			chain = compose(chain, c)
 		}
 		for _, dec := range []func(string) (View, bool){decodePercent, decodeJSONEscapes, decodeHTML, decodeHexEscapes} {
