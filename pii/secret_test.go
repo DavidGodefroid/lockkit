@@ -2,6 +2,8 @@ package pii
 
 import (
 	"bufio"
+	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -411,6 +413,9 @@ func FuzzSecretPairVariants(f *testing.F) {
 		}
 		key, sep, q, p := keys[int(ki)%len(keys)], seps[int(si)%len(seps)], quotes[int(qi)%len(quotes)], prefixes[int(pi)%len(prefixes)]
 		canary := "Kq7Canary" + string(rune('A'+ti%26)) + "Zx"
+		if key == "Pwd" && strings.Contains(sep, ":") {
+			return // "pwd: command not found": Pwd is a password after "="
+		}
 		r, _ := utf8.DecodeLastRuneInString(pre)
 		if n := len(pre); p == "" && n > 0 && (isAlnum(pre[n-1]) || strings.IndexByte(".-\\", pre[n-1]) >= 0 || unicode.IsLetter(r) || unicode.IsDigit(r)) {
 			p = " " // "xpassword" is another key
@@ -464,6 +469,39 @@ func TestSecretEmptyArrayHasNoSpan(t *testing.T) {
 	}
 	if out := detector(t, "secret").Mask(`{"X-Api-Key":[]}`); out != `{"X-Api-Key":[]}` {
 		t.Errorf("an empty array changed: %q", out)
+	}
+}
+
+func TestSecretLongIndentedValues(t *testing.T) {
+	d := detector(t, "secret")
+	keys := make([]string, 40)
+	obj := map[string]string{}
+	for i := range keys {
+		keys[i] = fmt.Sprintf("k%02d-%s", i, strings.Repeat("v", 20))
+		obj[fmt.Sprintf("k%02d", i)] = keys[i]
+	}
+	keys = append(keys, "LASTKEYsecretValue9")
+	obj["last"] = "LASTsecretVal9"
+	for _, v := range []any{map[string]any{"password": keys}, map[string]any{"credentials": obj}} {
+		b, err := json.MarshalIndent(v, "", "  ")
+		if err != nil {
+			t.Fatal(err)
+		}
+		in := string(b) + "\nstatus=200"
+		got := d.Mask(in)
+		if strings.Contains(got, "LAST") || strings.Contains(got, "k39-") || !strings.HasSuffix(got, "}\nstatus=200") {
+			t.Errorf("secret.Mask(%q) = %q", in, got)
+		}
+	}
+	for in, want := range map[string]string{
+		"secret: [Bob's key]\nuser=alice":     "secret: [<redacted>]\nuser=alice",
+		"auth_token=[none\nuser=alice":        "auth_token=[<redacted>",
+		"bash: pwd: command not found":        "bash: pwd: command not found",
+		"$ pwd: prints the working directory": "$ pwd: prints the working directory",
+	} {
+		if got := d.Mask(in); got != want {
+			t.Errorf("secret.Mask(%q) = %q, want %q", in, got, want)
+		}
 	}
 }
 

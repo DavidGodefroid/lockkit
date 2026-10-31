@@ -301,7 +301,7 @@ func findSecretPairs(s string) []span {
 			}
 			return start
 		}
-		if !isSecretHeader(key) && !LooksSecret(key) && !odbcPwd(key, s[start:]) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
+		if !isSecretHeader(key) && !LooksSecret(key) && !((s[m[8]] == '=' || m[3] > m[2]) && odbcPwd(key, s[start:])) || key == "PASS" && s[m[8]] == ':' || passCount(s, key, start) {
 			// Search again from the value: a pair may sit inside it
 			// ("msg=password=x", "x: password=y").
 			if hashName(key) {
@@ -361,12 +361,14 @@ func findSecretPairs(s string) []span {
 	return out
 }
 
-// arrayEnd returns the offset of the "]" or "}" that closes the array or
-// object opened at s[i]: nested ones and quoted strings (plain, or escaped as \" in a
-// logged JSON string) are skipped, and the array may span lines
-// (json.MarshalIndent). An array that does not close within maxCandidate
-// bytes (cut, or not JSON) ends at the end of the line where that bound
-// falls, so a later element on another line is never left in clear.
+// arrayEnd returns the offset of the "]" or "}" that closes the JSON
+// array or object opened at s[i]: nested ones and quoted strings (plain,
+// or escaped as \" in a logged JSON string) are skipped, and the value
+// may span lines (json.MarshalIndent). A value that never closes (cut, or
+// not JSON) runs to the end of the text, so no later element is left in
+// clear; the caller skips what it masked, so the text is read once. A
+// single quote opens a string only where a value starts ("['a']"), not
+// inside a word ("Bob's").
 func arrayEnd(s string, i int) int {
 	var q byte     // the open quote, 0 outside a string
 	esc := false   // the open quote is an escaped \" (JSON logged in a string)
@@ -376,16 +378,7 @@ func arrayEnd(s string, i int) int {
 		closing = '}'
 	}
 	depth := 0
-	limit := i + 1 + maxCandidate
 	for j := i + 1; j < len(s); j++ {
-		if j >= limit {
-			// Fail closed: to the end of the line itself, never to an
-			// escape sequence that might stand inside the array.
-			if k := strings.IndexAny(s[j:], "\n\r"); k >= 0 {
-				return j + k
-			}
-			return len(s)
-		}
 		c := s[j]
 		switch {
 		case esc:
@@ -415,7 +408,7 @@ func arrayEnd(s string, i int) int {
 		case c == '\\' && j+1 < len(s) && s[j+1] == '"':
 			q, esc, inner = '"', true, false
 			j++
-		case c == '"' || c == '\'':
+		case c == '"' || c == '\'' && !isLetterDigit(s[j-1]):
 			q = c
 		case c == open:
 			depth++
@@ -429,7 +422,8 @@ func arrayEnd(s string, i int) int {
 	return len(s)
 }
 
-// odbcPwd reports the ODBC and ADO "Pwd=" keyword (a password), told
+// odbcPwd reports the ODBC and ADO "Pwd=" keyword (the caller checks "="
+// or a quoted key: "bash: pwd: command not found" is no password) (a password), told
 // from the shell's PWD by its value: a working directory is an absolute
 // path ("/home/bob", "~", "C:\\Users").
 func odbcPwd(key, v string) bool {

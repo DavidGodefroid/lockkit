@@ -1,7 +1,0 @@
-go test fuzz v1
-byte('\x06')
-byte('I')
-byte('\x00')
-byte('\x00')
-byte('\x05')
-string("ר")
