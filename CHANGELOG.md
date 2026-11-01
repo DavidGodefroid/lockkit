@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.10.0 (2026-11-01)
 
 Breaking: the deprecated standalone rollback is removed.
 
