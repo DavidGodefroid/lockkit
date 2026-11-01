@@ -94,8 +94,8 @@ pw, legacy, err := kc.Get(profile, host, port, defaultPort)
 
 `secrets.PromptPassword` reads from the controlling terminal;
 `secrets.VaultRead` runs the `vault` CLI, which finds the Vault token
-itself (VAULT_TOKEN or `~/.vault-token`); `secrets.VaultReadToken` gives
-it a token the console holds (typed by the human) in the CLI's environment
+itself (VAULT_TOKEN or `~/.vault-token`; the console does not use it);
+`secrets.VaultReadToken` gives it the token the console asks at its start and holds (typed by the human) in the CLI's environment
 only, never its arguments, and returns `ErrVaultAuth` when Vault refuses
 it. Wipe every secret you are done with (`secrets.Wipe`).
 
@@ -459,7 +459,7 @@ dumps off (refused on production if it fails), the policy review (first
 start: describe and approve; since the approved policy: tightenings apply,
 loosenings are asked), the production banner and typed profile name, the
 user and the secret (`ask`, `keychain` with an offer to save, `vault` read
-at every connection), `Backend.Connect`, `Backend.Checks` (red findings,
+at every connection with the Vault token asked at start, masked), `Backend.Connect`, `Backend.Checks` (red findings,
 typed `continue`; any finding refuses on production), the socket (private
 or shared), then the request loop until logout, `:quit`, Ctrl-C, the idle
 timeout or the maximum session.
@@ -886,7 +886,7 @@ idempotent, and exits 0 when the files are written or already there.
 | `--project DIR` | the project (default: the project of the current directory) |
 | `--profile NAME` | the profile name (`config.CheckProfileName`); the lock's default when absent, reported in the JSON |
 | `--production` | a production profile (its name is typed for every approval) |
-| `--credentials ask\|vault` | where the console gets the secret: `ask`, the console asks at start (masked), the default; `vault`, the console reads it from Vault at `--vault-path` |
+| `--credentials ask\|vault` | where the console gets the secret: `ask`, the console asks at start (masked), the default; `vault`, the console reads it from Vault at `--vault-path` with the Vault token it asks at its start, masked (never `VAULT_TOKEN` or `~/.vault-token`) |
 | `--vault-path P` | the Vault path, with `--credentials vault` only (`secrets.CheckVaultPath`) |
 
 Without `--non-interactive`, on a terminal, it asks for what the flags
