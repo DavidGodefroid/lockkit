@@ -13,6 +13,21 @@ Breaking: the deprecated standalone rollback is removed.
   in the Locks or lea).
   `ipc.CodeWithdrawn` stays, for clients of older consoles (#118).
 - Comments say `lox up`, the host CLI's name since lockhub v0.3.0 (#118).
+- New package `verbs` and GUIDE.md §14, the launcher verbs contract that
+  `lox init` drives every lock with: `<lock> init <agent>`,
+  `<lock> profile add [--non-interactive] [--json] ...` and
+  `<lock> doctor [--fix [--yes]] [--json]`. `verbs.Parse` parses a
+  non-interactive `profile add` without ever quoting an argument in its
+  errors (the flag package's would), then `verbs.RefuseSecrets` refuses a
+  flag named like a secret (`--password`, `--vault-token`, ...), a value
+  that embeds a password, a control character and any positional
+  argument, never quoting the value; `verbs.WantsJSON` finds `--json` in
+  arguments that do not parse; `verbs.Credentials`
+  accepts `ask` (the console asks at start) or `vault` with a checked
+  `--vault-path`, and refuses any other source (the keychain included).
+  Both wrap `verbs.ErrSecret`. `verbs.Profile`, `verbs.Error` (codes
+  `usage`, `secret`, `exists`, `failed`) and `verbs.Doctor` /
+  `verbs.NewDoctor` are the JSON `lox init` reads (#111).
 
 ## v0.9.1 (2026-10-31)
 

@@ -39,6 +39,7 @@ contract between lockkit and the products built on it.
 | `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
 | `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
+| `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`): the non-interactive form's secret refusal and credential source, the JSON `lox init` reads |
 
 ## 2. `kit.Product`
 
@@ -699,6 +700,8 @@ The pieces are exported for a product that assembles its own console:
   framing, the no-console answer, refusals, large integers): `mcpkit`;
 - agent wiring (MCP entries, skills, rules, instructions sections, Codex
   TOML, Claude permissions, `claude mcp add`): `agentwire`.
+- the secret refusal of a non-interactive `profile add`, its credential
+  source, the JSON of `profile add` and `doctor`: `verbs`.
 
 ## 12. MCP server and agent wiring
 
@@ -853,7 +856,128 @@ withdrawal or staleness, `WithdrawAll` withdraws every pending plan (a
 lock started without its hub), `Prune` expires and removes final plans
 after `Retention`; consumed nonces are kept.
 
-## 14. Asking for a lockkit change
+## 14. Launcher verbs (`verbs`)
+
+`lox init` sets up every lock of a project through the same three verbs
+of each lock's launcher (locksql, lockmq, lockfile, lockhttp). The verbs
+are the product's; this section is their contract, and `verbs` holds the
+checks and JSON shapes they share. Old verbs (`lockmq setup`, `lockhttp
+init --trusted`, ...) are removed, not aliased (pre-release).
+
+**`<lock> init <agent>`** writes the agent files of the project of the
+current directory (§12: `Wiring.Init(agentwire.ProjectRoot(P, cwd),
+agent)`), for `<agent>` one of `agentwire.Agents()`. It never asks, is
+idempotent, and exits 0 when the files are written or already there.
+`lox init` calls `<lock> init claude` from the project root.
+
+**`<lock> profile add`** adds one profile to the project's
+`.<lock>/config.toml`:
+
+```
+<lock> profile add [--non-interactive] [--json] [--project DIR] [--profile NAME]
+                   [--production] [--credentials ask|vault [--vault-path P]]
+                   <target flags>
+```
+
+| Flag | Meaning |
+|---|---|
+| `--non-interactive` | never reads the terminal or stdin; a missing required value is a usage error naming its flag |
+| `--json` | stdout carries exactly one line of JSON, `verbs.Profile` on success, `verbs.Error` on failure (human text, if any, goes to stderr) |
+| `--project DIR` | the project (default: the project of the current directory) |
+| `--profile NAME` | the profile name (`config.CheckProfileName`); the lock's default when absent, reported in the JSON |
+| `--production` | a production profile (its name is typed for every approval) |
+| `--credentials ask\|vault` | where the console gets the secret: `ask`, the console asks at start (masked), the default; `vault`, the console reads it from Vault at `--vault-path` |
+| `--vault-path P` | the Vault path, with `--credentials vault` only (`secrets.CheckVaultPath`) |
+
+Without `--non-interactive`, on a terminal, it asks for what the flags
+did not give; without a terminal it refuses with a usage error rather
+than wait for an answer. **No form of `profile add` takes, asks for or
+writes a secret.** The non-interactive form parses and checks its
+arguments with `verbs` before it writes anything:
+
+```go
+asJSON := verbs.WantsJSON(args)                                     // known even when args do not parse
+if err := verbs.Parse(P, fs, args); err != nil { ... }              // never fs.Parse: its errors quote values
+cred, err := verbs.Credentials(*credentials, *vaultPath)            // "ask" or "vault"; keychain and anything else refused
+```
+
+`verbs.Parse` discards the flag package's output, maps its errors to
+ones that name a flag fs defines and never quote an argument, and then
+runs `verbs.RefuseSecrets`: a flag named like a secret (`--password`,
+`--vault-token`, ...) whatever its value, a value that embeds a password
+(`user:pw@host`, `password=`) or a control character, and any positional
+argument (the flag package stops at the first one, so `profile add`
+takes flags only). It inspects each flag's `Value.String()`: a
+repeatable flag's `String` renders every value. These errors wrap
+`verbs.ErrSecret` for a secret. RefuseSecrets is a backstop: a lock never
+declares a target flag that carries a secret, and none of its own
+`profile add` errors (an unknown engine, a bad host, ...) quotes a flag
+value either; name the flag.
+
+A lock whose target needs no secret (lockfile `--source local`) takes no
+`--credentials`, does not call `verbs.Credentials` (which defaults to
+`ask`) and leaves `verbs.Profile.Credentials` empty. The non-interactive
+form takes `ask` or `vault` only: `keychain`, and any other source, is
+refused, since nothing could put the secret in the keychain without
+asking for it. The interactive form may offer the other sources its
+console supports, and never asks for the secret itself.
+
+The target flags are the lock's own, named after its config keys; the
+ones `lox init` passes from what it detected in the project:
+
+| Lock | Target flags `lox init` passes |
+|---|---|
+| locksql | `--engine postgres\|mysql\|mariadb\|sqlite`, `--host`, `--port`, `--user`, `--database`, `--tls MODE`; `--path FILE` for sqlite |
+| lockmq | `--url` (management API, `http(s)://host:port`), `--user`, `--vhost` (repeatable) |
+| lockfile | `--source local\|s3\|sftp` and the flags of that source (manual mode only: `lox init` detects no file store) |
+| lockhttp | none (manual mode only, with lea): `profile add --non-interactive --profile NAME` adds a profile with the lock's default policy |
+
+A profile already in the config is never rewritten: `profile add` fails
+with code `exists` and writes nothing. `lox init` takes `exists` as "kept":
+it goes on with `init` and `doctor` and reports that the profile was
+already there, whatever target it has (it never compares or edits it).
+
+**`<lock> doctor`** checks the setup of the project of the current
+directory (`init` and `doctor` take no `--project`: they work on the
+current directory) and the account:
+
+```
+<lock> doctor [--fix [--yes]] [--json]
+```
+
+`--fix` repairs what it can (agent wiring, the project directory's
+permissions, ...) and checks again; it asks before each repair unless
+`--yes`, and refuses without a terminal and without `--yes`. `--yes`
+without `--fix` is a usage error. `--json` prints one `verbs.Doctor`
+(`verbs.NewDoctor(P, checks, fixed)`): `ok`, the repairs made (`fixed`)
+and every check (`check`, `status` `ok|warn|fail`, `detail`, `fix`).
+The exit status is 0 exactly when no check fails (a warning does not
+fail). A doctor that could not check (a usage error, `--fix` refused)
+prints a `verbs.Error` instead: `lox init` tells the two apart by the
+`checks` key (`verbs.Doctor`) or the `code` key (`verbs.Error`). `lox
+init` calls `<lock> doctor --fix --yes --json`.
+
+**JSON and exit status.** A verb run with `--json` prints one line of
+JSON on stdout, even when it fails. Its exit status is 0 on success and
+non-zero otherwise; `lox init` reads the reason from the JSON
+(`verbs.Error.code`: `usage`, `secret`, `exists`, `failed`), not from the
+exit status, whose non-zero values stay the lock's own. A verb that
+cannot parse its arguments still knows `--json` from `verbs.WantsJSON`.
+A non-zero exit with no JSON line on stdout (an older lock, a crash) is
+`failed` for `lox init`, which shows the lock's stderr.
+
+What `lox init` calls, for each lock it sets up, from the project root:
+
+```
+<lock> profile add --non-interactive --json --profile NAME [--production] [--credentials ask|vault --vault-path P] <target flags>
+<lock> init claude
+<lock> doctor --fix --yes --json
+```
+
+then `lox add <lock> <instance>` with that profile, and `lox up`. The
+console asks for an `ask` secret at its start, under `lox up`, masked.
+
+## 15. Asking for a lockkit change
 
 lockkit has one owner. Do not copy a lockkit package into your product
 and do not work around it: send a request to the lockkit owner naming the
