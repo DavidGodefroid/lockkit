@@ -19,6 +19,8 @@ import (
 	"io"
 	"io/fs"
 	"net"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
@@ -97,14 +99,60 @@ func ShellQuote(s string) string {
 // machine separates the console from the agent (sysconf), in the user's
 // runtime directory otherwise.
 func SocketPath(p kit.Product, cwd, profile string) (string, error) {
+	return SocketPathInstance(p, cwd, profile, "")
+}
+
+// SocketPathInstance is SocketPath of the lock instance (ResolveInstance)
+// when several locks of p's type share the machine: the socket is in
+// <shared socket dir>/<instance>, which only the separated setup has.
+// With instance "" it is SocketPath.
+func SocketPathInstance(p kit.Product, cwd, profile, instance string) (string, error) {
+	dir, err := sharedDir(p, instance)
+	if err != nil {
+		return "", err
+	}
+	if dir != "" {
+		return ipc.SharedSocketPath(dir, config.ProjectKey(p, cwd), profile)
+	}
+	return ipc.SocketPath(p, config.ProjectKey(p, cwd), profile)
+}
+
+// SocketDirInstance is the directory that holds the console sockets of
+// the lock instance: <shared socket dir>/<instance> in the separated
+// setup, the shared socket dir itself for instance "", and p's runtime
+// directory in same-user mode, which has no instances. A product that
+// lists the running consoles reads this directory.
+func SocketDirInstance(p kit.Product, instance string) (string, error) {
+	dir, err := sharedDir(p, instance)
+	if err != nil || dir != "" {
+		return dir, err
+	}
+	return p.RuntimeDir()
+}
+
+// sharedDir is the socket directory of instance in the separated setup,
+// "" in same-user mode (which refuses an instance). instance is checked
+// before any path is built.
+func sharedDir(p kit.Product, instance string) (string, error) {
+	if instance != "" {
+		if err := checkInstance(instance); err != nil {
+			return "", fmt.Errorf("client: lock instance: %w", err)
+		}
+	}
 	sys, err := sysconf.Load(p)
 	if err != nil {
 		return "", err
 	}
-	if sys != nil {
-		return ipc.SharedSocketPath(sys.SocketDir, config.ProjectKey(p, cwd), profile)
+	if sys == nil {
+		if instance != "" {
+			return "", fmt.Errorf("client: a lock instance needs the separated setup (%s), where the locks' sockets are", sysconf.File(p))
+		}
+		return "", nil
 	}
-	return ipc.SocketPath(p, config.ProjectKey(p, cwd), profile)
+	if instance == "" {
+		return sys.SocketDir, nil
+	}
+	return filepath.Join(sys.SocketDir, instance), nil
 }
 
 // dialUnix opens the socket; tests replace it to watch the connection.
@@ -136,9 +184,25 @@ type Client struct {
 // returns a *NoConsoleError (matching ErrNoConsole) when none is running.
 // The hello handshake happens on the first call, under that call's context.
 func Dial(p kit.Product, cwd, profile string) (*Client, error) {
-	path, err := SocketPath(p, cwd, profile)
+	return DialInstance(p, cwd, profile, "")
+}
+
+// DialInstance is Dial to the lock instance (ResolveInstance), whose
+// socket is SocketPathInstance; the peer check is the same. With instance
+// "" it is Dial.
+func DialInstance(p kit.Product, cwd, profile, instance string) (*Client, error) {
+	path, err := SocketPathInstance(p, cwd, profile, instance)
 	if err != nil {
 		return nil, err
+	}
+	if instance != "" {
+		// A leftover --instance or <PREFIX>INSTANCE (lea mounts a single
+		// lock on the shared dir itself) names a directory that is not
+		// there: say so, rather than send the user to `lox up`.
+		if _, err := os.Stat(filepath.Dir(path)); errors.Is(err, fs.ErrNotExist) {
+			return nil, fmt.Errorf("no %s lock directory for the instance set by --%s or %s: no lock of that name is mounted here",
+				p.Name, FlagInstance, instanceEnv(p))
+		}
 	}
 	conn, err := dialUnix(path)
 	if err != nil {

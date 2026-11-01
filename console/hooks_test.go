@@ -316,13 +316,13 @@ func TestRunConnectGetsPolicyAndUnwraps(t *testing.T) {
 	p.Base.VaultPath = "rabbitmq/creds/ro"
 	p.Base.User = ""
 	hb := &hookBackend{fakeBackend: &fakeBackend{policy: p}}
-	io := &fakeIO{answers: []string{"y"}}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"s.token"}}
 	ready := make(chan string, 1)
 	done := make(chan error, 1)
 	go func() {
 		done <- Run(context.Background(), testProduct, hb, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env,
 			Harden: func() error { return nil }, Keychain: &kc, Ready: func(s string) { ready <- s },
-			VaultRead: func(context.Context, string) (*secrets.VaultCredentials, error) {
+			VaultRead: func(context.Context, string, []byte) (*secrets.VaultCredentials, error) {
 				return &secrets.VaultCredentials{User: "vault-user", Password: []byte("vpw"), LeaseID: "l1", LeaseDuration: time.Hour}, nil
 			}})
 	}()

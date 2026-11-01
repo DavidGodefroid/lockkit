@@ -49,8 +49,9 @@ type Options struct {
 	Isolation *IsolationEnv
 	// Harden replaces Harden (tests).
 	Harden func() error
-	// VaultRead replaces secrets.VaultRead (tests).
-	VaultRead func(ctx context.Context, path string) (*secrets.VaultCredentials, error)
+	// VaultRead replaces secrets.VaultReadToken (tests): it reads the login
+	// at path with the Vault token typed at the console's start.
+	VaultRead func(ctx context.Context, path string, token []byte) (*secrets.VaultCredentials, error)
 	// Keychain replaces the product's OS keychain (tests).
 	Keychain *secrets.Keychain
 	// Ready, when set, is told the socket path once the console listens.
@@ -92,7 +93,10 @@ type starter struct {
 	approver  Approver
 	lockedOut bool
 	keychain  secrets.Keychain
-	vaultRead func(ctx context.Context, path string) (*secrets.VaultCredentials, error)
+	vaultRead func(ctx context.Context, path string, token []byte) (*secrets.VaultCredentials, error)
+	// vaultToken is the Vault token typed at the console's start (nil until
+	// asked); memory only, wiped when Run returns.
+	vaultToken []byte
 }
 
 var errLockedOut = errors.New("console: fingerprint: three non-matching fingers")
@@ -238,7 +242,8 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		appr = NewFingerprintApprover(o.IO, iso.Verifier, iso.Sys.Finger, FingerDeadline)
 	}
 	st := &starter{p: p, b: b, o: o, io: o.IO, log: log, profile: cur.Profile(), approver: appr,
-		keychain: secrets.NewKeychain(p.KeychainService), vaultRead: secrets.VaultRead}
+		keychain: secrets.NewKeychain(p.KeychainService), vaultRead: secrets.VaultReadToken}
+	defer st.wipeVaultToken()
 	if o.Keychain != nil {
 		st.keychain = *o.Keychain
 	}
@@ -549,13 +554,60 @@ func (st *starter) offerSave(ctx context.Context, secret []byte, prompt string) 
 	st.io.Println(Paint.OK("saved in the OS keychain"))
 }
 
+// vaultTokenTries is how many Vault tokens in a row may be refused before
+// a connection gives up.
+const vaultTokenTries = 3
+
+// vaultAddr is the Vault server the vault CLI talks to: VAULT_ADDR, or the
+// CLI's default.
+func vaultAddr() string {
+	if a := os.Getenv("VAULT_ADDR"); a != "" {
+		return a
+	}
+	return "https://127.0.0.1:8200"
+}
+
+func (st *starter) wipeVaultToken() {
+	secrets.Wipe(st.vaultToken)
+	st.vaultToken = nil
+}
+
+// readVault reads the login at path with the Vault token of the session,
+// asked of the human the first time (no echo), and again when Vault refuses
+// the read, up to vaultTokenTries times. Vault answers "permission denied"
+// alike for an expired or revoked token and for a policy that may not read
+// the path, so the warning names both. The token goes to the vault CLI in
+// its environment only, never its arguments, a file, a log or the audit
+// trail.
+func (st *starter) readVault(ctx context.Context, path string) (*secrets.VaultCredentials, error) {
+	for try := 1; ; try++ {
+		if st.vaultToken == nil {
+			tok, err := st.io.AskSecret(ctx, "Vault token for "+sanitize.Terminal(vaultAddr(), false)+": ")
+			if err != nil {
+				return nil, err
+			}
+			st.vaultToken = tok
+		}
+		c, err := st.vaultRead(ctx, path, st.vaultToken)
+		if err == nil || !errors.Is(err, secrets.ErrVaultAuth) {
+			return c, err
+		}
+		err = errors.New(secrets.Sanitize(err, st.vaultToken))
+		st.wipeVaultToken()
+		if try == vaultTokenTries {
+			return nil, fmt.Errorf("%w: %v", secrets.ErrVaultAuth, err)
+		}
+		st.io.Println(Paint.Warn("Vault refused the read: " + err.Error() + ". Enter the token again, or a token whose policy may read " + sanitize.Terminal(path, false)))
+	}
+}
+
 // connectVault connects with the login read from Vault at every
 // connection, never stored. The user comes from the secret, or from the
 // profile when the secret has none; a secret naming another user than the
 // profile is refused.
 func (st *starter) connectVault(ctx context.Context, p Profile, open func(Credentials) (Session, error), first bool) (Session, error) {
 	fetched := st.o.Now()
-	c, err := st.vaultRead(ctx, p.VaultPath)
+	c, err := st.readVault(ctx, p.VaultPath)
 	if err != nil {
 		return nil, fmt.Errorf("console: credentials from Vault (%s): %w", sanitize.Terminal(p.VaultPath, false), err)
 	}

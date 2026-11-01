@@ -3,6 +3,46 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## v0.11.0 (2026-11-01)
+
+- A client reaches one lock among several of its type, by instance:
+  `client.DialInstance(p, cwd, profile, instance)` and
+  `client.SocketPathInstance` dial `<shared socket dir>/<instance>/...`
+  (project key, profile and peer check unchanged; instance `""` is
+  `Dial`/`SocketPath`, byte for byte); `client.SocketDirInstance` is the
+  directory a product that lists its running consoles reads.
+  `client.ResolveInstance(p, flag)`
+  picks the instance from `--instance NAME` (`client.FlagInstance`), else
+  `<PREFIX>INSTANCE`, else the one name lea lists in
+  `LEA_<PREFIX>INSTANCES`. Several listed and
+  none chosen: `several <tool> locks: <a> <b>; pass --instance NAME (or
+  set <PREFIX>INSTANCE)`; a name not listed: `no <tool> lock <name>: <a>
+  <b>`. Names follow lox's instance rule (`client.ErrBadInstance`, whose
+  errors name the flag or variable, never the value) and are checked
+  before any path is built. An instance needs the separated setup. When
+  the instance's directory does not exist (a leftover `--instance` or
+  `<PREFIX>INSTANCE` beside a single lock), `DialInstance` says so and
+  names both sources instead of the `lox up` hint. Each Lock wires
+  `--instance` into its client commands and `mcp` (GUIDE.md §7).
+
+
+Breaking: the console asks the Vault token at its start.
+
+- `console.Options.VaultRead` now takes the token:
+  `func(ctx context.Context, path string, token []byte) (*secrets.VaultCredentials, error)`
+  (it was `func(ctx, path)`); the default is `secrets.VaultReadToken`. A
+  caller that sets it must take the token.
+- With `credentials = "vault"` the console asks `Vault token for
+  <VAULT_ADDR>: ` at its start, masked, and keeps the token in memory
+  only, wiped when the console ends. It never reads `VAULT_TOKEN` or
+  `~/.vault-token`, so a console started by `lox up` can log in.
+- When Vault refuses the read the console asks again (3 tries in all)
+  and names the path whose policy the token must be allowed to read; when
+  Vault is unreachable it does not ask again. Reconnections reuse the
+  token. The token is never in an argument, the audit trail, an error or
+  the output.
+- GUIDE.md §10 and §14 say so.
+
 ## v0.10.0 (2026-11-01)
 
 Breaking: the deprecated standalone rollback is removed.

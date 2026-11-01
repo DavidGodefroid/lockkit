@@ -1,5 +1,5 @@
 // Package verbs is the shared half of the launcher verbs every lock
-// accepts, so that `lox init` drives every lock the same way (GUIDE.md
+// accepts, so that `lox add` drives every lock the same way (GUIDE.md
 // §14):
 //
 //	<lock> init <agent>
@@ -9,7 +9,7 @@
 // The verbs themselves are the product's: verbs gives the checks of the
 // non-interactive form (no secret value, ever, and a credential source
 // that is the console asking at start or Vault) and the JSON shapes
-// `lox init` reads.
+// `lox add` reads.
 package verbs
 
 import (
@@ -185,7 +185,7 @@ func Credentials(source, vaultPath string) (string, error) {
 		FlagCredentials, ErrSecret, config.CredentialsAsk, config.CredentialsVault, FlagVaultPath)
 }
 
-// The codes of an Error, which `lox init` acts on.
+// The codes of an Error, which `lox add` acts on.
 const (
 	// CodeUsage: a flag is missing, unknown or invalid.
 	CodeUsage = "usage"
