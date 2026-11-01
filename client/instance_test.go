@@ -139,10 +139,13 @@ func TestDialInstanceMissingDirectoryIsNamed(t *testing.T) {
 		t.Fatalf("err = %v, want a missing instance directory, not ErrNoConsole", err)
 	}
 	msg := err.Error()
-	for _, want := range []string{"--instance", "LOCKMQ_INSTANCE", "orders", "no lockmq lock directory"} {
+	for _, want := range []string{"--instance", "LOCKMQ_INSTANCE", "no lockmq lock directory for the instance set by"} {
 		if !strings.Contains(msg, want) {
 			t.Errorf("err = %q, want %q in it", msg, want)
 		}
+	}
+	if strings.Contains(msg, "orders") {
+		t.Errorf("err = %q, must not echo the instance value", msg)
 	}
 	if strings.Contains(msg, "lox up") {
 		t.Errorf("err = %q, must not give the lox up hint", msg)

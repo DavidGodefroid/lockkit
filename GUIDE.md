@@ -39,7 +39,7 @@ contract between lockkit and the products built on it.
 | `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
 | `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
-| `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`): the non-interactive form's secret refusal and credential source, the JSON `lox init` reads |
+| `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`): the non-interactive form's secret refusal and credential source, the JSON `lox add` reads |
 
 ## 2. `kit.Product`
 
@@ -206,7 +206,9 @@ among several (`several <tool> locks: <a> <b>; pass --instance NAME (or
 set <PREFIX>INSTANCE)`). An instance needs the separated setup. An
 instance whose directory is missing (a leftover value beside a single
 lock, which lea mounts on the shared dir itself) is a `DialInstance`
-error naming `--instance` and `<PREFIX>INSTANCE`, not a `NoConsoleError`.
+error, not a `NoConsoleError`: `no <tool> lock directory for the instance
+set by --instance or <PREFIX>INSTANCE: no lock of that name is mounted
+here`. It names the flag and the variable, never the value.
 
 `tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
@@ -879,7 +881,7 @@ after `Retention`; consumed nonces are kept.
 
 ## 14. Launcher verbs (`verbs`)
 
-`lox init` sets up every lock of a project through the same three verbs
+`lox add` sets up every lock of a project through the same three verbs
 of each lock's launcher (locksql, lockmq, lockfile, lockhttp). The verbs
 are the product's; this section is their contract, and `verbs` holds the
 checks and JSON shapes they share. Old verbs (`lockmq setup`, `lockhttp
@@ -889,7 +891,7 @@ init --trusted`, ...) are removed, not aliased (pre-release).
 current directory (§12: `Wiring.Init(agentwire.ProjectRoot(P, cwd),
 agent)`), for `<agent>` one of `agentwire.Agents()`. It never asks, is
 idempotent, and exits 0 when the files are written or already there.
-`lox init` calls `<lock> init claude` from the project root.
+`lox add` calls `<lock> init claude` from the project root.
 
 **`<lock> profile add`** adds one profile to the project's
 `.<lock>/config.toml`:
@@ -943,18 +945,19 @@ refused, since nothing could put the secret in the keychain without
 asking for it. The interactive form may offer the other sources its
 console supports, and never asks for the secret itself.
 
-The target flags are the lock's own, named after its config keys; the
-ones `lox init` passes from what it detected in the project:
+The target flags are the lock's own, named after its config keys,
+and the ones `lox add` passes from its guided form (the defaults come from what
+it detected in the project):
 
-| Lock | Target flags `lox init` passes |
+| Lock | Target flags `lox add` passes |
 |---|---|
 | locksql | `--engine postgres\|mysql\|mariadb\|sqlite`, `--host`, `--port`, `--user`, `--database`, `--tls MODE`; `--path FILE` for sqlite |
 | lockmq | `--url` (management API, `http(s)://host:port`), `--user`, `--vhost` (repeatable) |
-| lockfile | `--source local\|s3\|sftp` and the flags of that source (manual mode only: `lox init` detects no file store) |
+| lockfile | `--source local\|s3\|sftp` and the flags of that source |
 | lockhttp | none (manual mode only, with lea): `profile add --non-interactive --profile NAME` adds a profile with the lock's default policy |
 
 A profile already in the config is never rewritten: `profile add` fails
-with code `exists` and writes nothing. `lox init` takes `exists` as "kept":
+with code `exists` and writes nothing. `lox add` takes `exists` as "kept":
 it goes on with `init` and `doctor` and reports that the profile was
 already there, whatever target it has (it never compares or edits it).
 
@@ -974,20 +977,20 @@ without `--fix` is a usage error. `--json` prints one `verbs.Doctor`
 and every check (`check`, `status` `ok|warn|fail`, `detail`, `fix`).
 The exit status is 0 exactly when no check fails (a warning does not
 fail). A doctor that could not check (a usage error, `--fix` refused)
-prints a `verbs.Error` instead: `lox init` tells the two apart by the
+prints a `verbs.Error` instead: `lox add` tells the two apart by the
 `checks` key (`verbs.Doctor`) or the `code` key (`verbs.Error`). `lox
-init` calls `<lock> doctor --fix --yes --json`.
+add` calls `<lock> doctor --fix --yes --json`.
 
 **JSON and exit status.** A verb run with `--json` prints one line of
 JSON on stdout, even when it fails. Its exit status is 0 on success and
-non-zero otherwise; `lox init` reads the reason from the JSON
+non-zero otherwise; `lox add` reads the reason from the JSON
 (`verbs.Error.code`: `usage`, `secret`, `exists`, `failed`), not from the
 exit status, whose non-zero values stay the lock's own. A verb that
 cannot parse its arguments still knows `--json` from `verbs.WantsJSON`.
 A non-zero exit with no JSON line on stdout (an older lock, a crash) is
-`failed` for `lox init`, which shows the lock's stderr.
+`failed` for `lox add`, which shows the lock's stderr.
 
-What `lox init` calls, for each lock it sets up, from the project root:
+What `lox add` calls, for each lock it sets up, from the project root:
 
 ```
 <lock> profile add --non-interactive --json --profile NAME [--production] [--credentials ask|vault --vault-path P] <target flags>

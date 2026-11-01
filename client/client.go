@@ -200,8 +200,8 @@ func DialInstance(p kit.Product, cwd, profile, instance string) (*Client, error)
 		// lock on the shared dir itself) names a directory that is not
 		// there: say so, rather than send the user to `lox up`.
 		if _, err := os.Stat(filepath.Dir(path)); errors.Is(err, fs.ErrNotExist) {
-			return nil, fmt.Errorf("no %s lock directory for instance %s (set by --%s or %s): no lock of that name is mounted here",
-				p.Name, instance, FlagInstance, instanceEnv(p))
+			return nil, fmt.Errorf("no %s lock directory for the instance set by --%s or %s: no lock of that name is mounted here",
+				p.Name, FlagInstance, instanceEnv(p))
 		}
 	}
 	conn, err := dialUnix(path)
