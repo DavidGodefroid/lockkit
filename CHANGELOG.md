@@ -3,6 +3,21 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- New package `verbs` and GUIDE.md §14, the launcher verbs contract that
+  `lox init` drives every lock with: `<lock> init <agent>`,
+  `<lock> profile add [--non-interactive] [--json] ...` and
+  `<lock> doctor [--fix [--yes]] [--json]`. `verbs.RefuseSecrets` refuses,
+  in a non-interactive `profile add`, a flag named like a secret
+  (`--password`, `--vault-token`, ...), a value that embeds a password and
+  a control character, never quoting the value; `verbs.Credentials`
+  accepts `ask` (the console asks at start) or `vault` with a checked
+  `--vault-path`, and refuses any other source (the keychain included).
+  Both wrap `verbs.ErrSecret`. `verbs.Profile`, `verbs.Error` (codes
+  `usage`, `secret`, `exists`, `failed`) and `verbs.Doctor` /
+  `verbs.NewDoctor` are the JSON `lox init` reads (#111).
+
 ## v0.9.1 (2026-10-31)
 
 - `console.Options.PolicyOnly`: a console that serves its policy and
