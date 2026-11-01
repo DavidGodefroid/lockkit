@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.11.0 (2026-11-01)
 
 - A client reaches one lock among several of its type, by instance:
   `client.DialInstance(p, cwd, profile, instance)` and
@@ -25,7 +25,6 @@ GUIDE.md is the contract between lockkit and the products built on it.
   names both sources instead of the `lox up` hint. Each Lock wires
   `--instance` into its client commands and `mcp` (GUIDE.md §7).
 
-## v0.11.0
 
 Breaking: the console asks the Vault token at its start.
 
