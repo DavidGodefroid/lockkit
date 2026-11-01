@@ -4,14 +4,12 @@ package client
 
 import (
 	"errors"
-	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/DavidGodefroid/lockkit/config"
-	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/sysconf"
 )
 
@@ -240,46 +238,5 @@ func TestResolveInstancePrecedence(t *testing.T) {
 	t.Setenv("LEA_LOCKMQ_INSTANCES", "")
 	if got, err := ResolveInstance(testProduct, "audit"); err != nil || got != "audit" {
 		t.Fatalf("flag without a list: %q, %v, want audit", got, err)
-	}
-}
-
-// With no lock socket at all in the instance directory no lock was added
-// yet: the hint is `lox add`, not `lox up`. With a socket there (stale, no
-// listener) the usual `lox up` hint stays.
-func TestNoConsoleHintZeroLocksVersusStaleSocket(t *testing.T) {
-	dir, err := os.MkdirTemp("/tmp", "lkin")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
-	cwd := separatedIn(t, dir)
-	idir := filepath.Join(dir, "orders")
-	if err := os.Mkdir(idir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	_, err = DialInstance(testProduct, cwd, "uat", "orders")
-	var nc *NoConsoleError
-	if !errors.As(err, &nc) {
-		t.Fatalf("err = %v, want a NoConsoleError", err)
-	}
-	if want := "no such lock yet: `lox add lockmq`"; !strings.Contains(err.Error(), want) || strings.Contains(err.Error(), "lox up") {
-		t.Errorf("zero locks: err = %q, want %q and no lox up", err, want)
-	}
-	path, err := SocketPathInstance(testProduct, cwd, "uat", "orders")
-	if err != nil {
-		t.Fatal(err)
-	}
-	ln, err := ipc.Listen(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	ln.(*net.UnixListener).SetUnlinkOnClose(false)
-	ln.Close()
-	_, err = DialInstance(testProduct, cwd, "uat", "orders")
-	if !errors.As(err, &nc) {
-		t.Fatalf("err = %v, want a NoConsoleError", err)
-	}
-	if !strings.Contains(err.Error(), "ask the user to run `lox up`") || strings.Contains(err.Error(), "lox add") {
-		t.Errorf("stale socket: err = %q, want the lox up hint", err)
 	}
 }

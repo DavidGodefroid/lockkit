@@ -208,10 +208,7 @@ instance whose directory is missing (a leftover value beside a single
 lock, which lea mounts on the shared dir itself) is a `DialInstance`
 error, not a `NoConsoleError`: `no <tool> lock directory for the instance
 set by --instance or <PREFIX>INSTANCE: no lock of that name is mounted
-here`. It names the flag and the variable, never the value. A
-`NoConsoleError` whose shared socket directory holds no lock socket at
-all hints `no such lock yet: `lox add <tool>``; with sockets there but no
-answer it keeps the `lox up` hint.
+here`. It names the flag and the variable, never the value.
 
 `tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the

@@ -50,9 +50,6 @@ type NoConsoleError struct {
 	Project string
 	Socket  string
 	Err     error
-	// noLock is set when the shared socket directory holds no lock socket
-	// at all: no lock of this type is set up yet (spec 3.1).
-	noLock bool
 }
 
 func (e *NoConsoleError) Error() string {
@@ -65,13 +62,8 @@ func (e *NoConsoleError) Command() string { return StartCommand(e.Product, e.Pro
 
 // Hint tells the agent what to ask of the user: a console is started by
 // `lox up` only (a console started by hand refuses to start), so the hint
-// is StartHint, and names no profile, project or other value. When the
-// shared socket directory holds no lock socket at all, no lock was added
-// yet and the hint is `lox add <tool>`.
+// is StartHint, and names no profile, project or other value.
 func (e *NoConsoleError) Hint() string {
-	if e.noLock {
-		return fmt.Sprintf("no such lock yet: `lox add %s`", e.Product.Name)
-	}
 	return fmt.Sprintf("%s (`%s doctor` checks the setup)", StartHint, e.Product.Name)
 }
 
@@ -216,11 +208,7 @@ func DialInstance(p kit.Product, cwd, profile, instance string) (*Client, error)
 	if err != nil {
 		if noListener(err) {
 			root, _ := config.FindProjectRoot(p, cwd)
-			ne := &NoConsoleError{Product: p, Profile: profile, Project: root, Socket: path, Err: err}
-			if dir, derr := sharedDir(p, instance); derr == nil && dir != "" {
-				ne.noLock = !hasSocket(dir)
-			}
-			return nil, ne
+			return nil, &NoConsoleError{Product: p, Profile: profile, Project: root, Socket: path, Err: err}
 		}
 		return nil, fmt.Errorf("client: connecting to the console: %w", err)
 	}
@@ -375,22 +363,4 @@ func (c *Client) fail(ctx context.Context, err error) error {
 	}
 	c.broken = fmt.Errorf("client: %w", err)
 	return c.broken
-}
-
-// hasSocket reports whether dir holds any Unix socket. A directory that
-// cannot be read counts as holding one: the usual hint stays.
-func hasSocket(dir string) bool {
-	entries, err := os.ReadDir(dir)
-	if errors.Is(err, fs.ErrNotExist) {
-		return false
-	}
-	if err != nil {
-		return true
-	}
-	for _, e := range entries {
-		if e.Type()&fs.ModeSocket != 0 {
-			return true
-		}
-	}
-	return false
 }
