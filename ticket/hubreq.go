@@ -39,7 +39,7 @@ const (
 // (PII.SealedFor); a chat facade never shows clear values.
 func CanReveal(facade string) bool { return facade == FacadeTTY || facade == FacadeDeck }
 
-// FacadeKey is a facade's Ed25519 key, as a lock pins it: `lock up`
+// FacadeKey is a facade's Ed25519 key, as a lock pins it: `lox up`
 // writes the facades the human reviewed at the host's terminal.
 type FacadeKey struct {
 	Facade string `json:"facade"`

@@ -625,10 +625,8 @@ err := console.Run(ctx, P, backend, console.Options{
 ```
 
 **No standalone mode.** A console started without its hub (and not
-policy-only) is refused, so there is no rollback of hub mode any more.
-`console.WithdrawStandalone` is inert (it withdraws nothing);
-it, `console.WithdrawnResp`, `console.StandaloneReason` and
-`console.Withdrawn` are deprecated and go in the next minor release.
+policy-only) is refused, so there is no rollback of hub mode any more
+(`console.WithdrawStandalone` and its types are gone since v0.10.0).
 With no console started by hand, `client.StartCommand` is `lox up` and
 the `client.NoConsoleError` hint (`client.StartHint`) asks the user to
 run `lox up`, naming no profile or project.

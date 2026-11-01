@@ -121,7 +121,7 @@ type Config struct {
 	// its own CheckRedirect.
 	HTTP *http.Client
 	// PlainHTTP (the flag --hub-plain-http) allows an http:// URL to a hub
-	// on a network of its own (lock up's): a service name without a dot or
+	// on a network of its own (lox up's): a service name without a dot or
 	// a private address only. Off, http is refused but to a loopback
 	// address; use https. Requests and decisions are signed either way.
 	PlainHTTP bool

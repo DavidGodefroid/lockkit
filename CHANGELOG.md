@@ -3,6 +3,16 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+Breaking: the deprecated standalone rollback is removed.
+
+- `console.WithdrawStandalone`, `console.WithdrawnResp`,
+  `console.StandaloneReason` and `console.Withdrawn` are gone (deprecated
+  and inert since v0.9.1; no caller left in the Locks or lea).
+  `ipc.CodeWithdrawn` stays, for clients of older consoles (#118).
+- Comments say `lox up`, the host CLI's name since lockhub v0.3.0 (#118).
+
 ## v0.9.1 (2026-10-31)
 
 - `console.Options.PolicyOnly`: a console that serves its policy and
