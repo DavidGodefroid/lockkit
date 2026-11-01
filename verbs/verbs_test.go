@@ -53,6 +53,8 @@ func TestRefuseSecrets(t *testing.T) {
 		{"url with password", []string{"--url", "amqp://app:" + secret + "@mq:5672/"}, true, false},
 		{"keyword dsn", []string{"--user", "host=db password=" + secret}, true, false},
 		{"positional with password", []string{"--profile", "dev", "https://app:" + secret + "@mq"}, true, false},
+		{"flag after a positional", []string{"--profile", "dev", "stray", "--password", secret}, true, false},
+		{"bare positional", []string{"--profile", "dev", secret}, false, false},
 		{"control character", []string{"--user", "app\x1b[2J"}, false, false},
 		{"bidi override", []string{"--profile", "dev\u202e"}, false, false},
 	} {
@@ -182,5 +184,64 @@ func TestWriteJSONShapes(t *testing.T) {
 	var e Error
 	if err := json.Unmarshal([]byte(lines[1]), &e); err != nil || e.Code != "exists" || !strings.Contains(lines[1], "<here>") {
 		t.Fatalf("error: %s %v", lines[1], err)
+	}
+}
+
+func TestParseNeverQuotes(t *testing.T) {
+	const secret = "s3cr3t-Value"
+	for _, tc := range []struct {
+		name   string
+		args   []string
+		want   string // in the error
+		secret bool
+	}{
+		{"int flag", []string{"--port", secret}, "--port: invalid value", false},
+		{"bool flag", []string{"--production=" + secret}, "--production: invalid value", false},
+		{"missing value", []string{"--user"}, "--user needs a value", false},
+		{"unknown flag", []string{"--" + secret, "x"}, "unknown flag", false},
+		{"unknown secret flag", []string{"--db-password=" + secret}, "unknown flag", true},
+		{"bad syntax", []string{"---" + secret}, "bad flag syntax", false},
+		{"secret flag defined", []string{"--password", secret}, "--password", true},
+		{"positional", []string{secret}, "positional", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fs := profileFlags()
+			fs.Int("port", 0, "")
+			var out bytes.Buffer
+			fs.SetOutput(&out)
+			err := Parse(testProduct, fs, tc.args)
+			if err == nil {
+				t.Fatal("accepted")
+			}
+			if strings.Contains(err.Error(), secret) || strings.Contains(out.String(), secret) {
+				t.Fatalf("quotes the value: %v / %q", err, out.String())
+			}
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("got %v, want %q", err, tc.want)
+			}
+			if errors.Is(err, ErrSecret) != tc.secret {
+				t.Fatalf("errors.Is(ErrSecret) wrong: %v", err)
+			}
+		})
+	}
+	fs := profileFlags()
+	if err := Parse(testProduct, fs, []string{"--non-interactive", "--json", "--user", "app"}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWantsJSON(t *testing.T) {
+	for args, want := range map[string]bool{
+		"--bogus --json":    true,
+		"-json --x":         true,
+		"--json=true":       true,
+		"--json=false":      false,
+		"--user json":       false,
+		"-- --json":         false,
+		"--non-interactive": false,
+	} {
+		if got := WantsJSON(strings.Fields(args)); got != want {
+			t.Errorf("WantsJSON(%q) = %v", args, got)
+		}
 	}
 }

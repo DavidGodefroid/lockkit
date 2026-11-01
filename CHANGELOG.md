@@ -8,10 +8,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - New package `verbs` and GUIDE.md §14, the launcher verbs contract that
   `lox init` drives every lock with: `<lock> init <agent>`,
   `<lock> profile add [--non-interactive] [--json] ...` and
-  `<lock> doctor [--fix [--yes]] [--json]`. `verbs.RefuseSecrets` refuses,
-  in a non-interactive `profile add`, a flag named like a secret
-  (`--password`, `--vault-token`, ...), a value that embeds a password and
-  a control character, never quoting the value; `verbs.Credentials`
+  `<lock> doctor [--fix [--yes]] [--json]`. `verbs.Parse` parses a
+  non-interactive `profile add` without ever quoting an argument in its
+  errors (the flag package's would), then `verbs.RefuseSecrets` refuses a
+  flag named like a secret (`--password`, `--vault-token`, ...), a value
+  that embeds a password, a control character and any positional
+  argument, never quoting the value; `verbs.WantsJSON` finds `--json` in
+  arguments that do not parse; `verbs.Credentials`
   accepts `ask` (the console asks at start) or `vault` with a checked
   `--vault-path`, and refuses any other source (the keychain included).
   Both wrap `verbs.ErrSecret`. `verbs.Profile`, `verbs.Error` (codes

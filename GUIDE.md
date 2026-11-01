@@ -894,19 +894,35 @@ idempotent, and exits 0 when the files are written or already there.
 Without `--non-interactive`, on a terminal, it asks for what the flags
 did not give; without a terminal it refuses with a usage error rather
 than wait for an answer. **No form of `profile add` takes, asks for or
-writes a secret.** The non-interactive form checks its parsed flags
-before it writes anything:
+writes a secret.** The non-interactive form parses and checks its
+arguments with `verbs` before it writes anything:
 
 ```go
-if err := verbs.RefuseSecrets(P, fs); err != nil { ... }            // --password/--token/..., user:pw@host, password=...
+asJSON := verbs.WantsJSON(args)                                     // known even when args do not parse
+if err := verbs.Parse(P, fs, args); err != nil { ... }              // never fs.Parse: its errors quote values
 cred, err := verbs.Credentials(*credentials, *vaultPath)            // "ask" or "vault"; keychain and anything else refused
 ```
 
-Both errors wrap `verbs.ErrSecret` for a secret, and never quote the
-value. A lock whose target needs no secret (lockfile `--source local`)
-takes no `--credentials`. The non-interactive form takes `ask` or `vault`
-only: `keychain`, and any other source, is refused, since nothing could
-put the secret in the keychain without asking for it.
+`verbs.Parse` discards the flag package's output, maps its errors to
+ones that name a flag fs defines and never quote an argument, and then
+runs `verbs.RefuseSecrets`: a flag named like a secret (`--password`,
+`--vault-token`, ...) whatever its value, a value that embeds a password
+(`user:pw@host`, `password=`) or a control character, and any positional
+argument (the flag package stops at the first one, so `profile add`
+takes flags only). It inspects each flag's `Value.String()`: a
+repeatable flag's `String` renders every value. These errors wrap
+`verbs.ErrSecret` for a secret. RefuseSecrets is a backstop: a lock never
+declares a target flag that carries a secret, and none of its own
+`profile add` errors (an unknown engine, a bad host, ...) quotes a flag
+value either; name the flag.
+
+A lock whose target needs no secret (lockfile `--source local`) takes no
+`--credentials`, does not call `verbs.Credentials` (which defaults to
+`ask`) and leaves `verbs.Profile.Credentials` empty. The non-interactive
+form takes `ask` or `vault` only: `keychain`, and any other source, is
+refused, since nothing could put the secret in the keychain without
+asking for it. The interactive form may offer the other sources its
+console supports, and never asks for the secret itself.
 
 The target flags are the lock's own, named after its config keys; the
 ones `lox init` passes from what it detected in the project:
@@ -919,11 +935,13 @@ ones `lox init` passes from what it detected in the project:
 | lockhttp | none (manual mode only, with lea): `profile add --non-interactive --profile NAME` adds a profile with the lock's default policy |
 
 A profile already in the config is never rewritten: `profile add` fails
-with code `exists` and writes nothing, so that a re-run of `lox init`
-keeps it.
+with code `exists` and writes nothing. `lox init` takes `exists` as "kept":
+it goes on with `init` and `doctor` and reports that the profile was
+already there, whatever target it has (it never compares or edits it).
 
 **`<lock> doctor`** checks the setup of the project of the current
-directory and the account:
+directory (`init` and `doctor` take no `--project`: they work on the
+current directory) and the account:
 
 ```
 <lock> doctor [--fix [--yes]] [--json]
@@ -936,13 +954,19 @@ without `--fix` is a usage error. `--json` prints one `verbs.Doctor`
 (`verbs.NewDoctor(P, checks, fixed)`): `ok`, the repairs made (`fixed`)
 and every check (`check`, `status` `ok|warn|fail`, `detail`, `fix`).
 The exit status is 0 exactly when no check fails (a warning does not
-fail). `lox init` calls `<lock> doctor --fix --yes --json`.
+fail). A doctor that could not check (a usage error, `--fix` refused)
+prints a `verbs.Error` instead: `lox init` tells the two apart by the
+`checks` key (`verbs.Doctor`) or the `code` key (`verbs.Error`). `lox
+init` calls `<lock> doctor --fix --yes --json`.
 
 **JSON and exit status.** A verb run with `--json` prints one line of
 JSON on stdout, even when it fails. Its exit status is 0 on success and
 non-zero otherwise; `lox init` reads the reason from the JSON
 (`verbs.Error.code`: `usage`, `secret`, `exists`, `failed`), not from the
-exit status, whose non-zero values stay the lock's own.
+exit status, whose non-zero values stay the lock's own. A verb that
+cannot parse its arguments still knows `--json` from `verbs.WantsJSON`.
+A non-zero exit with no JSON line on stdout (an older lock, a crash) is
+`failed` for `lox init`, which shows the lock's stderr.
 
 What `lox init` calls, for each lock it sets up, from the project root:
 

@@ -45,14 +45,58 @@ const (
 // errors of RefuseSecrets and Credentials.
 var ErrSecret = errors.New("a secret is never given on the command line")
 
-// RefuseSecrets checks every flag set on fs, the parsed flags of a
-// non-interactive `profile add` (call it after fs.Parse, before writing
-// anything). It refuses a flag whose name has a part that names a secret
-// (password, passwd, pwd, secret, token: --password, --vault-token,
-// --api-secret), whatever its value, and a value that embeds a password
-// or holds a control or formatting character. Positional arguments are
-// checked too. The error names the flag, never its value (it may be the
-// secret), and wraps ErrSecret for a secret.
+// Parse parses args, the arguments of a non-interactive `profile add`
+// after the verb, into fs and checks them with RefuseSecrets: call it
+// instead of fs.Parse, before writing anything. Unlike fs.Parse it never
+// writes to fs's output (it discards it) and its error never quotes an
+// argument: a flag package error ("invalid value \"…\" for flag -port")
+// would quote the value, which may be a secret pasted in the wrong place.
+// The error names the flag when fs defines it, and wraps ErrSecret for
+// an unknown flag named like a secret (--password).
+func Parse(p kit.Product, fs *flag.FlagSet, args []string) error {
+	fs.SetOutput(io.Discard)
+	if err := fs.Parse(args); err != nil {
+		return parseError(p, fs, err)
+	}
+	return RefuseSecrets(p, fs)
+}
+
+// parseError is err of fs.Parse without any argument in it.
+func parseError(p kit.Product, fs *flag.FlagSet, err error) error {
+	msg := err.Error()
+	name := ""
+	if i := strings.LastIndex(msg, " -"); i >= 0 {
+		name = strings.TrimLeft(msg[i+2:], "-")
+		if j := strings.IndexAny(name, ": "); j >= 0 {
+			name = name[:j]
+		}
+	}
+	switch {
+	case strings.HasPrefix(msg, "flag provided but not defined: "):
+		if config.SecretKey(strings.Split(name, "-")) {
+			return fmt.Errorf("an unknown flag: %w: %s asks for it at start or reads it from Vault (--%s %s|%s)",
+				ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
+		}
+		return errors.New("an unknown flag (see the usage)")
+	case name != "" && fs.Lookup(name) != nil && strings.HasPrefix(msg, "flag needs an argument"):
+		return fmt.Errorf("--%s needs a value", name)
+	case name != "" && fs.Lookup(name) != nil:
+		return fmt.Errorf("--%s: invalid value", name)
+	}
+	return errors.New("bad flag syntax (see the usage)")
+}
+
+// RefuseSecrets checks fs after fs.Parse, the parsed flags of a
+// non-interactive `profile add` (Parse calls it). It refuses a flag whose
+// name has a part that names a secret (password, passwd, pwd, secret,
+// token: --password, --vault-token, --api-secret), whatever its value; a
+// value that embeds a password or holds a control or formatting
+// character; and any positional argument (the flag package stops at the
+// first one, so a flag after it would go unchecked: `profile add` takes
+// flags only). It inspects each flag's Value.String(), so a repeatable
+// flag's String must render every value. The error names the flag or the
+// argument's position, never its value (it may be the secret), and wraps
+// ErrSecret for a secret.
 func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 	var err error
 	fs.Visit(func(f *flag.Flag) {
@@ -64,12 +108,31 @@ func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 	if err != nil {
 		return err
 	}
-	for i, a := range fs.Args() {
-		if err := checkArg(p, fmt.Sprintf("argument %d", i+1), "", a); err != nil {
-			return err
+	if fs.NArg() == 0 {
+		return nil
+	}
+	for _, a := range fs.Args() {
+		name := strings.TrimLeft(strings.SplitN(a, "=", 2)[0], "-")
+		if strings.HasPrefix(a, "-") && config.SecretKey(strings.Split(name, "-")) || config.EmbedsPassword(a) {
+			return fmt.Errorf("a positional argument: %w: profile add takes flags only", ErrSecret)
 		}
 	}
-	return nil
+	return errors.New("a positional argument: profile add takes flags only (one stops the flags)")
+}
+
+// WantsJSON reports --json among args, as given before parsing: a verb
+// whose arguments do not parse still answers with an Error in JSON.
+func WantsJSON(args []string) bool {
+	for _, a := range args {
+		if a == "--" {
+			return false
+		}
+		switch a {
+		case "--json", "-json", "--json=true", "-json=true":
+			return true
+		}
+	}
+	return false
 }
 
 func checkArg(p kit.Product, label, name, val string) error {
