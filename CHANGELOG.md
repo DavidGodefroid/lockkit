@@ -13,15 +13,17 @@ GUIDE.md is the contract between lockkit and the products built on it.
   directory a product that lists its running consoles reads.
   `client.ResolveInstance(p, flag)`
   picks the instance from `--instance NAME` (`client.FlagInstance`), else
-  `<PREFIX>INSTANCE` (`client.InstanceEnv`), else the one name lea lists
-  in `LEA_<PREFIX>INSTANCES` (`client.InstancesEnv`). Several listed and
+  `<PREFIX>INSTANCE`, else the one name lea lists in
+  `LEA_<PREFIX>INSTANCES`. Several listed and
   none chosen: `several <tool> locks: <a> <b>; pass --instance NAME (or
   set <PREFIX>INSTANCE)`; a name not listed: `no <tool> lock <name>: <a>
-  <b>`. Names follow lox's instance rule (`client.CheckInstance`,
-  `client.ErrBadInstance`, whose errors name the flag or variable, never
-  the value) and are checked before any path is built. An instance needs
-  the separated setup. Each Lock wires `--instance` into its client
-  commands and `mcp` (GUIDE.md §7).
+  <b>`. Names follow lox's instance rule (`client.ErrBadInstance`, whose
+  errors name the flag or variable, never the value) and are checked
+  before any path is built. An instance needs the separated setup. When
+  the instance's directory does not exist (a leftover `--instance` or
+  `<PREFIX>INSTANCE` beside a single lock), `DialInstance` says so and
+  names both sources instead of the `lox up` hint. Each Lock wires
+  `--instance` into its client commands and `mcp` (GUIDE.md §7).
 
 ## v0.11.0
 

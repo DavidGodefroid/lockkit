@@ -19,6 +19,7 @@ import (
 	"io"
 	"io/fs"
 	"net"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -134,7 +135,7 @@ func SocketDirInstance(p kit.Product, instance string) (string, error) {
 // before any path is built.
 func sharedDir(p kit.Product, instance string) (string, error) {
 	if instance != "" {
-		if err := CheckInstance(instance); err != nil {
+		if err := checkInstance(instance); err != nil {
 			return "", fmt.Errorf("client: lock instance: %w", err)
 		}
 	}
@@ -193,6 +194,15 @@ func DialInstance(p kit.Product, cwd, profile, instance string) (*Client, error)
 	path, err := SocketPathInstance(p, cwd, profile, instance)
 	if err != nil {
 		return nil, err
+	}
+	if instance != "" {
+		// A leftover --instance or <PREFIX>INSTANCE (lea mounts a single
+		// lock on the shared dir itself) names a directory that is not
+		// there: say so, rather than send the user to `lox up`.
+		if _, err := os.Stat(filepath.Dir(path)); errors.Is(err, fs.ErrNotExist) {
+			return nil, fmt.Errorf("no %s lock directory for instance %s (set by --%s or %s): no lock of that name is mounted here",
+				p.Name, instance, FlagInstance, instanceEnv(p))
+		}
 	}
 	conn, err := dialUnix(path)
 	if err != nil {

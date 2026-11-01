@@ -17,9 +17,20 @@ import (
 // the default socket directory, and returns a project directory.
 func separated(t *testing.T) string {
 	t.Helper()
+	return separatedIn(t, "")
+}
+
+// separatedIn is separated with the socket directory socketDir ("" for
+// the default).
+func separatedIn(t *testing.T, socketDir string) string {
+	t.Helper()
 	d := t.TempDir()
 	path := filepath.Join(d, "system.toml")
-	if err := os.WriteFile(path, []byte("service_user = \"root\"\n"), 0o644); err != nil {
+	conf := "service_user = \"root\"\n"
+	if socketDir != "" {
+		conf += "socket_dir = \"" + socketDir + "\"\n"
+	}
+	if err := os.WriteFile(path, []byte(conf), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	oldPath, oldSkip := sysconf.Path, sysconf.SkipOwnerCheck
@@ -110,6 +121,38 @@ func TestSocketPathInstanceRefusesBadName(t *testing.T) {
 		if _, err := DialInstance(testProduct, cwd, "uat", name); !errors.Is(err, ErrBadInstance) {
 			t.Errorf("DialInstance(%q) err = %v, want ErrBadInstance", name, err)
 		}
+	}
+}
+
+// A leftover LOCKMQ_INSTANCE or --instance with a single lock in lea (no
+// LEA_LOCKMQ_INSTANCES) points at a directory that does not exist: the
+// error says so and names the source, never "run lox up".
+func TestDialInstanceMissingDirectoryIsNamed(t *testing.T) {
+	dir, err := os.MkdirTemp("/tmp", "lkin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	cwd := separatedIn(t, dir)
+	_, err = DialInstance(testProduct, cwd, "uat", "orders")
+	if err == nil || errors.Is(err, ErrNoConsole) {
+		t.Fatalf("err = %v, want a missing instance directory, not ErrNoConsole", err)
+	}
+	msg := err.Error()
+	for _, want := range []string{"--instance", "LOCKMQ_INSTANCE", "orders", "no lockmq lock directory"} {
+		if !strings.Contains(msg, want) {
+			t.Errorf("err = %q, want %q in it", msg, want)
+		}
+	}
+	if strings.Contains(msg, "lox up") {
+		t.Errorf("err = %q, must not give the lox up hint", msg)
+	}
+	// The directory is there, no console listens: the usual NoConsoleError.
+	if err := os.Mkdir(filepath.Join(dir, "orders"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := DialInstance(testProduct, cwd, "uat", "orders"); !errors.Is(err, ErrNoConsole) {
+		t.Fatalf("err = %v, want ErrNoConsole once the directory exists", err)
 	}
 }
 

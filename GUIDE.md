@@ -203,7 +203,10 @@ dir, err := client.SocketDirInstance(P, inst)        // to list the running cons
 (`client.ErrBadInstance`, naming the flag or variable, not the value), a
 name lea does not list (`no <tool> lock <name>: <a> <b>`) and no choice
 among several (`several <tool> locks: <a> <b>; pass --instance NAME (or
-set <PREFIX>INSTANCE)`). An instance needs the separated setup.
+set <PREFIX>INSTANCE)`). An instance needs the separated setup. An
+instance whose directory is missing (a leftover value beside a single
+lock, which lea mounts on the shared dir itself) is a `DialInstance`
+error naming `--instance` and `<PREFIX>INSTANCE`, not a `NoConsoleError`.
 
 `tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
