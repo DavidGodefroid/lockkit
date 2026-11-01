@@ -3,6 +3,26 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- A client reaches one lock among several of its type, by instance:
+  `client.DialInstance(p, cwd, profile, instance)` and
+  `client.SocketPathInstance` dial `<shared socket dir>/<instance>/...`
+  (project key, profile and peer check unchanged; instance `""` is
+  `Dial`/`SocketPath`, byte for byte); `client.SocketDirInstance` is the
+  directory a product that lists its running consoles reads.
+  `client.ResolveInstance(p, flag)`
+  picks the instance from `--instance NAME` (`client.FlagInstance`), else
+  `<PREFIX>INSTANCE` (`client.InstanceEnv`), else the one name lea lists
+  in `LEA_<PREFIX>INSTANCES` (`client.InstancesEnv`). Several listed and
+  none chosen: `several <tool> locks: <a> <b>; pass --instance NAME (or
+  set <PREFIX>INSTANCE)`; a name not listed: `no <tool> lock <name>: <a>
+  <b>`. Names follow lox's instance rule (`client.CheckInstance`,
+  `client.ErrBadInstance`, whose errors name the flag or variable, never
+  the value) and are checked before any path is built. An instance needs
+  the separated setup. Each Lock wires `--instance` into its client
+  commands and `mcp` (GUIDE.md §7).
+
 ## v0.11.0
 
 Breaking: the console asks the Vault token at its start.

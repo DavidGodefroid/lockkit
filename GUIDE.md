@@ -187,6 +187,24 @@ c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is Err
 err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side timeout; ctx cancel closes the connection
 ```
 
+Several locks of one type (lea mounts each socket volume on
+`<shared socket dir>/<instance>` and lists them, space separated, in
+`LEA_<PREFIX>INSTANCES`; one lock stays on the shared dir with no such
+variable): your client commands and `mcp` take `--instance NAME`
+(`client.FlagInstance`) and dial with
+
+```go
+inst, err := client.ResolveInstance(P, instanceFlag) // --instance, else $<PREFIX>INSTANCE, else the one name lea lists; "" when lea lists none
+c, err := client.DialInstance(P, cwd, profile, inst) // socket in <shared socket dir>/<inst>; "" is Dial
+dir, err := client.SocketDirInstance(P, inst)        // to list the running consoles: never build the directory yourself
+```
+
+`ResolveInstance` refuses a name that is not a lox instance name
+(`client.ErrBadInstance`, naming the flag or variable, not the value), a
+name lea does not list (`no <tool> lock <name>: <a> <b>`) and no choice
+among several (`several <tool> locks: <a> <b>; pass --instance NAME (or
+set <PREFIX>INSTANCE)`). An instance needs the separated setup.
+
 `tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
 bastion reaches; no local port is ever opened.
