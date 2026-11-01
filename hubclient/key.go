@@ -115,7 +115,7 @@ func createKey(path string) (ed25519.PrivateKey, error) {
 }
 
 // ReadHubKey reads the pinned hub key: an Ed25519 public key in base64 std
-// on one line (the file `lock up` mounts at /run/lockfamily/hub.pub).
+// on one line (the file `lox up` mounts at /run/lockfamily/hub.pub).
 func ReadHubKey(path string) (ed25519.PublicKey, error) {
 	b, err := readSmallRegular(path, 1024)
 	if err != nil {
@@ -161,7 +161,7 @@ func readSmallRegular(path string, max int64) ([]byte, error) {
 // HubKeyCommand is a lock's `hub-key --instance NAME`: it prints the
 // public key of the instance (InstanceKey of home, "" the user's, created
 // on the first call) in
-// base64 std on one line, for `lock up` to pin at the hub.
+// base64 std on one line, for `lox up` to pin at the hub.
 func HubKeyCommand(w io.Writer, home string, args []string) error {
 	fs := flag.NewFlagSet("hub-key", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
@@ -183,7 +183,7 @@ func HubKeyCommand(w io.Writer, home string, args []string) error {
 }
 
 // ReadDevices reads the pinned approval devices: a ticket.DeviceSet (the
-// file `lock up` mounts at /run/lockfamily/devices.json, written from the
+// file `lox up` mounts at /run/lockfamily/devices.json, written from the
 // devices the human confirmed at the host's terminal).
 func ReadDevices(path string) ([]ticket.Device, error) {
 	b, err := readSmallRegular(path, 64<<10)
@@ -215,7 +215,7 @@ func ParseRisks(s string) ([]ticket.Risk, error) {
 }
 
 // ReadFacades reads the facade keys a lock pins: a ticket.FacadeSet (the
-// file `lock up` mounts at /run/lockfamily/facades.json, written from the
+// file `lox up` mounts at /run/lockfamily/facades.json, written from the
 // facade keys the human reviewed at the host's terminal).
 func ReadFacades(path string) ([]ticket.PinnedFacade, error) {
 	b, err := readSmallRegular(path, 64<<10)

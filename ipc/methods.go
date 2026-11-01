@@ -24,9 +24,9 @@ const (
 	// CodeWrongRequester: in hub mode, a plan or ticket presented by
 	// another agent than the one that made it (Requester.Token).
 	CodeWrongRequester = -32007
-	// CodeWithdrawn: a hub ticket presented to a lock that now runs
-	// without its hub (standalone): its tickets were withdrawn. Plan again;
-	// the human approves on the lock's own terminal.
+	// CodeWithdrawn: the ticket presented was withdrawn; plan again. Kept
+	// for clients of older consoles: no lockkit console answers it since
+	// the standalone console is gone (v0.10.0).
 	CodeWithdrawn = -32008
 
 	CodeParseError     = -32700
