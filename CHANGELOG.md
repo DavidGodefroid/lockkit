@@ -11,8 +11,8 @@ Breaking: the deprecated standalone rollback is removed.
   `console.StandaloneReason` and `console.Withdrawn` are gone (deprecated
   since v0.9.0, `WithdrawStandalone` inert since v0.9.1; no caller left
   in the Locks or lea).
-  `ipc.CodeWithdrawn` stays, for clients of older consoles (#118).
-- Comments say `lox up`, the host CLI's name since lockhub v0.3.0 (#118).
+  `ipc.CodeWithdrawn` stays, for clients of older consoles (#118, #119).
+- Comments say `lox up`, the host CLI's name since lockhub v0.3.0 (#118, #119).
 - New package `verbs` and GUIDE.md §14, the launcher verbs contract that
   `lox init` drives every lock with: `<lock> init <agent>`,
   `<lock> profile add [--non-interactive] [--json] ...` and
@@ -27,7 +27,7 @@ Breaking: the deprecated standalone rollback is removed.
   `--vault-path`, and refuses any other source (the keychain included).
   Both wrap `verbs.ErrSecret`. `verbs.Profile`, `verbs.Error` (codes
   `usage`, `secret`, `exists`, `failed`) and `verbs.Doctor` /
-  `verbs.NewDoctor` are the JSON `lox init` reads (#111).
+  `verbs.NewDoctor` are the JSON `lox init` reads (#111, #117).
 
 ## v0.9.1 (2026-10-31)
 
