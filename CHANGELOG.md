@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.12.0 (2026-11-02)
 
 - New risk class `ticket.RiskGrant` (`grant`), between `read-pii` and
   `write`: one approval for a bounded read scope (database, tables,
