@@ -119,20 +119,27 @@ func (b *hubBackend) Methods() map[string]Handler {
 	return map[string]Handler{
 		"op.write": func(ctx context.Context, req ipc.Request, env Env) ipc.Response {
 			var p struct {
-				Hub bool `json:"hub"`
+				Hub  bool        `json:"hub"`
+				Risk ticket.Risk `json:"risk"`
 			}
 			if r := Decode(req, &p); r != nil {
 				return *r
 			}
 			sc := Screen{Header: "broker / orders", Body: []string{"WRITE jane.doe@example.com"}}
+			planHash := hubPlanHash
+			if p.Risk == "" {
+				p.Risk = ticket.RiskWrite
+			} else {
+				planHash = "sha256:" + strings.Repeat("3", 64) // another plan: a scope
+			}
 			if p.Hub {
 				h := HubOf(env)
 				plan, err := h.Store.Create(plans.Binding{UID: hubCaller.UID, Agent: "dev-1", TokenHash: plans.HashToken(hubCaller.Token),
-					PolicyFP: hubPolicyFP, PlanHash: hubPlanHash}, json.RawMessage(`{}`), 0)
+					PolicyFP: hubPolicyFP, PlanHash: planHash}, json.RawMessage(`{}`), 0)
 				if err != nil {
 					return ErrResp(req.ID, ipc.CodeInternal, err.Error())
 				}
-				sc.Hub = &HubTicket{PlanID: plan.ID, Caller: hubCaller, Risk: ticket.RiskWrite,
+				sc.Hub = &HubTicket{PlanID: plan.ID, Caller: hubCaller, Risk: p.Risk,
 					Requester: ticket.Requester{Agent: "dev-1", Session: "s"}, Workspace: "~/w",
 					Masked: render.MaskScreen(render.ScreenSource{Header: sc.Header,
 						Body: []render.Line{{{Text: "WRITE "}, {Text: "jane.doe@example.com", Value: true, Column: "email"}}}}, render.Masking{})}
@@ -226,6 +233,11 @@ func TestRunHubModeEndToEnd(t *testing.T) {
 	tk, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), raw)
 	if err != nil || tk.Source.Lock != testProduct.Name || tk.Source.Instance != hubInstance || tk.Risk != ticket.RiskWrite {
 		t.Fatalf("ticket %+v %v", tk, err)
+	}
+	// A grant ticket keeps NeverAuto, though the screen does not ask it.
+	g := pendingOf(t, dialAndCall(t, socket, "op.write", map[string]any{"hub": true, "risk": ticket.RiskGrant}).Result)
+	if gt, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), hub.Ticket(g["ticket"])); err != nil || gt.Risk != ticket.RiskGrant || !gt.Flags.NeverAuto {
+		t.Fatalf("grant ticket %+v %v", gt, err)
 	}
 
 	if r := dialAndCall(t, socket, "op.run", map[string]string{"ticket": m["ticket"]}); r.Error == nil {

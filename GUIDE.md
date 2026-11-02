@@ -615,6 +615,15 @@ for its `Asker` (base keeps the console's own decisions), and
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
 for `lox up` to pin.
 
+**Grants.** A product that lets the human approve many reads at once
+pushes a `ticket.RiskGrant` ticket: its plan is the grant's scope
+(database, tables, duration, read budget), `PlanHash` the hash of that
+scope's canonical JSON, the screen shows it. The approval binds that
+scope and nothing else; the lock then runs reads inside it without a
+ticket each, and enforces the scope itself (the grant's own lifetime and
+budget are part of it, not of the ticket's `Expires`). A grant ticket is
+always `Flags.NeverAuto`.
+
 **Reveal and re-approval.** In hub mode pass the console's clear screen
 to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
 and a local facade the lock pins (`--facade-keys-file`) can ask for it

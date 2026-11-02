@@ -285,7 +285,7 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	}
 	t := ticket.NewTicket(ticket.Source{Lock: a.lock}, h.Risk, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
 	t.Workspace, t.Requester = h.Workspace, h.Requester
-	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: d.Screen.NeverAuto, Retype: d.Retype}
+	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: t.Flags.NeverAuto || d.Screen.NeverAuto, Retype: d.Retype}
 	// The screen this console would show: sealed to the pinned devices
 	// only (SubmitClear), never sent as it is.
 	s := d.Screen

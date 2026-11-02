@@ -12,9 +12,16 @@ import (
 // product cannot invent a class a facade does not know.
 type Risk string
 
+// The risk classes. RiskGrant asks for a grant: one approval for a
+// bounded read scope (database, tables, duration, read budget) that the
+// lock then runs reads inside without a ticket each. The scope is the
+// plan: PlanHash is the hash of its canonical JSON (HashOf), so a decision
+// binds exactly that scope, and the lock enforces it. A grant ticket is
+// always NeverAuto.
 const (
 	RiskRead         Risk = "read"
 	RiskReadPII      Risk = "read-pii"
+	RiskGrant        Risk = "grant"
 	RiskWrite        Risk = "write"
 	RiskProdWrite    Risk = "prod-write"
 	RiskPolicyLoosen Risk = "policy-loosen"
@@ -22,7 +29,7 @@ const (
 )
 
 // Risks lists every risk class, from the least to the most sensitive.
-var Risks = []Risk{RiskRead, RiskReadPII, RiskWrite, RiskProdWrite, RiskPolicyLoosen, RiskUnlock}
+var Risks = []Risk{RiskRead, RiskReadPII, RiskGrant, RiskWrite, RiskProdWrite, RiskPolicyLoosen, RiskUnlock}
 
 // ParseRisk returns the risk class named s; any other name is an error.
 func ParseRisk(s string) (Risk, error) {
@@ -67,15 +74,16 @@ func (r *Risk) UnmarshalJSON(b []byte) error {
 
 // TTL is how long a ticket of class r waits for a decision, and how long
 // an approval stays usable once given; 0 means no expiry. Reads never
-// expire; writes and policy loosening last 24 h; production writes and
-// unlock (a secret typed for the lock) 4 h.
+// expire; writes and policy loosening last 24 h; grants, production
+// writes and unlock (a secret typed for the lock) 4 h. A grant's own
+// lifetime is part of its scope, not of the ticket.
 func (r Risk) TTL() time.Duration {
 	switch r {
 	case RiskRead, RiskReadPII:
 		return 0
 	case RiskWrite, RiskPolicyLoosen:
 		return 24 * time.Hour
-	default: // prod-write, unlock, and the shortest for anything else
+	default: // grant, prod-write, unlock, and the shortest for anything else
 		return 4 * time.Hour
 	}
 }

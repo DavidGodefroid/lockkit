@@ -31,7 +31,7 @@ type fixtureKeys struct {
 
 func fixtureFiles(t *testing.T) map[string][]byte {
 	t.Helper()
-	tk := sampleTicket(t)
+	tk, grant := sampleTicket(t), sampleGrantTicket(t)
 	keysJSON, _ := json.MarshalIndent(fixtureKeys{
 		Note:       "TEST KEYS ONLY: published, never use outside tests",
 		LockSeed:   enc.EncodeToString(lockSeed),
@@ -45,6 +45,9 @@ func fixtureFiles(t *testing.T) map[string][]byte {
 		"ticket-v1.json":            mustMarshal(t, tk),
 		"decision-approved-v1.json": mustMarshal(t, sampleDecision(t, tk, Approved)),
 		"decision-denied-v1.json":   mustMarshal(t, sampleDecision(t, tk, Denied)),
+		// A grant: its plan hash is the hash of the scope.
+		"ticket-grant-v1.json":            mustMarshal(t, grant),
+		"decision-grant-approved-v1.json": mustMarshal(t, sampleDecision(t, grant, Approved)),
 	}
 	x, err := ecdh.X25519().NewPrivateKey(x25519Fixture)
 	if err != nil {
@@ -100,6 +103,20 @@ func TestFixturesVerify(t *testing.T) {
 		if err := d.Match(tk); err != nil {
 			t.Fatal(name, err)
 		}
+	}
+	grant, err := VerifyTicket(lockPub, read("ticket-grant-v1.json"))
+	if err != nil || grant.Risk != RiskGrant || !grant.Flags.NeverAuto {
+		t.Fatalf("grant ticket: %v", err)
+	}
+	d, err := VerifyDecision(hubPub, read("decision-grant-approved-v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := d.Match(grant); err != nil {
+		t.Fatal(err)
+	}
+	if d.Match(tk) == nil {
+		t.Fatal("the grant's decision matches another ticket")
 	}
 	x, _ := ecdh.X25519().NewPrivateKey(x25519Fixture)
 	pub, err := VerifyKeyCert(lockPub, ContextKeyCert, "", read("keycert-v1.json"))
