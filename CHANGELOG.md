@@ -3,6 +3,20 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- New risk class `ticket.RiskGrant` (`grant`), between `read-pii` and
+  `write`: one approval for a bounded read scope (database, tables,
+  duration, read budget) that the lock then runs reads inside without a
+  ticket each. No schema change: the scope is the plan (`PlanHash` is the
+  hash of its canonical JSON, so the signed decision binds exactly that
+  scope), `Screen` shows it, the lock enforces it. A grant ticket waits
+  4 h (`TTL`, `ClampTTL` may only shorten it) and is always
+  `Flags.NeverAuto`: `NewTicket` sets it and `Validate` (so `Sign` and
+  `VerifyTicket`) refuses a grant ticket without it; the console keeps
+  it on the tickets it pushes. New fixtures `ticket-grant-v1.json` and
+  `decision-grant-approved-v1.json` (#123).
+
 ## v0.11.0 (2026-11-01)
 
 - A client reaches one lock among several of its type, by instance:

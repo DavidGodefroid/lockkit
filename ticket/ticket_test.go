@@ -70,6 +70,39 @@ func sampleDecision(tb testing.TB, tk *Ticket, o Outcome) *Decision {
 	return d
 }
 
+// sampleGrantTicket asks for a grant. The scope below only illustrates
+// one: its shape belongs to the lock, the ticket carries its hash.
+func sampleGrantTicket(tb testing.TB) *Ticket {
+	tb.Helper()
+	scope, err := HashOf(map[string]any{
+		"database": "shop", "tables": []any{"customers", "orders"},
+		"duration_s": 3600, "max_reads": 200, "max_rows": 10000,
+	})
+	if err != nil {
+		tb.Fatal(err)
+	}
+	fp, err := HashOf(map[string]any{"profile": "crm-prod", "tier": "read"})
+	if err != nil {
+		tb.Fatal(err)
+	}
+	tk := NewTicket(Source{Lock: "locksql", Instance: "crm-prod"}, RiskGrant, scope, fp, t0, ClampTTL(RiskGrant, 0))
+	tk.ID = "01JBDN0Z0000000000000000AC" // stable for fixtures
+	tk.Workspace = "~/Documents"
+	tk.Requester = Requester{Agent: "dev-3", Session: "s-1"}
+	tk.Flags.Production, tk.Flags.Retype = true, "crm-prod"
+	tk.Screen = Screen{
+		Header:   "crm-prod / shop · grant",
+		Note:     "audit last month's orders",
+		Body:     []string{"read customers, orders", "for 1 h, at most 200 reads, 10000 rows"},
+		Warnings: []string{"production", "personal data: email"},
+	}
+	tk.PII = PII{Touched: []string{"email"}}
+	if err := tk.Sign(lockKey); err != nil {
+		tb.Fatal(err)
+	}
+	return tk
+}
+
 func mustMarshal(tb testing.TB, v interface{ Marshal() ([]byte, error) }) []byte {
 	tb.Helper()
 	b, err := v.Marshal()
@@ -300,8 +333,8 @@ func TestDecisionUsable(t *testing.T) {
 
 func TestRiskTTL(t *testing.T) {
 	want := map[Risk]time.Duration{
-		RiskRead: 0, RiskReadPII: 0, RiskWrite: 24 * time.Hour, RiskPolicyLoosen: 24 * time.Hour,
-		RiskProdWrite: 4 * time.Hour, RiskUnlock: 4 * time.Hour,
+		RiskRead: 0, RiskReadPII: 0, RiskGrant: 4 * time.Hour, RiskWrite: 24 * time.Hour,
+		RiskPolicyLoosen: 24 * time.Hour, RiskProdWrite: 4 * time.Hour, RiskUnlock: 4 * time.Hour,
 	}
 	if len(want) != len(Risks) {
 		t.Fatal("Risks changed: update the table")
@@ -315,7 +348,8 @@ func TestRiskTTL(t *testing.T) {
 		t.Error("unknown risk")
 	}
 	if ClampTTL(RiskWrite, time.Hour) != time.Hour || ClampTTL(RiskWrite, 48*time.Hour) != 24*time.Hour ||
-		ClampTTL(RiskRead, time.Hour) != time.Hour || ClampTTL(RiskRead, 0) != 0 || ClampTTL(RiskProdWrite, -1) != 4*time.Hour {
+		ClampTTL(RiskRead, time.Hour) != time.Hour || ClampTTL(RiskRead, 0) != 0 || ClampTTL(RiskProdWrite, -1) != 4*time.Hour ||
+		ClampTTL(RiskGrant, 0) != 4*time.Hour || ClampTTL(RiskGrant, 8*time.Hour) != 4*time.Hour {
 		t.Error("ClampTTL may only shorten")
 	}
 	var r Risk
@@ -501,7 +535,55 @@ func TestParseRiskNeverEchoes(t *testing.T) {
 			t.Errorf("UnmarshalJSON: %v", err)
 		}
 	}
-	if RiskNames() != "read, read-pii, write, prod-write, policy-loosen, unlock" {
+	if RiskNames() != "read, read-pii, grant, write, prod-write, policy-loosen, unlock" {
 		t.Errorf("RiskNames = %s", RiskNames())
+	}
+}
+
+// Risks is ordered by sensitivity: a grant (many reads, approved once)
+// sits above a single read of personal data and below any write.
+func TestRiskOrder(t *testing.T) {
+	want := []Risk{RiskRead, RiskReadPII, RiskGrant, RiskWrite, RiskProdWrite, RiskPolicyLoosen, RiskUnlock}
+	if len(Risks) != len(want) {
+		t.Fatalf("Risks = %v", Risks)
+	}
+	for i, r := range want {
+		if Risks[i] != r {
+			t.Errorf("Risks[%d] = %s, want %s", i, Risks[i], r)
+		}
+	}
+	if r, err := ParseRisk("grant"); err != nil || r != RiskGrant || !RiskGrant.Valid() {
+		t.Errorf("ParseRisk(grant) = %q, %v", r, err)
+	}
+}
+
+// A grant ticket is never approved by an auto mode: NewTicket sets
+// NeverAuto, and a grant ticket without it is invalid, so it is neither
+// signed by a lock nor verified by a hub.
+func TestGrantNeverAuto(t *testing.T) {
+	tk := sampleGrantTicket(t)
+	if !tk.Flags.NeverAuto {
+		t.Fatal("NewTicket: a grant ticket without NeverAuto")
+	}
+	if NewTicket(Source{}, RiskRead, "", "", t0, 0).Flags.NeverAuto {
+		t.Error("NewTicket: NeverAuto on a read ticket")
+	}
+	data := mustMarshal(t, tk)
+	if _, err := VerifyTicket(lockPub, data); err != nil {
+		t.Fatal(err)
+	}
+	tk.Flags.NeverAuto = false
+	if err := tk.Validate(); !errors.Is(err, ErrInvalid) {
+		t.Errorf("Validate: got %v, want ErrInvalid", err)
+	}
+	if err := tk.Sign(lockKey); !errors.Is(err, ErrInvalid) {
+		t.Errorf("Sign: got %v, want ErrInvalid", err)
+	}
+	// Forged by the lock's key, without the flag: refused on verification.
+	tk.Sig = ""
+	b, _ := Canonical(tk)
+	tk.Sig = SignBytes(lockKey, ContextTicket, b)
+	if _, err := VerifyTicket(lockPub, mustMarshal(t, tk)); !errors.Is(err, ErrInvalid) {
+		t.Errorf("VerifyTicket: got %v, want ErrInvalid", err)
 	}
 }

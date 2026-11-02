@@ -50,7 +50,8 @@ type Flags struct {
 	// Production: the target is production; the facade asks for the
 	// typed instance name.
 	Production bool `json:"production"`
-	// NeverAuto: never approved by an auto mode.
+	// NeverAuto: never approved by an auto mode. Always set on a
+	// RiskGrant ticket (Validate refuses one without it).
 	NeverAuto bool `json:"never_auto"`
 	// Retype, when set, is the answer that asks the lock to retype values.
 	Retype string `json:"retype"`
@@ -163,10 +164,12 @@ type Decision struct {
 }
 
 // NewTicket is a ticket of the current Version with a fresh ID, created
-// now, expiring after ttl (0: never; see ClampTTL).
+// now, expiring after ttl (0: never; see ClampTTL). A RiskGrant ticket
+// starts with Flags.NeverAuto set.
 func NewTicket(src Source, risk Risk, planHash, policyFP string, now time.Time, ttl time.Duration) *Ticket {
 	now = normTime(now)
 	t := &Ticket{V: Version, ID: NewID(now), Source: src, Risk: risk, PlanHash: planHash, PolicyFP: policyFP, Created: now}
+	t.Flags.NeverAuto = risk == RiskGrant
 	if ttl > 0 {
 		e := now.Add(ttl)
 		t.Expires = &e
@@ -240,6 +243,10 @@ func (t *Ticket) Validate() error {
 	}
 	if !t.Risk.Valid() {
 		return invalid("risk %q", t.Risk)
+	}
+	// A grant covers many reads: an auto mode never approves one.
+	if t.Risk == RiskGrant && !t.Flags.NeverAuto {
+		return invalid("flags.never_auto: required on a %s ticket", RiskGrant)
 	}
 	if len(t.Screen.Body)+len(t.Screen.Warnings) > maxLines {
 		return invalid("screen: more than %d lines", maxLines)
