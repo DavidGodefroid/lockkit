@@ -97,6 +97,9 @@ type starter struct {
 	// vaultToken is the Vault token typed at the console's start (nil until
 	// asked); memory only, wiped when Run returns.
 	vaultToken []byte
+	// reviewed is set by startPolicy when the human approved the policy
+	// review ("Apply these changes?") of this start.
+	reviewed bool
 }
 
 var errLockedOut = errors.New("console: fingerprint: three non-matching fingers")
@@ -210,6 +213,11 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		return fmt.Errorf("%w: the backend loaded another profile than --profile names", ErrConfig)
 	}
 	key := config.ApprovedKey(o.ProjectRoot, o.Profile)
+	// The question the console waits for is kept next to its socket, where
+	// lox attach and lea read it: they attach after it was printed.
+	if socket, err := iso.SocketPath(config.ProjectKeyOf(o.ProjectRoot), o.Profile); err == nil {
+		RecordQuestions(o.IO, socket)
+	}
 	// A production profile, loaded or approved before, never runs in an
 	// X11 session: refused before the policy review.
 	if err := iso.RefuseX11IfProduction(cur.Profile().Production); err != nil {
@@ -277,16 +285,25 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		}
 	}
 
-	// 2. Production banner and typed profile name.
+	// 2. Production banner, and the typed profile name when the policy in
+	// force was not confirmed by it before.
 	where := sanitize.Terminal(pr.Where, false)
 	if pr.Production {
 		o.IO.Println(red + strings.Repeat("━", 60) + reset)
 		o.IO.Println(red + "  " + ui.MarkWarn + " PRODUCTION profile " + pr.Name + " (" + where + ")" + reset)
 		o.IO.Println(red + strings.Repeat("━", 60) + reset)
-		Bell(o.IO)
-		ans, ok := o.IO.Ask(ctx, fmt.Sprintf("Type the profile name %q to continue: ", pr.Name), ApprovalTimeout)
-		if !ok || strings.TrimSpace(ans) != pr.Name {
-			return errors.New("console: production profile not confirmed")
+		if productionNameNeeded(p, o.StateDir, key, approved, st.reviewed) {
+			Bell(o.IO)
+			ans, ok := o.IO.Ask(ctx, fmt.Sprintf("Type the profile name %q to continue: ", pr.Name), ApprovalTimeout)
+			if !ok || strings.TrimSpace(ans) != pr.Name {
+				return errors.New("console: production profile not confirmed")
+			}
+			if err := config.SaveApproved(p, o.StateDir, ConfirmedKey(key), approved); err != nil {
+				// Not recorded: the next start asks again.
+				o.IO.Println(Paint.Warn("warning: the confirmation could not be recorded: " + sanitize.Terminal(err.Error(), false)))
+			}
+		} else {
+			o.IO.Println(Paint.Dim("profile name typed at an earlier start; the approved policy has not loosened since"))
 		}
 	}
 	o.IO.Println(Paint.OK(fmt.Sprintf("profile %s · %s %s", Paint.Bold(pr.Name), where, Paint.Dim("(approved policy)"))))
@@ -377,6 +394,27 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	return serveErr
 }
 
+// ConfirmedKey names, in the approved-policy store, the production policy
+// whose profile name the human last typed at start-up under key. Its
+// prefix never starts a policy key, which is "user-" or a hex project hash.
+func ConfirmedKey(key string) string { return "confirmed-" + key }
+
+// productionNameNeeded reports whether the start of a production profile
+// asks for its name: when the human approved a policy review at this start
+// (first approval, or a loosening), and when the policy in force loosens
+// the one the name was last typed for, or none was (a wrong name leaves
+// none). An unreadable record asks.
+func productionNameNeeded(p kit.Product, stateDir, key string, inForce Policy, reviewed bool) bool {
+	if reviewed {
+		return true
+	}
+	confirmed, ok, err := loadApproved(p, stateDir, ConfirmedKey(key), inForce)
+	if err != nil || !ok {
+		return true
+	}
+	return !confirmed.Profile().Production || Loosens(inForce.Diff(confirmed))
+}
+
 // loadApproved reads the approved policy of key into a value of cur's type.
 func loadApproved(p kit.Product, stateDir, key string, cur Policy) (Policy, bool, error) {
 	v := newPolicyLike(cur)
@@ -416,6 +454,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
 			return nil, "", st.failed(err)
 		}
+		st.reviewed = true
 		return cur, "", nil
 	}
 	changes := cur.Diff(ap)
@@ -453,6 +492,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
 		return nil, "", st.failed(err)
 	}
+	st.reviewed = true
 	return cur, "", nil
 }
 

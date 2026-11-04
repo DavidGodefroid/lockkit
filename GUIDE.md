@@ -480,12 +480,24 @@ only", before anything else; with `Options.PolicyOnly`, none), the isolation che
 desktop shape, X11, relays; refuses before any prompt or file write), core
 dumps off (refused on production if it fails), the policy review (first
 start: describe and approve; since the approved policy: tightenings apply,
-loosenings are asked), the production banner and typed profile name, the
+loosenings are asked), the production banner and the typed profile name
+(asked when the review was approved at this start, or when the policy in
+force loosens the one the name was last typed for: the record is
+`ConfirmedKey(key)` in the approved-policy store; a plain restart of an
+approved, unchanged profile does not ask it), the
 user and the secret (`ask`, `keychain` with an offer to save, `vault` read
 at every connection with the Vault token asked at start, masked), `Backend.Connect`, `Backend.Checks` (red findings,
 typed `continue`; any finding refuses on production), the socket (private
 or shared), then the request loop until logout, `:quit`, Ctrl-C, the idle
 timeout or the maximum session.
+
+While it waits for an answer, `Run` keeps the question (the prompt, never
+the answer) in `QuestionPath(socket)`, next to the console's socket
+(`/run/<tool>/<project>-<profile>.question` in a `lox up` container), and
+removes it once answered: `lox attach` and lea read it to show the
+question the console asks, which was printed before they attached. The
+`Terminal` does it (`SetQuestionFile`); a product with its own start-up
+calls `console.RecordQuestions(io, socket)` before its first question.
 
 ```go
 type Backend interface {

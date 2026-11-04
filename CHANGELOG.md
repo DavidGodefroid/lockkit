@@ -3,6 +3,19 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `console.Run` asks a production profile's name only when the policy
+  review was approved at this start, or when the policy in force loosens
+  the one the name was last typed for (record `ConfirmedKey(key)` in the
+  approved-policy store, written after the right name), as locksql
+  v0.16.1 does: a plain restart or recreation of an approved, unchanged
+  production profile goes straight to its credentials (#127).
+- A console keeps the question it waits for in `QuestionPath(socket)`,
+  next to its socket, removed once answered (`Terminal.SetQuestionFile`,
+  `QuestionRecorder`, `RecordQuestions`; `Run` turns it on): `lox attach`
+  and lea show the pending question instead of guessing it (#127).
+
 ## v0.12.0 (2026-11-02)
 
 - New risk class `ticket.RiskGrant` (`grant`), between `read-pii` and

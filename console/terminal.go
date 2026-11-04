@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -15,6 +17,7 @@ import (
 
 	"golang.org/x/term"
 
+	"github.com/DavidGodefroid/lockkit/sanitize"
 	"github.com/DavidGodefroid/lockkit/secrets"
 )
 
@@ -63,6 +66,10 @@ type Terminal struct {
 	rows    int
 	cols    int
 	region  bool // the scroll region keeps the bottom row for the status
+
+	// question is the file the pending question is written to
+	// (SetQuestionFile); "" records none.
+	question atomic.Pointer[string]
 }
 
 // NewTerminal returns the IO over in and out (normally os.Stdin and
@@ -463,10 +470,63 @@ func (t *Terminal) wait(ctx context.Context, timeout time.Duration) (string, boo
 
 var errTimeout = errors.New("timeout")
 
+// SetQuestionFile makes the Terminal write each question it waits for
+// (Ask, AskSecret: the prompt, never the answer) to path, and remove the
+// file once the question is answered, timed out or cancelled; "" stops it.
+// A file left by an earlier console (killed while it asked) is removed now.
+// Writing is best effort: the question is still asked on the terminal.
+func (t *Terminal) SetQuestionFile(path string) {
+	t.question.Store(&path)
+	if path != "" {
+		_ = os.Remove(path)
+	}
+}
+
+// asking records prompt as the pending question (SetQuestionFile) and
+// returns what removes it. It assumes a single Ask or AskSecret at a time,
+// as the Terminal itself does (one reader, one prompt line): with two at
+// once, the first answered would remove the other's file.
+func (t *Terminal) asking(prompt string) func() {
+	p := t.question.Load()
+	if p == nil || *p == "" {
+		return func() {}
+	}
+	path := *p
+	if writeQuestion(path, prompt) != nil {
+		return func() {}
+	}
+	return func() { _ = os.Remove(path) }
+}
+
+// writeQuestion atomically writes prompt, its colours dropped and escaped
+// for a terminal, as path, mode 0600.
+func writeQuestion(path, prompt string) error {
+	q := strings.TrimSpace(sanitize.Terminal(ansiSeq.ReplaceAllString(prompt, ""), false))
+	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".*")
+	if err != nil {
+		return err
+	}
+	_, err = tmp.WriteString(q + "\n")
+	if cerr := tmp.Close(); err == nil {
+		err = cerr
+	}
+	if err == nil {
+		err = os.Rename(tmp.Name(), path)
+	}
+	if err != nil {
+		_ = os.Remove(tmp.Name())
+	}
+	return err
+}
+
+// ansiSeq matches the CSI sequences (colours) a prompt may carry.
+var ansiSeq = regexp.MustCompile("\x1b\\[[0-9;?]*[A-Za-z]")
+
 // Ask flushes pending input, prints prompt and waits for one line.
 func (t *Terminal) Ask(ctx context.Context, prompt string, timeout time.Duration) (string, bool) {
 	t.start()
 	t.discard()
+	defer t.asking(prompt)()
 	t.print(prompt)
 	line, ok, err := t.wait(ctx, timeout)
 	switch {
@@ -491,6 +551,7 @@ var ErrSecretTimeout = errors.New("console: no password entered")
 // otherwise it turns the kernel echo off on in.
 func (t *Terminal) AskSecret(ctx context.Context, prompt string) ([]byte, error) {
 	if !t.started.Load() {
+		defer t.asking(prompt)()
 		return secrets.PromptPassword(prompt)
 	}
 	t.mu.Lock()
@@ -513,6 +574,7 @@ func (t *Terminal) AskSecret(ctx context.Context, prompt string) ([]byte, error)
 		defer restore()
 	}
 	t.discard()
+	defer t.asking(prompt)()
 	t.print(prompt)
 	defer t.Println("")
 	line, ok, err := t.wait(ctx, ApprovalTimeout)
