@@ -12,6 +12,7 @@ package console
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/ui"
@@ -70,6 +71,30 @@ type KeySource interface {
 // StatusLine is implemented by an IO that keeps a status row on screen.
 type StatusLine interface {
 	SetStatus(string)
+}
+
+// QuestionRecorder is implemented by an IO that records the question it
+// waits for in a file (Terminal), so that what attaches to the console
+// later (`lox attach`, lea) can show it: the question was printed before
+// they attached and is not printed again. SetQuestionFile("") stops it.
+type QuestionRecorder interface {
+	SetQuestionFile(path string)
+}
+
+// QuestionPath is the file that holds the question the console of socket
+// waits for: next to the socket, its name with .question for .sock
+// (/run/locksql/1a2b3c4d-prod.question). Only the prompt is written, never
+// an answer; the file is removed once the question is answered.
+func QuestionPath(socket string) string {
+	return strings.TrimSuffix(socket, ".sock") + ".question"
+}
+
+// RecordQuestions makes io record its questions in the QuestionPath of
+// socket, when io is a QuestionRecorder; it does nothing otherwise.
+func RecordQuestions(io IO, socket string) {
+	if r, ok := io.(QuestionRecorder); ok && socket != "" {
+		r.SetQuestionFile(QuestionPath(socket))
+	}
 }
 
 // Sized is implemented by an IO that knows its width in columns.
