@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
   review was approved at this start, or when the policy in force loosens
