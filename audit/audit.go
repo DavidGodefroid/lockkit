@@ -92,6 +92,10 @@ type Base struct {
 	// session of the console account), "desktop+typed" (typed in a desktop
 	// window, level 1) or "desktop+fingerprint" (level 2).
 	Approval string `json:"approval,omitempty"`
+	// Pattern is the mask rule a client added (pii.add) on its policy
+	// record: a column pattern in the product's syntax, checked by the
+	// product before it is kept, never row data.
+	Pattern string `json:"pattern,omitempty"`
 	// The client behind a request, from the kernel's peer credentials:
 	// set on the records of client requests only. PeerUID is nil when
 	// unknown (uid 0 is root); PeerUser is the account name when it

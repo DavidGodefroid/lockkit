@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- A client's `pii.add` is audited with the client behind it (`peer_uid`,
+  `peer_pid`, `peer_user`) and the pattern added (new `audit.Base` field
+  `Pattern`, JSON `pattern`), on the `tightened` record and on any
+  `failed`/`unsaved` record of that change: it is told apart from a
+  tightening the human made in the files, which has neither (#6).
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
