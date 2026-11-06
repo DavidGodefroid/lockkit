@@ -16,7 +16,7 @@ import (
 // lockhub). They change only from the console's own keyboard, Ctrl-O and
 // :unmask (or :results), never from a client or a config file, and each
 // change is audited. Allowing unmasked output is a typed command confirmed
-// with y, never a single key. There is no auto mode: lockhub decides every
+// with y (the typed profile name on production), never a single key. There is no auto mode: lockhub decides every
 // request.
 
 // Key handles a control key pressed in the console.
@@ -97,7 +97,7 @@ func (s *Server) toggleUnmask(ctx context.Context) {
 		warn += " (PRODUCTION data)"
 	}
 	s.println(red + ui.MarkWarn + " " + warn + reset)
-	if r := s.decide(ctx, Decision{Prompt: "Allow unmasked output? [y/N] ", Expected: "y", For: "to allow unmasked output"}); r.Outcome != Approved {
+	if r := s.decide(ctx, WidenDecision("Allow unmasked output?", "allow it", "to allow unmasked output", s.profile.Production, s.profile.Name)); r.Outcome != Approved {
 		if reason, errText := noFingerFields(r); reason != "" {
 			s.record(context.Background(), audit.Base{Event: audit.EventUnmask, Decision: "refused", Reason: reason, Error: errText})
 		}

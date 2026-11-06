@@ -867,21 +867,24 @@ func TestRunEndToEnd(t *testing.T) {
 	}
 }
 
-// Production: a finding refuses; the profile name is typed to start.
+// Production: a finding refuses; the profile name is typed to approve
+// the first start's review, "y" or another case refuses it.
 func TestRunProductionRefusesFindings(t *testing.T) {
 	env := runEnv(t)
 	b := &fakeBackend{policy: prod(), findings: []Finding{{Text: "the account can publish"}}}
-	io := &fakeIO{answers: []string{"y", "prod"}, secrets: []string{"pw"}}
+	io := &fakeIO{answers: []string{"prod"}, secrets: []string{"pw"}}
 	err := Run(context.Background(), testProduct, b, Options{Profile: "prod", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }})
 	if err == nil || !strings.Contains(err.Error(), "refused by the checks") || len(b.sessions) != 1 || !b.sessions[0].closed {
 		t.Fatalf("err = %v sessions %d", err, len(b.sessions))
 	}
 	b2 := &fakeBackend{policy: prod()}
-	io2 := &fakeIO{answers: []string{"y", "PROD"}, secrets: []string{"pw"}}
-	if err := Run(context.Background(), testProduct, b2, Options{Profile: "prod", Hub: testHub(t), IO: io2, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }}); err == nil || !strings.Contains(err.Error(), "not confirmed") {
-		t.Fatalf("unconfirmed production: %v", err)
+	for _, ans := range []string{"y", "PROD"} {
+		io2 := &fakeIO{answers: []string{ans}, secrets: []string{"pw"}}
+		if err := Run(context.Background(), testProduct, b2, Options{Profile: "prod", Hub: testHub(t), IO: io2, StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }}); err == nil || !strings.Contains(err.Error(), "not approved") {
+			t.Fatalf("production review approved by %q: %v", ans, err)
+		}
 	}
-	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", Hub: testHub(t), IO: &fakeIO{answers: []string{"y"}}, StateDir: t.TempDir(), Isolation: env,
+	if err := Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", Hub: testHub(t), IO: &fakeIO{answers: []string{"prod"}}, StateDir: t.TempDir(), Isolation: env,
 		Harden: func() error { return errors.New("no rlimit") }}); err == nil || !strings.Contains(err.Error(), "core dumps could not be disabled") {
 		t.Fatalf("production without hardening: %v", err)
 	}

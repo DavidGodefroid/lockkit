@@ -886,7 +886,7 @@ func (s *Server) review(ctx context.Context) {
 		s.println(line)
 	}
 	Bell(s.cfg.IO)
-	r := s.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
+	r := s.decide(ctx, policyDecision(s.profile.Production || next.Profile().Production, s.profile.Name))
 	s.pending = nil
 	if r.Outcome != Approved {
 		s.refused = config.Fingerprint(next)

@@ -14,10 +14,13 @@ import (
 
 // The production profile name is typed when a policy is approved, not at
 // every start: a restart of an approved, unchanged production profile
-// goes straight to the credentials (#127), as locksql does.
+// goes straight to the credentials (#127), as locksql does. The review
+// itself takes the typed name on production, never "y" (#8), and the
+// start does not ask it a second time.
 func TestRunProductionNameOnlyOnApproval(t *testing.T) {
 	env := runEnv(t)
 	state := t.TempDir()
+	const review = `Apply these changes? Type the profile name "prod" to apply them: `
 	const name = `Type the profile name "prod" to continue: `
 	pol := prod()
 	run := func(answers ...string) *fakeIO {
@@ -43,24 +46,23 @@ func TestRunProductionNameOnlyOnApproval(t *testing.T) {
 		}
 	}
 
-	// First approval: the review, then the name; a wrong one stops.
-	io := run("y", "nope")
-	if !asked(io, "Apply these changes") || !asked(io, name) {
+	// First approval: "y" and a wrong case refuse the review.
+	for _, ans := range []string{"y", "PROD"} {
+		io := run(ans)
+		if !asked(io, review) || asked(io, "[y/N]") || asked(io, "Password for") {
+			t.Fatalf("first start answered %q, prompts: %q", ans, io.promptList())
+		}
+	}
+	// The typed name approves it, and is not asked again.
+	io := run("prod")
+	if !asked(io, review) || asked(io, name) {
 		t.Fatalf("first start prompts: %q", io.promptList())
-	}
-	if asked(io, "Password for") {
-		t.Fatal("a wrong name went on to the credentials")
-	}
-	// The name was not confirmed: the approved policy alone does not skip it.
-	io = run("prod")
-	if asked(io, "Apply these changes") || !asked(io, name) {
-		t.Fatalf("after a wrong name, prompts: %q", io.promptList())
 	}
 	reachedPassword(t, io)
 
 	// Plain restart: no name, the banner still shows.
 	io = run()
-	if asked(io, name) {
+	if asked(io, name) || asked(io, review) {
 		t.Fatalf("restart of an unchanged approved profile asked the name: %q", io.promptList())
 	}
 	if !strings.Contains(io.plain(), "PRODUCTION profile prod") || !strings.Contains(io.plain(), "profile name typed at an earlier start") {
@@ -76,36 +78,56 @@ func TestRunProductionNameOnlyOnApproval(t *testing.T) {
 	}
 	reachedPassword(t, io)
 
-	// A loosening is reviewed, and the name is asked again.
+	// A loosening is reviewed with the typed name; "y" refuses it and
+	// the approved policy stays.
 	pol.MaxRows = 500
-	io = run("y", "prod")
-	if !asked(io, "Apply these changes") || !asked(io, name) {
+	io = run("y")
+	if !asked(io, review) || asked(io, name) || !strings.Contains(io.plain(), "changes refused") {
+		t.Fatalf("loosening answered y: %q\n%s", io.promptList(), io.plain())
+	}
+	reachedPassword(t, io)
+	io = run("prod")
+	if !asked(io, review) || asked(io, name) {
 		t.Fatalf("loosening prompts: %q", io.promptList())
 	}
 	reachedPassword(t, io)
 	io = run()
-	if asked(io, name) {
-		t.Fatalf("restart after the reviewed loosening asked the name: %q", io.promptList())
+	if asked(io, name) || asked(io, review) {
+		t.Fatalf("restart after the reviewed loosening asked: %q", io.promptList())
 	}
 
-	// A refused loosening keeps the approved policy, already confirmed.
-	pol.MaxRows = 900
-	io = run("n")
-	if !asked(io, "Apply these changes") || asked(io, name) {
-		t.Fatalf("refused loosening prompts: %q", io.promptList())
+	// Turning production off loosens a production profile: the name.
+	pol.Production = false
+	io = run("y")
+	if !asked(io, review) || !strings.Contains(io.plain(), "changes refused") {
+		t.Fatalf("production off answered y: %q\n%s", io.promptList(), io.plain())
 	}
-	reachedPassword(t, io)
+	pol.Production = true
 
-	// Deleting the approval brings back the first-start review, and the
-	// name with it, even for the very policy confirmed before.
-	pol.MaxRows = 500
+	// Deleting the approval brings back the first-start review, with the
+	// name, even for the very policy confirmed before.
 	key := config.ApprovedKey("", "prod")
 	if err := os.Remove(filepath.Join(state, testProduct.Name, "approved", key+".json")); err != nil {
 		t.Fatal(err)
 	}
-	io = run("y", "prod")
-	if !asked(io, "Apply these changes") || !asked(io, name) {
+	io = run("prod")
+	if !asked(io, review) || asked(io, name) {
 		t.Fatalf("re-approval prompts: %q", io.promptList())
+	}
+	reachedPassword(t, io)
+
+	// An approved policy whose name was never recorded as typed (a lost
+	// record, an approval from before the record) asks it to continue.
+	if err := os.Remove(filepath.Join(state, testProduct.Name, "approved", ConfirmedKey(key)+".json")); err != nil {
+		t.Fatal(err)
+	}
+	io = run("nope")
+	if asked(io, review) || !asked(io, name) || asked(io, "Password for") {
+		t.Fatalf("unconfirmed production prompts: %q", io.promptList())
+	}
+	io = run("prod")
+	if !asked(io, name) {
+		t.Fatalf("unconfirmed production prompts: %q", io.promptList())
 	}
 	reachedPassword(t, io)
 }
