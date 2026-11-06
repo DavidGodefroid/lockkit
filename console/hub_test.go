@@ -121,16 +121,22 @@ func (b *hubBackend) Methods() map[string]Handler {
 			var p struct {
 				Hub  bool        `json:"hub"`
 				Risk ticket.Risk `json:"risk"`
+				Kind ticket.Kind `json:"kind"`
 			}
 			if r := Decode(req, &p); r != nil {
 				return *r
 			}
 			sc := Screen{Header: "broker / orders", Body: []string{"WRITE jane.doe@example.com"}}
 			planHash := hubPlanHash
+			switch {
+			case p.Kind != "":
+				planHash = "sha256:" + strings.Repeat("4", 64) // another plan: an action
+			case p.Risk == "":
+			default:
+				planHash = "sha256:" + strings.Repeat("3", 64) // another plan: a scope
+			}
 			if p.Risk == "" {
 				p.Risk = ticket.RiskWrite
-			} else {
-				planHash = "sha256:" + strings.Repeat("3", 64) // another plan: a scope
 			}
 			if p.Hub {
 				h := HubOf(env)
@@ -143,6 +149,12 @@ func (b *hubBackend) Methods() map[string]Handler {
 					Requester: ticket.Requester{Agent: "dev-1", Session: "s"}, Workspace: "~/w",
 					Masked: render.MaskScreen(render.ScreenSource{Header: sc.Header,
 						Body: []render.Line{{{Text: "WRITE "}, {Text: "jane.doe@example.com", Value: true, Column: "email"}}}}, render.Masking{})}
+				if p.Kind != "" {
+					sc.Hub.Kind = p.Kind
+					if p.Kind == ticket.KindAction {
+						sc.Hub.Subject = &ticket.Subject{Profile: "uat", Verb: "publish", Target: "orders"}
+					}
+				}
 			}
 			a := env.Approve(ctx, req.ID, sc)
 			if !a.Approved {
@@ -238,6 +250,16 @@ func TestRunHubModeEndToEnd(t *testing.T) {
 	g := pendingOf(t, dialAndCall(t, socket, "op.write", map[string]any{"hub": true, "risk": ticket.RiskGrant}).Result)
 	if gt, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), hub.Ticket(g["ticket"])); err != nil || gt.Risk != ticket.RiskGrant || !gt.Flags.NeverAuto {
 		t.Fatalf("grant ticket %+v %v", gt, err)
+	}
+	// A kind makes a version-2 ticket with its subject; a connect ticket
+	// is the lock's own, never a plan's.
+	ka := pendingOf(t, dialAndCall(t, socket, "op.write", map[string]any{"hub": true, "kind": ticket.KindAction}).Result)
+	if at, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), hub.Ticket(ka["ticket"])); err != nil ||
+		at.V != ticket.VersionKinds || at.Kind != ticket.KindAction || at.Subject == nil || at.Subject.Verb != "publish" {
+		t.Fatalf("action ticket %+v %v", at, err)
+	}
+	if r := dialAndCall(t, socket, "op.write", map[string]any{"hub": true, "kind": ticket.KindConnect}); r.Error == nil {
+		t.Fatalf("a plan's connect ticket: %s", r.Result)
 	}
 
 	if r := dialAndCall(t, socket, "op.run", map[string]string{"ticket": m["ticket"]}); r.Error == nil {

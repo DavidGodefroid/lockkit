@@ -343,6 +343,15 @@ func (c *Client) submitRenewal(ctx context.Context, st *plans.Store, n *plans.Pl
 	t := ticket.NewTicket(ticket.Source{Lock: own.Source.Lock}, own.Risk, n.Binding.PlanHash, n.Binding.PolicyFP, c.cfg.Now(),
 		ticket.ClampTTL(own.Risk, c.cfg.ApprovalTTL))
 	t.Workspace, t.Requester, t.Flags = own.Workspace, own.Requester, own.Flags
+	if own.V == ticket.VersionKinds {
+		// The renewal asks for the same kind of thing as the expired one.
+		var subj *ticket.Subject
+		if own.Subject != nil {
+			s := *own.Subject
+			subj = &s
+		}
+		t.V, t.Kind, t.Subject = own.V, own.Kind, subj
+	}
 	changes, checked := renewalChanges(st, old, n)
 	r := &ticket.Renewal{Of: own.ID, Reason: ticket.RenewExpired, Checked: checked, Changes: changes}
 	if old.ApprovedAt != nil {

@@ -161,6 +161,7 @@ type Client struct {
 	inbox  map[string]entry // by ticket id
 	acked  map[string]bool  // tickets the hub acknowledged, this process
 	recent []time.Time      // new tickets in the rate window
+	wake   chan struct{}    // closed (and replaced) when Poll keeps decisions
 
 	seen      map[string]time.Time // hub requests handled, by id
 	requests  []json.RawMessage    // hub requests polled, not handled yet
@@ -254,7 +255,7 @@ func New(cfg Config) (*Client, error) {
 		cfg.Now = time.Now
 	}
 	c := &Client{cfg: cfg, base: base, shown: shown, pub: cfg.Key.Public().(ed25519.PublicKey),
-		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}}
+		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}, wake: make(chan struct{})}
 	if err := c.load(); err != nil {
 		return nil, err
 	}
@@ -690,6 +691,10 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 		delete(c.inbox, oldest)
 	}
 	c.cursor = res.Cursor
+	if kept > 0 {
+		close(c.wake)
+		c.wake = make(chan struct{})
+	}
 	if err := c.save(); err != nil {
 		return kept, err
 	}

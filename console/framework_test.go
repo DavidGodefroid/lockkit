@@ -691,6 +691,89 @@ func TestAdoptedHostChangeEndsSession(t *testing.T) {
 	}
 }
 
+// A change of a connection setting ends the session, a tightening as well
+// as an approved loosening: the live connection keeps the TLS, SSH and
+// credentials settings it was opened with (#7).
+func TestConnectionSettingChangeEndsSession(t *testing.T) {
+	bastion := &config.SSHProfile{Host: "bastion.example.com", Port: 22, User: "jump", Auth: config.SSHAuthAgent, Credentials: config.CredentialsAsk}
+	for _, tc := range []struct {
+		name   string
+		start  func(*fakePolicy)
+		change func(*fakePolicy)
+		// loosens: the change waits for :review (answered y).
+		loosens bool
+	}{
+		{"tls tightened", func(p *fakePolicy) { p.Base.TLS = config.TLSPrefer }, func(p *fakePolicy) { p.Base.TLS = config.TLSVerifyFull }, false},
+		{"tls loosened", func(p *fakePolicy) { p.Base.TLS = config.TLSVerifyFull }, func(p *fakePolicy) { p.Base.TLS = config.TLSRequire }, true},
+		{"tls_ca", func(p *fakePolicy) { p.Base.TLS = config.TLSVerifyFull }, func(p *fakePolicy) { p.Base.TLSCA = "/etc/ca.pem" }, true},
+		{"tls_cert", nil, func(p *fakePolicy) { p.Base.TLSCert = "/etc/client.pem" }, true},
+		{"tls_key", nil, func(p *fakePolicy) { p.Base.TLSKey = "/etc/client.key" }, true},
+		{"credentials tightened", func(p *fakePolicy) { p.Base.Credentials = config.CredentialsKeychain }, func(p *fakePolicy) { p.Base.Credentials = config.CredentialsAsk }, false},
+		{"credentials loosened", nil, func(p *fakePolicy) { p.Base.Credentials = config.CredentialsKeychain }, true},
+		{"vault_path", func(p *fakePolicy) { p.Base.Credentials, p.Base.VaultPath = config.CredentialsVault, "db/ro" }, func(p *fakePolicy) { p.Base.VaultPath = "db/rw" }, true},
+		{"ssh added", nil, func(p *fakePolicy) { b := *bastion; p.Base.SSH = &b }, true},
+		{"ssh removed", func(p *fakePolicy) { b := *bastion; p.Base.SSH = &b }, func(p *fakePolicy) { p.Base.SSH = nil }, true},
+		{"ssh.port", func(p *fakePolicy) { b := *bastion; p.Base.SSH = &b }, func(p *fakePolicy) { p.Base.SSH.Port = 2222 }, true},
+		{"ssh.credentials tightened", func(p *fakePolicy) { b := *bastion; b.Credentials = config.CredentialsKeychain; p.Base.SSH = &b },
+			func(p *fakePolicy) { p.Base.SSH.Credentials = config.CredentialsAsk }, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			start := uat()
+			if tc.start != nil {
+				tc.start(&start)
+			}
+			h := newHarness(t, start, nil)
+			next := start
+			if start.Base.SSH != nil {
+				b := *start.Base.SSH
+				next.Base.SSH = &b
+			}
+			tc.change(&next)
+			if got := Loosens(next.Diff(start)); got != tc.loosens {
+				t.Fatalf("loosens %v, want %v: %v", got, tc.loosens, next.Diff(start))
+			}
+			h.b.policy = next
+			h.s.CheckPolicy()
+			if tc.loosens {
+				if _, ended := h.s.Ended(); ended {
+					t.Fatal("a loosening ended the session before the human approved it")
+				}
+				h.io.answers = []string{"y"}
+				h.s.Command(context.Background(), ":review")
+			}
+			if reason, ended := h.s.Ended(); !ended || reason != "connection settings changed" {
+				t.Fatalf("ended %v %q\n%s", ended, reason, h.io.plain())
+			}
+			out := h.io.plain()
+			if strings.Contains(out, "policy tightened") || strings.Contains(out, "policy change applied") {
+				t.Fatalf("announced as applied on a connection that keeps the old settings:\n%s", out)
+			}
+			if !strings.Contains(out, "connection settings changed: the session ends") {
+				t.Fatalf("the human is not told why:\n%s", out)
+			}
+		})
+	}
+}
+
+// A tightening that leaves the connection alone keeps the session.
+func TestNonConnectionTighteningKeepsSession(t *testing.T) {
+	start := uat()
+	start.Base.TLS = config.TLSRequire
+	h := newHarness(t, start, nil)
+	next := start
+	next.MaxRows = 10
+	next.Base.IdleTimeout = 5 * time.Minute
+	next.Base.CredentialsTTL = time.Hour
+	h.b.policy = next
+	h.s.CheckPolicy()
+	if reason, ended := h.s.Ended(); ended {
+		t.Fatalf("session ended: %q\n%s", reason, h.io.plain())
+	}
+	if !strings.Contains(h.io.plain(), "policy tightened") || h.s.Policy().(fakePolicy).MaxRows != 10 {
+		t.Fatalf("tightening not applied:\n%s", h.io.plain())
+	}
+}
+
 // A profile turned production refuses findings it accepted at start.
 func TestBecomingProductionRunsChecks(t *testing.T) {
 	h := newHarness(t, uat(), nil)
@@ -935,6 +1018,57 @@ func TestRunBecomingProductionReappliesStartRefusals(t *testing.T) {
 				t.Fatalf("output:\n%s", out)
 			}
 		})
+	}
+}
+
+// Run end to end: a tightened tls mode in the files, while the console
+// serves, ends the session before the next request instead of being
+// announced as applied on a connection opened under the old mode (#7).
+func TestRunTightenedTLSEndsSession(t *testing.T) {
+	env := runEnv(t)
+	start := uat()
+	start.Base.TLS = config.TLSRequire
+	b := &fakeBackend{policy: start}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"pw"}}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	go func() {
+		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: io, StateDir: t.TempDir(), Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s }})
+	}()
+	var socket string
+	select {
+	case socket = <-ready:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, io.plain())
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	if r := dialAndCall(t, socket, ipc.MethodStatus, nil); r.Error != nil {
+		t.Fatalf("status: %v", r.Error)
+	}
+	next := start
+	next.Base.TLS = config.TLSVerifyFull
+	b.mu.Lock()
+	b.policy = next
+	b.mu.Unlock()
+	select {
+	case <-done:
+	case <-time.After(3*PolicyPoll + 5*time.Second):
+		t.Fatal("the console kept serving on a connection opened under the old tls mode")
+	}
+	out := io.plain()
+	if !strings.Contains(out, "session ended: connection settings changed") || strings.Contains(out, "policy tightened") {
+		t.Fatalf("output:\n%s", out)
+	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if len(b.sessions) != 1 || !b.sessions[0].closed {
+		t.Fatalf("the old connection is not closed: %d sessions", len(b.sessions))
+	}
+	if c, err := net.Dial("unix", socket); err == nil {
+		c.Close()
+		t.Fatal("the socket still serves after the session ended")
 	}
 }
 

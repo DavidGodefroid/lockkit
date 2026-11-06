@@ -741,9 +741,10 @@ func Loosens(changes []config.Change) bool {
 	return slices.ContainsFunc(changes, func(c config.Change) bool { return c.Loosens })
 }
 
-// adopt records p as the approved policy and enforces it. A change of
-// where the backend is ends the session: the open connection no longer
-// matches the policy.
+// adopt records p as the approved policy and enforces it. A change of a
+// connection setting (where the backend is, the login, the credentials
+// mode, TLS, the SSH bastion: connectionChanged), a tightening included,
+// ends the session: the open connection no longer matches the policy.
 func (s *Server) adopt(p Policy, decision string) error {
 	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
 	if decision == "applied" {

@@ -643,3 +643,26 @@ func TestRenewDeniedRenewal(t *testing.T) {
 		t.Fatalf("handed back a denied renewal: %v", err)
 	}
 }
+
+// A renewal of a version-2 ticket asks for the same kind and subject.
+func TestRenewKeepsKind(t *testing.T) {
+	e, c := newClockEnv(t, nil)
+	ctx := context.Background()
+	p, _ := e.plan(t, planHash)
+	tk := ticket.NewKindTicket(ticket.Source{Lock: "lockmq"}, ticket.KindAction, ticket.RiskWrite,
+		&ticket.Subject{Profile: "mq", Verb: "purge", Target: "orders"}, planHash, policyFP, c.now(), time.Hour)
+	id, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen())
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.add(2 * time.Hour)
+	n, err := e.client.Renew(ctx, e.store, id, caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt, err := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
+	if err != nil || rt.V != ticket.VersionKinds || rt.Kind != ticket.KindAction || rt.Subject == nil ||
+		*rt.Subject != *tk.Subject || rt.Renews == nil {
+		t.Fatalf("renewal %+v %v", rt, err)
+	}
+}
