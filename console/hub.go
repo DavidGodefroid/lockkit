@@ -167,6 +167,13 @@ type HubTicket struct {
 	// Requester and Workspace are shown by the hub (display only).
 	Requester ticket.Requester
 	Workspace string
+	// Kind, when set, makes the ticket a ticket.VersionKinds one of that
+	// kind (read, write, ddl, action, endpoint, policy), with Subject its
+	// structured request (masked like the screen; nil only where the
+	// kind allows it): what `lox run`'s rules match on. Connect tickets
+	// are the lock's own (lazyconn), not a plan's.
+	Kind    ticket.Kind
+	Subject *ticket.Subject
 }
 
 // Hub is a console's hub mode: the plans awaiting a decision and the hub
@@ -273,6 +280,9 @@ type hubApprover struct {
 // errNoHubTicket: the product drew a screen without a HubTicket.
 var errNoHubTicket = errors.New("the request carries no hub ticket")
 
+// errConnectTicket: a plan's ticket of kind connect.
+var errConnectTicket = errors.New("a connect ticket is the lock's own (lazyconn), not a plan's")
+
 // Submit builds the ticket of d's plan and pushes it (hubclient.Submit).
 func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	if d.Screen == nil || d.Screen.Hub == nil {
@@ -283,7 +293,13 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	if err != nil {
 		return Pending{}, err
 	}
+	if h.Kind == ticket.KindConnect {
+		return Pending{}, errConnectTicket
+	}
 	t := ticket.NewTicket(ticket.Source{Lock: a.lock}, h.Risk, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
+	if h.Kind != "" {
+		t = ticket.NewKindTicket(ticket.Source{Lock: a.lock}, h.Kind, h.Risk, h.Subject, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
+	}
 	t.Workspace, t.Requester = h.Workspace, h.Requester
 	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: t.Flags.NeverAuto || d.Screen.NeverAuto, Retype: d.Retype}
 	// The screen this console would show: sealed to the pinned devices
