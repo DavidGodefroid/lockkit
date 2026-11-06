@@ -3,6 +3,24 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- On a production profile, every widening the console decides itself
+  takes the profile name typed exactly instead of `y`, as a request
+  does: the policy review at start and a loosening at `:review` (`Apply
+  these changes? Type the profile name "prod" to apply them: `; turning
+  production off is a loosening of a production profile, so it takes the
+  name too) and `:unmask` (`Allow unmasked output? Type the profile name
+  "prod" to allow it: `). Outside production they still take `y`. When
+  the start-up review of `console.Run` was approved with the name, the
+  second `Type the profile name "P" to continue:` prompt is no longer
+  asked; the name record (`ConfirmedKey(key)`) is written as before
+  (#8).
+- New `console.WidenDecision(question, verb, forText, production,
+  profile)`: the `Decision` of such a widening (`question [y/N] ` outside
+  production, the typed profile name on production), for a product's own
+  widenings (#8).
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
