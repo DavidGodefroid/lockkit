@@ -129,3 +129,29 @@ func TestDiffBase(t *testing.T) {
 		t.Fatalf("user: %+v", ch)
 	}
 }
+
+func TestConnectionField(t *testing.T) {
+	for _, f := range []string{"user", "credentials", "vault_path", "tls", "tls_ca", "tls_cert", "tls_key", "ssh", "ssh.host", "ssh.port", "ssh.user", "ssh.auth", "ssh.key", "ssh.credentials"} {
+		if !ConnectionField(f) {
+			t.Errorf("%s is not a connection field", f)
+		}
+	}
+	for _, f := range []string{"production", "credentials_ttl", "limits.idle_timeout", "limits.max_session", "tier", "sshx", "tls_server"} {
+		if ConnectionField(f) {
+			t.Errorf("%s is a connection field", f)
+		}
+	}
+	// Every field DiffBase reports on a change of the connection is one.
+	a := Base{User: "ro", Credentials: CredentialsAsk, TLS: TLSPrefer, SSH: &SSHProfile{Host: "b", Port: 22, User: "j", Auth: SSHAuthAgent, Credentials: CredentialsAsk}}
+	c := Base{User: "rw", Credentials: CredentialsKeychain, VaultPath: "v", TLS: TLSVerifyFull, TLSCA: "ca", TLSCert: "c", TLSKey: "k",
+		SSH: &SSHProfile{Host: "b2", Port: 2222, User: "j2", Auth: SSHAuthKey, Key: "id", Credentials: CredentialsKeychain}}
+	changes := DiffBase(a, c)
+	if len(changes) != 13 {
+		t.Fatalf("changes %v", changes)
+	}
+	for _, ch := range changes {
+		if !ConnectionField(ch.Field) {
+			t.Errorf("DiffBase field %s not a connection field", ch.Field)
+		}
+	}
+}

@@ -2,6 +2,7 @@ package console
 
 import (
 	"errors"
+	"slices"
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/config"
@@ -69,11 +70,13 @@ type ChangeFormatter interface {
 }
 
 // ConnectionComparer is implemented by a backend whose connection depends
-// on more than Profile's Where, User, Host and Port (a TLS setting, a
-// tunnel): a policy change for which ConnectionChanged reports true ends
+// on more than the console checks itself (a product-specific TLS setting,
+// a tunnel): a policy change for which ConnectionChanged reports true ends
 // the session, as the open connection no longer matches the policy. It
-// adds to the console's own check, which a change of those four fields
-// always trips.
+// adds to the console's own check, which a change of Profile's Where,
+// User, Host, Port, Credentials or VaultPath, or of a shared connection
+// field in the policy diff (config.ConnectionField: tls, tls_ca, tls_cert,
+// tls_key, ssh.*), always trips, a tightening included.
 type ConnectionComparer interface {
 	ConnectionChanged(old, next Policy) bool
 }
@@ -205,10 +208,19 @@ func (s *Server) statusView() StatusView {
 		Boundary: s.cfg.Boundary, Level: s.cfg.Level, Session: s.sess}
 }
 
-// connectionChanged reports a change of the connection settings.
+// connectionChanged reports a change of the connection settings: where the
+// backend is, the login and how its secret was got (Profile), any shared
+// connection field of the policy diff (config.ConnectionField: tls, tls_ca,
+// tls_cert, tls_key, the ssh bastion), and what the backend's
+// ConnectionComparer adds. A tightening of one counts as well: the live
+// connection keeps the settings it was opened with.
 func (s *Server) connectionChanged(old Profile, oldP, next Policy) bool {
 	n := next.Profile()
-	if old.Where != n.Where || old.User != n.User || old.Host != n.Host || old.Port != n.Port {
+	if old.Where != n.Where || old.User != n.User || old.Host != n.Host || old.Port != n.Port ||
+		old.Credentials != n.Credentials || old.VaultPath != n.VaultPath {
+		return true
+	}
+	if slices.ContainsFunc(next.Diff(oldP), func(c config.Change) bool { return config.ConnectionField(c.Field) }) {
 		return true
 	}
 	c, ok := s.cfg.Backend.(ConnectionComparer)
