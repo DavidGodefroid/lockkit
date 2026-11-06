@@ -102,9 +102,13 @@ type PIIBackend interface {
 	PIIRules(p Policy) (mask, allow []string)
 	// CheckMask validates a pattern sent by a client and returns its
 	// canonical form; an error is shown to the client (invalid params).
+	// The console audits the refusal (policy/failed, with the client)
+	// without the pattern or the error's text, which may quote it.
 	CheckMask(pattern string) (string, error)
 	// SaveMask adds the canonical pattern to the config file as it is on
 	// disk, so the human's unconfirmed edits are neither lost nor applied.
+	// The console audits a refusal (policy/failed, with the client, the
+	// canonical pattern and the sanitised error).
 	SaveMask(pattern string) error
 	// WithMask returns p with the canonical pattern added (canonical form,
 	// sorted lists); p itself is not changed.
