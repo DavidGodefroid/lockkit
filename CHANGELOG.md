@@ -9,6 +9,20 @@ GUIDE.md is the contract between lockkit and the products built on it.
   for a lock that runs commands on the host it reached (lockssh) instead
   of forwarding through it; it fails once the tunnel is closed.
 
+## v0.13.1 (2026-11-06)
+
+- A `pii.add` refused by the product's backend is audited by the console
+  as `policy`/`failed` with the client's peer (`peer_uid`, `peer_pid`,
+  `peer_user`), also before the agent's first other call: a `CheckMask`
+  refusal with the fixed error `pii.add refused by the backend: invalid
+  pattern` and no pattern (neither the raw pattern nor the backend's
+  text, which may quote it), a `SaveMask` refusal with the canonical
+  `pattern` and `mask rule not saved: <error>`. `PIIBackend` is
+  unchanged; products (locklog) no longer audit these refusals
+  themselves, or the record is written twice (#142).
+- README: the first line says lockkit is part of the Lock Family,
+  harness security for AI agents (lockfamily#19).
+
 ## v0.13.0 (2026-11-06)
 
 - Ticket kinds: a `ticket.VersionKinds` (2) ticket names what it asks for

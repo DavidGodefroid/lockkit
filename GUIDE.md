@@ -538,6 +538,17 @@ type PIIBackend interface {
 }
 ```
 
+Every `pii.add` decision is audited by the console with the client's peer
+(`peer_uid`, `peer_pid`, `peer_user`), whoever refuses it: a rule added is
+`policy`/`tightened` with its canonical `pattern`; a pattern `CheckMask`
+refuses is `policy`/`failed` with the error class `pii.add refused by the
+backend: invalid pattern` and neither the pattern nor your error text (the
+value you refused to canonicalise may be a name the policy shows masked);
+a rule `SaveMask` refuses is `policy`/`failed` with the canonical
+`pattern` and `pii.add refused by the backend: mask rule not saved: ` plus
+the sanitised error. Do not audit these refusals yourself: they would be
+recorded twice, the second time without the peer.
+
 A handler that needs the human calls `env.Approve(ctx, req.ID, screen)`:
 
 ```go
