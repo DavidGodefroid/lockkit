@@ -3,6 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- The idle timeout counts only the human's input (console lines and
+  control keys) and the backend's methods as activity, a method's end
+  included (a long approval is activity): `hello`, `status`, `pii.list`,
+  `pii.add`, `change.request` no longer reset it, so an agent polling
+  `status` no longer keeps an unattended console open until
+  `max_session` (#10).
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy

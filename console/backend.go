@@ -86,7 +86,9 @@ type Profile struct {
 	// CredentialsTTL asks for the secret again (and reconnects) once the
 	// connection is that old; 0 keeps it for the session.
 	CredentialsTTL time.Duration
-	// IdleTimeout ends the session after that long without activity,
+	// IdleTimeout ends the session after that long without activity (a
+	// line or key typed in the console, or a call of one of the backend's
+	// methods; never hello, status or the console's other methods),
 	// MaxSession after that long in all. 0 takes 20m and 4h.
 	IdleTimeout, MaxSession time.Duration
 }

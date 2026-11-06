@@ -489,7 +489,11 @@ user and the secret (`ask`, `keychain` with an offer to save, `vault` read
 at every connection with the Vault token asked at start, masked), `Backend.Connect`, `Backend.Checks` (red findings,
 typed `continue`; any finding refuses on production), the socket (private
 or shared), then the request loop until logout, `:quit`, Ctrl-C, the idle
-timeout or the maximum session.
+timeout or the maximum session. Only the human's input (console lines and
+control keys) and the calls of the backend's methods (their start and their
+end) count as activity for the idle timeout: `hello`, `status`, `pii.list`,
+`pii.add` and `change.request` never do, so a client polling `status` does
+not keep an unattended console open.
 
 While it waits for an answer, `Run` keeps the question (the prompt, never
 the answer) in `QuestionPath(socket)`, next to the console's socket
