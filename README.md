@@ -1,6 +1,8 @@
 # lockkit
 
-lockkit is the shared foundation of [locksql](https://github.com/DavidGodefroid/locksql)
+lockkit is the shared foundation of the [Lock
+Family](https://github.com/DavidGodefroid/lockfamily), harness security for AI
+agents. It serves [locksql](https://github.com/DavidGodefroid/locksql)
 and its sibling products: the console that holds the credentials and asks
 the human, its isolated account and socket, the policy files that the AI
 may tighten and only the human loosens, the approval screen, the audit log,
