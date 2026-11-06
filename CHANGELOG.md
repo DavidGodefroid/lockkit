@@ -3,6 +3,12 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## v0.14.0 (2026-11-06)
+
+- `tunnel.Tunnel.NewSession` opens a session channel on the connection,
+  for a lock that runs commands on the host it reached (lockssh) instead
+  of forwarding through it; it fails once the tunnel is closed.
+
 ## v0.13.1 (2026-11-06)
 
 - A `pii.add` refused by the product's backend is audited by the console

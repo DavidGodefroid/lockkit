@@ -76,6 +76,10 @@ func (s *testServer) serve(nc net.Conn, cfg *ssh.ServerConfig) {
 		}
 	}()
 	for nch := range chans {
+		if nch.ChannelType() == "session" {
+			go serveSession(nch)
+			continue
+		}
 		if nch.ChannelType() != "direct-tcpip" {
 			nch.Reject(ssh.UnknownChannelType, "")
 			continue
@@ -103,6 +107,31 @@ func (s *testServer) serve(nc net.Conn, cfg *ssh.ServerConfig) {
 		go ssh.DiscardRequests(chReqs)
 		go func() { io.Copy(ch, dst); ch.CloseWrite() }()
 		go func() { io.Copy(dst, ch); dst.Close(); ch.Close() }() // as sshd, once the target stops taking data
+	}
+}
+
+// serveSession answers an exec request by writing its command back on
+// stdout and exiting 0.
+func serveSession(nch ssh.NewChannel) {
+	ch, reqs, err := nch.Accept()
+	if err != nil {
+		return
+	}
+	defer ch.Close()
+	for r := range reqs {
+		if r.Type != "exec" {
+			r.Reply(false, nil)
+			continue
+		}
+		var cmd struct{ Command string }
+		if ssh.Unmarshal(r.Payload, &cmd) != nil {
+			r.Reply(false, nil)
+			return
+		}
+		r.Reply(true, nil)
+		io.WriteString(ch, cmd.Command)
+		ch.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{0}))
+		return
 	}
 }
 
