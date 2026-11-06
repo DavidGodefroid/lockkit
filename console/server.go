@@ -290,9 +290,11 @@ func (s *Server) Loop() *Loop {
 }
 
 // Handle serves one request. None of the console's methods loosens the
-// policy.
+// policy. Only the product's methods, which reach the backend, count as
+// activity for the idle timeout (with the human's own lines and keys): a
+// client polling status, hello or the console's other methods never keeps
+// an unattended console open.
 func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
-	s.lastSeen = s.now()
 	switch req.Method {
 	case ipc.MethodHello:
 		return s.hello(req)
@@ -313,6 +315,10 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 		return OKResp(req.ID, map[string]bool{"ok": true})
 	}
 	if h, ok := s.methods[req.Method]; ok {
+		s.lastSeen = s.now()
+		// The call may have waited on the human's answer: that is activity
+		// too, and its end restarts the idle time.
+		defer func() { s.lastSeen = s.now() }()
 		return s.call(ctx, req, h)
 	}
 	return ErrResp(req.ID, ipc.CodeMethodNotFound, fmt.Sprintf("unknown method %q", req.Method))

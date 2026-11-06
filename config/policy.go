@@ -110,7 +110,8 @@ type Base struct {
 	Production     bool          `json:"production"`
 	SSH            *SSHProfile   `json:"ssh,omitempty"`
 	// IdleTimeout ends the console session after that long without
-	// activity, MaxSession after that long in all.
+	// activity (the human's input, or a request that reaches the backend:
+	// polling status never counts), MaxSession after that long in all.
 	IdleTimeout time.Duration `json:"idle_timeout"`
 	MaxSession  time.Duration `json:"max_session"`
 }
