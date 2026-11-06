@@ -585,7 +585,10 @@ answer instead of `product`); `StatusRower` lists the `:status` rows
 `StatusPendingRow`, `StatusBoundaryRow` give the console's own values);
 `StatusLiner` adds to the status row; `ChangeFormatter` renders policy
 diffs; `ConnectionComparer` widens the connection change that ends the
-session (a TLS setting, a tunnel); `PolicyApplier` compiles what the
+session (a product-specific TLS setting, a tunnel) beyond the console's
+own check, which already covers where/user/host/port, the credentials
+mode and Vault path, and the shared `tls*` and `ssh*` fields of the diff
+(`config.ConnectionField`), a tightening included; `PolicyApplier` compiles what the
 product derives from a policy before it is in force (an error refuses the
 policy, neither saved nor applied); `Worder` words the console's lines
 (`Words`: statements rather than requests, the reconnection and lease

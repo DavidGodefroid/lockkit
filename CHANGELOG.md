@@ -29,6 +29,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
   one; a renewal keeps the expired ticket's kind and subject;
   `hubtest.Hub` answers a version-2 ticket with a version-2 decision and
   lists what it sent (`Decisions`) (#132).
+- A policy change of a connection setting ends the console session, a
+  tightening as well as an approved loosening: besides where/user/host/
+  port, the console now checks the credentials mode and Vault path
+  (`Profile.Credentials`, `Profile.VaultPath`) and every shared connection
+  field of the policy diff (`config.ConnectionField`: `tls`, `tls_ca`,
+  `tls_cert`, `tls_key`, `ssh` and `ssh.*`, as `config.DiffBase` names
+  them). A tightened tls mode or bastion is no longer announced as applied
+  while the live connection keeps the old settings (#7).
 
 ## v0.12.1 (2026-11-04)
 
