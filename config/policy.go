@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -113,6 +114,19 @@ type Base struct {
 	// polling status never counts), MaxSession after that long in all.
 	IdleTimeout time.Duration `json:"idle_timeout"`
 	MaxSession  time.Duration `json:"max_session"`
+}
+
+// connectionFields are the fields of DiffBase the open connection was made
+// with: the login, how its secret was got, the TLS settings and the SSH
+// bastion. CredentialsTTL is not one: the console re-reads it every tick.
+var connectionFields = []string{"user", "credentials", "vault_path", "tls", "tls_ca", "tls_cert", "tls_key", "ssh"}
+
+// ConnectionField reports a field of DiffBase (user, credentials,
+// vault_path, tls, tls_ca, tls_cert, tls_key, ssh and every ssh.* field)
+// that the open connection depends on: a change of one, even a tightening,
+// does not reach a live connection, so the console ends the session.
+func ConnectionField(field string) bool {
+	return slices.Contains(connectionFields, field) || strings.HasPrefix(field, "ssh.")
 }
 
 // DiffBase lists the changes of the shared profile part and marks each

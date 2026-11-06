@@ -194,7 +194,9 @@ func (h *Hub) Decide(id string, out ticket.Outcome, reason string) {
 }
 
 // DecideWith is Decide signed with key (nil: the hub's), mod applied to
-// the decision before signing (nil: none).
+// the decision before signing (nil: none). A VersionKinds ticket gets a
+// VersionKinds decision, by a human (mod may name an auto rule, or seal
+// a secret: ticket.SealSecret over the ticket the hub holds).
 func (h *Hub) DecideWith(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey, mod func(*ticket.Decision)) {
 	h.t.Helper()
 	h.mu.Lock()
@@ -213,6 +215,10 @@ func (h *Hub) DecideWith(id string, out ticket.Outcome, reason string, key ed255
 	d := &ticket.Decision{V: ticket.Version, Ticket: tk.ID, Instance: tk.Source.Instance, KeyID: tk.Source.KeyID,
 		PlanHash: tk.PlanHash, Decision: out, Reason: reason, Approver: ticket.Approver{ID: "host:uid:1000"},
 		Facade: "tty", At: time.Now().UTC().Truncate(time.Millisecond), Nonce: ticket.NewNonce()}
+	if tk.V == ticket.VersionKinds {
+		// A ticket that names its kind is answered with the deciding rule.
+		d.V, d.Rule = ticket.VersionKinds, &ticket.Rule{By: ticket.RuleHuman}
+	}
 	if mod != nil {
 		mod(d)
 	}
@@ -303,4 +309,15 @@ func (h *Hub) Requeue(id string) {
 	h.requests[id] = h.sent[id]
 	delete(h.answers, id)
 	h.mu.Unlock()
+}
+
+// Decisions lists the signed decisions the hub sent, as it sent them.
+func (h *Hub) Decisions() [][]byte {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	var out [][]byte
+	for _, d := range h.decisions {
+		out = append(out, append([]byte(nil), d.Decision...))
+	}
+	return out
 }

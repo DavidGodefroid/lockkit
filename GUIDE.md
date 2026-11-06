@@ -35,8 +35,9 @@ contract between lockkit and the products built on it.
 | `update` | cosign keyless signature check of a release artifact, checksums |
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
-| `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
-| `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
+| `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, ticket kinds (connect, read, write, ddl, action, endpoint, policy) and the deciding rule, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
+| `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan, `Ask` of a connect ticket; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
+| `lazyconn` | backend connections opened on a connect ticket's approval, shared per profile, closed when idle and asked for again; the secret handed from the decider to the lock sealed |
 | `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
 | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
 | `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`): the non-interactive form's secret refusal and credential source, the JSON `lox add` reads |
@@ -588,7 +589,10 @@ answer instead of `product`); `StatusRower` lists the `:status` rows
 `StatusPendingRow`, `StatusBoundaryRow` give the console's own values);
 `StatusLiner` adds to the status row; `ChangeFormatter` renders policy
 diffs; `ConnectionComparer` widens the connection change that ends the
-session (a TLS setting, a tunnel); `PolicyApplier` compiles what the
+session (a product-specific TLS setting, a tunnel) beyond the console's
+own check, which already covers where/user/host/port, the credentials
+mode and Vault path, and the shared `tls*` and `ssh*` fields of the diff
+(`config.ConnectionField`), a tightening included; `PolicyApplier` compiles what the
 product derives from a policy before it is in force (an error refuses the
 policy, neither saved nor applied); `Worder` words the console's lines
 (`Words`: statements rather than requests, the reconnection and lease
@@ -639,6 +643,42 @@ scope and nothing else; the lock then runs reads inside it without a
 ticket each, and enforces the scope itself (the grant's own lifetime and
 budget are part of it, not of the ticket's `Expires`). A grant ticket is
 always `Flags.NeverAuto`.
+
+**Ticket kinds.** A version-2 ticket (`ticket.VersionKinds`) names what
+it asks for, so that `lox run`'s rules decide on a structured request and
+not on the screen's text: `Kind` is one of `connect`, `read`, `write`,
+`ddl`, `action` (an MQ, file or HTTP verb), `endpoint` (a new host or
+route) and `policy`, each allowed only with the risk classes
+`ticket.KindRisks` lists, and `Subject` carries the request (profile,
+endpoint without userinfo, credential source, verb, target; masked like
+the screen, never a value or a secret). The subject is not masked, so the
+ticket package bounds it: an endpoint is `host[:port][/path]` only (no
+whitespace, `?`, `#`, `=`, `&`, `;`, `@` or `%`, so a DSN or a URL query
+never leaves the lock), a target has no whitespace, query string or
+fragment; `Subject.Validate` checks one before a lock builds a screen. Set `HubTicket.Kind` and
+`Subject` for a plan's ticket; `NewTicket` keeps writing version 1, and
+both versions verify. A version-2 ticket is answered by a version-2
+decision, whose `Rule` says what decided it (`auto` and the rule's id,
+or `human` on `Facade`): put it in the audit. An auto rule's approval of
+a `NeverAuto` ticket is refused (`ticket.ErrAuto`, from `Usable`).
+
+**Lazy connections.** A lock that opens its backend only when an agent
+needs it builds a `lazyconn.Pool` with the hub client as its `Asker`
+(`hubclient.Client.Ask`), its `Profile` lookup and its `Dial`. It starts
+disconnected; the first `Acquire` of a profile pushes a connect ticket
+(its plan is its subject, `ticket.ConnectPlanHash`), waits for the
+decision, and dials on a usable approval; concurrent requests share the
+ticket and the connection, `release` gives it back, and it closes after
+`Config.Idle` unused (`DefaultIdle`, 2 min); the next request asks
+again. With `Profile.NeedSecret` (credentials `ask`, an expired Vault
+token) the ticket carries a one-use X25519 key of the lock
+(`Subject.SecretTo`); `lox run` verifies the ticket under the lock key
+it pins and seals the secret to it (`ticket.SealSecret`, in
+`Decision.Secret`); the hub relays a box it cannot open, and only `Dial`
+sees the secret (`Grant.Secret`, wiped when `Dial` returns). Audit the
+pool's `OnEvent` (connected, denied, failed, closed, with the decision's
+rule). Connect tickets are not plans: a restarted lock starts
+disconnected and asks again.
 
 **Reveal and re-approval.** In hub mode pass the console's clear screen
 to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
