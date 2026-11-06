@@ -450,12 +450,22 @@ func (s *Server) piiList(req ipc.Request) ipc.Response {
 	return OKResp(req.ID, s.piiResult(pb))
 }
 
+// The error class of a pii.add the product's backend refused, on its
+// policy/failed record.
+const (
+	piiAddInvalid = "pii.add refused by the backend: invalid pattern"
+	piiAddUnsaved = "pii.add refused by the backend: mask rule not saved: "
+)
+
 // piiAdd adds a mask rule: to the file, to the policy in force, and to a
 // pending loosening, which was read before the rule reached the file and
 // would otherwise drop it once applied from :review.
 //
 // The policy record carries the client behind the request (ctx) and the
 // pattern added: a tightening the human made in the files has neither.
+// Every decision on the rule is audited with the client, the backend's
+// refusals included (CheckMask, SaveMask: policy/failed), so a product
+// does not audit them itself.
 func (s *Server) piiAdd(ctx context.Context, req ipc.Request) ipc.Response {
 	pb, r := s.piiBackend(req)
 	if r != nil {
@@ -467,9 +477,14 @@ func (s *Server) piiAdd(ctx context.Context, req ipc.Request) ipc.Response {
 	}
 	pattern, err := pb.CheckMask(p.Pattern)
 	if err != nil {
+		// The pattern the backend refused to canonicalise is not kept, nor
+		// the backend's text, which may quote it: it may be a name the
+		// policy shows masked.
+		_ = s.record(ctx, audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: piiAddInvalid})
 		return ErrResp(req.ID, ipc.CodeInvalidParams, s.san.Error(err))
 	}
 	if err := pb.SaveMask(pattern); err != nil {
+		_ = s.record(ctx, audit.Base{Event: audit.EventPolicy, Decision: "failed", Pattern: pattern, Error: piiAddUnsaved + s.san.Error(err)})
 		return ErrResp(req.ID, ipc.CodeInternal, s.san.Error(err))
 	}
 	if err := s.adoptBy(ctx, pb.WithMask(s.approved, pattern), audit.Base{Event: audit.EventPolicy, Decision: "tightened", Pattern: pattern}); err != nil {

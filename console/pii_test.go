@@ -302,3 +302,134 @@ func TestPIIAddOverSocketAuditsKernelPeer(t *testing.T) {
 		t.Fatalf("peer pid %v, want %d", pid, os.Getpid())
 	}
 }
+
+// piiLeakyBackend is a piiBackend whose CheckMask error quotes the
+// pattern, as a product's "unknown column X" would.
+type piiLeakyBackend struct{ piiBackend }
+
+func (b *piiLeakyBackend) CheckMask(pattern string) (string, error) {
+	if _, err := b.piiBackend.CheckMask(pattern); err != nil {
+		return "", fmt.Errorf("unknown column %q", pattern)
+	}
+	return strings.ToLower(pattern), nil
+}
+
+// A pii.add refused by CheckMask leaves one policy/failed record with the
+// client, and neither the raw pattern nor the backend's text quoting it.
+func TestPIIAddCheckMaskRefusalAuditedWithPeer(t *testing.T) {
+	b := &piiLeakyBackend{piiBackend: piiBackend{pol: piiUAT()}}
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Backend, c.Policy = b, piiUAT() })
+	before := countRecords(t, h)
+	uid := os.Getuid()
+	r := h.call(t, peerCtx(uid, 91), ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "JohnSmithSecret"})
+	if r.Error == nil || r.Error.Code != ipc.CodeInvalidParams {
+		t.Fatalf("bad pattern: %+v", r)
+	}
+	recs := h.records(t)
+	if len(recs) != before+1 {
+		t.Fatalf("want one record, got %d: %v", len(recs)-before, recs[before:])
+	}
+	rec := recs[len(recs)-1]
+	if rec["event"] != "policy" || rec["decision"] != "failed" || rec["error"] != piiAddInvalid || rec["profile"] != "uat" {
+		t.Fatalf("audit: %v", rec)
+	}
+	if rec["peer_uid"] != float64(uid) || rec["peer_pid"] != float64(91) {
+		t.Fatalf("peer: %v", rec)
+	}
+	if _, ok := rec["pattern"]; ok {
+		t.Fatalf("refused pattern recorded: %v", rec)
+	}
+	if raw, _ := json.Marshal(rec); strings.Contains(strings.ToLower(string(raw)), "johnsmithsecret") {
+		t.Fatalf("raw pattern in the audit log: %s", raw)
+	}
+}
+
+// A pii.add refused by SaveMask leaves one policy/failed record with the
+// client, the canonical pattern and the error.
+func TestPIIAddSaveMaskRefusalAuditedWithPeer(t *testing.T) {
+	h, b := newPIIHarness(t, piiUAT())
+	b.saveErr = errors.New("rule cap reached")
+	before := countRecords(t, h)
+	uid := os.Getuid()
+	r := h.call(t, peerCtx(uid, 92), ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "Orders.Phone"})
+	if r.Error == nil || r.Error.Code != ipc.CodeInternal {
+		t.Fatalf("save error: %+v", r)
+	}
+	recs := h.records(t)
+	if len(recs) != before+1 {
+		t.Fatalf("want one record, got %d: %v", len(recs)-before, recs[before:])
+	}
+	rec := recs[len(recs)-1]
+	if rec["event"] != "policy" || rec["decision"] != "failed" || !strings.HasPrefix(fmt.Sprint(rec["error"]), piiAddUnsaved) || !strings.Contains(fmt.Sprint(rec["error"]), "rule cap reached") {
+		t.Fatalf("audit: %v", rec)
+	}
+	if rec["pattern"] != "orders.phone" || rec["peer_uid"] != float64(uid) || rec["peer_pid"] != float64(92) {
+		t.Fatalf("record without the client or the canonical pattern: %v", rec)
+	}
+}
+
+// End to end over the socket: both refusals of the backend are audited
+// with the kernel's credentials of the real client, before any other call.
+func TestPIIAddRefusalsOverSocketAuditKernelPeer(t *testing.T) {
+	b := &piiLeakyBackend{piiBackend: piiBackend{pol: piiUAT()}}
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Backend, c.Policy = b, piiUAT() })
+	d, err := os.MkdirTemp("/tmp", "lkpiir")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(d) })
+	socket := filepath.Join(d, "s")
+	ln, err := net.Listen("unix", socket)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	served := make(chan error, 1)
+	go func() { served <- h.s.Loop().Serve(ctx, ln, nil) }()
+	r1 := dialAndCall(t, socket, ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "JohnSmithSecret"})
+	b.mu.Lock()
+	b.saveErr = errors.New("rule cap reached")
+	b.mu.Unlock()
+	r2 := dialAndCall(t, socket, ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "orders.phone"})
+	cancel()
+	<-served
+	if r1.Error == nil || r1.Error.Code != ipc.CodeInvalidParams || r2.Error == nil || r2.Error.Code != ipc.CodeInternal {
+		t.Fatalf("answers: %+v %+v", r1.Error, r2.Error)
+	}
+	var failed []map[string]any
+	for _, x := range h.records(t) {
+		if x["event"] == "policy" && x["decision"] == "failed" {
+			failed = append(failed, x)
+		}
+	}
+	if len(failed) != 2 {
+		t.Fatalf("want 2 failed records: %v", h.records(t))
+	}
+	for i, rec := range failed {
+		if rec["peer_uid"] != float64(os.Getuid()) {
+			t.Fatalf("record %d without the kernel peer: %v", i, rec)
+		}
+		if pid, ok := rec["peer_pid"]; ok && pid != float64(os.Getpid()) {
+			t.Fatalf("peer pid %v, want %d", pid, os.Getpid())
+		}
+	}
+	if _, ok := failed[0]["pattern"]; ok || failed[0]["error"] != piiAddInvalid {
+		t.Fatalf("CheckMask refusal: %v", failed[0])
+	}
+	if failed[1]["pattern"] != "orders.phone" || !strings.HasPrefix(fmt.Sprint(failed[1]["error"]), piiAddUnsaved) {
+		t.Fatalf("SaveMask refusal: %v", failed[1])
+	}
+	raw, err := os.ReadFile(h.log)
+	if err == nil && strings.Contains(strings.ToLower(string(raw)), "johnsmithsecret") {
+		t.Fatal("raw pattern in the audit log")
+	}
+}
+
+// countRecords is the number of records in h's log, 0 before the first.
+func countRecords(t *testing.T, h *harness) int {
+	t.Helper()
+	if _, err := os.Stat(h.log); errors.Is(err, os.ErrNotExist) {
+		return 0
+	}
+	return len(h.records(t))
+}
