@@ -3,6 +3,29 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- Ticket kinds: a `ticket.VersionKinds` (2) ticket names what it asks for
+  (`Kind`: connect, read, write, ddl, action, endpoint, policy, each with
+  the risk classes `KindRisks` allows) and its structured request
+  (`Subject`: profile, endpoint, credential source, verb, target), for
+  `lox run`'s rules; a version-2 decision names its deciding `Rule` (auto
+  rule id, or human) and may carry the backend's secret sealed to the
+  lock (`Secret`; `SealSecret`, `OpenSecret`). Version-1 tickets and
+  decisions encode and verify unchanged; a version-2 ticket needs a
+  version-2 decision, and an auto approval of a `NeverAuto` ticket is
+  `ErrAuto`. New fixtures `ticket-connect-v2.json`,
+  `decision-connect-approved-v2.json`, `keys-connect-v2.json` (#132).
+- New package `lazyconn`: a lock opens a profile's backend connection on
+  the approval of a connect ticket (`hubclient.Client.Ask`), shares it,
+  closes it when idle (`DefaultIdle`, configurable) and asks again
+  afterwards; the secret of an `ask` profile goes from the decider to the
+  lock sealed, never through the agent or the hub in clear (#132).
+- `console.HubTicket.Kind`/`Subject` push a plan's ticket as a version-2
+  one; a renewal keeps the expired ticket's kind and subject;
+  `hubtest.Hub` answers a version-2 ticket with a version-2 decision and
+  lists what it sent (`Decisions`) (#132).
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
