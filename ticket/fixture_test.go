@@ -31,7 +31,7 @@ type fixtureKeys struct {
 
 func fixtureFiles(t *testing.T) map[string][]byte {
 	t.Helper()
-	tk, grant := sampleTicket(t), sampleGrantTicket(t)
+	tk, grant, conn := sampleTicket(t), sampleGrantTicket(t), sampleConnectTicket(t)
 	keysJSON, _ := json.MarshalIndent(fixtureKeys{
 		Note:       "TEST KEYS ONLY: published, never use outside tests",
 		LockSeed:   enc.EncodeToString(lockSeed),
@@ -48,7 +48,16 @@ func fixtureFiles(t *testing.T) map[string][]byte {
 		// A grant: its plan hash is the hash of the scope.
 		"ticket-grant-v1.json":            mustMarshal(t, grant),
 		"decision-grant-approved-v1.json": mustMarshal(t, sampleDecision(t, grant, Approved)),
+		// VersionKinds: a connect ticket asking for the secret, and its
+		// auto approval carrying it sealed to the ticket's one-use key.
+		"ticket-connect-v2.json":            mustMarshal(t, conn),
+		"decision-connect-approved-v2.json": mustMarshal(t, sampleConnectDecision(t, conn)),
 	}
+	connKeys, _ := json.MarshalIndent(map[string]string{
+		"note":                   "TEST KEYS ONLY: published, never use outside tests",
+		"connect_x25519_private": enc.EncodeToString(connectX25519),
+	}, "", "  ")
+	files["keys-connect-v2.json"] = append(connKeys, '\n')
 	x, err := ecdh.X25519().NewPrivateKey(x25519Fixture)
 	if err != nil {
 		t.Fatal(err)
@@ -117,6 +126,20 @@ func TestFixturesVerify(t *testing.T) {
 	}
 	if d.Match(tk) == nil {
 		t.Fatal("the grant's decision matches another ticket")
+	}
+	conn, err := VerifyTicket(lockPub, read("ticket-connect-v2.json"))
+	if err != nil || conn.Kind != KindConnect || conn.Subject.Credential != CredentialAsk {
+		t.Fatalf("connect ticket: %v", err)
+	}
+	cd, err := VerifyDecision(hubPub, read("decision-connect-approved-v2.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cd.Match(conn); err != nil || !cd.Auto() || cd.Rule.ID != "prod-connect" {
+		t.Fatalf("connect decision: %v %+v", err, cd.Rule)
+	}
+	if sec, err := cd.OpenSecret(conn, connectKey(t)); err != nil || string(sec) != "s3cret password" {
+		t.Fatalf("connect secret: %q %v", sec, err)
 	}
 	x, _ := ecdh.X25519().NewPrivateKey(x25519Fixture)
 	pub, err := VerifyKeyCert(lockPub, ContextKeyCert, "", read("keycert-v1.json"))

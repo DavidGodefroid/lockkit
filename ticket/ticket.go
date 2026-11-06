@@ -20,8 +20,9 @@ import (
 	"unicode/utf8"
 )
 
-// Version is the schema version of tickets and decisions this package
-// writes and reads. A value of any other version is refused (fail closed).
+// Version is the schema version of the values this package writes and
+// reads; tickets and decisions are also read and written at VersionKinds.
+// A value of any other version is refused (fail closed).
 const Version = 1
 
 // ErrInvalid is wrapped by every validation error.
@@ -106,7 +107,11 @@ type Ticket struct {
 	// Renews, when set, makes this ticket the renewal of an expired one
 	// (Renewal); absent otherwise.
 	Renews *Renewal `json:"renews,omitempty"`
-	Sig    string   `json:"sig,omitempty"`
+	// Kind is what a VersionKinds ticket asks for, and Subject its
+	// structured request; a Version ticket has neither.
+	Kind    Kind     `json:"kind,omitempty"`
+	Subject *Subject `json:"subject,omitempty"`
+	Sig     string   `json:"sig,omitempty"`
 }
 
 // Outcome is the closed set of decisions.
@@ -160,7 +165,14 @@ type Decision struct {
 	// FacadeMobile), over Statement; absent from any other facade. A lock
 	// checks it with VerifyDevice against the devices it pins.
 	Device *DeviceAssertion `json:"device,omitempty"`
-	Sig    string           `json:"sig,omitempty"`
+	// Rule is what decided a VersionKinds decision (required there,
+	// absent from a Version one), for the lock's audit.
+	Rule *Rule `json:"rule,omitempty"`
+	// Secret, on an approval of a connect ticket that asked for one
+	// (Subject.SecretTo), is the backend's secret sealed to the lock
+	// (SealSecret, OpenSecret): the hub relays it without reading it.
+	Secret *Sealed `json:"secret,omitempty"`
+	Sig    string  `json:"sig,omitempty"`
 }
 
 // NewTicket is a ticket of the current Version with a fresh ID, created
@@ -216,7 +228,7 @@ const (
 // Validate checks t's schema: version, id, source, risk, hashes, times,
 // sizes. It does not check the signature.
 func (t *Ticket) Validate() error {
-	if t.V != Version {
+	if t.V != Version && t.V != VersionKinds {
 		return invalid("unsupported version %d", t.V)
 	}
 	if !ValidID(t.ID) {
@@ -243,6 +255,9 @@ func (t *Ticket) Validate() error {
 	}
 	if !t.Risk.Valid() {
 		return invalid("risk %q", t.Risk)
+	}
+	if err := t.validateKind(); err != nil {
+		return err
 	}
 	// A grant covers many reads: an auto mode never approves one.
 	if t.Risk == RiskGrant && !t.Flags.NeverAuto {
@@ -311,7 +326,7 @@ func (t *Ticket) Validate() error {
 
 // Validate checks d's schema. It does not check the signature.
 func (d *Decision) Validate() error {
-	if d.V != Version {
+	if d.V != Version && d.V != VersionKinds {
 		return invalid("unsupported version %d", d.V)
 	}
 	if !ValidID(d.Ticket) {
@@ -356,7 +371,7 @@ func (d *Decision) Validate() error {
 			return invalid("device: a device decision on facade %q", d.Facade)
 		}
 	}
-	return nil
+	return d.validateKind()
 }
 
 // signedBytes is the canonical form of v with its Sig emptied by the
@@ -512,10 +527,16 @@ var ErrDenied = errors.New("ticket: not approved")
 var ErrExpired = errors.New("ticket: expired")
 
 // Match checks that d answers t: same ticket id, instance, lock key and
-// plan hash. A lock calls it with its own ticket (never one rebuilt from
-// the decision) before acting on d.
+// plan hash; a VersionKinds ticket is answered by a VersionKinds decision
+// (which names its rule), and only a connect ticket that asked for a
+// secret gets one. A lock calls it with its own ticket (never one rebuilt
+// from the decision) before acting on d.
 func (d *Decision) Match(t *Ticket) error {
 	switch {
+	case t.V == VersionKinds && d.V != VersionKinds:
+		return fmt.Errorf("%w: a version %d decision on a version %d ticket", ErrMismatch, d.V, t.V)
+	case d.Secret != nil && (t.Kind != KindConnect || t.Subject == nil || t.Subject.SecretTo == ""):
+		return fmt.Errorf("%w: %w: a secret the ticket did not ask for", ErrMismatch, ErrNoSecret)
 	case d.Ticket != t.ID:
 		return fmt.Errorf("%w: ticket %s, expected %s", ErrMismatch, d.Ticket, t.ID)
 	case d.Instance != t.Source.Instance:
@@ -531,13 +552,16 @@ func (d *Decision) Match(t *Ticket) error {
 // Usable checks that an approval of t can still be acted on at now: it
 // came before the ticket expired, and it is younger than ttl (the
 // instance's ClampTTL for t.Risk; 0 never ages). A decision dated in the
-// future by more than a minute is refused too, and anything but an
-// approval is ErrDenied.
+// future by more than a minute is refused too, anything but an approval
+// is ErrDenied, and an auto rule's approval of a Flags.NeverAuto ticket
+// is ErrAuto.
 func (d *Decision) Usable(t *Ticket, now time.Time, ttl time.Duration) error {
 	const skew = time.Minute
 	switch {
 	case d.Decision != Approved:
 		return fmt.Errorf("%w: %s", ErrDenied, d.Decision)
+	case d.Auto() && t.Flags.NeverAuto:
+		return fmt.Errorf("%w: rule %s", ErrAuto, d.Rule.ID)
 	case d.At.After(now.Add(skew)):
 		return fmt.Errorf("%w: decision dated %s, in the future", ErrExpired, d.At.Format(time.RFC3339))
 	case d.At.Before(t.Created.Add(-skew)):

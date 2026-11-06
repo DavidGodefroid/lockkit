@@ -5,11 +5,38 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
-- A client's `pii.add` is audited with the client behind it (`peer_uid`,
-  `peer_pid`, `peer_user`) and the pattern added (new `audit.Base` field
-  `Pattern`, JSON `pattern`), on the `tightened` record and on any
-  `failed`/`unsaved` record of that change: it is told apart from a
-  tightening the human made in the files, which has neither (#6).
+- Ticket kinds: a `ticket.VersionKinds` (2) ticket names what it asks for
+  (`Kind`: connect, read, write, ddl, action, endpoint, policy, each with
+  the risk classes `KindRisks` allows) and its structured request
+  (`Subject`: profile, endpoint, credential source, verb, target), for
+  `lox run`'s rules; a version-2 decision names its deciding `Rule` (auto
+  rule id, or human) and may carry the backend's secret sealed to the
+  lock (`Secret`; `SealSecret`, `OpenSecret`). Version-1 tickets and
+  decisions encode and verify unchanged; a version-2 ticket needs a
+  version-2 decision, and an auto approval of a `NeverAuto` ticket is
+  `ErrAuto`. New fixtures `ticket-connect-v2.json`,
+  `decision-connect-approved-v2.json`, `keys-connect-v2.json`. The
+  unmasked subject is bounded: `Endpoint` is `host[:port][/path]` (no
+  DSN keywords, query, options, escapes or whitespace), `Target` has no
+  whitespace, query or fragment; `Subject.Validate` and
+  `NewConnectTicket` refuse the rest (#132).
+- New package `lazyconn`: a lock opens a profile's backend connection on
+  the approval of a connect ticket (`hubclient.Client.Ask`), shares it,
+  closes it when idle (`DefaultIdle`, configurable) and asks again
+  afterwards; the secret of an `ask` profile goes from the decider to the
+  lock sealed, never through the agent or the hub in clear (#132).
+- `console.HubTicket.Kind`/`Subject` push a plan's ticket as a version-2
+  one; a renewal keeps the expired ticket's kind and subject;
+  `hubtest.Hub` answers a version-2 ticket with a version-2 decision and
+  lists what it sent (`Decisions`) (#132).
+- A policy change of a connection setting ends the console session, a
+  tightening as well as an approved loosening: besides where/user/host/
+  port, the console now checks the credentials mode and Vault path
+  (`Profile.Credentials`, `Profile.VaultPath`) and every shared connection
+  field of the policy diff (`config.ConnectionField`: `tls`, `tls_ca`,
+  `tls_cert`, `tls_key`, `ssh` and `ssh.*`, as `config.DiffBase` names
+  them). A tightened tls mode or bastion is no longer announced as applied
+  while the live connection keeps the old settings (#7).
 
 ## v0.12.1 (2026-11-04)
 
