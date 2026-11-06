@@ -3,6 +3,17 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- A policy change of a connection setting ends the console session, a
+  tightening as well as an approved loosening: besides where/user/host/
+  port, the console now checks the credentials mode and Vault path
+  (`Profile.Credentials`, `Profile.VaultPath`) and every shared connection
+  field of the policy diff (`config.ConnectionField`: `tls`, `tls_ca`,
+  `tls_cert`, `tls_key`, `ssh` and `ssh.*`, as `config.DiffBase` names
+  them). A tightened tls mode or bastion is no longer announced as applied
+  while the live connection keeps the old settings (#7).
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
