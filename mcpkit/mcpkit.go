@@ -239,6 +239,8 @@ func Text(s string) *mcp.CallToolResult {
 const maxExact = 1 << 53
 
 // Exact returns v, or, for an integer outside ±2^53, its decimal string.
+// It handles json.Number, int, int64, uint and uint64 (the narrower
+// integer types cannot leave that range).
 // The SDK decodes structured output into float64 values when it validates
 // it, which would silently change such ids; the text rendering keeps them
 // as they are.
@@ -253,9 +255,17 @@ func Exact(v any) any {
 			return n
 		}
 		return s
+	case int:
+		if int64(n) > maxExact || int64(n) < -maxExact {
+			return strconv.FormatInt(int64(n), 10)
+		}
 	case int64:
 		if n > maxExact || n < -maxExact {
 			return strconv.FormatInt(n, 10)
+		}
+	case uint:
+		if uint64(n) > maxExact {
+			return strconv.FormatUint(uint64(n), 10)
 		}
 	case uint64:
 		if n > maxExact {

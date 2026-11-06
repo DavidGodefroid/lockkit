@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -114,6 +115,16 @@ func TestExact(t *testing.T) {
 		{json.Number("-9007199254740992"), json.Number("-9007199254740992")},
 		{json.Number("18446744073709551615"), "18446744073709551615"},
 		{int64(7), int64(7)},
+		{int(1)<<53 + 1, "9007199254740993"},
+		{-(int(1)<<53 + 1), "-9007199254740993"},
+		{int(1) << 53, int(1) << 53},
+		{-(int(1) << 53), -(int(1) << 53)},
+		{int(42), int(42)},
+		{uint(1)<<53 + 1, "9007199254740993"},
+		{uint(1) << 53, uint(1) << 53},
+		{^uint(0), strconv.FormatUint(uint64(^uint(0)), 10)},
+		{uint(3), uint(3)},
+		{int32(-7), int32(-7)},
 	} {
 		if got := Exact(c.in); got != c.want {
 			t.Errorf("Exact(%#v) = %#v, want %#v", c.in, got, c.want)
@@ -217,5 +228,70 @@ func TestServeEndsCleanlyOnEOF(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("Serve did not end on cancel")
+	}
+}
+
+type exactRowsOut struct {
+	Rows [][]any `json:"rows"`
+}
+
+// Through the SDK: a typed tool returning int and uint cells beyond 2^53
+// reaches the client unchanged once passed through ExactRows; without it
+// the SDK's output validation (float64) changes them (#11).
+func TestExactOverMCP(t *testing.T) {
+	big := int(1)<<60 + 1
+	ubig := uint(1)<<62 + 3
+	cells := []any{big, -big, ubig, int(12), uint(13), int64(1)<<55 + 1, uint64(1)<<63 + 1}
+	want := []any{"1152921504606846977", "-1152921504606846977", "4611686018427387907", float64(12), float64(13), "36028797018963969", "9223372036854775809"}
+	s := New(testProduct, "1", "")
+	mcp.AddTool(s, &mcp.Tool{Name: "exact"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, exactRowsOut, error) {
+		return nil, exactRowsOut{Rows: ExactRows([][]any{cells})}, nil
+	})
+	mcp.AddTool(s, &mcp.Tool{Name: "raw"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, exactRowsOut, error) {
+		return nil, exactRowsOut{Rows: [][]any{cells}}, nil
+	})
+	ct, st := mcp.NewInMemoryTransports()
+	ctx := context.Background()
+	ss, err := s.Connect(ctx, st, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ss.Close()
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "test"}, nil).Connect(ctx, ct, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+	rows := func(name string) ([]any, string) {
+		res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: map[string]any{}})
+		if err != nil || res.IsError {
+			t.Fatalf("%s: %v %+v", name, err, res)
+		}
+		var out exactRowsOut
+		b, _ := json.Marshal(res.StructuredContent)
+		if err := json.Unmarshal(b, &out); err != nil || len(out.Rows) != 1 {
+			t.Fatalf("%s: structured %s %v", name, b, err)
+		}
+		text := ""
+		if len(res.Content) > 0 {
+			text = res.Content[0].(*mcp.TextContent).Text
+		}
+		return out.Rows[0], text
+	}
+	got, text := rows("exact")
+	for i, v := range got {
+		if v != want[i] {
+			t.Errorf("cell %d: %#v want %#v", i, v, want[i])
+		}
+	}
+	for _, s := range []string{"1152921504606846977", "4611686018427387907"} {
+		if !strings.Contains(text, s) {
+			t.Errorf("text %q lacks %s", text, s)
+		}
+	}
+	// The regression this guards: a plain int beyond 2^53 is rounded.
+	raw, _ := rows("raw")
+	if f, ok := raw[0].(float64); !ok || int(f) == big {
+		t.Fatalf("raw int cell %#v: expected the SDK to round it", raw[0])
 	}
 }
