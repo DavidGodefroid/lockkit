@@ -481,8 +481,10 @@ only", before anything else; with `Options.PolicyOnly`, none), the isolation che
 desktop shape, X11, relays; refuses before any prompt or file write), core
 dumps off (refused on production if it fails), the policy review (first
 start: describe and approve; since the approved policy: tightenings apply,
-loosenings are asked), the production banner and the typed profile name
-(asked when the review was approved at this start, or when the policy in
+loosenings are asked; on production the review takes the typed profile
+name, not `y`), the production banner and the typed profile name
+(not asked again when the review was approved at this start with it;
+asked when the policy in
 force loosens the one the name was last typed for: the record is
 `ConfirmedKey(key)` in the approved-policy store; a plain restart of an
 approved, unchanged profile does not ask it), the
@@ -763,6 +765,13 @@ func (b *queueBackend) read(ctx context.Context, req ipc.Request, env console.En
 The console's own commands and keys: `:review` (pending loosening and
 change requests), `:status`, `:results` / Ctrl-O (clear results,
 refused at levels 1 and 2, as is `--show-results` at start), `:unmask` (confirmed), `:quit`.
+Every widening the console decides itself (the policy review at start,
+a loosening at `:review`, `:unmask` allowing unmasked output) takes `y`
+outside production and, on production, the profile name typed exactly,
+like a request: `Apply these changes? Type the profile name "prod" to
+apply them: `. Turning production off is a loosening of a production
+profile, so it takes the name too. `console.WidenDecision` builds such a
+decision for a product's own widenings.
 
 The pieces are exported for a product that assembles its own console:
 `console.NewTerminal`, `console.NewTypedApprover` / `NewDesktopTypedApprover`

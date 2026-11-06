@@ -31,6 +31,23 @@ type Decision struct {
 	Screen *Screen
 }
 
+// WidenDecision is the decision of one of the console's own widenings (a
+// policy loosening or its first approval, allowing unmasked output):
+// question then "[y/N] " outside production; on production the profile
+// name typed exactly, as for a request ("<question> Type the profile name
+// "prod" to <verb>: ").
+func WidenDecision(question, verb, forText string, production bool, profile string) Decision {
+	if production {
+		return Decision{Prompt: fmt.Sprintf("%s Type the profile name %q to %s: ", question, profile, verb), Expected: profile, Production: true, For: forText}
+	}
+	return Decision{Prompt: question + " [y/N] ", Expected: "y", For: forText}
+}
+
+// policyDecision is the decision that applies a policy change.
+func policyDecision(production bool, profile string) Decision {
+	return WidenDecision("Apply these changes?", "apply them", "to apply the policy changes", production, profile)
+}
+
 // AsyncApprover is an Approver whose decisions are taken elsewhere (by
 // lockhub): Submit hands the request over and returns at once, and the
 // request is answered "pending" instead of waiting for a human here. The

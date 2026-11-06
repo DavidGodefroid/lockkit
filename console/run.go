@@ -100,6 +100,9 @@ type starter struct {
 	// reviewed is set by startPolicy when the human approved the policy
 	// review ("Apply these changes?") of this start.
 	reviewed bool
+	// nameTyped is set with reviewed when that review was approved by
+	// typing the production profile name: the start does not ask it again.
+	nameTyped bool
 }
 
 var errLockedOut = errors.New("console: fingerprint: three non-matching fingers")
@@ -292,7 +295,12 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		o.IO.Println(red + strings.Repeat("━", 60) + reset)
 		o.IO.Println(red + "  " + ui.MarkWarn + " PRODUCTION profile " + pr.Name + " (" + where + ")" + reset)
 		o.IO.Println(red + strings.Repeat("━", 60) + reset)
-		if productionNameNeeded(p, o.StateDir, key, approved, st.reviewed) {
+		if st.nameTyped {
+			// The review of this start was approved with the name.
+			if err := config.SaveApproved(p, o.StateDir, ConfirmedKey(key), approved); err != nil {
+				o.IO.Println(Paint.Warn("warning: the confirmation could not be recorded: " + sanitize.Terminal(err.Error(), false)))
+			}
+		} else if productionNameNeeded(p, o.StateDir, key, approved, st.reviewed) {
 			Bell(o.IO)
 			ans, ok := o.IO.Ask(ctx, fmt.Sprintf("Type the profile name %q to continue: ", pr.Name), ApprovalTimeout)
 			if !ok || strings.TrimSpace(ans) != pr.Name {
@@ -443,7 +451,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		for _, line := range cur.Describe() {
 			io.Println("  " + sanitize.Terminal(line, false))
 		}
-		if r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"}); r.Outcome != Approved {
+		if r := st.decide(ctx, policyDecision(cur.Profile().Production, cur.Profile().Name)); r.Outcome != Approved {
 			reason, errText := noFingerFields(r)
 			st.audit(audit.Base{Event: audit.EventPolicy, Decision: "refused", Reason: reason, Error: errText})
 			return nil, "", errors.New("console: the policy was not approved")
@@ -454,7 +462,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
 			return nil, "", st.failed(err)
 		}
-		st.reviewed = true
+		st.reviewed, st.nameTyped = true, cur.Profile().Production
 		return cur, "", nil
 	}
 	changes := cur.Diff(ap)
@@ -476,7 +484,10 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	for _, line := range formatChangesOf(st.b, changes) {
 		io.Println(line)
 	}
-	r := st.decide(ctx, Decision{Prompt: "Apply these changes? [y/N] ", Expected: "y", For: "to apply the policy changes"})
+	// The name is typed when either side is production: turning
+	// production off is a loosening of a production profile.
+	production := cur.Profile().Production || ap.Profile().Production
+	r := st.decide(ctx, policyDecision(production, cur.Profile().Name))
 	if ctx.Err() != nil {
 		return nil, "", ctx.Err()
 	}
@@ -492,7 +503,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
 		return nil, "", st.failed(err)
 	}
-	st.reviewed = true
+	st.reviewed, st.nameTyped = true, production
 	return cur, "", nil
 }
 
