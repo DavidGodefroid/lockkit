@@ -489,6 +489,8 @@ func FuzzVerifyTicket(f *testing.F) {
 	tk := sampleTicket(f)
 	data, _ := tk.Marshal()
 	f.Add(data)
+	conn, _ := sampleConnectTicket(f).Marshal()
+	f.Add(conn)
 	f.Add([]byte(`{}`))
 	f.Fuzz(func(t *testing.T, in []byte) {
 		got, err := VerifyTicket(lockPub, in)

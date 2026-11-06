@@ -5,6 +5,30 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- Ticket kinds: a `ticket.VersionKinds` (2) ticket names what it asks for
+  (`Kind`: connect, read, write, ddl, action, endpoint, policy, each with
+  the risk classes `KindRisks` allows) and its structured request
+  (`Subject`: profile, endpoint, credential source, verb, target), for
+  `lox run`'s rules; a version-2 decision names its deciding `Rule` (auto
+  rule id, or human) and may carry the backend's secret sealed to the
+  lock (`Secret`; `SealSecret`, `OpenSecret`). Version-1 tickets and
+  decisions encode and verify unchanged; a version-2 ticket needs a
+  version-2 decision, and an auto approval of a `NeverAuto` ticket is
+  `ErrAuto`. New fixtures `ticket-connect-v2.json`,
+  `decision-connect-approved-v2.json`, `keys-connect-v2.json`. The
+  unmasked subject is bounded: `Endpoint` is `host[:port][/path]` (no
+  DSN keywords, query, options, escapes or whitespace), `Target` has no
+  whitespace, query or fragment; `Subject.Validate` and
+  `NewConnectTicket` refuse the rest (#132).
+- New package `lazyconn`: a lock opens a profile's backend connection on
+  the approval of a connect ticket (`hubclient.Client.Ask`), shares it,
+  closes it when idle (`DefaultIdle`, configurable) and asks again
+  afterwards; the secret of an `ask` profile goes from the decider to the
+  lock sealed, never through the agent or the hub in clear (#132).
+- `console.HubTicket.Kind`/`Subject` push a plan's ticket as a version-2
+  one; a renewal keeps the expired ticket's kind and subject;
+  `hubtest.Hub` answers a version-2 ticket with a version-2 decision and
+  lists what it sent (`Decisions`) (#132).
 - A policy change of a connection setting ends the console session, a
   tightening as well as an approved loosening: besides where/user/host/
   port, the console now checks the credentials mode and Vault path
