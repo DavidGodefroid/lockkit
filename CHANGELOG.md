@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.13.0 (2026-11-06)
 
 - Ticket kinds: a `ticket.VersionKinds` (2) ticket names what it asks for
   (`Kind`: connect, read, write, ddl, action, endpoint, policy, each with
@@ -37,6 +37,37 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `tls_cert`, `tls_key`, `ssh` and `ssh.*`, as `config.DiffBase` names
   them). A tightened tls mode or bastion is no longer announced as applied
   while the live connection keeps the old settings (#7).
+- The idle timeout counts only the human's input (console lines and
+  control keys) and the backend's methods as activity, a method's end
+  included (a long approval is activity): `hello`, `status`, `pii.list`,
+  `pii.add`, `change.request` no longer reset it, so an agent polling
+  `status` no longer keeps an unattended console open until
+  `max_session` (#10).
+- `mcpkit.Exact` (and so `ExactRows`) also turns a plain `int` or `uint`
+  outside ±2^53 into its decimal string, as it did for `json.Number`,
+  `int64` and `uint64`: such a cell no longer reaches the client rounded
+  by the SDK's float64 output validation (#11). Products with their own
+  copy of this rule (locksql's `exactCell`) should call `mcpkit.Exact`.
+- A client's `pii.add` is audited with the client behind it (`peer_uid`,
+  `peer_pid`, `peer_user`) and the pattern added (new `audit.Base` field
+  `Pattern`, JSON `pattern`), on the `tightened` record and on any
+  `failed`/`unsaved` record of that change: it is told apart from a
+  tightening the human made in the files, which has neither (#6).
+- On a production profile, every widening the console decides itself
+  takes the profile name typed exactly instead of `y`, as a request
+  does: the policy review at start and a loosening at `:review` (`Apply
+  these changes? Type the profile name "prod" to apply them: `; turning
+  production off is a loosening of a production profile, so it takes the
+  name too) and `:unmask` (`Allow unmasked output? Type the profile name
+  "prod" to allow it: `). Outside production they still take `y`. When
+  the start-up review of `console.Run` was approved with the name, the
+  second `Type the profile name "P" to continue:` prompt is no longer
+  asked; the name record (`ConfirmedKey(key)`) is written as before
+  (#8).
+- New `console.WidenDecision(question, verb, forText, production,
+  profile)`: the `Decision` of such a widening (`question [y/N] ` outside
+  production, the typed profile name on production), for a product's own
+  widenings (#8).
 
 ## v0.12.1 (2026-11-04)
 
