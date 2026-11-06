@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // VersionKinds is the schema version of tickets that name what they ask
@@ -125,7 +126,8 @@ type Subject struct {
 	// Profile is the lock profile the request runs under.
 	Profile string `json:"profile,omitempty"`
 	// Endpoint is the backend (connect: "db.internal:5432/shop") or the
-	// new host (endpoint: "api.example.com"), without userinfo.
+	// new host (endpoint: "api.example.com"): host[:port][/path] only,
+	// without userinfo, query, options or whitespace (validEndpoint).
 	Endpoint string `json:"endpoint,omitempty"`
 	// Credential is where the lock gets the secret (connect only): one of
 	// the Credential* sources.
@@ -140,7 +142,8 @@ type Subject struct {
 	// Verb is an action's verb ("publish", "purge", "GET") or an
 	// endpoint's method.
 	Verb string `json:"verb,omitempty"`
-	// Target is what the verb acts on (a queue, a path, a route, a table).
+	// Target is what the verb acts on (a queue, a path, a route, a table),
+	// without query string, fragment or whitespace (validTarget).
 	Target string `json:"target,omitempty"`
 }
 
@@ -159,6 +162,44 @@ func validVerb(s string) bool {
 	return true
 }
 
+// validEndpoint reports whether s is an endpoint the hub may read:
+// host[:port][/path] (an optional scheme:// prefix, a bracketed IPv6
+// host), in ASCII letters, digits and . - _ : / [ ]. Everything else —
+// whitespace, ? # = & ; @, percent-escapes — is how a DSN, a URL query or
+// userinfo carries a secret ("host=db password=…", "db:5432/x?sslpassword=…"),
+// and the subject is not masked: the lock never sends one.
+func validEndpoint(s string) bool {
+	for _, c := range []byte(s) {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' ||
+			c == '.' || c == '-' || c == '_' || c == ':' || c == '/' || c == '[' || c == ']') {
+			return false
+		}
+	}
+	return true
+}
+
+// validTarget reports whether s is a target the hub may read: a name or a
+// path, never a query string or a fragment ("/users?email=…&token=…") nor
+// anything with whitespace or control characters. A lock that needs the
+// rest shows it on the screen, which render masks.
+func validTarget(s string) bool {
+	for _, r := range s {
+		if r == '?' || r == '#' || unicode.IsSpace(r) || unicode.IsControl(r) {
+			return false
+		}
+	}
+	return true
+}
+
+// Validate checks s for a ticket of kind k, as Sign and VerifyTicket do:
+// a lock calls it before it builds a screen from the subject.
+func (s *Subject) Validate(k Kind) error {
+	if !k.Valid() {
+		return invalid("kind: unknown")
+	}
+	return s.validate(k)
+}
+
 // validate checks s for a ticket of kind k.
 func (s *Subject) validate(k Kind) error {
 	for _, f := range []struct{ n, v string }{
@@ -170,6 +211,12 @@ func (s *Subject) validate(k Kind) error {
 	}
 	if strings.Contains(s.Endpoint, "@") {
 		return invalid("subject.endpoint: userinfo never leaves the lock")
+	}
+	if !validEndpoint(s.Endpoint) {
+		return invalid("subject.endpoint: want host[:port][/path], no query, option or space")
+	}
+	if !validTarget(s.Target) {
+		return invalid("subject.target: no space, query or fragment (mask it through render)")
 	}
 	if s.Verb != "" && !validVerb(s.Verb) {
 		return invalid("subject.verb: not a verb token")
@@ -279,6 +326,9 @@ func ConnectPlanHash(subj Subject) (string, error) { return HashOf(subj) }
 // NewConnectTicket is the connect ticket for subj, whose plan is subj
 // itself (ConnectPlanHash).
 func NewConnectTicket(src Source, risk Risk, subj Subject, policyFP string, now time.Time, ttl time.Duration) (*Ticket, error) {
+	if err := subj.Validate(KindConnect); err != nil {
+		return nil, err
+	}
 	plan, err := ConnectPlanHash(subj)
 	if err != nil {
 		return nil, err

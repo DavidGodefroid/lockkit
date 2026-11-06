@@ -15,7 +15,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
   decisions encode and verify unchanged; a version-2 ticket needs a
   version-2 decision, and an auto approval of a `NeverAuto` ticket is
   `ErrAuto`. New fixtures `ticket-connect-v2.json`,
-  `decision-connect-approved-v2.json`, `keys-connect-v2.json` (#132).
+  `decision-connect-approved-v2.json`, `keys-connect-v2.json`. The
+  unmasked subject is bounded: `Endpoint` is `host[:port][/path]` (no
+  DSN keywords, query, options, escapes or whitespace), `Target` has no
+  whitespace, query or fragment; `Subject.Validate` and
+  `NewConnectTicket` refuse the rest (#132).
 - New package `lazyconn`: a lock opens a profile's backend connection on
   the approval of a connect ticket (`hubclient.Client.Ask`), shares it,
   closes it when idle (`DefaultIdle`, configurable) and asks again

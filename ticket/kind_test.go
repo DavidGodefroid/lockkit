@@ -178,15 +178,29 @@ func TestKindRiskAndSubject(t *testing.T) {
 		{"connect no endpoint", KindConnect, RiskRead, &Subject{Profile: "p", Credential: CredentialAsk}, false},
 		{"connect bad credential", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "h", Credential: "env"}, false},
 		{"connect userinfo", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "amqp://bob:pw@h", Credential: CredentialAsk}, false},
+		{"connect scheme", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "amqp://mq.internal:5672/vh", Credential: CredentialAsk}, true},
+		{"connect ipv6", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "[::1]:5432/shop", Credential: CredentialAsk}, true},
+		{"connect DSN", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "host=db password=hunter2", Credential: CredentialAsk}, false},
+		{"connect query", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "db:5432/x?sslpassword=hunter2", Credential: CredentialAsk}, false},
+		{"connect fragment", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "db:5432/x#hunter2", Credential: CredentialAsk}, false},
+		{"connect options", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "db;password=hunter2", Credential: CredentialAsk}, false},
+		{"connect escape", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "db:5432/x%3Fpw", Credential: CredentialAsk}, false},
+		{"connect tab", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "db\t5432", Credential: CredentialAsk}, false},
 		{"connect none with key", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "h", Credential: CredentialNone, SecretTo: key}, false},
 		{"connect bad key", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "h", Credential: CredentialAsk, SecretTo: "AAAA"}, false},
 		{"connect verb", KindConnect, RiskRead, &Subject{Profile: "p", Endpoint: "h", Credential: CredentialAsk, Verb: "publish"}, false},
 		{"connect grant", KindConnect, RiskGrant, &Subject{Profile: "p", Endpoint: "h", Credential: CredentialAsk}, false},
 		{"action", KindAction, RiskWrite, &Subject{Verb: "publish", Target: "orders"}, true},
+		{"action path", KindAction, RiskWrite, &Subject{Verb: "DELETE", Target: "/users/42"}, true},
+		{"action query", KindAction, RiskWrite, &Subject{Verb: "GET", Target: "/users?email=john@doe.com&token=abc"}, false},
+		{"action fragment", KindAction, RiskWrite, &Subject{Verb: "GET", Target: "/users#token=abc"}, false},
+		{"action space", KindAction, RiskWrite, &Subject{Verb: "publish", Target: "orders token=abc"}, false},
+		{"action newline", KindAction, RiskWrite, &Subject{Verb: "publish", Target: "orders\nx"}, false},
 		{"action no verb", KindAction, RiskWrite, &Subject{Target: "orders"}, false},
 		{"action bad verb", KindAction, RiskWrite, &Subject{Verb: "rm -rf"}, false},
 		{"action credential", KindAction, RiskWrite, &Subject{Verb: "purge", Credential: CredentialAsk}, false},
 		{"endpoint", KindEndpoint, RiskRead, &Subject{Endpoint: "api.example.com", Verb: "GET", Target: "/v1/items"}, true},
+		{"endpoint query", KindEndpoint, RiskRead, &Subject{Endpoint: "api.example.com/?key=abc", Verb: "GET"}, false},
 		{"endpoint no host", KindEndpoint, RiskRead, &Subject{Verb: "GET"}, false},
 		{"read", KindRead, RiskReadPII, &Subject{Profile: "p", Target: "customers"}, true},
 		{"read bare", KindRead, RiskRead, nil, true},
@@ -360,5 +374,29 @@ func TestConnectSecret(t *testing.T) {
 	}
 	if s, err := none.OpenSecret(nk, nil); s != nil || err != nil {
 		t.Fatalf("no secret asked: %q %v", s, err)
+	}
+}
+
+func TestSubjectValidateAndConnectTicket(t *testing.T) {
+	fp, _ := HashOf("fp")
+	for _, ep := range []string{"host=db password=hunter2", "db:5432/x?sslpassword=hunter2"} {
+		s := Subject{Profile: "p", Endpoint: ep, Credential: CredentialAsk}
+		if err := s.Validate(KindConnect); !errors.Is(err, ErrInvalid) || strings.Contains(err.Error(), "hunter2") {
+			t.Fatalf("%q: Validate %v", ep, err)
+		}
+		if tk, err := NewConnectTicket(Source{Lock: "locksql"}, RiskRead, s, fp, t0, time.Hour); !errors.Is(err, ErrInvalid) || tk != nil {
+			t.Fatalf("%q: NewConnectTicket %v", ep, err)
+		}
+	}
+	a := Subject{Verb: "GET", Target: "/users?email=john@doe.com&token=abc"}
+	if err := a.Validate(KindAction); !errors.Is(err, ErrInvalid) || strings.Contains(err.Error(), "token") {
+		t.Fatalf("action target: %v", err)
+	}
+	ok := Subject{Profile: "p", Endpoint: "db.internal:5432/shop", Credential: CredentialAsk}
+	if err := ok.Validate(KindConnect); err != nil {
+		t.Fatal(err)
+	}
+	if err := ok.Validate("nope"); !errors.Is(err, ErrInvalid) {
+		t.Fatalf("unknown kind: %v", err)
 	}
 }

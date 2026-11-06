@@ -644,7 +644,11 @@ not on the screen's text: `Kind` is one of `connect`, `read`, `write`,
 route) and `policy`, each allowed only with the risk classes
 `ticket.KindRisks` lists, and `Subject` carries the request (profile,
 endpoint without userinfo, credential source, verb, target; masked like
-the screen, never a value or a secret). Set `HubTicket.Kind` and
+the screen, never a value or a secret). The subject is not masked, so the
+ticket package bounds it: an endpoint is `host[:port][/path]` only (no
+whitespace, `?`, `#`, `=`, `&`, `;`, `@` or `%`, so a DSN or a URL query
+never leaves the lock), a target has no whitespace, query string or
+fragment; `Subject.Validate` checks one before a lock builds a screen. Set `HubTicket.Kind` and
 `Subject` for a plan's ticket; `NewTicket` keeps writing version 1, and
 both versions verify. A version-2 ticket is answered by a version-2
 decision, whose `Rule` says what decided it (`auto` and the rule's id,

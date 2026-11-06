@@ -558,3 +558,23 @@ func TestNewChecksConfig(t *testing.T) {
 		}
 	}
 }
+
+// A profile whose endpoint carries a DSN, a query or options is never
+// asked for: nothing of it reaches the asker (ticket or screen), and the
+// error does not echo it.
+func TestSecretBearingEndpointNeverLeaves(t *testing.T) {
+	for _, ep := range []string{"host=db password=hunter2", "db:5432/x?sslpassword=hunter2", "db;password=hunter2"} {
+		f := newFixture(t, nil)
+		f.prof.Endpoint = ep
+		_, _, err := f.pool.Acquire(context.Background(), req)
+		if !errors.Is(err, ticket.ErrInvalid) || f.dec.asks.Load() != 0 || f.dials.Load() != 0 {
+			t.Fatalf("%q: err %v, asks %d, dials %d", ep, err, f.dec.asks.Load(), f.dials.Load())
+		}
+		if strings.Contains(err.Error(), "hunter2") {
+			t.Fatalf("%q: error echoes the endpoint: %v", ep, err)
+		}
+		if got := f.kinds(); len(got) != 1 || got[0] != EventFailed {
+			t.Fatalf("%q: events %v", ep, got)
+		}
+	}
+}
