@@ -306,7 +306,7 @@ func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
 	case ipc.MethodPIIList:
 		return s.piiList(req)
 	case ipc.MethodPIIAdd:
-		return s.piiAdd(req)
+		return s.piiAdd(ctx, req)
 	case ipc.MethodChangeRequest:
 		return s.changeRequest(req)
 	case ipc.MethodLogout:
@@ -453,7 +453,10 @@ func (s *Server) piiList(req ipc.Request) ipc.Response {
 // piiAdd adds a mask rule: to the file, to the policy in force, and to a
 // pending loosening, which was read before the rule reached the file and
 // would otherwise drop it once applied from :review.
-func (s *Server) piiAdd(req ipc.Request) ipc.Response {
+//
+// The policy record carries the client behind the request (ctx) and the
+// pattern added: a tightening the human made in the files has neither.
+func (s *Server) piiAdd(ctx context.Context, req ipc.Request) ipc.Response {
 	pb, r := s.piiBackend(req)
 	if r != nil {
 		return *r
@@ -469,7 +472,7 @@ func (s *Server) piiAdd(req ipc.Request) ipc.Response {
 	if err := pb.SaveMask(pattern); err != nil {
 		return ErrResp(req.ID, ipc.CodeInternal, s.san.Error(err))
 	}
-	if err := s.adopt(pb.WithMask(s.approved, pattern), "tightened"); err != nil {
+	if err := s.adoptBy(ctx, pb.WithMask(s.approved, pattern), audit.Base{Event: audit.EventPolicy, Decision: "tightened", Pattern: pattern}); err != nil {
 		return ErrResp(req.ID, ipc.CodeInternal, s.san.Error(err))
 	}
 	if s.pending != nil {
@@ -752,12 +755,25 @@ func Loosens(changes []config.Change) bool {
 // mode, TLS, the SSH bastion: connectionChanged), a tightening included,
 // ends the session: the open connection no longer matches the policy.
 func (s *Server) adopt(p Policy, decision string) error {
-	b := audit.Base{Event: audit.EventPolicy, Decision: decision}
+	return s.adoptBy(context.Background(), p, audit.Base{Event: audit.EventPolicy, Decision: decision})
+}
+
+// adoptBy is adopt with the record b (its decision says what kind of
+// change p is) and the context of the request behind the change, if any:
+// every record it writes carries the client of ctx and b's pattern, so a
+// tightening a client asked for (pii.add) is told apart from one the
+// human made in the files.
+func (s *Server) adoptBy(ctx context.Context, p Policy, b audit.Base) error {
+	decision := b.Decision
+	// fail is a record of a change that did not go as planned.
+	fail := func(d, msg string) audit.Base {
+		return audit.Base{Event: audit.EventPolicy, Decision: d, Error: msg, Pattern: b.Pattern}
+	}
 	if decision == "applied" {
 		// A loosening takes effect only once recorded: the record comes
 		// first, and a failed write leaves the last approved policy.
 		b.Approval = s.approver.Mode()
-		if err := s.record(context.Background(), b); err != nil {
+		if err := s.record(ctx, b); err != nil {
 			return fmt.Errorf("the approval could not be recorded in the audit log: %w", err)
 		}
 	}
@@ -765,7 +781,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 	// is on record.
 	failed := func(err error) error {
 		if decision == "applied" {
-			_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: err.Error()})
+			_ = s.record(ctx, fail("failed", err.Error()))
 		}
 		return err
 	}
@@ -775,7 +791,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 			if decision != "applied" {
 				// The files demand a stricter policy the backend cannot
 				// enforce: serving on under the looser one would fail open.
-				_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "tightening refused by the backend: " + err.Error()})
+				_ = s.record(ctx, fail("failed", "tightening refused by the backend: "+err.Error()))
 				s.println(red + "the tightened policy cannot be applied: " + sanitize.Terminal(err.Error(), false) + "; the session ends" + reset)
 				s.End("a tightened policy could not be applied")
 				return err
@@ -789,7 +805,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 			// A tightening is enforced even when it cannot be saved: going
 			// back to the looser policy would fail open. The next start
 			// reads the stricter files again.
-			_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "unsaved", Error: "tightened policy not saved: " + err.Error()})
+			_ = s.record(ctx, fail("unsaved", "tightened policy not saved: "+err.Error()))
 			s.println(Paint.Warn("the tightened policy applies, but could not be saved: " + sanitize.Terminal(err.Error(), false)))
 			err = nil
 		}
@@ -799,7 +815,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 				// loosening never saved) would enforce what the console
 				// does not: the session ends.
 				if rerr := pa.ApplyPolicy(s.approved); rerr != nil {
-					_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "failed", Error: "rollback refused by the backend: " + rerr.Error()})
+					_ = s.record(ctx, fail("failed", "rollback refused by the backend: "+rerr.Error()))
 					s.println(red + "the policy in force could not be restored: " + sanitize.Terminal(rerr.Error(), false) + "; the session ends" + reset)
 					s.End("the policy in force could not be restored")
 				}
@@ -810,7 +826,7 @@ func (s *Server) adopt(p Policy, decision string) error {
 	old, oldP := s.profile, s.approved
 	s.apply(p)
 	if decision != "applied" {
-		_ = s.record(context.Background(), b)
+		_ = s.record(ctx, b)
 	}
 	n := s.profile
 	if n.Production && !old.Production && s.cfg.RefuseProduction != nil {

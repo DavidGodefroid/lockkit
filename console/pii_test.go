@@ -6,7 +6,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net"
+	"os"
+	"os/user"
+	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -170,5 +176,129 @@ func TestNewServerRefusesTakingPIIMethods(t *testing.T) {
 	h := newHarness(t, uat(), nil)
 	if _, err := NewServer(ServerConfig{Product: testProduct, Backend: &piiServingBackend{}, Policy: uat(), Audit: h.s.cfg.Audit, IO: &fakeIO{}}); err == nil {
 		t.Fatal("a backend serving pii.add accepted")
+	}
+}
+
+// peerCtx is the context of a request from the client (uid, pid).
+func peerCtx(uid, pid int) context.Context {
+	return WithPeer(context.Background(), ipc.Cred{UID: uid, GID: uid, PID: pid})
+}
+
+// pii.add is audited with the client behind it and the pattern it added:
+// it is told apart from a tightening the human made in the files.
+func TestPIIAddAuditsPeerAndPattern(t *testing.T) {
+	h, _ := newPIIHarness(t, piiUAT())
+	uid := os.Getuid()
+	if r := h.call(t, peerCtx(uid, 4242), ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "Orders.Phone"}); r.Error != nil {
+		t.Fatalf("pii.add: %+v", r)
+	}
+	rec := h.lastRecord(t)
+	if rec["event"] != "policy" || rec["decision"] != "tightened" || rec["profile"] != "uat" {
+		t.Fatalf("audit: %v", rec)
+	}
+	// The pattern as the product checked it, not as the client typed it.
+	if rec["pattern"] != "orders.phone" {
+		t.Fatalf("pattern: %v", rec)
+	}
+	if rec["peer_uid"] != float64(uid) || rec["peer_pid"] != float64(4242) {
+		t.Fatalf("peer: %v", rec)
+	}
+	if u, err := user.LookupId(strconv.Itoa(uid)); err == nil && rec["peer_user"] != u.Username {
+		t.Fatalf("peer user: %v, want %s", rec, u.Username)
+	}
+}
+
+// A tightening read from the files carries neither a client nor a pattern.
+func TestFileTighteningAuditedWithoutPeerOrPattern(t *testing.T) {
+	h, b := newPIIHarness(t, piiUAT())
+	tighter := piiUAT()
+	tighter.Mask = []string{"orders.email", "orders.phone"}
+	b.mu.Lock()
+	b.pol = tighter
+	b.mu.Unlock()
+	h.s.CheckPolicy()
+	rec := h.lastRecord(t)
+	if rec["event"] != "policy" || rec["decision"] != "tightened" {
+		t.Fatalf("audit: %v", rec)
+	}
+	for _, k := range []string{"pattern", "peer_uid", "peer_pid", "peer_user"} {
+		if _, ok := rec[k]; ok {
+			t.Fatalf("a file tightening recorded %s: %v", k, rec)
+		}
+	}
+}
+
+// piiRefuser is a piiBackend whose ApplyPolicy refuses every policy once
+// refuse is set.
+type piiRefuser struct {
+	piiBackend
+	refuse bool
+}
+
+func (b *piiRefuser) ApplyPolicy(Policy) error {
+	if b.refuse {
+		return errors.New("cannot enforce")
+	}
+	return nil
+}
+
+// A pii.add the backend cannot enforce is audited as failed, with the
+// client and the pattern too.
+func TestPIIAddFailureAuditsPeerAndPattern(t *testing.T) {
+	b := &piiRefuser{piiBackend: piiBackend{pol: piiUAT()}}
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Backend, c.Policy = b, piiUAT() })
+	b.refuse = true
+	uid := os.Getuid()
+	if r := h.call(t, peerCtx(uid, 77), ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "orders.phone"}); r.Error == nil {
+		t.Fatalf("pii.add answered ok: %+v", r)
+	}
+	rec := h.lastRecord(t)
+	if rec["decision"] != "failed" || !strings.Contains(fmt.Sprint(rec["error"]), "tightening refused by the backend") {
+		t.Fatalf("audit: %v", rec)
+	}
+	if rec["pattern"] != "orders.phone" || rec["peer_uid"] != float64(uid) || rec["peer_pid"] != float64(77) {
+		t.Fatalf("failed record without the client or the pattern: %v", rec)
+	}
+}
+
+// End to end over the socket: the record carries the kernel's credentials
+// of the real client (this process) and the pattern.
+func TestPIIAddOverSocketAuditsKernelPeer(t *testing.T) {
+	h, _ := newPIIHarness(t, piiUAT())
+	d, err := os.MkdirTemp("/tmp", "lkpii")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(d) })
+	socket := filepath.Join(d, "s")
+	ln, err := net.Listen("unix", socket)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	served := make(chan error, 1)
+	go func() { served <- h.s.Loop().Serve(ctx, ln, nil) }()
+	r := dialAndCall(t, socket, ipc.MethodPIIAdd, ipc.PIIAddParams{Pattern: "orders.phone"})
+	cancel()
+	<-served
+	if r.Error != nil {
+		t.Fatalf("pii.add: %+v", r.Error)
+	}
+	var rec map[string]any
+	for _, x := range h.records(t) {
+		if x["event"] == "policy" && x["decision"] == "tightened" {
+			rec = x
+		}
+	}
+	if rec == nil {
+		t.Fatalf("no tightened record: %v", h.records(t))
+	}
+	if rec["pattern"] != "orders.phone" || rec["peer_uid"] != float64(os.Getuid()) {
+		t.Fatalf("record: %v", rec)
+	}
+	// Linux and the BSDs give the client's pid; where the kernel does not,
+	// none is recorded.
+	if pid, ok := rec["peer_pid"]; ok && pid != float64(os.Getpid()) {
+		t.Fatalf("peer pid %v, want %d", pid, os.Getpid())
 	}
 }
