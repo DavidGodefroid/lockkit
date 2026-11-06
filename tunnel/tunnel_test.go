@@ -114,6 +114,30 @@ func TestKeyAuth(t *testing.T) {
 	}
 }
 
+// A session runs a command on the host the tunnel reached; none opens once
+// the tunnel is closed.
+func TestNewSession(t *testing.T) {
+	home := t.TempDir()
+	path, pub := writeKey(t, home, "", 0o600)
+	s := newTestServer(t, acceptKey(pub))
+	tun, err := Open(context.Background(), Options{Profile: sshProfile(s, config.SSHAuthKey, path), HostKey: trust(s)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sess, err := tun.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := sess.Output("uptime")
+	if err != nil || string(out) != "uptime" {
+		t.Fatalf("Output = %q, %v", out, err)
+	}
+	tun.Close()
+	if _, err := tun.NewSession(); err == nil {
+		t.Fatal("a session opened on a closed tunnel")
+	}
+}
+
 func TestEncryptedKeyAsksPassphrase(t *testing.T) {
 	home := t.TempDir()
 	path, pub := writeKey(t, home, "open sesame", 0o600)

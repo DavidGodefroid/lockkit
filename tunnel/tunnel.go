@@ -1,6 +1,6 @@
 // Package tunnel opens the SSH connection to a profile's bastion and dials
 // the backend through it, to any address the bastion reaches (one tunnel
-// serves several ports). Connections are direct-tcpip channels handed to
+// serves several ports), or opens sessions on it (NewSession). Connections are direct-tcpip channels handed to
 // the driver: no local port is ever listened on, so no other account on
 // this machine can use the tunnel.
 package tunnel
@@ -314,6 +314,18 @@ func withDeadlines(ch net.Conn) net.Conn {
 	go func() { io.Copy(ch, bridge); closeBoth() }()
 	go func() { io.Copy(bridge, ch); closeBoth() }()
 	return &bridgedConn{Conn: driver, local: ch.LocalAddr(), remote: ch.RemoteAddr()}
+}
+
+// NewSession opens a session channel on the connection, for a product that
+// runs a command on the host it reached (lockssh) instead of forwarding
+// through it. The caller closes the session; closing the tunnel ends it.
+func (t *Tunnel) NewSession() (*ssh.Session, error) {
+	select {
+	case <-t.done:
+		return nil, errors.New("ssh: the tunnel is closed")
+	default:
+	}
+	return t.client.NewSession()
 }
 
 // HostKey is the SHA256 fingerprint of the bastion's host key.

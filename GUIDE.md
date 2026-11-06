@@ -2,7 +2,7 @@
 
 lockkit is the product-neutral half of locksql: everything that keeps a
 secret-holding console separate from an AI agent, asks the human, and
-records what happened. A product (locksql, lockmq, lockfile, lockhttp) supplies its
+records what happened. A product (locksql, lockmq, lockfile, lockhttp, lockssh) supplies its
 names and its operations; lockkit supplies the rest. This guide is the
 contract between lockkit and the products built on it.
 
@@ -28,7 +28,7 @@ contract between lockkit and the products built on it.
 | `config` | config file lookup, secret-safe TOML decoding, profile base, TLS/SSH, `Policy`, diff helpers, approved store |
 | `ipc` | console socket (private or shared dir), peer credentials, 1 MiB newline-delimited JSON-RPC 2.0, lockkit's methods and error codes |
 | `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
-| `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it |
+| `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it, `NewSession` on it |
 | `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`), the redacted-reference store |
 | `render` | capped, escaped output for agents: `Value` (any typed JSON result) and `Table` (TSV/JSON) |
 | `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
@@ -213,7 +213,9 @@ here`. It names the flag and the variable, never the value.
 
 `tunnel.Open(ctx, tunnel.Options{Profile: sshProfile, HostKey: tunnel.KnownHosts(...), Secret: ask, ClientName: P.Name})`
 then `t.Dial(ctx, "tcp", "broker:5671")`: one tunnel serves every port the
-bastion reaches; no local port is ever opened.
+bastion reaches; no local port is ever opened. `t.NewSession()` opens an
+SSH session on the same connection, for a lock whose backend is the host
+itself (lockssh runs its commands there).
 
 ## 8. Personal data
 
