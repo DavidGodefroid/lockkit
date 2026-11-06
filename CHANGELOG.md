@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- `mcpkit.Exact` (and so `ExactRows`) also turns a plain `int` or `uint`
+  outside ±2^53 into its decimal string, as it did for `json.Number`,
+  `int64` and `uint64`: such a cell no longer reaches the client rounded
+  by the SDK's float64 output validation (#11). Products with their own
+  copy of this rule (locksql's `exactCell`) should call `mcpkit.Exact`.
+
 ## v0.12.1 (2026-11-04)
 
 - `console.Run` asks a production profile's name only when the policy
