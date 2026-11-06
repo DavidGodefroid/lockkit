@@ -76,8 +76,9 @@ func newWorld(t *testing.T) *world {
 	}
 	w.pool = p
 	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-	go w.decide(t, ctx)
+	stopped := make(chan struct{})
+	t.Cleanup(func() { cancel(); <-stopped })
+	go func() { defer close(stopped); w.decide(t, ctx) }()
 	return w
 }
 
@@ -190,13 +191,16 @@ func TestConnectDeniedThroughTheHub(t *testing.T) {
 // from the shared inbox.
 func TestConnectWhileWatching(t *testing.T) {
 	w := newWorld(t)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	st, err := plans.Open(filepath.Join(t.TempDir(), "plans"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	go w.client.Watch(ctx, st, nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	watching := make(chan struct{})
+	// Watch writes the hub state file: it stops before the test's
+	// directories go.
+	defer func() { cancel(); <-watching }()
+	go func() { defer close(watching); w.client.Watch(ctx, st, nil) }()
 	time.Sleep(20 * time.Millisecond)
 	b, rel := w.acquire(t)
 	defer rel()
