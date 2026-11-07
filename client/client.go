@@ -56,12 +56,12 @@ func (e *NoConsoleError) Error() string {
 	return fmt.Sprintf("no %s console is running for profile %s: %s", e.Product.Name, e.Profile, e.Hint())
 }
 
-// Command is the command that starts the missing console: `lox up`
+// Command is the command that starts the missing console: `lox run`
 // (StartCommand).
 func (e *NoConsoleError) Command() string { return StartCommand(e.Product, e.Profile, e.Project) }
 
 // Hint tells the agent what to ask of the user: a console is started by
-// `lox up` only (a console started by hand refuses to start), so the hint
+// `lox run` only (a console started by hand refuses to start), so the hint
 // is StartHint, and names no profile, project or other value.
 func (e *NoConsoleError) Hint() string {
 	return fmt.Sprintf("%s (`%s doctor` checks the setup)", StartHint, e.Product.Name)
@@ -69,19 +69,19 @@ func (e *NoConsoleError) Hint() string {
 
 // StartHint is what an agent asks of the user when no console runs. It
 // carries no value.
-const StartHint = "the console is started by `lox up` only: ask the user to run `lox up`"
+const StartHint = "the console is started by `lox run` only: ask the user to run `lox run`"
 
 // Is makes errors.Is(err, ErrNoConsole) true.
 func (e *NoConsoleError) Is(target error) bool { return target == ErrNoConsole }
 
 func (e *NoConsoleError) Unwrap() error { return e.Err }
 
-// StartCommand is the command that starts p's console: `lox up`, for
-// every product, profile and project. A console is launched by `lox up`
+// StartCommand is the command that starts p's console: `lox run`, for
+// every product, profile and project. A console is launched by `lox run`
 // only (`<lock> console` without the hub options it writes refuses to
 // start); p, profile and project are kept for the callers and not used,
 // so that no value is put in a command an agent passes on.
-func StartCommand(p kit.Product, profile, project string) string { return "lox up" }
+func StartCommand(p kit.Product, profile, project string) string { return "lox run" }
 
 // ShellQuote quotes s for a POSIX shell when it holds anything beyond
 // letters, digits and ./_-+:,@%=.
@@ -198,7 +198,7 @@ func DialInstance(p kit.Product, cwd, profile, instance string) (*Client, error)
 	if instance != "" {
 		// A leftover --instance or <PREFIX>INSTANCE (lea mounts a single
 		// lock on the shared dir itself) names a directory that is not
-		// there: say so, rather than send the user to `lox up`.
+		// there: say so, rather than send the user to `lox run`.
 		if _, err := os.Stat(filepath.Dir(path)); errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf("no %s lock directory for the instance set by --%s or %s: no lock of that name is mounted here",
 				p.Name, FlagInstance, instanceEnv(p))

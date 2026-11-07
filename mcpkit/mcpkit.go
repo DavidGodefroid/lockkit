@@ -187,7 +187,7 @@ func Untrusted(what, source string) string {
 }
 
 // NoConsole tells, for an error of a dial to profile's console, whether no
-// console runs; then start is the command that starts it (`lox up`) and
+// console runs; then start is the command that starts it (`lox run`) and
 // hint what the agent must ask of the user (client.StartHint).
 func NoConsole(p kit.Product, profile string, err error) (start, hint string, ok bool) {
 	if !errors.Is(err, client.ErrNoConsole) {

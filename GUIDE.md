@@ -184,7 +184,7 @@ separated setup (`ipc.ListenShared(P, path, gid)`, dir 0710/2710, socket
 0660). `ipc.PeerCred` is the kernel's word on who is calling.
 
 ```go
-c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole): its hint asks the user to run `lox up`
+c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole): its hint asks the user to run `lox run`
 err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side timeout; ctx cancel closes the connection
 ```
 
@@ -463,7 +463,7 @@ image refuses.
 
 ## 10. The console and the `Backend` seam
 
-Your `console` command is one call, and it is launched by `lox up` only:
+Your `console` command is one call, and it is launched by `lox run` only:
 the hub options are required (see **Hub mode** below; there is no
 standalone console), unless the console only serves its policy
 (**Policy-only console** below):
@@ -478,7 +478,7 @@ err := console.Run(ctx, P, backend, console.Options{
 ```
 
 `Run` does, in order: the hub options (without `--hub`, `--hub-key-file`
-and `--instance` it refuses with `console.ErrNoHub`, "launched by `lox up`
+and `--instance` it refuses with `console.ErrNoHub`, "launched by `lox run`
 only", before anything else; with `Options.PolicyOnly`, none), the isolation checks (separated account, session or
 desktop shape, X11, relays; refuses before any prompt or file write), core
 dumps off (refused on production if it fails), the policy review (first
@@ -502,7 +502,7 @@ not keep an unattended console open.
 
 While it waits for an answer, `Run` keeps the question (the prompt, never
 the answer) in `QuestionPath(socket)`, next to the console's socket
-(`/run/<tool>/<project>-<profile>.question` in a `lox up` container), and
+(`/run/<tool>/<project>-<profile>.question` in a `lox run` container), and
 removes it once answered: `lox attach` and lea read it to show the
 question the console asks, which was printed before they attached. The
 `Terminal` does it (`SetQuestionFile`); a product with its own start-up
@@ -621,7 +621,7 @@ closed). `Server.PolicyRefused` reports a refused loosening still in the
 files.
 
 **Hub mode.** A console is hub-attached only. `console.HubOptions.Register(fs)`
-adds the flags `lox up` writes: `--hub URL --hub-key-file PATH --instance NAME`,
+adds the flags `lox run` writes: `--hub URL --hub-key-file PATH --instance NAME`,
 all three required (`console.ErrNoHub` otherwise), plus `--hub-plain-http`
 for an http:// hub on its own network. There is no auto mode:
 `Options.Auto` and `ServerConfig.Auto` are deprecated and refused. The hub URL is
@@ -648,7 +648,7 @@ calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
 for its `Asker` (base keeps the console's own decisions), and
 `hub.Watch(ctx, io)` in a goroutine. A product also wires `<lock> hub-key --instance
 NAME` to `hubclient.HubKeyCommand`: it prints the instance's public key
-for `lox up` to pin.
+for `lox run` to pin.
 
 **Grants.** A product that lets the human approve many reads at once
 pushes a `ticket.RiskGrant` ticket: its plan is the grant's scope
@@ -710,7 +710,7 @@ click.
 
 **Policy-only console.** A lock whose requests are decided by another
 process (lockhttp: its gate asks lockhub, its console only serves the
-policy to the gate) runs its console with `Options.PolicyOnly`; `lox up`
+policy to the gate) runs its console with `Options.PolicyOnly`; `lox run`
 starts such a console without hub flags. `Run` then needs no hub, and
 refuses hub options (`console.ErrPolicyOnlyHub`: who decides would be
 ambiguous) and `Options.OnHub`. It opens no hub and no plans store, and
@@ -731,9 +731,9 @@ err := console.Run(ctx, P, backend, console.Options{
 **No standalone mode.** A console started without its hub (and not
 policy-only) is refused, so there is no rollback of hub mode any more
 (`console.WithdrawStandalone` and its types are gone since v0.10.0).
-With no console started by hand, `client.StartCommand` is `lox up` and
+With no console started by hand, `client.StartCommand` is `lox run` and
 the `client.NoConsoleError` hint (`client.StartHint`) asks the user to
-run `lox up`, naming no profile or project.
+run `lox run`, naming no profile or project.
 
 A minimal product:
 
@@ -1085,8 +1085,8 @@ What `lox add` calls, for each lock it sets up, from the project root:
 <lock> doctor --fix --yes --json
 ```
 
-then `lox add <lock> <instance>` with that profile, and `lox up`. The
-console asks for an `ask` secret at its start, under `lox up`, masked.
+then `lox add <lock> <instance>` with that profile, and `lox run`. The
+console asks for an `ask` secret at its start, under `lox run`, masked.
 
 ## 15. Asking for a lockkit change
 
