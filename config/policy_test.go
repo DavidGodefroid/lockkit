@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/DavidGodefroid/lockkit/hubclient"
 )
 
 func TestSetDiff(t *testing.T) {
@@ -127,6 +129,45 @@ func TestDiffBase(t *testing.T) {
 	u.User = "admin"
 	if ch := DiffBase(a, u); len(ch) != 1 || ch[0].Field != "user" || !ch[0].Loosens {
 		t.Fatalf("user: %+v", ch)
+	}
+}
+
+// Raising the ticket limits lets an agent ask the human more often: a
+// loosening the human reviews (typed name on production); lowering them
+// is free. 0 is hubclient's default.
+func TestDiffBaseTicketLimits(t *testing.T) {
+	a := Base{Production: true}
+	for _, c := range []struct {
+		name    string
+		mod     func(*Base)
+		field   string
+		loosens bool
+	}{
+		{"60 per window", func(b *Base) { b.TicketsPerWindow = 60 }, "limits.tickets_per_window", true},
+		{"10 per window", func(b *Base) { b.TicketsPerWindow = 10 }, "limits.tickets_per_window", false},
+		{"default per window", func(b *Base) { b.TicketsPerWindow = hubclient.RateN }, "limits.tickets_per_window", false},
+		{"shorter window", func(b *Base) { b.TicketWindow = time.Minute }, "limits.ticket_window", true},
+		{"longer window", func(b *Base) { b.TicketWindow = time.Hour }, "limits.ticket_window", false},
+		{"more pending", func(b *Base) { b.MaxPending = 50 }, "limits.max_pending", true},
+		{"fewer pending", func(b *Base) { b.MaxPending = 5 }, "limits.max_pending", false},
+	} {
+		b := a
+		c.mod(&b)
+		ch := DiffBase(a, b)
+		if len(ch) != 1 || ch[0].Field != c.field || ch[0].Loosens != c.loosens {
+			t.Errorf("%s: %+v", c.name, ch)
+		}
+		// Back to the defaults is the reverse change.
+		if back := DiffBase(b, a); len(back) != 1 || (c.loosens && back[0].Loosens) {
+			t.Errorf("%s, back: %+v", c.name, back)
+		}
+	}
+	got := Base{TicketsPerWindow: 60, TicketWindow: 10 * time.Minute, MaxPending: 40}.TicketLimits()
+	if got.RateN != 60 || got.RateWindow != 10*time.Minute || got.MaxPending != 40 || got.RateTotal != hubclient.RateTotal {
+		t.Fatalf("TicketLimits %+v", got)
+	}
+	if (Base{}).TicketLimits() != hubclient.DefaultLimits() {
+		t.Fatal("an empty profile does not keep the defaults")
 	}
 }
 
