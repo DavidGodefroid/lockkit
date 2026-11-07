@@ -3,12 +3,13 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.14.1 (2026-11-07)
 
 - Texts name `lox run` (`lox up` is deprecated): `client.StartHint` and
   `client.StartCommand`, `console.ErrNoHub`, the help of the `--hub`,
   `--devices-file` and `--facade-keys-file` flags, GUIDE.md and doc
   comments. No behavior, flag, label or file name changes (#147).
+- README: a library README on the Lock Family template (#146).
 
 ## v0.14.0 (2026-11-06)
 
