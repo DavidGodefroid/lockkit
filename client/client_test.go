@@ -112,6 +112,17 @@ func rpcErr(id int64, code int, msg string) ipc.Response {
 	return ipc.Response{JSONRPC: "2.0", ID: id, Error: &ipc.RPCError{Code: code, Message: msg}}
 }
 
+// StartHint sends the agent to the user with `lox run`, never the
+// deprecated `lox up` (#147).
+func TestStartHintNamesLoxRun(t *testing.T) {
+	if !strings.Contains(StartHint, "ask the user to run `lox run`") {
+		t.Errorf("StartHint = %q, want it to ask the user to run `lox run`", StartHint)
+	}
+	if strings.Contains(StartHint, "lox up") {
+		t.Errorf("StartHint = %q, must not name the deprecated lox up", StartHint)
+	}
+}
+
 func TestDialWithoutConsoleNamesTheProduct(t *testing.T) {
 	runtimeDir(t)
 	_, err := Dial(testProduct, t.TempDir(), "uat")
@@ -120,8 +131,8 @@ func TestDialWithoutConsoleNamesTheProduct(t *testing.T) {
 		t.Fatalf("err = %#v", err)
 	}
 	msg := err.Error()
-	for _, want := range []string{"no lockmq console is running for profile uat", "started by `lox up` only",
-		"ask the user to run `lox up`", "`lockmq doctor`"} {
+	for _, want := range []string{"no lockmq console is running for profile uat", "started by `lox run` only",
+		"ask the user to run `lox run`", "`lockmq doctor`"} {
 		if !strings.Contains(msg, want) {
 			t.Errorf("message lacks %q: %s", want, msg)
 		}
@@ -130,7 +141,7 @@ func TestDialWithoutConsoleNamesTheProduct(t *testing.T) {
 	if strings.Contains(msg, "locksql") || strings.Contains(nc.Hint(), "console --") || strings.Contains(nc.Hint(), "uat") {
 		t.Errorf("message: %s", msg)
 	}
-	if got := StartCommand(testProduct, "uat", "/a b/it's"); got != "lox up" {
+	if got := StartCommand(testProduct, "uat", "/a b/it's"); got != "lox run" {
 		t.Fatalf("StartCommand: %s", got)
 	}
 }
@@ -154,7 +165,7 @@ func TestDialWithoutConsoleInProjectHintsLoxUp(t *testing.T) {
 		t.Fatalf("err = %#v", err)
 	}
 	// The hint names no value: not the project, not the profile's flag.
-	if nc.Command() != "lox up" || strings.Contains(nc.Hint(), root) || strings.Contains(nc.Hint(), "uat") || !strings.Contains(err.Error(), "run `lox up`") {
+	if nc.Command() != "lox run" || strings.Contains(nc.Hint(), root) || strings.Contains(nc.Hint(), "uat") || !strings.Contains(err.Error(), "run `lox run`") {
 		t.Fatalf("hint %q / command %q", err.Error(), nc.Command())
 	}
 }

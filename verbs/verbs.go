@@ -161,7 +161,7 @@ func consoleName(p kit.Product) string {
 // secret at start, or "vault", the console reads it from Vault at
 // vaultPath. It returns the source to write ("ask" or "vault"). Any other
 // source, the keychain included, is refused with ErrSecret: under
-// `lox up` the console reads its secret at start or from Vault only. A
+// `lox run` the console reads its secret at start or from Vault only. A
 // vault path is checked as secrets.CheckVaultPath does, and refused
 // without "vault". The source is never quoted (a secret pasted in the
 // wrong place).

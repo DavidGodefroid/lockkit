@@ -74,11 +74,11 @@ func TestNoConsole(t *testing.T) {
 	}
 	nc := &client.NoConsoleError{Product: testProduct, Profile: "uat", Project: "/srv/app"}
 	start, hint, ok := NoConsole(testProduct, "uat", fmt.Errorf("dial: %w", nc))
-	if !ok || start != "lox up" || !strings.Contains(hint, "run `lox up`") || strings.Contains(hint, "/srv/app") || strings.Contains(hint, "uat") {
+	if !ok || start != "lox run" || !strings.Contains(hint, "run `lox run`") || strings.Contains(hint, "/srv/app") || strings.Contains(hint, "uat") {
 		t.Fatalf("NoConsoleError: %q %q %v", start, hint, ok)
 	}
 	start, hint, ok = NoConsole(testProduct, "uat", client.ErrNoConsole)
-	if !ok || start != "lox up" || hint != client.StartHint {
+	if !ok || start != "lox run" || hint != client.StartHint {
 		t.Fatalf("bare: %q %q %v", start, hint, ok)
 	}
 	if got := NoConsoleLine("uat", "h"); got != "\nNo console runs for profile uat: h\n" {

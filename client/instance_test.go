@@ -126,7 +126,7 @@ func TestSocketPathInstanceRefusesBadName(t *testing.T) {
 
 // A leftover LOCKMQ_INSTANCE or --instance with a single lock in lea (no
 // LEA_LOCKMQ_INSTANCES) points at a directory that does not exist: the
-// error says so and names the source, never "run lox up".
+// error says so and names the source, never "run lox run".
 func TestDialInstanceMissingDirectoryIsNamed(t *testing.T) {
 	dir, err := os.MkdirTemp("/tmp", "lkin")
 	if err != nil {
@@ -147,8 +147,8 @@ func TestDialInstanceMissingDirectoryIsNamed(t *testing.T) {
 	if strings.Contains(msg, "orders") {
 		t.Errorf("err = %q, must not echo the instance value", msg)
 	}
-	if strings.Contains(msg, "lox up") {
-		t.Errorf("err = %q, must not give the lox up hint", msg)
+	if strings.Contains(msg, "lox run") {
+		t.Errorf("err = %q, must not give the lox run hint", msg)
 	}
 	// The directory is there, no console listens: the usual NoConsoleError.
 	if err := os.Mkdir(filepath.Join(dir, "orders"), 0o755); err != nil {

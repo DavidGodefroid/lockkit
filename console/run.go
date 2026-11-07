@@ -61,7 +61,7 @@ type Options struct {
 	Hub HubOptions
 	// PolicyOnly runs a console that serves its policy and decides no
 	// request: the console of a lock whose requests are decided by another
-	// process's hub (lockhttp's, whose gate asks lockhub; `lox up` starts
+	// process's hub (lockhttp's, whose gate asks lockhub; `lox run` starts
 	// such a console without hub flags). It starts without Hub, which must
 	// then be empty (ErrPolicyOnlyHub), and without OnHub; every request a
 	// handler hands to Env.Approve is refused (ErrPolicyOnly), never asked
@@ -144,7 +144,7 @@ func (st *starter) failed(err error) error {
 // record could not be written; nothing is saved and the console stops.
 var errApprovalUnrecorded = errors.New("console: the approval of the policy could not be recorded in the audit log")
 
-// Run is a product's `console` command, launched by `lox up` only (the
+// Run is a product's `console` command, launched by `lox run` only (the
 // hub options are required, ErrNoHub, unless Options.PolicyOnly): the isolation checks, the policy
 // review, the production confirmation, the credentials and the connection,
 // the backend's checks, the socket, then the request loop until Ctrl-C,
