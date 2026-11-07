@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/DavidGodefroid/lockkit/hubclient"
 )
 
 // Change is one difference between two policies. For list fields each
@@ -114,6 +116,20 @@ type Base struct {
 	// polling status never counts), MaxSession after that long in all.
 	IdleTimeout time.Duration `json:"idle_timeout"`
 	MaxSession  time.Duration `json:"max_session"`
+	// TicketsPerWindow tickets a human decides per TicketWindow at most,
+	// MaxPending tickets pending at most (limits.tickets_per_window,
+	// limits.ticket_window, limits.max_pending; 0 keeps hubclient's
+	// default): see TicketLimits.
+	TicketsPerWindow int           `json:"tickets_per_window,omitempty"`
+	TicketWindow     time.Duration `json:"ticket_window,omitempty"`
+	MaxPending       int           `json:"max_pending,omitempty"`
+}
+
+// TicketLimits are the hub client's limits of b (hubclient.Limits,
+// defaults applied): what a product passes to hubclient.Client.SetLimits
+// once its profile is approved.
+func (b Base) TicketLimits() hubclient.Limits {
+	return hubclient.Limits{MaxPending: b.MaxPending, RateN: b.TicketsPerWindow, RateWindow: b.TicketWindow}.Effective()
 }
 
 // connectionFields are the fields of DiffBase the open connection was made
@@ -134,7 +150,8 @@ func ConnectionField(field string) bool {
 // than ask, another Vault path, a weaker tls mode, any change of tls_ca,
 // tls_cert or tls_key, production true→false, any change of the ssh table
 // (a credentials mode other than ask for the bastion), a longer session
-// limit, a longer or removed credentials_ttl.
+// limit, a longer or removed credentials_ttl, more tickets per window, a
+// shorter ticket window or more pending tickets.
 func DiffBase(a, c Base) []Change {
 	var out []Change
 	same := func(field, o, n string) {
@@ -181,6 +198,22 @@ func DiffBase(a, c Base) []Change {
 		if f.o != f.n {
 			out = append(out, Change{Field: "limits." + f.field, Old: f.o.String(), New: f.n.String(), Loosens: f.n > f.o})
 		}
+	}
+	// More tickets, a shorter window or more pending tickets let an agent
+	// ask the human more often: a loosening. 0 is the default, compared as
+	// such.
+	al, cl := a.TicketLimits(), c.TicketLimits()
+	if a.TicketsPerWindow != c.TicketsPerWindow {
+		out = append(out, Change{Field: "limits.tickets_per_window", Old: strconv.Itoa(a.TicketsPerWindow), New: strconv.Itoa(c.TicketsPerWindow),
+			Loosens: cl.RateN > al.RateN})
+	}
+	if a.TicketWindow != c.TicketWindow {
+		out = append(out, Change{Field: "limits.ticket_window", Old: a.TicketWindow.String(), New: c.TicketWindow.String(),
+			Loosens: cl.RateWindow < al.RateWindow})
+	}
+	if a.MaxPending != c.MaxPending {
+		out = append(out, Change{Field: "limits.max_pending", Old: strconv.Itoa(a.MaxPending), New: strconv.Itoa(c.MaxPending),
+			Loosens: cl.MaxPending > al.MaxPending})
 	}
 	if a.CredentialsTTL != c.CredentialsTTL {
 		out = append(out, Change{Field: "credentials_ttl", Old: a.CredentialsTTL.String(), New: c.CredentialsTTL.String(),

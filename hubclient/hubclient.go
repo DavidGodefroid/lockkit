@@ -81,10 +81,13 @@ func (e *HubError) Is(target error) bool {
 // Defaults.
 const (
 	// MaxPending bounds the pending tickets of an instance.
-	MaxPending = 20
-	// RateN new tickets per RateWindow at most.
-	RateN      = 10
+	MaxPending = 30
+	// RateN tickets a human decides per RateWindow at most (one every 10 s
+	// on average); RateTotal tickets in all, auto-decided ones included
+	// (see Limits).
+	RateN      = 30
 	RateWindow = 5 * time.Minute
+	RateTotal  = 300
 	// MaxWait bounds a long poll (the hub's own bound).
 	MaxWait = 60 * time.Second
 	// MaxInbox bounds the decisions kept for plans not yet run.
@@ -112,10 +115,12 @@ type Config struct {
 	// ApprovalTTL is the instance's approval lifetime (ticket.ClampTTL; 0
 	// keeps each risk class's).
 	ApprovalTTL time.Duration
-	// MaxPending, RateN and RateWindow override the defaults when > 0.
+	// MaxPending, RateN, RateWindow and RateTotal override the defaults
+	// when > 0 (Limits; SetLimits changes them later).
 	MaxPending int
 	RateN      int
 	RateWindow time.Duration
+	RateTotal  int
 	// HTTP is the HTTP client (nil: one without a global timeout; long
 	// polls are bounded by MaxWait). Redirects are refused unless it sets
 	// its own CheckRedirect.
@@ -160,8 +165,9 @@ type Client struct {
 	cursor int64
 	inbox  map[string]entry // by ticket id
 	acked  map[string]bool  // tickets the hub acknowledged, this process
-	recent []time.Time      // new tickets in the rate window
-	wake   chan struct{}    // closed (and replaced) when Poll keeps decisions
+	recent []sent           // tickets opened in the rate window
+	limits Limits
+	wake   chan struct{} // closed (and replaced) when Poll keeps decisions
 
 	seen      map[string]time.Time // hub requests handled, by id
 	requests  []json.RawMessage    // hub requests polled, not handled yet
@@ -232,15 +238,7 @@ func New(cfg Config) (*Client, error) {
 			return nil, fmt.Errorf("hubclient: hub URL %s: --hub-plain-http is only for a service name without a dot or a private address; use https", shown)
 		}
 	}
-	if cfg.MaxPending <= 0 {
-		cfg.MaxPending = MaxPending
-	}
-	if cfg.RateN <= 0 {
-		cfg.RateN = RateN
-	}
-	if cfg.RateWindow <= 0 {
-		cfg.RateWindow = RateWindow
-	}
+	limits := Limits{MaxPending: cfg.MaxPending, RateN: cfg.RateN, RateWindow: cfg.RateWindow, RateTotal: cfg.RateTotal}.Effective()
 	if cfg.HTTP == nil {
 		cfg.HTTP = &http.Client{}
 	}
@@ -255,7 +253,7 @@ func New(cfg Config) (*Client, error) {
 		cfg.Now = time.Now
 	}
 	c := &Client{cfg: cfg, base: base, shown: shown, pub: cfg.Key.Public().(ed25519.PublicKey),
-		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}, wake: make(chan struct{})}
+		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}, wake: make(chan struct{}), limits: limits}
 	if err := c.load(); err != nil {
 		return nil, err
 	}
@@ -555,25 +553,13 @@ func (c *Client) submit(ctx context.Context, st *plans.Store, planID string, cal
 		}
 	}
 
+	pending := len(st.Pending())
 	c.mu.Lock()
-	now := c.cfg.Now()
-	kept := c.recent[:0]
-	for _, at := range c.recent {
-		if now.Sub(at) < c.cfg.RateWindow {
-			kept = append(kept, at)
-		}
-	}
-	c.recent = kept
-	switch {
-	case len(st.Pending()) >= c.cfg.MaxPending:
-		c.mu.Unlock()
-		return "", fmt.Errorf("%w: %d tickets already pending", ErrRateLimited, c.cfg.MaxPending)
-	case len(c.recent) >= c.cfg.RateN:
-		c.mu.Unlock()
-		return "", fmt.Errorf("%w: %d new tickets in %s", ErrRateLimited, c.cfg.RateN, c.cfg.RateWindow)
-	}
-	c.recent = append(c.recent, now)
+	err = c.admit(t.ID, pending)
 	c.mu.Unlock()
+	if err != nil {
+		return "", err
+	}
 
 	t.Source.Instance, t.Source.KeyID = c.cfg.Instance, ticket.KeyID(c.pub)
 	t.Screen, t.PII.Touched = masked, touched
@@ -674,9 +660,13 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 			bad = append(bad, fmt.Errorf("%w: seq %d outside (%d, %d]", ErrBadDecision, e.Seq, since, res.Cursor))
 			continue
 		}
-		if _, err := c.verify(e); err != nil {
+		d, err := c.verify(e)
+		if err != nil {
 			bad = append(bad, err)
 			continue
+		}
+		if d.Auto() {
+			c.decidedAuto(e.Ticket)
 		}
 		c.inbox[e.Ticket] = e
 		kept++

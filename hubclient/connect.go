@@ -36,20 +36,11 @@ func (c *Client) Ask(ctx context.Context, t *ticket.Ticket, screen render.Masked
 		return nil, fmt.Errorf("hubclient: Ask takes a connect ticket, not %q (the others go through Submit and a plan)", t.Kind)
 	}
 	c.mu.Lock()
-	now := c.cfg.Now()
-	kept := c.recent[:0]
-	for _, at := range c.recent {
-		if now.Sub(at) < c.cfg.RateWindow {
-			kept = append(kept, at)
-		}
-	}
-	c.recent = kept
-	if len(c.recent) >= c.cfg.RateN {
-		c.mu.Unlock()
-		return nil, fmt.Errorf("%w: %d new tickets in %s", ErrRateLimited, c.cfg.RateN, c.cfg.RateWindow)
-	}
-	c.recent = append(c.recent, now)
+	err := c.admit(t.ID, 0) // a connect ticket is no plan: not pending in a store
 	c.mu.Unlock()
+	if err != nil {
+		return nil, err
+	}
 
 	t.Source.Instance, t.Source.KeyID = c.cfg.Instance, ticket.KeyID(c.pub)
 	t.Screen, t.PII.Touched = screen.Screen(), screen.Touched()
