@@ -3,6 +3,23 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## v0.15.0 (2026-11-07)
+
+- hubclient: a lock opens at most 30 tickets a human decides per 5
+  minutes (was 10) and 30 pending ones (was 20). A ticket an auto rule of
+  `lox run` decided (`default:read`, `session:connect`, ...) leaves that
+  count once its decision is polled; a safety cap of 300 tickets per
+  window (`RateTotal`, `Config.RateTotal`) still counts every one.
+- hubclient: a refusal is a `*RateLimitError` (still `ErrRateLimited`)
+  naming the limit (`LimitRate`, `LimitPending`, `LimitTotal`), the count
+  and the retry-after, and the setting that raises it. `Limits`,
+  `DefaultLimits`, `Limits.Effective`, `Client.SetLimits` and
+  `Client.Limits` change and read the limits at runtime.
+- config: `Base` gains `tickets_per_window`, `ticket_window` and
+  `max_pending` (the profile's `limits` table); `DiffBase` marks more
+  tickets, a shorter window or more pending ones a loosening.
+  `Base.TicketLimits` gives the `hubclient.Limits` to apply (#150).
+
 ## v0.14.1 (2026-11-07)
 
 - Texts name `lox run` (`lox up` is deprecated): `client.StartHint` and
