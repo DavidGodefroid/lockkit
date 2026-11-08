@@ -21,6 +21,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `Store.Pending` ends Expired the plans past their `Expires` instead of
   listing them, so they no longer count against `MaxPending` nor go to
   the hub again.
+- sanitize: `Terminal` also escapes the other format characters (zero-width
+  U+200B-D, U+2060, the BOM U+FEFF, soft hyphen U+00AD, U+180E,
+  interlinear annotations U+FFF9-B, tag characters U+E0000-E007F), the
+  other default-ignorable code points and the variation selectors (U+FE00-F,
+  U+E0100-E01EF), as `\uNNNN` or `\UNNNNNNNN` like the bidi controls: a
+  client cannot hide or smuggle text in what the human reads (an approval
+  screen's note, a change request). An emoji's variation selector or
+  joiner shows escaped too (#116).
 - console: the question file (`QuestionPath`) also holds the lines the
   console printed above the question since the previous one (the policy
   diff, a host key fingerprint, the PRODUCTION banner): the prompt stays
