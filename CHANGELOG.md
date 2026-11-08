@@ -3,6 +3,17 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- console: the question file (`QuestionPath`) also holds the lines the
+  console printed above the question since the previous one (the policy
+  diff, a host key fingerprint, the PRODUCTION banner): the prompt stays
+  the first line, then `QuestionContextMark` and the lines, colours
+  dropped and controls escaped, at most `MaxQuestionLines` (40) and
+  `MaxQuestionBytes` (8 KiB). Never what the human types. `ParseQuestion`
+  reads the file, with or without context, so that `lox run` shows a
+  question printed before it attached with its context (#152).
+
 ## v0.15.0 (2026-11-07)
 
 - hubclient: a lock opens at most 30 tickets a human decides per 5

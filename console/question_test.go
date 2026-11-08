@@ -7,9 +7,11 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/DavidGodefroid/lockkit/ipc"
 )
@@ -175,4 +177,134 @@ func TestRunRecordsQuestions(t *testing.T) {
 	if io.path != QuestionPath(socket) || io.before != 0 || !strings.HasSuffix(io.path, ".question") {
 		t.Fatalf("question file %q set after %d prompts, socket %q", io.path, io.before, socket)
 	}
+}
+
+// The question file holds the prompt on its first line (what older readers
+// take), then, after QuestionContextMark, the lines printed above it:
+// escapes stripped, bounded, and nothing when there are none.
+func TestQuestionFileFormat(t *testing.T) {
+	if got := formatQuestion("User: ", nil); got != "User:\n" {
+		t.Fatalf("no context: %q", got)
+	}
+	got := formatQuestion(red+"Apply these changes? [y/N] "+reset, []string{"", bold + "policy changes:" + reset, "  + allow write\x07", ""})
+	want := "Apply these changes? [y/N]\n" + QuestionContextMark + "\npolicy changes:\n  + allow write\\x07\n"
+	if got != want {
+		t.Fatalf("format:\n%q\nwant\n%q", got, want)
+	}
+	prompt, lines := ParseQuestion(got)
+	if prompt != "Apply these changes? [y/N]" || strings.Join(lines, "|") != "policy changes:|  + allow write\\x07" {
+		t.Fatalf("parse: %q %q", prompt, lines)
+	}
+	if p, l := ParseQuestion("User:\n"); p != "User:" || l != nil {
+		t.Fatalf("parse without context: %q %q", p, l)
+	}
+	if p, l := ParseQuestion("User:\nnot a mark\n"); p != "User:" || l != nil {
+		t.Fatalf("parse of an unknown second line: %q %q", p, l)
+	}
+
+	// Bounds: the last MaxQuestionLines lines, at most MaxQuestionBytes.
+	var many []string
+	for i := range 100 {
+		many = append(many, "line "+strconv.Itoa(i))
+	}
+	_, lines = ParseQuestion(formatQuestion("Q?", many))
+	if len(lines) != MaxQuestionLines || lines[0] != "line 60" || lines[len(lines)-1] != "line 99" {
+		t.Fatalf("line bound: %d lines, %q..%q", len(lines), lines[0], lines[len(lines)-1])
+	}
+	long := strings.Repeat("é", 3000) // 6000 bytes each
+	f := formatQuestion("Q?", []string{"first", long, long})
+	_, lines = ParseQuestion(f)
+	total := 0
+	for _, l := range lines {
+		total += len(l) + 1
+		if !utf8.ValidString(l) {
+			t.Fatalf("cut inside a rune: %q", l)
+		}
+	}
+	if total > MaxQuestionBytes || len(lines) == 0 || lines[len(lines)-1] != long {
+		t.Fatalf("byte bound: %d bytes, %d lines", total, len(lines))
+	}
+	_, lines = ParseQuestion(formatQuestion("Q?", []string{strings.Repeat("x", 3*MaxQuestionBytes)}))
+	if len(lines) != 1 || len(lines[0])+1 > MaxQuestionBytes || !strings.HasSuffix(lines[0], "…") {
+		t.Fatalf("one long line: %d lines, %d bytes", len(lines), len(lines[0]))
+	}
+}
+
+// The Terminal records, with each question, the lines it printed since the
+// previous question: the policy diff above "Apply these changes?", the
+// host key fingerprint above its prompt. What the human types (echoed or
+// not) is never written (#152).
+func TestTerminalRecordsQuestionContext(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+	term := NewTerminal(r, io.Discard)
+	term.echo = true // as in cbreak mode: the Terminal echoes what is typed
+	path := filepath.Join(t.TempDir(), "1a2b3c4d-prod.question")
+	term.Println(red + bold + "PRODUCTION" + reset)
+	term.SetQuestionFile(path)
+
+	term.Println("Policy changes for prod:")
+	term.Println(green + "  + tables: orders (write)" + reset + "\n  - masked: email")
+	got := make(chan string, 1)
+	go func() {
+		a, _ := term.Ask(context.Background(), "Apply these changes? [y/N] ", time.Minute)
+		got <- a
+	}()
+	waitFile(t, path, "Apply these changes? [y/N]\n"+QuestionContextMark+"\nPRODUCTION\nPolicy changes for prod:\n  + tables: orders (write)\n  - masked: email\n")
+	if _, err := w.WriteString("y\n"); err != nil {
+		t.Fatal(err)
+	}
+	if a := <-got; a != "y" {
+		t.Fatalf("answer %q", a)
+	}
+	waitFile(t, path, "")
+
+	// A password prompt: the secret typed never reaches a question file.
+	secret := make(chan string, 1)
+	go func() {
+		b, _ := term.AskSecret(context.Background(), "Password for app@db: ")
+		secret <- string(b)
+	}()
+	waitFile(t, path, "Password for app@db:\n")
+	if _, err := w.WriteString("hunter2-s3cret\n"); err != nil {
+		t.Fatal(err)
+	}
+	if s := <-secret; s != "hunter2-s3cret" {
+		t.Fatalf("secret %q", s)
+	}
+	waitFile(t, path, "")
+
+	// Only the lines since the previous question come with the next one.
+	term.Println("Host db.example.com:22 is not known.")
+	term.Println("ED25519 key fingerprint is SHA256:abcdEFGH12345678.")
+	go func() {
+		a, _ := term.Ask(context.Background(), "Type the last 8 characters of the fingerprint to trust it: ", time.Minute)
+		got <- a
+	}()
+	want := "Type the last 8 characters of the fingerprint to trust it:\n" + QuestionContextMark +
+		"\nHost db.example.com:22 is not known.\nED25519 key fingerprint is SHA256:abcdEFGH12345678.\n"
+	waitFile(t, path, want)
+	b, _ := os.ReadFile(path)
+	if strings.Contains(string(b), "hunter2") || strings.Contains(string(b), "Policy changes") {
+		t.Fatalf("question file holds an answer or an earlier context: %q", b)
+	}
+	if fi, err := os.Stat(path); err != nil || fi.Mode().Perm() != 0o600 {
+		t.Fatalf("question file mode: %v %v", fi, err)
+	}
+	if _, err := w.WriteString("12345678\n"); err != nil {
+		t.Fatal(err)
+	}
+	if a := <-got; a != "12345678" {
+		t.Fatalf("answer %q", a)
+	}
+	waitFile(t, path, "")
+
+	// The echoed answer is not among the lines of the next question.
+	go func() { term.Ask(context.Background(), "User: ", time.Minute) }()
+	waitFile(t, path, "User:\n")
+	_, _ = w.WriteString("x\n")
 }
