@@ -445,7 +445,8 @@ msg := san.Error(err, password)                     // known secrets first (ever
 
 Text printed for the human (approval screens, console lines) goes through
 `sanitize.Terminal(s, multiline)`: client-supplied text cannot drive or
-spoof the terminal.
+spoof the terminal, nor hide text from the human (controls, format and
+other invisible characters are escaped).
 
 **Signatures.** `update.Verify(ctx, artifact, sigstoreBundle, update.Identity{CertIdentityRegexp: "^https://github\\.com/<you>/<repo>/\\.github/workflows/release\\.yml@refs/tags/v1\\.2\\.3$", OIDCIssuer: "https://token.actions.githubusercontent.com"}, update.Options{})`
 runs `cosign verify-blob`; a missing cosign is `update.ErrCosignMissing`

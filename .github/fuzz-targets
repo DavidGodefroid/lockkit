@@ -11,3 +11,4 @@ FuzzFindAroundTerminalSequences ./pii/
 FuzzPersonNameNoPanic ./pii/
 FuzzFindValueSplitByTerminal ./pii/
 FuzzSecretPrefiltersAreExact ./pii/
+FuzzTerminal ./sanitize/

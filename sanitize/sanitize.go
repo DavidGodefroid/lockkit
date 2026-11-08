@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/DavidGodefroid/lockkit/secrets"
 )
@@ -83,9 +84,13 @@ func apply(p *regexp.Regexp, text string) string {
 }
 
 // Terminal escapes s for the human's terminal: C0 and C1 controls and DEL
-// as \xNN, bidi and directional marks as \uNNNN, so that client-supplied
-// text cannot drive or spoof the terminal. Newlines and tabs are kept when
-// multiline is set.
+// as \xNN; format characters (bidi and directional marks, zero-width
+// characters, the BOM, soft hyphen, tag characters, interlinear
+// annotations), the other default-ignorable code points and variation
+// selectors as \uNNNN or \UNNNNNNNN; so that client-supplied text cannot
+// drive or spoof the terminal, nor hide text from the human. An emoji's
+// variation selector or joiner is escaped too. Newlines and tabs are kept
+// when multiline is set.
 func Terminal(s string, multiline bool) string {
 	var b strings.Builder
 	for _, r := range s {
@@ -94,11 +99,21 @@ func Terminal(s string, multiline bool) string {
 			b.WriteRune(r)
 		case r < 0x20 || r == 0x7f || (r >= 0x80 && r < 0xa0):
 			fmt.Fprintf(&b, "\\x%02x", r)
-		case r == 0x061c || r == 0x200e || r == 0x200f || (r >= 0x202a && r <= 0x202e) || (r >= 0x2066 && r <= 0x2069):
+		case r > 0xffff && invisible(r):
+			fmt.Fprintf(&b, "\\U%08x", r)
+		case invisible(r):
 			fmt.Fprintf(&b, "\\u%04x", r)
 		default:
 			b.WriteRune(r)
 		}
 	}
 	return b.String()
+}
+
+// invisible reports a format character (category Cf, the bidi controls
+// among them), another default-ignorable code point or a variation
+// selector: a rune a terminal shows as nothing, or that changes how the
+// text around it shows.
+func invisible(r rune) bool {
+	return unicode.In(r, unicode.Cf, unicode.Other_Default_Ignorable_Code_Point, unicode.Variation_Selector)
 }
