@@ -153,7 +153,9 @@ hub client (`Hub.Client.SetLimits`): by default a lock opens at most 30
 tickets a human decides per 5 minutes and 30 pending ones; tickets an auto
 rule of `lox run` decided count only against a safety cap of 300. A refusal
 is a `hubclient.RateLimitError` (`ErrRateLimited`) naming the limit, the
-count, the setting that raises it and the retry-after.
+count, the setting that raises it and the retry-after; `console.Asker`
+answers the agent with that text ("not submitted: too many tickets: ..."),
+so a lock needs no wrapper of its own.
 
 Your policy implements `config.Policy`:
 

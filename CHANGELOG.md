@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- console: `Asker` answers a ticket refused over the hub client's limits
+  with that ask's own `*RateLimitError` text: the limit, the count, the
+  `limits.*` setting that raises it and the retry-after (was a general
+  "too many requests are waiting"). A hub's own 429 keeps the general
+  words. A lock's own wrapper for it (locksql's `rateApprover`) is no
+  longer needed (#150).
 - ticket: `read` and `read-pii` tickets expire after 1 h (`Risk.TTL`,
   was never), and their approvals age out after 1 h too; `ClampTTL` still
   lets an instance shorten it. `WithdrawnReason` and
