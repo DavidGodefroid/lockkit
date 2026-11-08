@@ -3,6 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- hubclient: a `Begin` racing `EndDenied` (Watch) on a denied ticket no
+  longer fails with `plans: transition not allowed: denied → denied`: it
+  answers the denial with its reason (`ErrDenied`, or `ErrWithdrawn`) and
+  the decision, for the lock's audit. Of runs racing on one denial,
+  exactly one answers it; the others get `plans.ErrUsed` and no decision,
+  so the lock audits the denial once (bug in v0.16.0).
+
 ## v0.16.0 (2026-11-08)
 
 - console: `Asker` answers a ticket refused over the hub client's limits

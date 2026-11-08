@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -679,4 +680,88 @@ func submittedHash(t *testing.T, e *env, hash string) (*plans.Plan, string) {
 		t.Fatal(err)
 	}
 	return p, id
+}
+
+// EndDenied (Watch) ending the plan between Begin's read of it as pending
+// and Begin's own End of it: Begin answers the denial with its reason,
+// once, instead of a refused transition.
+func TestBeginRacesEndDenied(t *testing.T) {
+	for name, reason := range map[string]string{
+		"denied":    "not today",
+		"withdrawn": ticket.WithdrawnReason + "david in lox run",
+	} {
+		t.Run(name, func(t *testing.T) {
+			e := newEnv(t, nil)
+			p, id := submitted(t, e)
+			e.hub.Decide(id, ticket.Denied, reason)
+			if _, err := e.client.Poll(context.Background(), 0); err != nil {
+				t.Fatal(err)
+			}
+			restore := hubclient.SetBeforeDenialEnd(func() {
+				if err := e.client.EndDenied(e.store); err != nil {
+					t.Errorf("EndDenied: %v", err)
+				}
+			})
+			defer restore()
+			_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+			if !errors.Is(err, hubclient.ErrDenied) || !strings.Contains(err.Error(), "david in lox run") && !strings.Contains(err.Error(), "not today") {
+				t.Fatalf("run racing EndDenied: %v, want ErrDenied with the reason", err)
+			}
+			if errors.Is(err, hubclient.ErrWithdrawn) != (name == "withdrawn") {
+				t.Errorf("ErrWithdrawn: %v", err)
+			}
+			if d == nil || d.Decision != ticket.Denied || d.Reason != reason {
+				t.Fatalf("denial for the audit: %+v", d)
+			}
+			sp, _ := e.store.Get(p.ID, caller)
+			if sp.Reason != reason || (name == "withdrawn") != (sp.State == plans.Withdrawn) {
+				t.Errorf("plan is %s %q", sp.State, sp.Reason)
+			}
+			// Answered once: the next run is only told the plan is used.
+			restore()
+			if _, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, plans.ErrUsed) || d != nil {
+				t.Errorf("second run: %+v %v, want ErrUsed and no denial", d, err)
+			}
+		})
+	}
+}
+
+// Concurrent runs of a denied ticket, with Watch ending it: exactly one
+// run answers the denial (the lock audits it once), the others ErrUsed.
+func TestBeginDenialAnsweredOnce(t *testing.T) {
+	e := newEnv(t, nil)
+	_, id := submitted(t, e)
+	e.hub.Decide(id, ticket.Denied, "not today")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	const n = 8
+	errs := make(chan error, n+1)
+	denials := make(chan *ticket.Decision, n)
+	start := make(chan struct{})
+	for i := 0; i < n; i++ {
+		go func() {
+			<-start
+			_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+			switch {
+			case errors.Is(err, hubclient.ErrDenied) && d != nil:
+				denials <- d
+				errs <- nil
+			case errors.Is(err, plans.ErrUsed) && d == nil:
+				errs <- nil
+			default:
+				errs <- fmt.Errorf("run: %+v %v", d, err)
+			}
+		}()
+	}
+	go func() { <-start; errs <- e.client.EndDenied(e.store) }()
+	close(start)
+	for i := 0; i < n+1; i++ {
+		if err := <-errs; err != nil {
+			t.Error(err)
+		}
+	}
+	if got := len(denials); got != 1 {
+		t.Errorf("%d runs answered the denial, want 1", got)
+	}
 }
