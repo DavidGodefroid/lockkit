@@ -292,9 +292,10 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	// force was not confirmed by it before.
 	where := sanitize.Terminal(pr.Where, false)
 	if pr.Production {
-		o.IO.Println(red + strings.Repeat("━", 60) + reset)
-		o.IO.Println(red + "  " + ui.MarkWarn + " PRODUCTION profile " + pr.Name + " (" + where + ")" + reset)
-		o.IO.Println(red + strings.Repeat("━", 60) + reset)
+		// Context of the questions that follow (PrintContext).
+		PrintContext(o.IO, red+strings.Repeat("━", 60)+reset)
+		PrintContext(o.IO, red+"  "+ui.MarkWarn+" PRODUCTION profile "+pr.Name+" ("+where+")"+reset)
+		PrintContext(o.IO, red+strings.Repeat("━", 60)+reset)
 		if st.nameTyped {
 			// The review of this start was approved with the name.
 			if err := config.SaveApproved(p, o.StateDir, ConfirmedKey(key), approved); err != nil {
@@ -447,9 +448,10 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		return nil, "", fmt.Errorf("%w: %v (delete the file to approve the policy again)", ErrConfig, err)
 	}
 	if !ok {
-		io.Println(bold + "First start of profile " + cur.Profile().Name + ": review its policy." + reset)
+		// The policy under review is the context of its question.
+		PrintContext(io, bold+"First start of profile "+cur.Profile().Name+": review its policy."+reset)
 		for _, line := range cur.Describe() {
-			io.Println("  " + sanitize.Terminal(line, false))
+			PrintContext(io, "  "+sanitize.Terminal(line, false))
 		}
 		if r := st.decide(ctx, policyDecision(cur.Profile().Production, cur.Profile().Name)); r.Outcome != Approved {
 			reason, errText := noFingerFields(r)
@@ -480,9 +482,9 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		st.audit(audit.Base{Event: audit.EventPolicy, Decision: "tightened"})
 		return cur, "", nil
 	}
-	io.Println(bold + "The policy of profile " + cur.Profile().Name + " changed since it was approved:" + reset)
+	PrintContext(io, bold+"The policy of profile "+cur.Profile().Name+" changed since it was approved:"+reset)
 	for _, line := range formatChangesOf(st.b, changes) {
-		io.Println(line)
+		PrintContext(io, line)
 	}
 	// The name is typed when either side is production: turning
 	// production off is a loosening of a production profile.

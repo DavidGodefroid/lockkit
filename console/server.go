@@ -541,6 +541,10 @@ func (s *Server) AuditBase(ctx context.Context, b audit.Base) { _ = s.record(ctx
 // Println implements Env.
 func (s *Server) Println(line string) { s.println(line) }
 
+// PrintContext prints line as context of the next question
+// (ContextPrinter): a product passes its Env to console.PrintContext.
+func (s *Server) PrintContext(line string) { PrintContext(s.cfg.IO, line) }
+
 // Safe implements Env.
 func (s *Server) Safe(text string) string { return sanitize.Terminal(text, false) }
 

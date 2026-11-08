@@ -68,9 +68,9 @@ type Terminal struct {
 	// question is the file the pending question is written to
 	// (SetQuestionFile); "" records none.
 	question atomic.Pointer[string]
-	// above is what Println printed since the last question, line by line,
-	// escapes stripped, at most MaxQuestionLines: the context written with
-	// the next question. mu guards it.
+	// above is what PrintContext printed since the last question, line by
+	// line, escapes stripped, at most MaxQuestionLines: the context written
+	// with the next question. mu guards it.
 	above []string
 }
 
@@ -300,14 +300,24 @@ func (t *Terminal) key(k Key) {
 	}
 }
 
-// Println writes one line.
+// Println writes one line. It is never recorded with a question: what
+// the console shows the human (a clear result, an unmasked value) stays on
+// the terminal.
 func (t *Terminal) Println(s string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	fmt.Fprintln(t.out, s)
+}
+
+// PrintContext writes s as Println does, and keeps it as context of the
+// next question (SetQuestionFile).
+func (t *Terminal) PrintContext(s string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	fmt.Fprintln(t.out, s)
 	lines := strings.Split(s, "\n")
 	if n := len(lines) - MaxQuestionLines; n > 0 {
-		lines = lines[n:] // a long output (a result): only its end is kept
+		lines = lines[n:]
 	}
 	for _, l := range lines {
 		t.above = append(t.above, questionLine(l))
@@ -483,8 +493,8 @@ func (t *Terminal) wait(ctx context.Context, timeout time.Duration) (string, boo
 var errTimeout = errors.New("timeout")
 
 // SetQuestionFile makes the Terminal write each question it waits for
-// (Ask, AskSecret: the prompt and the lines it printed since the previous
-// question, never an answer) to path, and remove the file once the
+// (Ask, AskSecret: the prompt and the lines PrintContext printed since
+// the previous question, never an answer) to path, and remove the file once the
 // question is answered, timed out or cancelled; "" stops it. A file left
 // by an earlier console (killed while it asked) is removed now. Writing is
 // best effort: the question is still asked on the terminal.
@@ -496,7 +506,7 @@ func (t *Terminal) SetQuestionFile(path string) {
 }
 
 // asking records prompt as the pending question (SetQuestionFile), with
-// the lines printed since the previous question, and returns what removes
+// the context lines printed since the previous question, and returns what removes
 // it. It assumes a single Ask or AskSecret at a time, as the Terminal
 // itself does (one reader, one prompt line): with two at once, the first
 // answered would remove the other's file.

@@ -86,9 +86,10 @@ type QuestionRecorder interface {
 
 // QuestionPath is the file that holds the question the console of socket
 // waits for: next to the socket, its name with .question for .sock
-// (/run/locksql/1a2b3c4d-prod.question). It holds only what the console
-// printed, never an answer (ParseQuestion reads it); the file is mode 0600 and is
-// removed once the question is answered.
+// (/run/locksql/1a2b3c4d-prod.question). It holds the prompt and the
+// context lines printed above it (PrintContext), never an answer nor a
+// line printed with Println (ParseQuestion reads it); the file is mode
+// 0600 and is removed once the question is answered.
 func QuestionPath(socket string) string {
 	return strings.TrimSuffix(socket, ".sock") + ".question"
 }
@@ -115,9 +116,9 @@ const QuestionContextMark = "--- printed above the question ---"
 // The prompt is the first line, as in files without context, so that a
 // reader taking the first line still gets the question. The mark and the
 // lines that follow it, oldest first, are there when the console printed
-// something since the previous question (or since it started: the
-// PRODUCTION banner, the policy diff, a host key fingerprint). Every line
-// has its colours dropped and its control characters escaped for a
+// context (PrintContext, never Println) since the previous question (or
+// since it started: the PRODUCTION banner, the policy diff, a host key
+// fingerprint). Every line has its colours dropped and its control characters escaped for a
 // terminal (sanitize.Terminal); blank lines at either end of the context
 // are left out. What the human types, echoed or not, is never in it.
 
@@ -181,6 +182,28 @@ func ParseQuestion(file string) (prompt string, above []string) {
 		above = lines[2:]
 	}
 	return lines[0], above
+}
+
+// ContextPrinter is implemented by an IO that records a question's
+// context (Terminal): PrintContext prints s as Println does and keeps it as
+// context of the next question. Println is never recorded, so a line
+// reaches the question file only when its caller opted it in: a clear
+// result or a value shown unmasked never does.
+type ContextPrinter interface {
+	PrintContext(s string)
+}
+
+// PrintContext prints s on p, kept as context of the next question when p
+// is a ContextPrinter (a Terminal, or a Server, which passes it to its
+// IO); it is Println otherwise. Print with it only what the agents may
+// read: the PRODUCTION banner, a policy diff, a host key fingerprint, never
+// a result or a value of the backend's data.
+func PrintContext(p interface{ Println(string) }, s string) {
+	if c, ok := p.(ContextPrinter); ok {
+		c.PrintContext(s)
+		return
+	}
+	p.Println(s)
 }
 
 // ansiSeq matches the CSI sequences (colours) a printed line may carry.
