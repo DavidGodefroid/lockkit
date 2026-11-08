@@ -489,3 +489,194 @@ func TestSyncUntoldHubDown(t *testing.T) {
 		t.Fatalf("Sync: %v, %d untold", err, len(e.store.Untold()))
 	}
 }
+
+// A ticket the human withdraws at the hub (lox run, lox withdraw) comes
+// back as a denial whose reason starts with ticket.WithdrawnReason: the
+// lock ends the plan Withdrawn as soon as it polls it, without waiting for
+// the agent, and the agent's next run is told the human withdrew it.
+func TestHubWithdrawalEndsPlanAtPoll(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	reason := ticket.WithdrawnReason + "david in lox run"
+	e.hub.Decide(id, ticket.Denied, reason)
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.client.EndDenied(e.store); err != nil {
+		t.Fatal(err)
+	}
+	sp, _ := e.store.Get(p.ID, caller)
+	if sp.State != plans.Withdrawn || sp.Reason != reason || sp.Untold {
+		t.Fatalf("plan after the hub's withdrawal: %s %q untold=%v", sp.State, sp.Reason, sp.Untold)
+	}
+	if n := len(e.store.Pending()); n != 0 {
+		t.Errorf("%d plans still pending", n)
+	}
+	_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	if !errors.Is(err, hubclient.ErrDenied) || !errors.Is(err, hubclient.ErrWithdrawn) ||
+		!strings.Contains(err.Error(), "ticket withdrawn by the human") || !strings.Contains(err.Error(), "david in lox run") {
+		t.Fatalf("agent's run after the withdrawal: %v", err)
+	}
+	if d == nil || d.Decision != ticket.Denied || d.Reason != reason {
+		t.Fatalf("denial for the audit: %+v", d)
+	}
+	// Answered once, then the plan is only used.
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, plans.ErrUsed) {
+		t.Errorf("second run: %v, want ErrUsed", err)
+	}
+}
+
+func TestHubDenialEndsPlanAtPoll(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	e.hub.Decide(id, ticket.Denied, "not today")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.client.EndDenied(e.store); err != nil {
+		t.Fatal(err)
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Denied || sp.Reason != "not today" {
+		t.Fatalf("plan after the denial: %s %q", sp.State, sp.Reason)
+	}
+	_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	if !errors.Is(err, hubclient.ErrDenied) || errors.Is(err, hubclient.ErrWithdrawn) || !strings.Contains(err.Error(), "not today") || d == nil {
+		t.Fatalf("agent's run after the denial: %v %+v", err, d)
+	}
+}
+
+// A withdrawal that reaches Begin before EndDenied ran ends the plan
+// Withdrawn too.
+func TestHubWithdrawalAtBegin(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	e.hub.Decide(id, ticket.Denied, ticket.WithdrawnReason+"david in lox withdraw")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash)); !errors.Is(err, hubclient.ErrWithdrawn) {
+		t.Fatalf("run: %v, want ErrWithdrawn", err)
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Withdrawn {
+		t.Errorf("plan is %s", sp.State)
+	}
+}
+
+// EndDenied acts only on a denial that matches the lock's own ticket, and
+// never on an approval.
+func TestEndDeniedChecksTheDecision(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	e.hub.DecideWith(id, ticket.Denied, ticket.WithdrawnReason+"x", nil, func(d *ticket.Decision) { d.PlanHash = "sha256:" + strings.Repeat("9", 64) })
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.client.EndDenied(e.store); !errors.Is(err, hubclient.ErrBadDecision) {
+		t.Fatalf("denial on another plan hash: %v, want ErrBadDecision", err)
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Pending {
+		t.Fatalf("plan is %s", sp.State)
+	}
+
+	q, id2 := submittedHash(t, e, "sha256:"+strings.Repeat("3", 64))
+	e.hub.Decide(id2, ticket.Approved, "")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.client.EndDenied(e.store); err != nil {
+		t.Fatal(err)
+	}
+	if sp, _ := e.store.Get(q.ID, caller); sp.State != plans.Pending {
+		t.Fatalf("approved plan is %s", sp.State)
+	}
+}
+
+// A withdrawal frees the pending slot of its plan: the lock takes a new
+// request once the queue was full.
+func TestHubWithdrawalFreesPendingSlot(t *testing.T) {
+	ctx := context.Background()
+	e := newEnv(t, func(c *hubclient.Config) { c.MaxPending = 2 })
+	var ids []string
+	for i := 0; i < 2; i++ {
+		_, id := submittedHash(t, e, "sha256:"+strings.Repeat(string(rune('a'+i)), 64))
+		ids = append(ids, id)
+	}
+	p, tk := e.plan(t, "sha256:"+strings.Repeat("c", 64))
+	if _, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen()); !errors.Is(err, hubclient.ErrRateLimited) {
+		t.Fatalf("queue full: %v, want ErrRateLimited", err)
+	}
+	for _, id := range ids {
+		e.hub.Decide(id, ticket.Denied, ticket.WithdrawnReason+"david in lox run")
+	}
+	pushed := e.hub.Pushed()
+	if _, err := e.client.Poll(ctx, 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.client.EndDenied(e.store); err != nil {
+		t.Fatal(err)
+	}
+	// A restarted lock (nothing acknowledged yet) pushes only what is
+	// still pending.
+	c2, err := hubclient.New(e.cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := c2.Sync(ctx, e.store); err != nil || e.hub.Pushed() != pushed {
+		t.Fatalf("sync pushed withdrawn tickets again: %v, %d pushes, want %d", err, e.hub.Pushed(), pushed)
+	}
+	if _, err := e.client.Submit(ctx, e.store, p.ID, caller, tk, screen()); err != nil {
+		t.Fatalf("after the withdrawal: %v", err)
+	}
+}
+
+// Watch ends a withdrawn plan without anyone running it.
+func TestWatchEndsWithdrawnPlan(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	e.hub.Decide(id, ticket.Denied, ticket.WithdrawnReason+"david in lox run")
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() { e.client.Watch(ctx, e.store, nil); close(done) }()
+	defer func() { cancel(); <-done }()
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		if sp, _ := e.store.Get(p.ID, caller); sp.State == plans.Withdrawn {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("Watch did not end the withdrawn plan")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+// A denial kept before a restart still ends its plan: the inbox is the
+// state file's.
+func TestEndDeniedAfterRestart(t *testing.T) {
+	e := newEnv(t, nil)
+	p, id := submitted(t, e)
+	e.hub.Decide(id, ticket.Denied, ticket.WithdrawnReason+"david in lox run")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	c2, err := hubclient.New(e.cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := c2.EndDenied(e.store); err != nil {
+		t.Fatal(err)
+	}
+	if sp, _ := e.store.Get(p.ID, caller); sp.State != plans.Withdrawn {
+		t.Errorf("plan is %s", sp.State)
+	}
+}
+
+func submittedHash(t *testing.T, e *env, hash string) (*plans.Plan, string) {
+	t.Helper()
+	p, tk := e.plan(t, hash)
+	id, err := e.client.Submit(context.Background(), e.store, p.ID, caller, tk, screen())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p, id
+}

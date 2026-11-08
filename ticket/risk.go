@@ -73,14 +73,15 @@ func (r *Risk) UnmarshalJSON(b []byte) error {
 }
 
 // TTL is how long a ticket of class r waits for a decision, and how long
-// an approval stays usable once given; 0 means no expiry. Reads never
-// expire; writes and policy loosening last 24 h; grants, production
-// writes and unlock (a secret typed for the lock) 4 h. A grant's own
-// lifetime is part of its scope, not of the ticket.
+// an approval stays usable once given. Reads last 1 h, so that a read left
+// pending (a ticket the facade cannot decide) ends by itself; writes and
+// policy loosening 24 h; grants, production writes and unlock (a secret
+// typed for the lock) 4 h. A grant's own lifetime is part of its scope,
+// not of the ticket.
 func (r Risk) TTL() time.Duration {
 	switch r {
 	case RiskRead, RiskReadPII:
-		return 0
+		return time.Hour
 	case RiskWrite, RiskPolicyLoosen:
 		return 24 * time.Hour
 	default: // grant, prod-write, unlock, and the shortest for anything else
@@ -90,7 +91,8 @@ func (r Risk) TTL() time.Duration {
 
 // ClampTTL is the TTL of class r for an instance configured with
 // configured: an instance may only shorten it. configured <= 0 keeps
-// r.TTL().
+// r.TTL(). (A TTL of 0, no expiry, is no risk class's any more; ClampTTL
+// still treats it as the longest.)
 func ClampTTL(r Risk, configured time.Duration) time.Duration {
 	def := r.TTL()
 	if configured <= 0 {
