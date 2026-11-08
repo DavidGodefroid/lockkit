@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/DavidGodefroid/lockkit/audit"
 	"github.com/DavidGodefroid/lockkit/hubclient"
@@ -150,6 +151,12 @@ func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncAppro
 			return Approval{Refusal: ErrResp(id, ipc.CodeDenied, "refused: this console serves its policy only and approves no request; do not retry")}
 		}
 		a.IO.Println(Paint.Fail("not submitted: " + sanitize.Terminal(err.Error(), false)))
+		// The limit this ask reached, its count and when to retry: the
+		// error's own text, which names no ticket content.
+		var rl *hubclient.RateLimitError
+		if errors.As(err, &rl) {
+			return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "not submitted: "+strings.TrimPrefix(rl.Error(), "hubclient: "))}
+		}
 		if errors.Is(err, hubclient.ErrRateLimited) {
 			return Approval{Refusal: ErrResp(id, ipc.CodeInternal, "too many requests are waiting for a decision; wait for them to be decided before asking again")}
 		}
