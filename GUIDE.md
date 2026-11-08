@@ -647,7 +647,12 @@ and those to the terminal approver `base` it wraps. The run of a decided ticket 
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
 matched, still usable, binding unchanged, nonce consumed; it returns
 the decision, whose approver, facade and signature go in the audit
-record), the effect, then `h.Client.Finish`. A pending answer is
+record), the effect, then `h.Client.Finish`. A ticket the human denies
+or withdraws in `lox run` ends its plan as soon as `Watch` polls the
+decision (`Client.EndDenied`), freeing its pending slot; the agent's next
+run of it gets `hubclient.ErrDenied`, or `hubclient.ErrWithdrawn` (an
+`ErrDenied` too, reason `withdrawn by <human> in lox run`) with the
+decision for the audit. A pending answer is
 audited (`audit.EventPending`, approval `hub`, the ticket); one that
 cannot be recorded is withdrawn and refused. A product with its own console lifecycle
 calls the same pieces as `Run`: `console.OpenHub`, `hub.Approver(base)`
@@ -923,9 +928,10 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unle
 
 - **Risk classes** are closed: `read`, `read-pii`, `write`, `prod-write`,
   `policy-loosen`, `unlock`. Map each operation onto one; an unknown name
-  does not decode. `Risk.TTL()`: reads never expire, `write` and
-  `policy-loosen` 24 h, `prod-write` and `unlock` 4 h; `ClampTTL` lets an
-  instance shorten it, never lengthen it.
+  does not decode. `Risk.TTL()`: `read` and `read-pii` 1 h (a read left
+  pending ends by itself), `write` and `policy-loosen` 24 h, `grant`,
+  `prod-write` and `unlock` 4 h; `ClampTTL` lets an instance shorten it,
+  never lengthen it.
 - **Signatures** are Ed25519 over `Context` + NUL + the canonical JSON
   without `sig`. Contexts keep a ticket, a decision, a key certificate, a
   hub request (`ContextRequest`, for `Lock-Sig`) and a reveal key apart:

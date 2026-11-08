@@ -51,6 +51,9 @@ var (
 	ErrPending = errors.New("hubclient: no decision yet")
 	// ErrDenied: the human denied the ticket; the plan is Denied.
 	ErrDenied = errors.New("hubclient: denied")
+	// ErrWithdrawn: the human withdrew the ticket at the hub (lox run, lox
+	// withdraw); the plan is Withdrawn. It is an ErrDenied too.
+	ErrWithdrawn = errors.New("hubclient: ticket withdrawn by the human")
 	// ErrBadDecision: the hub sent a decision that does not verify under
 	// the pinned hub key or is not for this instance; it was dropped.
 	ErrBadDecision = errors.New("hubclient: decision refused")
@@ -168,6 +171,9 @@ type Client struct {
 	recent []sent           // tickets opened in the rate window
 	limits Limits
 	wake   chan struct{} // closed (and replaced) when Poll keeps decisions
+	// denials are the tickets whose kept decision may end a pending plan
+	// (EndDenied): denials Poll kept, and every decision loaded at start.
+	denials map[string]bool
 
 	seen      map[string]time.Time // hub requests handled, by id
 	requests  []json.RawMessage    // hub requests polled, not handled yet
@@ -253,7 +259,7 @@ func New(cfg Config) (*Client, error) {
 		cfg.Now = time.Now
 	}
 	c := &Client{cfg: cfg, base: base, shown: shown, pub: cfg.Key.Public().(ed25519.PublicKey),
-		inbox: map[string]entry{}, acked: map[string]bool{}, seen: map[string]time.Time{}, wake: make(chan struct{}), limits: limits}
+		inbox: map[string]entry{}, denials: map[string]bool{}, acked: map[string]bool{}, seen: map[string]time.Time{}, wake: make(chan struct{}), limits: limits}
 	if err := c.load(); err != nil {
 		return nil, err
 	}
@@ -286,6 +292,7 @@ func (c *Client) load() error {
 	c.cursor = s.Cursor
 	for _, e := range s.Decisions {
 		c.inbox[e.Ticket] = e
+		c.denials[e.Ticket] = true // EndDenied verifies it
 	}
 	return nil
 }
@@ -669,6 +676,11 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 			c.decidedAuto(e.Ticket)
 		}
 		c.inbox[e.Ticket] = e
+		if d.Decision == ticket.Denied {
+			c.denials[e.Ticket] = true
+		} else {
+			delete(c.denials, e.Ticket)
+		}
 		kept++
 	}
 	for len(c.inbox) > MaxInbox {
@@ -679,6 +691,7 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 			}
 		}
 		delete(c.inbox, oldest)
+		delete(c.denials, oldest)
 	}
 	c.cursor = res.Cursor
 	if kept > 0 {
@@ -768,6 +781,9 @@ func (c *Client) Watch(ctx context.Context, st *plans.Store, report func(error))
 			}
 		}
 		_, err := c.Poll(ctx, MaxWait/2)
+		if derr := c.EndDenied(st); derr != nil && report != nil {
+			report(derr)
+		}
 		if herr := c.HandleRequests(ctx, st); herr != nil && report != nil {
 			report(herr)
 		}
@@ -809,7 +825,10 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 // and with Config.RequireDevice an approval of those risk classes must.
 //
 // No decision yet is ErrPending; a denial ends the plan Denied and is
-// ErrDenied with the human's reason; a decision too old or past the
+// ErrDenied with the human's reason, a withdrawal at the hub
+// (ticket.Decision.Withdrawal) ends it Withdrawn and is ErrWithdrawn (an
+// ErrDenied too). A plan EndDenied ended already answers the same, once,
+// with the denial; a decision too old or past the
 // ticket ends it Expired. An expired ticket is ticket.ErrExpired: the
 // product renews it (Renew) and answers pending with the new ticket.
 func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, *ticket.Decision, error) {
@@ -823,12 +842,22 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 	if err != nil {
 		return nil, nil, err
 	}
-	if p.State != plans.Pending {
-		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
-	}
 	c.mu.Lock()
 	e, ok := c.inbox[ticketID]
 	c.mu.Unlock()
+	if p.State == plans.Denied || p.State == plans.Withdrawn {
+		// Ended by EndDenied: the agent hears why, once.
+		if ok {
+			if d, err := c.ownDenial(p, e); err == nil {
+				c.drop(ticketID)
+				return nil, d, denialError(d)
+			}
+		}
+		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
+	}
+	if p.State != plans.Pending {
+		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
+	}
 	if !ok {
 		return nil, nil, ErrPending
 	}
@@ -852,14 +881,11 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 		}
 	}
 	if d.Decision == ticket.Denied {
-		if err := st.End(p.ID, caller, plans.Denied, d.Reason); err != nil {
+		if err := st.End(p.ID, caller, denialState(d), d.Reason); err != nil {
 			return nil, d, err
 		}
 		c.drop(ticketID)
-		if d.Reason == "" {
-			return nil, d, ErrDenied
-		}
-		return nil, d, fmt.Errorf("%w: %s", ErrDenied, d.Reason)
+		return nil, d, denialError(d)
 	}
 	if d.Device == nil && c.needsDevice(own.Risk) {
 		// verify checked any device signature; here there is none, and
@@ -907,6 +933,101 @@ func (c *Client) drop(ticketID string) {
 		delete(c.inbox, ticketID)
 		_ = c.save()
 	}
+}
+
+// denialState is the state denial d ends its plan in.
+func denialState(d *ticket.Decision) plans.State {
+	if d.Withdrawal() {
+		return plans.Withdrawn
+	}
+	return plans.Denied
+}
+
+// denialError is the agent's answer to denial d: ErrDenied with the
+// human's reason, or ErrWithdrawn for a withdrawal at the hub.
+func denialError(d *ticket.Decision) error {
+	switch {
+	case d.Withdrawal():
+		return &withdrawnError{reason: d.Reason}
+	case d.Reason == "":
+		return ErrDenied
+	}
+	return fmt.Errorf("%w: %s", ErrDenied, d.Reason)
+}
+
+// withdrawnError is ErrWithdrawn and ErrDenied, with the hub's reason.
+type withdrawnError struct{ reason string }
+
+func (e *withdrawnError) Error() string { return ErrWithdrawn.Error() + ": " + e.reason }
+
+func (e *withdrawnError) Is(target error) bool { return target == ErrWithdrawn || target == ErrDenied }
+
+// ownDenial checks the kept decision e on plan p: it verifies under the
+// pinned hub key, matches the ticket the lock signed and pushed, and is
+// a denial. A denial needs no device signature: it runs nothing.
+func (c *Client) ownDenial(p *plans.Plan, e entry) (*ticket.Decision, error) {
+	d, err := c.verify(e)
+	if err != nil {
+		return nil, err
+	}
+	if d.Decision != ticket.Denied {
+		return nil, errNotDenial
+	}
+	own, err := p.LockTicket(c.pub)
+	if err != nil {
+		return nil, err
+	}
+	if err := d.Match(own); err != nil {
+		return nil, fmt.Errorf("%w: ticket %s: %v", ErrBadDecision, e.Ticket, err)
+	}
+	return d, nil
+}
+
+var errNotDenial = errors.New("hubclient: not a denial")
+
+// EndDenied ends, without waiting for their agent, the pending plans whose
+// ticket the hub denied, as Poll kept the denials: Withdrawn for a
+// withdrawal at the hub (the human in lox run or lox withdraw), Denied
+// otherwise. The plan then frees its pending slot (MaxPending) and Sync
+// never pushes it again. The denial stays kept: the agent's next Begin on
+// the ticket answers ErrWithdrawn or ErrDenied with it. Watch calls it
+// after each Poll. A denial that does not match the lock's own ticket is
+// dropped (ErrBadDecision) and its plan stays pending.
+func (c *Client) EndDenied(st *plans.Store) error {
+	c.mu.Lock()
+	ids := make([]string, 0, len(c.denials))
+	for id := range c.denials {
+		ids = append(ids, id)
+	}
+	c.mu.Unlock()
+	sort.Strings(ids)
+	var errs []error
+	for _, id := range ids {
+		c.mu.Lock()
+		e, ok := c.inbox[id]
+		delete(c.denials, id)
+		c.mu.Unlock()
+		if !ok {
+			continue
+		}
+		p, err := st.TicketPlan(id)
+		if err != nil || p.State != plans.Pending {
+			continue // no plan here, or one that ended already
+		}
+		d, err := c.ownDenial(p, e)
+		switch {
+		case errors.Is(err, errNotDenial):
+			continue
+		case err != nil:
+			c.drop(id)
+			errs = append(errs, err)
+			continue
+		}
+		if err := st.EndTicket(id, denialState(d), d.Reason); err != nil && !errors.Is(err, plans.ErrState) {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
 }
 
 // Finish ends an executing plan (plans.Store.Finish) and tells the hub its

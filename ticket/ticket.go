@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 	"unicode/utf8"
 )
@@ -121,6 +122,17 @@ const (
 	Approved Outcome = "approved"
 	Denied   Outcome = "denied"
 )
+
+// WithdrawnReason starts the reason of the Denied decision a hub sends
+// for a ticket the human withdrew there ("withdrawn by <human> in lox
+// run"): the lock ends its plan Withdrawn, not Denied (Withdrawal).
+const WithdrawnReason = "withdrawn by "
+
+// Withdrawal reports whether d is a hub's withdrawal of its ticket: a
+// denial whose reason starts with WithdrawnReason.
+func (d *Decision) Withdrawal() bool {
+	return d.Decision == Denied && strings.HasPrefix(d.Reason, WithdrawnReason)
+}
 
 // UnmarshalJSON refuses an outcome other than Approved and Denied.
 func (o *Outcome) UnmarshalJSON(b []byte) error {
