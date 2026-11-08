@@ -566,15 +566,27 @@ func (s *Store) FindPending(c Caller, planHash string) (*Plan, bool) {
 	return clone(found), true
 }
 
-// Pending lists the pending plans, oldest first.
+// Pending lists the pending plans, oldest first. A plan past its Expires
+// ends Expired instead, as lookup does: it no longer holds a pending slot
+// (hubclient.MaxPending) nor goes to the hub again (hubclient.Sync).
 func (s *Store) Pending() []*Plan {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	now := s.now()
 	var out []*Plan
-	for _, p := range s.plans {
-		if p.State == Pending {
-			out = append(out, clone(p))
+	for id, p := range s.plans {
+		if p.State != Pending {
+			continue
 		}
+		if p.Expires != nil && !now.Before(*p.Expires) {
+			// A plan that cannot be written stays listed: it is still
+			// pending on disk.
+			if err := s.setState(p, Expired, "expired"); err == nil {
+				continue
+			}
+			p = s.plans[id]
+		}
+		out = append(out, clone(p))
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Created.Before(out[j].Created) })
 	return out
@@ -734,6 +746,31 @@ func (s *Store) End(id string, c Caller, st State, reason string) error {
 		return fmt.Errorf("%w: %s → %s", ErrState, p.State, st)
 	}
 	return s.setState(p, st, reason)
+}
+
+// EndTicket is End for the lock itself, with no caller: it ends the plan
+// waiting on ticket ticketID, a decision of the hub on it having ended it
+// (hubclient.Client.EndDenied). Only a plan that has not begun ends; st is
+// Denied, Withdrawn, Stale or Expired. The hub knows already: the plan is
+// not Untold.
+func (s *Store) EndTicket(ticketID string, st State, reason string) error {
+	switch st {
+	case Denied, Withdrawn, Stale, Expired:
+	default:
+		return fmt.Errorf("%w: End to %s", ErrState, st)
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, p := range s.plans {
+		if p.Ticket != ticketID {
+			continue
+		}
+		if p.State != Planned && p.State != Pending {
+			return fmt.Errorf("%w: %s → %s", ErrState, p.State, st)
+		}
+		return s.setState(p, st, reason)
+	}
+	return ErrNoSuchPlan
 }
 
 // ExpireApproval ends a pending plan Expired because its approval, given

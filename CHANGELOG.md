@@ -5,6 +5,22 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- ticket: `read` and `read-pii` tickets expire after 1 h (`Risk.TTL`,
+  was never), and their approvals age out after 1 h too; `ClampTTL` still
+  lets an instance shorten it. `WithdrawnReason` and
+  `Decision.Withdrawal` name the denial a hub sends for a ticket the
+  human withdrew there (lockhub#148).
+- hubclient: `Client.EndDenied` ends a pending plan as soon as its
+  denial is polled, without waiting for the agent: `plans.Withdrawn` for
+  a withdrawal at the hub, `plans.Denied` otherwise; the plan frees its
+  `MaxPending` slot and `Sync` never pushes it again. `Watch` calls it
+  after each poll. The agent's next `Begin` on the ticket answers the
+  denial once, with the decision: `ErrWithdrawn` (also `ErrDenied`) for a
+  withdrawal, `ErrDenied` with the reason otherwise.
+- plans: `Store.EndTicket` ends the plan of a ticket for the lock itself;
+  `Store.Pending` ends Expired the plans past their `Expires` instead of
+  listing them, so they no longer count against `MaxPending` nor go to
+  the hub again.
 - sanitize: `Terminal` also escapes the other format characters (zero-width
   U+200B-D, U+2060, the BOM U+FEFF, soft hyphen U+00AD, U+180E,
   interlinear annotations U+FFF9-B, tag characters U+E0000-E007F), the

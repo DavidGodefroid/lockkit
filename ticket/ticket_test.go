@@ -333,7 +333,7 @@ func TestDecisionUsable(t *testing.T) {
 
 func TestRiskTTL(t *testing.T) {
 	want := map[Risk]time.Duration{
-		RiskRead: 0, RiskReadPII: 0, RiskGrant: 4 * time.Hour, RiskWrite: 24 * time.Hour,
+		RiskRead: time.Hour, RiskReadPII: time.Hour, RiskGrant: 4 * time.Hour, RiskWrite: 24 * time.Hour,
 		RiskPolicyLoosen: 24 * time.Hour, RiskProdWrite: 4 * time.Hour, RiskUnlock: 4 * time.Hour,
 	}
 	if len(want) != len(Risks) {
@@ -348,9 +348,14 @@ func TestRiskTTL(t *testing.T) {
 		t.Error("unknown risk")
 	}
 	if ClampTTL(RiskWrite, time.Hour) != time.Hour || ClampTTL(RiskWrite, 48*time.Hour) != 24*time.Hour ||
-		ClampTTL(RiskRead, time.Hour) != time.Hour || ClampTTL(RiskRead, 0) != 0 || ClampTTL(RiskProdWrite, -1) != 4*time.Hour ||
+		ClampTTL(RiskRead, time.Minute) != time.Minute || ClampTTL(RiskRead, 2*time.Hour) != time.Hour || ClampTTL(RiskRead, 0) != time.Hour || ClampTTL(RiskProdWrite, -1) != 4*time.Hour ||
 		ClampTTL(RiskGrant, 0) != 4*time.Hour || ClampTTL(RiskGrant, 8*time.Hour) != 4*time.Hour {
 		t.Error("ClampTTL may only shorten")
+	}
+	// A read left pending ends by itself.
+	rd := NewTicket(Source{Lock: "locksql", Instance: "crm-prod"}, RiskRead, "", "", t0, ClampTTL(RiskRead, 0))
+	if rd.Expires == nil || rd.Expired(t0.Add(time.Hour-time.Second)) || !rd.Expired(t0.Add(time.Hour)) {
+		t.Errorf("read ticket expiry: %v", rd.Expires)
 	}
 	var r Risk
 	if err := json.Unmarshal([]byte(`"Write"`), &r); err == nil {

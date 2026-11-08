@@ -462,3 +462,49 @@ func TestWithdrawAllUntoldUntilTold(t *testing.T) {
 		t.Fatalf("MarkTold of a pruned plan: %v", err)
 	}
 }
+
+func TestPendingSkipsExpired(t *testing.T) {
+	s, _, c := newStore(t)
+	exp := c.now().Add(time.Hour)
+	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
+	if err := s.MarkPending(p.ID, agent3, tkt(t, p, &exp)); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(s.Pending()); n != 1 {
+		t.Fatalf("%d pending, want 1", n)
+	}
+	c.add(time.Hour)
+	if n := len(s.Pending()); n != 0 {
+		t.Fatalf("%d pending after the ticket expired, want 0", n)
+	}
+	if got, _ := s.PlanByID(p.ID); got.State != Expired {
+		t.Errorf("expired pending plan is %s", got.State)
+	}
+}
+
+func TestEndTicket(t *testing.T) {
+	s, _, _ := newStore(t)
+	p, _ := s.Create(bind(agent3), json.RawMessage(`{}`), 0)
+	if err := s.MarkPending(p.ID, agent3, tkt(t, p, nil)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.EndTicket(tk1, Executed, "x"); !errors.Is(err, ErrState) {
+		t.Fatalf("EndTicket to executed: %v", err)
+	}
+	if err := s.EndTicket("01JBDN0Z0000000000000000ZZ", Withdrawn, "x"); !errors.Is(err, ErrNoSuchPlan) {
+		t.Fatalf("unknown ticket: %v", err)
+	}
+	if err := s.EndTicket(tk1, Withdrawn, "withdrawn by david in lox run"); err != nil {
+		t.Fatal(err)
+	}
+	got, _ := s.Get(p.ID, agent3)
+	if got.State != Withdrawn || got.Reason != "withdrawn by david in lox run" || got.Untold {
+		t.Fatalf("%s %q untold=%v", got.State, got.Reason, got.Untold)
+	}
+	if len(s.Pending()) != 0 {
+		t.Error("still pending")
+	}
+	if err := s.EndTicket(tk1, Denied, "again"); !errors.Is(err, ErrState) {
+		t.Errorf("ending a final plan: %v", err)
+	}
+}
