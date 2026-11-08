@@ -230,10 +230,10 @@ func TestQuestionFileFormat(t *testing.T) {
 	}
 }
 
-// The Terminal records, with each question, the lines it printed since the
-// previous question: the policy diff above "Apply these changes?", the
-// host key fingerprint above its prompt. What the human types (echoed or
-// not) is never written (#152).
+// The Terminal records, with each question, the context lines it printed
+// (PrintContext) since the previous question: the policy diff above "Apply
+// these changes?", the host key fingerprint above its prompt. What the
+// human types (echoed or not) is never written (#152).
 func TestTerminalRecordsQuestionContext(t *testing.T) {
 	r, w, err := os.Pipe()
 	if err != nil {
@@ -244,11 +244,11 @@ func TestTerminalRecordsQuestionContext(t *testing.T) {
 	term := NewTerminal(r, io.Discard)
 	term.echo = true // as in cbreak mode: the Terminal echoes what is typed
 	path := filepath.Join(t.TempDir(), "1a2b3c4d-prod.question")
-	term.Println(red + bold + "PRODUCTION" + reset)
+	term.PrintContext(red + bold + "PRODUCTION" + reset)
 	term.SetQuestionFile(path)
 
-	term.Println("Policy changes for prod:")
-	term.Println(green + "  + tables: orders (write)" + reset + "\n  - masked: email")
+	term.PrintContext("Policy changes for prod:")
+	term.PrintContext(green + "  + tables: orders (write)" + reset + "\n  - masked: email")
 	got := make(chan string, 1)
 	go func() {
 		a, _ := term.Ask(context.Background(), "Apply these changes? [y/N] ", time.Minute)
@@ -279,8 +279,8 @@ func TestTerminalRecordsQuestionContext(t *testing.T) {
 	waitFile(t, path, "")
 
 	// Only the lines since the previous question come with the next one.
-	term.Println("Host db.example.com:22 is not known.")
-	term.Println("ED25519 key fingerprint is SHA256:abcdEFGH12345678.")
+	term.PrintContext("Host db.example.com:22 is not known.")
+	term.PrintContext("ED25519 key fingerprint is SHA256:abcdEFGH12345678.")
 	go func() {
 		a, _ := term.Ask(context.Background(), "Type the last 8 characters of the fingerprint to trust it: ", time.Minute)
 		got <- a
@@ -308,3 +308,93 @@ func TestTerminalRecordsQuestionContext(t *testing.T) {
 	waitFile(t, path, "User:\n")
 	_, _ = w.WriteString("x\n")
 }
+
+// Only the lines a caller opted in (PrintContext) reach a question file:
+// what Println prints, a clear result or a value shown unmasked, stays on
+// the terminal, however it is interleaved with context lines.
+func TestTerminalQuestionContextOptIn(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+	var screen strings.Builder
+	term := NewTerminal(r, &screen)
+	path := filepath.Join(t.TempDir(), "1a2b3c4d-prod.question")
+	term.SetQuestionFile(path)
+
+	term.PrintContext("Policy changes for prod:")
+	term.Println(red + "result in clear (shown here only; the agent got it masked)" + reset)
+	term.Println("| email              | iban                |\n| ann@example.com    | BE71096123456769    |")
+	term.PrintContext("  + tables: orders (write)")
+	term.Println("unmasked: ann@example.com")
+	got := make(chan string, 1)
+	go func() {
+		a, _ := term.Ask(context.Background(), "Apply these changes? [y/N] ", time.Minute)
+		got <- a
+	}()
+	waitFile(t, path, "Apply these changes? [y/N]\n"+QuestionContextMark+"\nPolicy changes for prod:\n  + tables: orders (write)\n")
+	if _, err := w.WriteString("n\n"); err != nil {
+		t.Fatal(err)
+	}
+	<-got
+	waitFile(t, path, "")
+
+	// Println alone: the question comes without context.
+	term.Println("| ann@example.com    | BE71096123456769    |")
+	go func() {
+		a, _ := term.Ask(context.Background(), "Approve? [y/N] ", time.Minute)
+		got <- a
+	}()
+	waitFile(t, path, "Approve? [y/N]\n")
+	_, _ = w.WriteString("n\n")
+	<-got
+	waitFile(t, path, "")
+	if !strings.Contains(screen.String(), "ann@example.com") {
+		t.Fatalf("Println did not print: %q", screen.String())
+	}
+}
+
+// PrintContext prints on any IO: on one that records no context, as
+// Println.
+func TestPrintContextFallback(t *testing.T) {
+	f := &fakeIO{}
+	PrintContext(f, "PRODUCTION")
+	if !strings.Contains(f.plain(), "PRODUCTION") {
+		t.Fatalf("not printed: %q", f.plain())
+	}
+}
+
+// contextIO is a fakeIO that keeps apart the lines printed as question
+// context.
+type contextIO struct {
+	*fakeIO
+	context []string
+}
+
+func (c *contextIO) PrintContext(s string) {
+	c.context = append(c.context, s)
+	c.fakeIO.Println(s)
+}
+
+// Run prints the PRODUCTION banner and the policy under review as context
+// of the question that follows them; what else it prints stays out of it.
+func TestRunPrintsQuestionContext(t *testing.T) {
+	io := &contextIO{fakeIO: &fakeIO{answers: []string{"prod"}}}
+	// Ends at the password prompt, which gets no answer.
+	_ = Run(context.Background(), testProduct, &fakeBackend{policy: prod()}, Options{Profile: "prod", Hub: testHub(t), IO: io,
+		StateDir: t.TempDir(), Isolation: runEnv(t), Harden: func() error { return nil }})
+	got := ansi.ReplaceAllString(strings.Join(io.context, "\n"), "")
+	for _, want := range []string{"First start of profile prod: review its policy.", "PRODUCTION profile prod"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("context lacks %q:\n%s\nprinted:\n%s", want, got, io.plain())
+		}
+	}
+	if strings.Contains(got, "approved policy)") {
+		t.Fatalf("a line that is no question's context was recorded:\n%s", got)
+	}
+}
+
+// A product prints context through its Env: the Server passes it on.
+var _ ContextPrinter = (*Server)(nil)

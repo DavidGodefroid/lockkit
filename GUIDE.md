@@ -515,16 +515,25 @@ question the console asks, which was printed before they attached. The
 `Terminal` does it (`SetQuestionFile`); a product with its own start-up
 calls `console.RecordQuestions(io, socket)` before its first question.
 
-The file, mode 0600, holds only what the console printed. Its first line
-is the prompt; when the console printed lines since the previous question
-(or since it started), the second line is `console.QuestionContextMark`
+The file, mode 0600, holds only what the console printed as a question's
+context. Its first line is the prompt; when the console printed context
+lines since the previous question (or since it started), the second line is `console.QuestionContextMark`
 and the lines follow, oldest first: the policy diff above `Apply these
 changes?`, the host key fingerprint above its prompt, the PRODUCTION
 banner. They have their colours dropped and their controls escaped, and
 are bounded (`MaxQuestionLines`, `MaxQuestionBytes`). What the human
 types, echoed or not, is never written. `console.ParseQuestion` reads the
-file; a reader that takes the first line still gets the prompt. Print the
-context of a question with `IO.Println`, so that it is recorded with it.
+file; a reader that takes the first line still gets the prompt.
+
+Context is opt-in. Print the context of a question with
+`console.PrintContext(io, line)` (or `console.PrintContext(env, line)` in
+a handler): it prints the line as `Println` does and, on a
+`ContextPrinter` (the `Terminal`, the `Server`), records it with the next
+question. A `Println` line is never recorded. The file sits in the socket
+directory, a volume that agents' containers may mount: print as context
+only what an agent may read (the PRODUCTION banner, a policy diff, a host
+key fingerprint), never a result, a clear or unmasked value of the
+backend's data, nor a secret.
 
 ```go
 type Backend interface {

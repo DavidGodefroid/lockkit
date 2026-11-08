@@ -29,14 +29,19 @@ GUIDE.md is the contract between lockkit and the products built on it.
   client cannot hide or smuggle text in what the human reads (an approval
   screen's note, a change request). An emoji's variation selector or
   joiner shows escaped too (#116).
-- console: the question file (`QuestionPath`) also holds the lines the
-  console printed above the question since the previous one (the policy
-  diff, a host key fingerprint, the PRODUCTION banner): the prompt stays
-  the first line, then `QuestionContextMark` and the lines, colours
-  dropped and controls escaped, at most `MaxQuestionLines` (40) and
-  `MaxQuestionBytes` (8 KiB). Never what the human types. `ParseQuestion`
-  reads the file, with or without context, so that `lox run` shows a
-  question printed before it attached with its context (#152).
+- console: the question file (`QuestionPath`) also holds the context
+  lines the console printed above the question since the previous one
+  (the policy diff, a host key fingerprint, the PRODUCTION banner): the
+  prompt stays the first line, then `QuestionContextMark` and the lines,
+  colours dropped and controls escaped, at most `MaxQuestionLines` (40)
+  and `MaxQuestionBytes` (8 KiB). Context is opt-in: only lines printed
+  with `console.PrintContext` (the `ContextPrinter` of a `Terminal` or a
+  `Server`) are recorded, never a `Println` line, so a clear result or an
+  unmasked value shown to the human never reaches the file; `Run` prints
+  the PRODUCTION banner and the policy under review that way. Never what
+  the human types. `ParseQuestion` reads the file, with or without
+  context, so that `lox run` shows a question printed before it attached
+  with its context (#152).
 
 ## v0.15.0 (2026-11-07)
 
