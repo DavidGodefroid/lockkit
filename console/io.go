@@ -12,9 +12,12 @@ package console
 
 import (
 	"context"
+	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
+	"github.com/DavidGodefroid/lockkit/sanitize"
 	"github.com/DavidGodefroid/lockkit/ui"
 )
 
@@ -83,11 +86,105 @@ type QuestionRecorder interface {
 
 // QuestionPath is the file that holds the question the console of socket
 // waits for: next to the socket, its name with .question for .sock
-// (/run/locksql/1a2b3c4d-prod.question). Only the prompt is written, never
-// an answer; the file is removed once the question is answered.
+// (/run/locksql/1a2b3c4d-prod.question). It holds only what the console
+// printed, never an answer (ParseQuestion reads it); the file is mode 0600 and is
+// removed once the question is answered.
 func QuestionPath(socket string) string {
 	return strings.TrimSuffix(socket, ".sock") + ".question"
 }
+
+// Bounds of the context kept with a question: the last MaxQuestionLines
+// lines printed above it, at most MaxQuestionBytes bytes (newlines
+// counted).
+const (
+	MaxQuestionLines = 40
+	MaxQuestionBytes = 8 << 10
+)
+
+// QuestionContextMark is the second line of a question file whose question
+// comes with the lines printed above it.
+const QuestionContextMark = "--- printed above the question ---"
+
+// The format of a question file (ParseQuestion reads it):
+//
+//	<prompt>
+//	--- printed above the question ---
+//	<line printed above it>
+//	...
+//
+// The prompt is the first line, as in files without context, so that a
+// reader taking the first line still gets the question. The mark and the
+// lines that follow it, oldest first, are there when the console printed
+// something since the previous question (or since it started: the
+// PRODUCTION banner, the policy diff, a host key fingerprint). Every line
+// has its colours dropped and its control characters escaped for a
+// terminal (sanitize.Terminal); blank lines at either end of the context
+// are left out. What the human types, echoed or not, is never in it.
+
+// formatQuestion is the question file of prompt and the lines printed
+// above it.
+func formatQuestion(prompt string, above []string) string {
+	lines := make([]string, 0, len(above))
+	for _, l := range above {
+		lines = append(lines, questionLine(l))
+	}
+	for len(lines) > 0 && strings.TrimSpace(lines[0]) == "" {
+		lines = lines[1:]
+	}
+	for len(lines) > 0 && strings.TrimSpace(lines[len(lines)-1]) == "" {
+		lines = lines[:len(lines)-1]
+	}
+	if len(lines) > MaxQuestionLines {
+		lines = lines[len(lines)-MaxQuestionLines:]
+	}
+	size := 0
+	for _, l := range lines {
+		size += len(l) + 1
+	}
+	for len(lines) > 0 && size > MaxQuestionBytes {
+		size -= len(lines[0]) + 1
+		lines = lines[1:]
+	}
+	var b strings.Builder
+	b.WriteString(strings.TrimSpace(questionLine(prompt)) + "\n")
+	if len(lines) > 0 {
+		b.WriteString(QuestionContextMark + "\n")
+		for _, l := range lines {
+			b.WriteString(l + "\n")
+		}
+	}
+	return b.String()
+}
+
+// questionLine is one printed line as a question file holds it: colours
+// dropped, controls escaped, trailing spaces trimmed, cut to fit
+// MaxQuestionBytes.
+func questionLine(s string) string {
+	s = strings.TrimRight(sanitize.Terminal(ansiSeq.ReplaceAllString(s, ""), false), " ")
+	const ellipsis = "…"
+	if max := MaxQuestionBytes - 1; len(s) > max {
+		cut := max - len(ellipsis)
+		for cut > 0 && !utf8.RuneStart(s[cut]) {
+			cut--
+		}
+		s = s[:cut] + ellipsis
+	}
+	return s
+}
+
+// ParseQuestion reads a question file: its prompt and the lines printed
+// above it (nil when the file has none, as one written by an older
+// console).
+func ParseQuestion(file string) (prompt string, above []string) {
+	lines := strings.Split(strings.TrimRight(file, "\n"), "\n")
+	if len(lines) > 2 && lines[1] == QuestionContextMark {
+		above = lines[2:]
+	}
+	return lines[0], above
+}
+
+// ansiSeq matches the CSI sequences (colours) a printed line may carry.
+var ansiSeq = regexp.MustCompile("\x1b\\[[0-9;?]*[A-Za-z]")
 
 // RecordQuestions makes io record its questions in the QuestionPath of
 // socket, when io is a QuestionRecorder; it does nothing otherwise.

@@ -21,6 +21,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `Store.Pending` ends Expired the plans past their `Expires` instead of
   listing them, so they no longer count against `MaxPending` nor go to
   the hub again.
+- console: the question file (`QuestionPath`) also holds the lines the
+  console printed above the question since the previous one (the policy
+  diff, a host key fingerprint, the PRODUCTION banner): the prompt stays
+  the first line, then `QuestionContextMark` and the lines, colours
+  dropped and controls escaped, at most `MaxQuestionLines` (40) and
+  `MaxQuestionBytes` (8 KiB). Never what the human types. `ParseQuestion`
+  reads the file, with or without context, so that `lox run` shows a
+  question printed before it attached with its context (#152).
 
 ## v0.15.0 (2026-11-07)
 

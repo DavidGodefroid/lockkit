@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -17,7 +16,6 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/DavidGodefroid/lockkit/sanitize"
 	"github.com/DavidGodefroid/lockkit/secrets"
 )
 
@@ -70,6 +68,10 @@ type Terminal struct {
 	// question is the file the pending question is written to
 	// (SetQuestionFile); "" records none.
 	question atomic.Pointer[string]
+	// above is what Println printed since the last question, line by line,
+	// escapes stripped, at most MaxQuestionLines: the context written with
+	// the next question. mu guards it.
+	above []string
 }
 
 // NewTerminal returns the IO over in and out (normally os.Stdin and
@@ -303,6 +305,16 @@ func (t *Terminal) Println(s string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	fmt.Fprintln(t.out, s)
+	lines := strings.Split(s, "\n")
+	if n := len(lines) - MaxQuestionLines; n > 0 {
+		lines = lines[n:] // a long output (a result): only its end is kept
+	}
+	for _, l := range lines {
+		t.above = append(t.above, questionLine(l))
+	}
+	if n := len(t.above) - MaxQuestionLines; n > 0 {
+		t.above = append(t.above[:0], t.above[n:]...)
+	}
 }
 
 // print writes a prompt, without a newline.
@@ -471,10 +483,11 @@ func (t *Terminal) wait(ctx context.Context, timeout time.Duration) (string, boo
 var errTimeout = errors.New("timeout")
 
 // SetQuestionFile makes the Terminal write each question it waits for
-// (Ask, AskSecret: the prompt, never the answer) to path, and remove the
-// file once the question is answered, timed out or cancelled; "" stops it.
-// A file left by an earlier console (killed while it asked) is removed now.
-// Writing is best effort: the question is still asked on the terminal.
+// (Ask, AskSecret: the prompt and the lines it printed since the previous
+// question, never an answer) to path, and remove the file once the
+// question is answered, timed out or cancelled; "" stops it. A file left
+// by an earlier console (killed while it asked) is removed now. Writing is
+// best effort: the question is still asked on the terminal.
 func (t *Terminal) SetQuestionFile(path string) {
 	t.question.Store(&path)
 	if path != "" {
@@ -482,31 +495,34 @@ func (t *Terminal) SetQuestionFile(path string) {
 	}
 }
 
-// asking records prompt as the pending question (SetQuestionFile) and
-// returns what removes it. It assumes a single Ask or AskSecret at a time,
-// as the Terminal itself does (one reader, one prompt line): with two at
-// once, the first answered would remove the other's file.
+// asking records prompt as the pending question (SetQuestionFile), with
+// the lines printed since the previous question, and returns what removes
+// it. It assumes a single Ask or AskSecret at a time, as the Terminal
+// itself does (one reader, one prompt line): with two at once, the first
+// answered would remove the other's file.
 func (t *Terminal) asking(prompt string) func() {
+	t.mu.Lock()
+	above := t.above
+	t.above = nil
+	t.mu.Unlock()
 	p := t.question.Load()
 	if p == nil || *p == "" {
 		return func() {}
 	}
 	path := *p
-	if writeQuestion(path, prompt) != nil {
+	if writeQuestion(path, formatQuestion(prompt, above)) != nil {
 		return func() {}
 	}
 	return func() { _ = os.Remove(path) }
 }
 
-// writeQuestion atomically writes prompt, its colours dropped and escaped
-// for a terminal, as path, mode 0600.
-func writeQuestion(path, prompt string) error {
-	q := strings.TrimSpace(sanitize.Terminal(ansiSeq.ReplaceAllString(prompt, ""), false))
+// writeQuestion atomically writes q as path, mode 0600.
+func writeQuestion(path, q string) error {
 	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".*")
 	if err != nil {
 		return err
 	}
-	_, err = tmp.WriteString(q + "\n")
+	_, err = tmp.WriteString(q)
 	if cerr := tmp.Close(); err == nil {
 		err = cerr
 	}
@@ -518,9 +534,6 @@ func writeQuestion(path, prompt string) error {
 	}
 	return err
 }
-
-// ansiSeq matches the CSI sequences (colours) a prompt may carry.
-var ansiSeq = regexp.MustCompile("\x1b\\[[0-9;?]*[A-Za-z]")
 
 // Ask flushes pending input, prints prompt and waits for one line.
 func (t *Terminal) Ask(ctx context.Context, prompt string, timeout time.Duration) (string, bool) {
