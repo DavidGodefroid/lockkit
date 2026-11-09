@@ -858,9 +858,10 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 // No decision yet is ErrPending; a denial ends the plan Denied and is
 // ErrDenied with the human's reason, a withdrawal at the hub
 // (ticket.Decision.Withdrawal) ends it Withdrawn and is ErrWithdrawn (an
-// ErrDenied too). A plan EndDenied ended already answers the same, once,
-// with the denial; a decision too old or past the
-// ticket ends it Expired. An expired ticket is ticket.ErrExpired: the
+// ErrDenied too). A plan EndDenied ended already, or ends while Begin
+// runs, answers the same, once, with the denial: of runs racing on one
+// denial only one gets it, the others ErrUsed. A decision too old or past
+// the ticket ends it Expired. An expired ticket is ticket.ErrExpired: the
 // product renews it (Renew) and answers pending with the new ticket.
 func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, *ticket.Decision, error) {
 	p, err := st.ByTicket(ticketID, caller)
@@ -877,14 +878,7 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 	e, ok := c.inbox[ticketID]
 	c.mu.Unlock()
 	if p.State == plans.Denied || p.State == plans.Withdrawn {
-		// Ended by EndDenied: the agent hears why, once.
-		if ok {
-			if d, err := c.ownDenial(p, e); err == nil {
-				c.drop(ticketID)
-				return nil, d, denialError(d)
-			}
-		}
-		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
+		return c.endedDenial(p, e, ok)
 	}
 	if p.State != plans.Pending {
 		return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
@@ -912,10 +906,27 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 		}
 	}
 	if d.Decision == ticket.Denied {
-		if err := st.End(p.ID, caller, denialState(d), d.Reason); err != nil {
-			return nil, d, err
+		if beforeDenialEnd != nil {
+			beforeDenialEnd()
 		}
-		c.drop(ticketID)
+		if err := st.End(p.ID, caller, denialState(d), d.Reason); err != nil {
+			if !errors.Is(err, plans.ErrState) {
+				return nil, d, err
+			}
+			// Ended since it was read, by EndDenied on this denial.
+			ended, gerr := st.Get(p.ID, caller)
+			if gerr != nil {
+				return nil, nil, gerr
+			}
+			if ended.State != plans.Denied && ended.State != plans.Withdrawn {
+				return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, ended.State)
+			}
+			return c.endedDenial(ended, e, true)
+		}
+		if !c.take(ticketID) {
+			// Another run answered the denial already.
+			return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, denialState(d))
+		}
 		return nil, d, denialError(d)
 	}
 	if d.Device == nil && c.needsDevice(own.Risk) {
@@ -956,14 +967,37 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 	return p, d, nil
 }
 
+// beforeDenialEnd, when set (tests), runs in Begin between its read of
+// the plan and its End on a denial.
+var beforeDenialEnd func()
+
+// endedDenial answers a run of plan p, ended Denied or Withdrawn by
+// EndDenied, with the kept denial e (ok: there is one): the denial with
+// its reason, to the one run that takes it (the lock audits it once), and
+// ErrUsed to any other.
+func (c *Client) endedDenial(p *plans.Plan, e entry, ok bool) (*plans.Plan, *ticket.Decision, error) {
+	if ok {
+		if d, err := c.ownDenial(p, e); err == nil && c.take(p.Ticket) {
+			return nil, d, denialError(d)
+		}
+	}
+	return nil, nil, fmt.Errorf("%w: plan is %s", plans.ErrUsed, p.State)
+}
+
 // drop forgets the decision on ticketID.
-func (c *Client) drop(ticketID string) {
+func (c *Client) drop(ticketID string) { c.take(ticketID) }
+
+// take forgets the decision on ticketID and reports whether this call
+// did: of runs racing on one decision, only one takes it.
+func (c *Client) take(ticketID string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if _, ok := c.inbox[ticketID]; ok {
-		delete(c.inbox, ticketID)
-		_ = c.save()
+	if _, ok := c.inbox[ticketID]; !ok {
+		return false
 	}
+	delete(c.inbox, ticketID)
+	_ = c.save()
+	return true
 }
 
 // denialState is the state denial d ends its plan in.
