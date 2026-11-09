@@ -589,6 +589,9 @@ a := env.Approve(ctx, req.ID, console.Screen{
 	NeverAuto: true,                                   // never approved without a human's own decision (the hub's auto mode, a renewal)
 	Hub:       &console.HubTicket{...},                // the plan and masked screen for the hub (Hub mode below)
 })
+if a.Pending != nil && a.Decided {
+	return runTicket(ctx, req.ID, a.Pending.Ticket) // decided already (an auto rule): run it now
+}
 if !a.Approved {
 	return a.Refusal // pending (decided on lockhub), or refused
 }
@@ -670,7 +673,14 @@ and those to the terminal approver `base` it wraps. The run of a decided ticket 
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
 matched, still usable, binding unchanged, nonce consumed; it returns
 the decision, whose approver, facade and signature go in the audit
-record), the effect, then `h.Client.Finish`. A ticket the human denies
+record), the effect, then `h.Client.Finish`. `env.Approve` waits up to
+`hubclient.DecisionWait` (2 s) for the hub's decision on the ticket it
+pushed (`Client.Await`, as `Watch` polls): one decided by then, as `lox
+run`'s auto rules decide in milliseconds, comes back `Approval.Decided`,
+and the product runs the ticket in the same call, through the same code
+as the agent's run of it (an approval runs, a denial answers denied),
+rather than answer pending. A product that ignores `Decided` answers
+pending, and the agent's next run of the ticket finds the decision. A ticket the human denies
 or withdraws in `lox run` ends its plan as soon as `Watch` polls the
 decision (`Client.EndDenied`), freeing its pending slot; the agent's next
 run of it gets `hubclient.ErrDenied`, or `hubclient.ErrWithdrawn` (an

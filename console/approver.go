@@ -63,6 +63,14 @@ type AsyncApprover interface {
 	Submit(ctx context.Context, d Decision) (Pending, error)
 }
 
+// Awaiter is an AsyncApprover that waits a short while for the decision
+// on a ticket it submitted (hubclient.Client.Await, DecisionWait): Asker
+// then answers the request Decided rather than only pending.
+type Awaiter interface {
+	// Await reports whether ticket is decided, waiting a bounded time.
+	Await(ctx context.Context, ticket string) bool
+}
+
 // HubApproval is the audit approval of a request handed to an
 // AsyncApprover.
 const HubApproval = "hub"

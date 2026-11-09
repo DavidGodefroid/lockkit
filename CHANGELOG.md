@@ -3,6 +3,20 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- hubclient: `Client.Await` waits a bounded time for the decision on a
+  ticket, as `Watch` polls it; `DecisionWait` (2 s) is the wait of a run.
+- console: `env.Approve` in hub mode waits up to `DecisionWait` for the
+  decision on the ticket it pushed: a ticket an auto rule decided by
+  then comes back `Approval.Decided` (with `Pending`), and the product
+  runs it in the same call (`Client.Begin`) instead of answering
+  pending; the agent of an AUTO-mode `lox run` gets its rows in one call
+  (#162). `Awaiter` is the optional `AsyncApprover` method behind it.
+  A product that ignores `Decided` answers pending as before.
+- hubclient/hubtest: `Hub.AutoDecide` approves every accepted ticket at
+  once by an auto rule, as `lox run`'s auto mode.
+
 ## v0.16.1 (2026-11-09)
 
 - hubclient: a `Begin` racing `EndDenied` (Watch) on a denied ticket no

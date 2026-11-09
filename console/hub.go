@@ -310,6 +310,12 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	return Pending{Ticket: id, Instance: a.hub.Instance}, err
 }
 
+// Await waits up to hubclient.DecisionWait for the hub's decision on
+// ticket: Watch keeps it as the hub sends it.
+func (a *hubApprover) Await(ctx context.Context, ticket string) bool {
+	return a.hub.Client.Await(ctx, ticket, hubclient.DecisionWait)
+}
+
 // watchReport prints the hub client's errors, each once in a row.
 func watchReport(io IO) func(error) {
 	last := ""
