@@ -55,9 +55,37 @@ func LoadApproved(p kit.Product, stateDir, key string, into any) (bool, error) {
 // SaveApproved atomically writes v, indented JSON with a final newline,
 // as the approved policy of key, mode 0600 in a 0700 directory.
 func SaveApproved(p kit.Product, stateDir, key string, v any) error {
+	return SaveApprovedManaged(p, stateDir, key, v, "")
+}
+
+// ManagedField is the key of the approved policy's JSON object that holds
+// the fingerprint of the company's managed file the approval was made
+// under. LoadApproved's JSON decoding ignores it.
+const ManagedField = "managed_sha256"
+
+// SaveApprovedManaged is SaveApproved recording, when managedFP is set,
+// the managed file's fingerprint under ManagedField: v must then encode
+// as a JSON object.
+func SaveApprovedManaged(p kit.Product, stateDir, key string, v any, managedFP string) error {
 	path, err := ApprovedPath(p, stateDir, key)
 	if err != nil {
 		return err
+	}
+	if managedFP != "" {
+		raw, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Errorf("config: approved policy: %w", err)
+		}
+		var obj map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &obj); err != nil || obj == nil {
+			return errors.New("config: approved policy: a policy recorded with a managed fingerprint must encode as a JSON object")
+		}
+		if _, taken := obj[ManagedField]; taken {
+			return fmt.Errorf("config: approved policy: the policy has its own %q field", ManagedField)
+		}
+		fp, _ := json.Marshal(managedFP)
+		obj[ManagedField] = fp
+		v = obj
 	}
 	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {

@@ -41,6 +41,7 @@ type Hub struct {
 	sent      map[string][]byte // every request queued, by id
 	sinces    []string
 	status    int
+	autoRule  string
 }
 
 type item struct {
@@ -164,6 +165,11 @@ func (h *Hub) push(w http.ResponseWriter, r *http.Request, body []byte) {
 	}
 	h.tickets[tk.ID] = body
 	h.pushes++
+	if rule := h.autoRule; rule != "" {
+		h.decide(tk.ID, ticket.Approved, "", nil, func(d *ticket.Decision) {
+			d.V, d.Rule, d.Facade = ticket.VersionKinds, &ticket.Rule{By: ticket.RuleAuto, ID: rule}, "lox-run"
+		})
+	}
 	writeJSON(w, 201, map[string]any{"ticket": tk.ID, "created": true})
 }
 
@@ -201,6 +207,17 @@ func (h *Hub) DecideWith(id string, out ticket.Outcome, reason string, key ed255
 	h.t.Helper()
 	h.mu.Lock()
 	defer h.mu.Unlock()
+	h.decide(id, out, reason, key, mod)
+}
+
+// AutoDecide makes the hub approve every ticket it accepts from now on as
+// it accepts it, by auto rule rule, as `lox run`'s auto mode does ("":
+// tickets wait for Decide again).
+func (h *Hub) AutoDecide(rule string) { h.mu.Lock(); h.autoRule = rule; h.mu.Unlock() }
+
+// decide is DecideWith with h.mu held.
+func (h *Hub) decide(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey, mod func(*ticket.Decision)) {
+	h.t.Helper()
 	raw, ok := h.tickets[id]
 	if !ok {
 		h.t.Fatalf("hubtest: no ticket %s", id)
