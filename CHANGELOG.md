@@ -5,6 +5,32 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- managed: new package, the company-managed configuration of the whole
+  family (#166, lockfamily#31): `Load` reads `/etc/lockfamily/managed.toml`
+  (Linux) or `/Library/Application Support/lockfamily/managed.toml`
+  (macOS), refusing a file or directory not owned by root or writable by
+  others, an invalid file or an unknown key; an optional cosign signature
+  (`managed.toml.sigstore.json`, checked against `signer.toml`) must
+  verify when present, and is mandatory under `[family]
+  require_signature`. `File.Decode` decodes a section strictly,
+  `Bounds`/`Check` check a policy against `[<tool>.bounds]` through the
+  product's own `Diff`, `MergeProfiles` makes a managed profile win and
+  refuses its redefinition, `ClampDuration` clamps a duration the
+  `ClampTTL` way. `File.Family.RequireConfinedAgent` is lockkit#133's rule.
+  The path moves only in a `lockfamily_managed_test` build
+  (`SetTestPath`).
+- console: the managed file bounds the policy. `Run` refuses an
+  unreadable managed file or a policy beyond its bounds before any prompt
+  (`ErrManaged`, audited `refused-managed`); `CheckPolicy` re-reads it at
+  every poll, refuses a loosening beyond the bounds without a prompt
+  (never pending; `:review` lists it as not approvable), applies a
+  stricter file at once (or ends the session) and ends the session when
+  it becomes unreadable. A backend implements `ManagedBackend` to be
+  bounded; one that does not refuses a managed file with its section.
+- config: `SaveApprovedManaged` records the managed fingerprint
+  (`managed_sha256`) in the approved policy; audit: `Base.Managed` carries
+  it on every console record.
+
 - hubclient: `Client.Await` waits a bounded time for the decision on a
   ticket, as `Watch` polls it; `DecisionWait` (2 s) is the wait of a run.
 - console: `env.Approve` in hub mode waits up to `DecisionWait` for the
