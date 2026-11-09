@@ -3,6 +3,16 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- pii: `LooksPersonNameColumn(table, column, samples)` reports a
+  `name`-like column (`name`, `full_name`, `nom`, `naam`,
+  `customer_name`) whose sampled values are person names, the table name
+  raising the bar (`products`, `roles`, `cities`) or lowering it
+  (`customers`, `users`, `contacts`). The column name alone never
+  decides; a lock samples the text columns `LooksPersonalColumn` leaves
+  out to propose a `customers.name` holding "Alice Dupont" (#163).
+
 ## v0.16.0 (2026-11-08)
 
 - console: `Asker` answers a ticket refused over the hub client's limits
