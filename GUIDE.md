@@ -30,7 +30,7 @@ contract between lockkit and the products built on it.
 | `ipc` | console socket (private or shared dir), peer credentials, 1 MiB newline-delimited JSON-RPC 2.0, lockkit's methods and error codes |
 | `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
 | `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it, `NewSession` on it |
-| `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`), the redacted-reference store |
+| `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`, `LooksPersonNameColumn`), the redacted-reference store |
 | `render` | capped, escaped output for agents: `Value` (any typed JSON result) and `Table` (TSV/JSON) |
 | `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
 | `update` | cosign keyless signature check of a release artifact, checksums |
@@ -483,6 +483,16 @@ itself (lockssh runs its commands there).
 - `pii.LooksPersonal(name)` and `pii.LooksQuasi(name)` read a field name in
   en/fr/nl/de/es: use them to propose mask rules (a proposal tightens: apply
   it at once).
+- `pii.LooksPersonNameColumn(table, column, samples)` reads a column's
+  sampled values: a column whose name means "name" (`name`, `full_name`,
+  `nom`, `naam`, `customer_name`) holds person names when enough samples
+  are each one name as `person_name` finds it ("Alice Dupont", "Chloé
+  Lambert"): half in general, 30 % (and at least one) in a table of
+  people (`customers`, `users`, `employees`, `contacts`, `clients`), 80 %
+  in a table of things (`products`, `roles`, `categories`, `tags`,
+  `cities`); two names at least outside a table of people. The column
+  name alone is never enough: sample the text columns `LooksPersonal`
+  leaves out and propose those it reports.
 - `pii.RefStore`: `n := s.Begin()` per result, `s.PutDistinct(n, value)`
   (or `Put(n, "row.col", value)`) returns `rN.K`; show
   `pii.RedactedRef(ref)`; resolve with `Get` in the console only. Values

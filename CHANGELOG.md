@@ -10,6 +10,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
   and whenever a policy comes in force: a profile's `limits.*` raise
   applies once reviewed (typed name on production), a cut at once. A
   lock no longer calls `Hub.Client.SetLimits` itself (#150).
+- pii: `LooksPersonNameColumn(table, column, samples)` reports a
+  `name`-like column (`name`, `full_name`, `nom`, `naam`,
+  `customer_name`) whose sampled values are person names, the table name
+  raising the bar (`products`, `roles`, `cities`) or lowering it
+  (`customers`, `users`, `contacts`). The column name alone never
+  decides; a lock samples the text columns `LooksPersonalColumn` leaves
+  out to propose a `customers.name` holding "Alice Dupont" (#163).
+
 - managed: new package, the company-managed configuration of the whole
   family (#166, lockfamily#31): `Load` reads `/etc/lockfamily/managed.toml`
   (Linux) or `/Library/Application Support/lockfamily/managed.toml`
