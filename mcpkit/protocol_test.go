@@ -216,6 +216,40 @@ func TestCompleteResultsKeepsTheError(t *testing.T) {
 		t.Fatalf("error after completeResults: %v", seen)
 	}
 
+	// An error a result keeps for the server only never reaches the wire:
+	// the content stays empty and isError false.
+	hidden := errors.New("secret backend text")
+	s2, c2 := serveLimitTool(t, func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			res, err := next(ctx, method, req)
+			if _, ok := res.(*mcp.CallToolResult); ok {
+				out := &mcp.CallToolResult{}
+				out.SetError(hidden)
+				out.Content, out.IsError = nil, false
+				return out, err
+			}
+			return res, err
+		}
+	})
+	seen = nil
+	s2.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			res, err := next(ctx, method, req)
+			if r, ok := res.(*mcp.CallToolResult); ok {
+				seen = r.GetError()
+			}
+			return res, err
+		}
+	})
+	c2.initialize("2026-07-28")
+	res := c2.call("tools/call", toolCall(`{"limit":5}`))["result"].(map[string]any)
+	if content, _ := res["content"].([]any); res["resultType"] != "complete" || res["isError"] != nil || content == nil || len(content) != 0 {
+		t.Fatalf("hidden error: %v", res)
+	}
+	if seen != hidden {
+		t.Fatalf("hidden error after completeResults: %v", seen)
+	}
+
 	// Without a session there is no revision: the result is left as is.
 	r := Text("x")
 	out, err := completeResults(func(context.Context, string, mcp.Request) (mcp.Result, error) { return r, nil })(context.Background(), "tools/call", &mcp.CallToolRequest{})

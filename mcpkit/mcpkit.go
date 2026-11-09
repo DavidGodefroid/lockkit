@@ -117,7 +117,12 @@ func completeResults(next mcp.MethodHandler) mcp.MethodHandler {
 			out.Content = []mcp.Content{} // as the SDK's own: never null
 		}
 		if e := r.GetError(); e != nil {
-			out.SetError(e) // keeps the content; for logging middleware
+			// For outer middleware only: SetError would also fill an empty
+			// content with the error's text, which the result may hide,
+			// and set IsError.
+			content, isError := out.Content, out.IsError
+			out.SetError(e)
+			out.Content, out.IsError = content, isError
 		}
 		return out, nil
 	}
