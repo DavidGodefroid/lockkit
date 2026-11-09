@@ -698,3 +698,73 @@ func TestHubConsoleOwnDecisionsOnTerminal(t *testing.T) {
 		t.Fatalf("policy audit: %v", rec)
 	}
 }
+
+// The profile's ticket limits reach the hub client when the console
+// starts and whenever a policy comes in force: a raise only once the
+// human approved it, a cut at once.
+func TestServerAppliesTicketLimits(t *testing.T) {
+	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
+	hub := hubtest.New(t, hubInstance, pub)
+	c, err := hubclient.New(hubclient.Config{URL: hub.URL(), Instance: hubInstance, Key: priv, HubKey: hub.Pub,
+		StateFile: filepath.Join(t.TempDir(), "state.json")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := uat()
+	p.Base.TicketsPerWindow = 60
+	h := newHarness(t, p, func(cfg *ServerConfig) { cfg.Hub = &Hub{Client: c, Instance: hubInstance} })
+	if l := c.Limits(); l.RateN != 60 || l.MaxPending != hubclient.MaxPending || l.RateWindow != hubclient.RateWindow {
+		t.Fatalf("start: %+v", l)
+	}
+
+	raised := p
+	raised.Base.TicketsPerWindow = 90
+	h.b.policy = raised
+	h.s.CheckPolicy()
+	if !h.s.PolicyPending() || c.Limits().RateN != 60 {
+		t.Fatalf("raise applied without review: %+v", c.Limits())
+	}
+	h.io.answers = []string{"y"}
+	h.s.Command(context.Background(), ":review")
+	if c.Limits().RateN != 90 {
+		t.Fatalf("approved raise: %+v", c.Limits())
+	}
+
+	cut := raised
+	cut.Base.TicketsPerWindow, cut.Base.MaxPending = 10, 5
+	h.b.policy = cut
+	h.s.CheckPolicy()
+	if l := c.Limits(); h.s.PolicyPending() || l.RateN != 10 || l.MaxPending != 5 {
+		t.Fatalf("cut: %+v", l)
+	}
+}
+
+// On production, a raise of the ticket limits waits for the typed name.
+func TestServerTicketLimitsProductionTypedName(t *testing.T) {
+	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
+	hub := hubtest.New(t, hubInstance, pub)
+	c, err := hubclient.New(hubclient.Config{URL: hub.URL(), Instance: hubInstance, Key: priv, HubKey: hub.Pub,
+		StateFile: filepath.Join(t.TempDir(), "state.json")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := newHarness(t, prod(), func(cfg *ServerConfig) { cfg.Hub = &Hub{Client: c, Instance: hubInstance} })
+	raised := prod()
+	raised.Base.TicketsPerWindow = 60
+	h.b.policy = raised
+	h.s.CheckPolicy()
+	h.io.answers = []string{"y"}
+	h.s.Command(context.Background(), ":review")
+	if c.Limits().RateN != hubclient.RateN {
+		t.Fatalf("raise applied on a yes: %+v", c.Limits())
+	}
+	// A refused loosening waits for the files to change.
+	raised.Base.TicketsPerWindow = 61
+	h.b.policy = raised
+	h.s.CheckPolicy()
+	h.io.answers = []string{"prod"}
+	h.s.Command(context.Background(), ":review")
+	if c.Limits().RateN != 61 {
+		t.Fatalf("raise not applied with the typed name: %+v", c.Limits())
+	}
+}

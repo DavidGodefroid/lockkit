@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- console: `Profile.TicketLimits` (`hubclient.Limits`, set from
+  `config.Base.TicketLimits()`) reaches the console's hub client on start
+  and whenever a policy comes in force: a profile's `limits.*` raise
+  applies once reviewed (typed name on production), a cut at once. A
+  lock no longer calls `Hub.Client.SetLimits` itself (#150).
 - pii: `LooksPersonNameColumn(table, column, samples)` reports a
   `name`-like column (`name`, `full_name`, `nom`, `naam`,
   `customer_name`) whose sampled values are person names, the table name

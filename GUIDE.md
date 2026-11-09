@@ -149,8 +149,10 @@ Shared profile part: `config.Base` (user, credentials `ask|keychain|vault`,
 vault_path, credentials_ttl, tls, tls_ca/cert/key, production, ssh bastion,
 idle_timeout, max_session, tickets_per_window, ticket_window, max_pending),
 `config.ParseSSH` for the `ssh` table, and `config.DiffBase` for its
-loosening rules. Pass the approved profile's `Base.TicketLimits()` to the
-hub client (`Hub.Client.SetLimits`): by default a lock opens at most 30
+loosening rules. Set `Profile.TicketLimits` to the profile's
+`Base.TicketLimits()`: the console applies it to its hub client on start
+and whenever a policy comes in force, so a raise counts only once
+reviewed (typed name on production) and a cut at once. By default a lock opens at most 30
 tickets a human decides per 5 minutes and 30 pending ones; tickets an auto
 rule of `lox run` decided count only against a safety cap of 300. A refusal
 is a `hubclient.RateLimitError` (`ErrRateLimited`) naming the limit, the
