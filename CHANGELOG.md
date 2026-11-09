@@ -16,6 +16,16 @@ GUIDE.md is the contract between lockkit and the products built on it.
   A product that ignores `Decided` answers pending as before.
 - hubclient/hubtest: `Hub.AutoDecide` approves every accepted ticket at
   once by an auto rule, as `lox run`'s auto mode.
+- mcpkit: a `tools/call` result that a product's receiving middleware
+  built (locklog's rewrite of the SDK's argument-validation errors) now
+  carries the `resultType` a client at revision 2026-07-28 requires;
+  Claude Code rejected it as malformed, so an out-of-range argument or an
+  unknown property gave the agent an opaque client error instead of the
+  lock's refusal (#164). `Serve` adds the outermost receiving middleware
+  that sets it: add a product's own before `Serve`.
+- mcpkit: `New` accepts only the pinned `ProtocolVersions()`
+  (2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05), so an SDK
+  upgrade cannot negotiate an untested revision.
 
 ## v0.16.1 (2026-11-09)
 
