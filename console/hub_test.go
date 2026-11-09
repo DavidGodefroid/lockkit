@@ -157,6 +157,10 @@ func (b *hubBackend) Methods() map[string]Handler {
 				}
 			}
 			a := env.Approve(ctx, req.ID, sc)
+			if a.Pending != nil && a.Decided {
+				// Decided within the hub's short wait: run it now.
+				return b.run(ctx, req.ID, a.Pending.Ticket, env)
+			}
 			if !a.Approved {
 				return a.Refusal
 			}
@@ -169,20 +173,25 @@ func (b *hubBackend) Methods() map[string]Handler {
 			if r := Decode(req, &p); r != nil {
 				return *r
 			}
-			h := HubOf(env)
-			plan, _, err := h.Client.Begin(h.Store, p.Ticket, hubCaller, func(*plans.Plan) (string, string, error) {
-				return hubPolicyFP, hubPlanHash, nil
-			})
-			if err != nil {
-				return ErrResp(req.ID, ipc.CodeDenied, err.Error())
-			}
-			b.ran++
-			if err := h.Client.Finish(ctx, h.Store, plan.ID, hubCaller, true, ""); err != nil {
-				return ErrResp(req.ID, ipc.CodeInternal, err.Error())
-			}
-			return OKResp(req.ID, "ran")
+			return b.run(ctx, req.ID, p.Ticket, env)
 		},
 	}
+}
+
+// run runs the plan of decided ticket tk.
+func (b *hubBackend) run(ctx context.Context, id int64, tk string, env Env) ipc.Response {
+	h := HubOf(env)
+	plan, _, err := h.Client.Begin(h.Store, tk, hubCaller, func(*plans.Plan) (string, string, error) {
+		return hubPolicyFP, hubPlanHash, nil
+	})
+	if err != nil {
+		return ErrResp(id, ipc.CodeDenied, err.Error())
+	}
+	b.ran++
+	if err := h.Client.Finish(ctx, h.Store, plan.ID, hubCaller, true, ""); err != nil {
+		return ErrResp(id, ipc.CodeInternal, err.Error())
+	}
+	return OKResp(id, "ran")
 }
 
 func writeHubKey(t *testing.T, pub ed25519.PublicKey) string {
@@ -289,6 +298,54 @@ func TestRunHubModeEndToEnd(t *testing.T) {
 	case <-time.After(10 * time.Second):
 		t.Fatal("Run did not stop")
 	}
+}
+
+// A ticket an auto rule decides as the hub accepts it is decided within
+// the console's short wait (Approval.Decided): the product runs it in the
+// same call, and the agent never hears pending (#162).
+func TestRunHubAutoDecidedRunsInOneCall(t *testing.T) {
+	env := runEnv(t)
+	home := t.TempDir()
+	key, err := hubclient.InstanceKey(home, hubInstance)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	hub.AutoDecide("default:write")
+	b := &hubBackend{fakeBackend: fakeBackend{policy: uat()}}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: t.TempDir(), Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
+			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
+	}()
+	var socket string
+	select {
+	case socket = <-ready:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, io.plain())
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	prompts := io.promptCount()
+	r := dialAndCall(t, socket, "op.write", map[string]bool{"hub": true})
+	if r.Error != nil {
+		t.Fatalf("op.write: %+v\n%s", r.Error, io.plain())
+	}
+	var got string
+	if err := json.Unmarshal(r.Result, &got); err != nil || got != "ran" {
+		t.Fatalf("op.write answered %s, want the run's result", r.Result)
+	}
+	tickets := hub.Tickets()
+	if b.ran != 1 || len(tickets) != 1 || !hub.Consumed(tickets[0]) || io.promptCount() != prompts {
+		t.Fatalf("ran %d tickets %v prompts %d→%d", b.ran, tickets, prompts, io.promptCount())
+	}
+	cancel()
+	<-done
 }
 
 // With the hub down the request is pending all the same, never asked here.

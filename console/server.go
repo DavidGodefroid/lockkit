@@ -16,6 +16,7 @@ import (
 	"github.com/DavidGodefroid/lockkit/config"
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/kit"
+	"github.com/DavidGodefroid/lockkit/managed"
 	"github.com/DavidGodefroid/lockkit/sanitize"
 	"github.com/DavidGodefroid/lockkit/ui"
 )
@@ -94,6 +95,12 @@ type ServerConfig struct {
 	// nil for a policy-only console (Options.PolicyOnly) and in tests of
 	// the server itself.
 	Hub *Hub
+	// Managed is the company's managed file in force at start (nil: none).
+	Managed *managed.File
+
+	// loadManaged re-reads the managed file at every policy poll (Run sets
+	// it to managed.Load); nil keeps Managed for the session.
+	loadManaged func(context.Context) (*managed.File, error)
 }
 
 // Server serves client requests one at a time against one session. It is
@@ -120,6 +127,13 @@ type Server struct {
 	requests []string
 	// lastLoadErr avoids repeating the same config error every poll.
 	lastLoadErr string
+	// managed is the company's managed file in force (nil: none).
+	managed *managed.File
+	// managedRefused is the fingerprint of the files' policy refused by
+	// the managed file, managedLines why: shown by :review, never
+	// approvable.
+	managedRefused string
+	managedLines   []string
 	// prompting counts the decisions being asked: a control key pressed
 	// meanwhile never widens a switch (widenRefused).
 	prompting int
@@ -169,7 +183,7 @@ func NewServer(cfg ServerConfig) (*Server, error) {
 		}
 	}
 	s := &Server{cfg: cfg, approver: cfg.Approver, methods: methods, sess: cfg.Session, now: cfg.Now, san: cfg.Sanitizer,
-		showResults: cfg.ShowResults, allowUnmask: cfg.AllowUnmask, refused: cfg.Refused}
+		showResults: cfg.ShowResults, allowUnmask: cfg.AllowUnmask, refused: cfg.Refused, managed: cfg.Managed}
 	s.apply(cfg.Policy)
 	s.started = s.now()
 	s.lastSeen, s.connected = s.started, s.started
@@ -203,6 +217,7 @@ const level1Window = "the agent's account can read this window"
 // AuditRecord when it has one.
 func (s *Server) record(ctx context.Context, b audit.Base) error {
 	b.Profile = s.profile.Name
+	b.Managed = managedFP(s.managed)
 	StampPeer(ctx, &b)
 	var rec audit.Record = b
 	if ar, ok := s.cfg.Backend.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
@@ -711,9 +726,14 @@ func DenyReason(ans string) string {
 
 // Policy review.
 
-// CheckPolicy re-reads the policy from the config files. Changes that only
-// tighten are applied at once; a loosening waits for :review.
+// CheckPolicy re-reads the company's managed file and the policy from the
+// config files. Changes that only tighten are applied at once; a loosening
+// waits for :review; a policy beyond the managed bounds is refused
+// (refused-managed), never pending.
 func (s *Server) CheckPolicy() {
+	if !s.checkManaged() {
+		return
+	}
 	cur, err := s.cfg.Backend.LoadPolicy()
 	if err != nil {
 		msg := "config error: " + sanitize.Terminal(err.Error(), false) + "; the last approved policy stays in force"
@@ -725,11 +745,18 @@ func (s *Server) CheckPolicy() {
 	}
 	s.lastLoadErr = ""
 	fp := config.Fingerprint(cur)
-	switch {
-	case fp == config.Fingerprint(s.approved):
-		s.pending, s.refused = nil, ""
+	if fp == config.Fingerprint(s.approved) {
+		s.pending, s.refused, s.managedRefused, s.managedLines = nil, "", "", nil
 		return
-	case s.pending != nil && fp == config.Fingerprint(*s.pending), fp == s.refused:
+	}
+	// Checked before anything is pending: the company policy may have
+	// changed since a loosening was queued.
+	if vs, err := managedViolations(s.cfg.Product, s.cfg.Backend, cur, s.managed); err != nil || len(vs) > 0 {
+		s.refuseManagedChange(fp, vs, err)
+		return
+	}
+	s.managedRefused, s.managedLines = "", nil
+	if s.pending != nil && fp == config.Fingerprint(*s.pending) || fp == s.refused {
 		return
 	}
 	changes := cur.Diff(s.approved)
@@ -763,9 +790,10 @@ func (s *Server) CheckPolicy() {
 func (s *Server) PolicyPending() bool { return s.pending != nil }
 
 // PolicyRefused reports a loosening in the config files that the human
-// refused (at start or at :review) and that is still there: the last
-// approved policy applies, which a product may tell its clients.
-func (s *Server) PolicyRefused() bool { return s.refused != "" }
+// refused (at start or at :review), or that the company's managed file
+// refuses, and that is still there: the last approved policy applies,
+// which a product may tell its clients.
+func (s *Server) PolicyRefused() bool { return s.refused != "" || s.managedRefused != "" }
 
 // Loosens reports whether any change loosens the policy.
 func Loosens(changes []config.Change) bool {
@@ -787,6 +815,13 @@ func (s *Server) adopt(p Policy, decision string) error {
 // human made in the files.
 func (s *Server) adoptBy(ctx context.Context, p Policy, b audit.Base) error {
 	decision := b.Decision
+	// No change, a tightening included, is adopted beyond the company's
+	// managed file.
+	if vs, err := managedViolations(s.cfg.Product, s.cfg.Backend, p, s.managed); err != nil || len(vs) > 0 {
+		lines := violationLines(vs, err)
+		_ = s.record(ctx, audit.Base{Event: audit.EventPolicy, Decision: DecisionRefusedManaged, Error: strings.Join(lines, "; "), Pattern: b.Pattern})
+		return fmt.Errorf("%w: %s", ErrManaged, lines[0])
+	}
 	// fail is a record of a change that did not go as planned.
 	fail := func(d, msg string) audit.Base {
 		return audit.Base{Event: audit.EventPolicy, Decision: d, Error: msg, Pattern: b.Pattern}
@@ -822,7 +857,7 @@ func (s *Server) adoptBy(ctx context.Context, p Policy, b audit.Base) error {
 		}
 	}
 	if s.cfg.StateDir != "" && s.cfg.ApprovedKey != "" {
-		err := config.SaveApproved(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p)
+		err := config.SaveApprovedManaged(s.cfg.Product, s.cfg.StateDir, s.cfg.ApprovedKey, p, managedFP(s.managed))
 		if err != nil && decision != "applied" {
 			// A tightening is enforced even when it cannot be saved: going
 			// back to the looser policy would fail open. The next start
@@ -911,7 +946,7 @@ func FormatChanges(changes []config.Change) []string {
 // review shows the queued change requests and the pending policy change,
 // and asks the human to apply the latter.
 func (s *Server) review(ctx context.Context) {
-	if len(s.requests) == 0 && s.pending == nil {
+	if len(s.requests) == 0 && s.pending == nil && len(s.managedLines) == 0 {
 		s.println("nothing to review")
 		return
 	}
@@ -921,6 +956,12 @@ func (s *Server) review(ctx context.Context) {
 			s.println("  - " + r)
 		}
 		s.requests = nil
+	}
+	if len(s.managedLines) > 0 {
+		s.println(red + "policy change in the config files, refused by the company's managed configuration (not approvable):" + reset)
+		for _, line := range s.managedLines {
+			s.println(red + "  " + sanitize.Terminal(line, false) + reset)
+		}
 	}
 	if s.pending == nil {
 		return

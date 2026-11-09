@@ -111,6 +111,10 @@ type Base struct {
 	Approver *ticket.Approver `json:"approver,omitempty"`
 	Facade   string           `json:"facade,omitempty"`
 	HubSig   string           `json:"hub_sig,omitempty"`
+	// Managed is the sha256 of the company's managed file in force
+	// (package managed) when the record was made, so that an action is
+	// tied to the company policy it ran under.
+	Managed string `json:"managed,omitempty"`
 }
 
 // AuditEvent implements Record.

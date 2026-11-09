@@ -224,6 +224,14 @@ type Approval struct {
 	Refusal ipc.Response
 	// Pending: an AsyncApprover took the request; it is decided elsewhere.
 	Pending *Pending
+	// Decided: Pending's ticket was decided already, within the short
+	// wait of an Awaiter (hubclient.DecisionWait), as an auto rule of the
+	// decider does. The product then runs the ticket in this same call,
+	// as it runs the agent's run of the ticket (hubclient.Client.Begin:
+	// an approval runs, a denial answers denied), rather than answer
+	// Refusal (pending). A product that ignores it answers pending, and
+	// the agent's run of the ticket finds the decision.
+	Decided bool
 }
 
 // PendingResp is the answer to a request waiting for a decision taken

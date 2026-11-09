@@ -26,6 +26,7 @@ contract between lockkit and the products built on it.
 | `ui` | palette, banner, status marks of human-facing output |
 | `audit` | the console's append-only JSONL audit log, `audit.Record`, `audit.Base` |
 | `config` | config file lookup, secret-safe TOML decoding, profile base, TLS/SSH, `Policy`, diff helpers, approved store |
+| `managed` | the company-managed `managed.toml` of the whole family: OS path, root ownership, strict sections, optional cosign signature, fingerprint, `Bounds`/`Check` on your `Diff`, `MergeProfiles`, `ClampDuration` |
 | `ipc` | console socket (private or shared dir), peer credentials, 1 MiB newline-delimited JSON-RPC 2.0, lockkit's methods and error codes |
 | `client` | the secret-free side: dial (with the "no console" hint naming the start command), hello, `Call` |
 | `tunnel` | SSH bastion: known_hosts, key/agent/password auth, keepalive, `Dial` to any address through it, `NewSession` on it |
@@ -176,6 +177,86 @@ confirms the diff in the console; a tightening applies at once. Helpers:
 keeps the last policy the human accepted; `Fingerprint(v)` hashes a
 canonical form. Never let an IPC method loosen anything: an agent proposes
 a loosening (`change.request`), only the console's human applies it.
+
+### 6.1 Managed configuration: above the human
+
+A company can bound every policy of the machine with one file, the
+family's `managed.toml` (schema: lockfamily's `docs/managed.md`):
+`/etc/lockfamily/managed.toml` on Linux,
+`/Library/Application Support/lockfamily/managed.toml` on macOS
+(`managed.DefaultPath`). The user may tighten what it allows, never
+loosen it, and no human can approve beyond it.
+
+- `managed.Load(ctx)` reads it: nil and no error when there is none. The
+  file and its directory must be owned by root and writable by root only;
+  a badly owned, invalid or unknown-keyed file is an error, never a file
+  ignored (fail closed). When `managed.toml.sigstore.json` sits next to
+  it, it is verified with cosign (`update.Verify`) against the company
+  identity in `signer.toml` (root-owned: `certificate_identity_regexp`,
+  `oidc_issuer`); present and invalid is an error, and `[family]
+  require_signature = true` makes it mandatory. The signature is
+  re-checked only when the file, the bundle or the identity change.
+- No env var or flag moves it in a release build. Tests of a product build
+  with `-tags lockfamily_managed_test` and call `managed.SetTestPath(path)`
+  (no ownership check there).
+- `File.Decode(&v, "<tool>", managed.KindBounds|KindDefaults)` and
+  `File.Decode(&v, "<tool>", managed.KindProfiles, name)` decode one table
+  strictly; `[lox]` and `[lea]` decode whole (`File.Decode(&v, "lox")`).
+  `File.Fingerprint` is the sha256 of the bytes, `File.Describe()` the
+  "Managed by <organisation> (sha256:…)" line, `File.Family`
+  (`RequireConfinedAgent`, `RequireSignature`, `Vault`) the family rules.
+
+Precedence: hard-coded floor > managed bounds and profiles > project file
+> user file > managed defaults > built-in defaults. In your config loader:
+
+1. decode `[<tool>.defaults]` into your config struct first, then the user
+   and project files over it (`Decode` overlays);
+2. merge profiles with `managed.MergeProfiles(managed, project, user)`: a
+   managed profile wins as a whole, and a user or project profile of the
+   same name is an error;
+3. implement `console.ManagedBackend` so the console checks the merged
+   result against `[<tool>.bounds]`:
+
+```go
+// ManagedBounds returns p at its ceiling: every field the bounds name set
+// to its bound (a list bound on a single value: p's own value when allowed,
+// else the first allowed one). A nil Ceiling bounds nothing.
+func (b *backend) ManagedBounds(p console.Policy, m *managed.File) (managed.Bounds, error) {
+	var raw myBounds
+	if ok, err := m.Decode(&raw, "lockmq", managed.KindBounds); err != nil || !ok {
+		return managed.Bounds{}, err
+	}
+	return managed.Bounds{Ceiling: raw.ceiling(p.(myPolicy))}, nil
+}
+```
+
+`managed.Check(p, bounds)` runs `p.Diff(ceiling)`: your own diff decides
+what loosens, and every loosening field is a `managed.Violation` citing the
+managed key (`blocked by company policy: lockmq.bounds.tier = read (profile
+uat: tier = peek)`). Bound keys are your profile keys; `Bounds.Keys` maps a
+diff field to another key when they differ. Clamp a configured duration to
+a managed maximum with `managed.ClampDuration` (the `ticket.ClampTTL` way).
+
+The console then:
+
+- at start (`Run`), refuses an unreadable managed file and a policy beyond
+  the bounds (`console.ErrManaged`, audited `refused-managed`) before any
+  prompt, and also refuses the last approved policy kept after a refused
+  loosening when it is beyond them;
+- at every policy poll (2 s), re-reads the managed file: unreadable, the
+  session ends; changed, it is audited `managed-changed`, and a policy in
+  force beyond it is replaced at once by the files' policy when that one
+  is within it and only tightens (a connection field ends the session, as
+  any tightening), else the session ends;
+- refuses a policy in the files beyond the bounds without a prompt:
+  audited `refused-managed` once, never pending, listed by `:review` as not
+  approvable (`Server.PolicyRefused` reports it);
+- records the managed fingerprint in `approved/<key>.json`
+  (`config.ManagedField`, `managed_sha256`) and in every audit record
+  (`audit.Base.Managed`).
+
+A backend that does not implement `ManagedBackend` refuses to start when
+the managed file has a section for it: an old build never runs unbounded.
 
 ## 7. IPC, client, tunnel
 
@@ -591,6 +672,9 @@ a := env.Approve(ctx, req.ID, console.Screen{
 	NeverAuto: true,                                   // never approved without a human's own decision (the hub's auto mode, a renewal)
 	Hub:       &console.HubTicket{...},                // the plan and masked screen for the hub (Hub mode below)
 })
+if a.Pending != nil && a.Decided {
+	return runTicket(ctx, req.ID, a.Pending.Ticket) // decided already (an auto rule): run it now
+}
 if !a.Approved {
 	return a.Refusal // pending (decided on lockhub), or refused
 }
@@ -672,7 +756,14 @@ and those to the terminal approver `base` it wraps. The run of a decided ticket 
 product's: `h.Client.Begin(h.Store, ticket, caller, recheck)` (verified,
 matched, still usable, binding unchanged, nonce consumed; it returns
 the decision, whose approver, facade and signature go in the audit
-record), the effect, then `h.Client.Finish`. A ticket the human denies
+record), the effect, then `h.Client.Finish`. `env.Approve` waits up to
+`hubclient.DecisionWait` (2 s) for the hub's decision on the ticket it
+pushed (`Client.Await`, as `Watch` polls): one decided by then, as `lox
+run`'s auto rules decide in milliseconds, comes back `Approval.Decided`,
+and the product runs the ticket in the same call, through the same code
+as the agent's run of it (an approval runs, a denial answers denied),
+rather than answer pending. A product that ignores `Decided` answers
+pending, and the agent's next run of the ticket finds the decision. A ticket the human denies
 or withdraws in `lox run` ends its plan as soon as `Watch` polls the
 decision (`Client.EndDenied`), freeing its pending slot; the agent's next
 run of it gets `hubclient.ErrDenied`, or `hubclient.ErrWithdrawn` (an
@@ -884,6 +975,15 @@ dial fails, `mcpkit.NoConsole(P, profile, err)` (the exact start command and
 what to ask of the user; `NoConsoleLine` for the text). Run integers that
 may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
+
+**Protocol revisions.** `New` accepts only `mcpkit.ProtocolVersions()`
+(pinned: an SDK upgrade does not add a revision by itself). A client at
+revision 2026-07-28 or later rejects a `tools/call` result without
+`resultType`, and the SDK sets that field (unexported) on its own results
+only. Add your receiving middleware (to rewrite the SDK's argument-
+validation text as your refusal, say) before `Serve`: `Serve` adds the
+outermost one, which gives a result your middleware built the
+`resultType` it lacks.
 
 **Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
 `LEA_AGENT` and the hash of `LEA_AGENT_TOKEN`, so the raw token never

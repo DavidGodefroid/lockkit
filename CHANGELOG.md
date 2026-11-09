@@ -10,6 +10,62 @@ GUIDE.md is the contract between lockkit and the products built on it.
   and whenever a policy comes in force: a profile's `limits.*` raise
   applies once reviewed (typed name on production), a cut at once. A
   lock no longer calls `Hub.Client.SetLimits` itself (#150).
+- managed: new package, the company-managed configuration of the whole
+  family (#166, lockfamily#31): `Load` reads `/etc/lockfamily/managed.toml`
+  (Linux) or `/Library/Application Support/lockfamily/managed.toml`
+  (macOS), refusing a file or directory not owned by root or writable by
+  others, an invalid file or an unknown key; an optional cosign signature
+  (`managed.toml.sigstore.json`, checked against `signer.toml`) must
+  verify when present, and is mandatory under `[family]
+  require_signature`. `File.Decode` decodes a section strictly,
+  `Bounds`/`Check` check a policy against `[<tool>.bounds]` through the
+  product's own `Diff`, `MergeProfiles` makes a managed profile win and
+  refuses its redefinition, `ClampDuration` clamps a duration the
+  `ClampTTL` way. `File.Family.RequireConfinedAgent` is lockkit#133's rule.
+  The path moves only in a `lockfamily_managed_test` build
+  (`SetTestPath`).
+- console: the managed file bounds the policy. `Run` refuses an
+  unreadable managed file or a policy beyond its bounds before any prompt
+  (`ErrManaged`, audited `refused-managed`); `CheckPolicy` re-reads it at
+  every poll, refuses a loosening beyond the bounds without a prompt
+  (never pending; `:review` lists it as not approvable), applies a
+  stricter file at once (or ends the session) and ends the session when
+  it becomes unreadable. A backend implements `ManagedBackend` to be
+  bounded; one that does not refuses a managed file with its section.
+- config: `SaveApprovedManaged` records the managed fingerprint
+  (`managed_sha256`) in the approved policy; audit: `Base.Managed` carries
+  it on every console record.
+
+- hubclient: `Client.Await` waits a bounded time for the decision on a
+  ticket, as `Watch` polls it; `DecisionWait` (2 s) is the wait of a run.
+- console: `env.Approve` in hub mode waits up to `DecisionWait` for the
+  decision on the ticket it pushed: a ticket an auto rule decided by
+  then comes back `Approval.Decided` (with `Pending`), and the product
+  runs it in the same call (`Client.Begin`) instead of answering
+  pending; the agent of an AUTO-mode `lox run` gets its rows in one call
+  (#162). `Awaiter` is the optional `AsyncApprover` method behind it.
+  A product that ignores `Decided` answers pending as before.
+- hubclient/hubtest: `Hub.AutoDecide` approves every accepted ticket at
+  once by an auto rule, as `lox run`'s auto mode.
+- mcpkit: a `tools/call` result that a product's receiving middleware
+  built (locklog's rewrite of the SDK's argument-validation errors) now
+  carries the `resultType` a client at revision 2026-07-28 requires;
+  Claude Code rejected it as malformed, so an out-of-range argument or an
+  unknown property gave the agent an opaque client error instead of the
+  lock's refusal (#164). `Serve` adds the outermost receiving middleware
+  that sets it: add a product's own before `Serve`.
+- mcpkit: `New` accepts only the pinned `ProtocolVersions()`
+  (2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05), so an SDK
+  upgrade cannot negotiate an untested revision.
+
+## v0.16.1 (2026-11-09)
+
+- hubclient: a `Begin` racing `EndDenied` (Watch) on a denied ticket no
+  longer fails with `plans: transition not allowed: denied → denied`: it
+  answers the denial with its reason (`ErrDenied`, or `ErrWithdrawn`) and
+  the decision, for the lock's audit. Of runs racing on one denial,
+  exactly one answers it; the others get `plans.ErrUsed` and no decision,
+  so the lock audits the denial once (bug in v0.16.0).
 
 ## v0.16.0 (2026-11-08)
 
