@@ -13,6 +13,7 @@ import (
 	"github.com/DavidGodefroid/lockkit/audit"
 	"github.com/DavidGodefroid/lockkit/config"
 	"github.com/DavidGodefroid/lockkit/kit"
+	"github.com/DavidGodefroid/lockkit/managed"
 	"github.com/DavidGodefroid/lockkit/sanitize"
 	"github.com/DavidGodefroid/lockkit/secrets"
 	"github.com/DavidGodefroid/lockkit/ui"
@@ -74,6 +75,10 @@ type Options struct {
 	// policy review, so Run may still fail and close the hub; Run sets the
 	// client's OnRequest itself (Hub.Requests), replacing any set here.
 	OnHub func(*Hub)
+
+	// loadManaged replaces managed.Load (tests of this package): a release
+	// build always reads the machine's managed file.
+	loadManaged func(context.Context) (*managed.File, error)
 }
 
 // connectTimeout bounds one connection attempt.
@@ -103,6 +108,8 @@ type starter struct {
 	// nameTyped is set with reviewed when that review was approved by
 	// typing the production profile name: the start does not ask it again.
 	nameTyped bool
+	// managed is the company's managed file in force (nil: none).
+	managed *managed.File
 }
 
 var errLockedOut = errors.New("console: fingerprint: three non-matching fingers")
@@ -122,6 +129,7 @@ func (st *starter) decide(ctx context.Context, d Decision) Result {
 // not saved without its record.
 func (st *starter) audit(b audit.Base) error {
 	b.Profile = st.profile.Name
+	b.Managed = managedFP(st.managed)
 	var rec audit.Record = b
 	if ar, ok := st.b.(interface{ AuditRecord(audit.Base) audit.Record }); ok {
 		rec = ar.AuditRecord(b)
@@ -235,6 +243,17 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if err != nil {
 		return err
 	}
+	// The company's managed file bounds every policy below: unreadable,
+	// badly owned or badly signed, it refuses the start (fail closed).
+	loadManaged := managed.Load
+	if o.loadManaged != nil {
+		loadManaged = o.loadManaged
+	}
+	mf, err := loadManaged(ctx)
+	if err != nil {
+		_ = log.Append(audit.Base{Event: audit.EventPolicy, Profile: o.Profile, Decision: DecisionRefusedManaged, Error: err.Error()})
+		return fmt.Errorf("%w: %v", ErrManaged, err)
+	}
 	var hub *Hub
 	if !o.PolicyOnly {
 		if hub, err = OpenHub(p, o.Hub, o.StateDir, o.Now); err != nil {
@@ -253,7 +272,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		appr = NewFingerprintApprover(o.IO, iso.Verifier, iso.Sys.Finger, FingerDeadline)
 	}
 	st := &starter{p: p, b: b, o: o, io: o.IO, log: log, profile: cur.Profile(), approver: appr,
-		keychain: secrets.NewKeychain(p.KeychainService), vaultRead: secrets.VaultReadToken}
+		keychain: secrets.NewKeychain(p.KeychainService), vaultRead: secrets.VaultReadToken, managed: mf}
 	defer st.wipeVaultToken()
 	if o.Keychain != nil {
 		st.keychain = *o.Keychain
@@ -364,7 +383,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		ReconnectPolicy: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
-		RefuseProduction: refuseProduction,
+		RefuseProduction: refuseProduction, Managed: mf, loadManaged: loadManaged,
 	})
 	if err != nil {
 		ln.Close()
@@ -438,10 +457,49 @@ func loadApproved(p kit.Product, stateDir, key string, cur Policy) (Policy, bool
 	return ap, true, nil
 }
 
-// startPolicy compares the current policy with the approved one. It
-// returns the policy to enforce and, when the human refused a loosening,
-// the refused policy's fingerprint.
+// startPolicy checks the current policy against the company's managed
+// file, then compares it with the approved one (reviewPolicy). A policy
+// beyond the managed bounds is refused without any prompt: no human
+// approves beyond the company policy. It returns the policy to enforce
+// and, when the human refused a loosening, the refused policy's
+// fingerprint.
 func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Policy) (Policy, string, error) {
+	if st.managed != nil {
+		st.io.Println(Paint.Dim(sanitize.Terminal(st.managed.Describe(), false)))
+	}
+	if err := st.refuseManaged(cur); err != nil {
+		return nil, "", err
+	}
+	inForce, refusedFP, err := st.reviewPolicy(ctx, stateDir, key, cur)
+	if err != nil {
+		return nil, "", err
+	}
+	// The last approved policy, kept when the human refused a loosening,
+	// may predate the managed file.
+	if err := st.refuseManaged(inForce); err != nil {
+		return nil, "", err
+	}
+	return inForce, refusedFP, nil
+}
+
+// refuseManaged refuses p when it goes beyond the managed file's bounds,
+// printing and auditing (refused-managed) every violation.
+func (st *starter) refuseManaged(p Policy) error {
+	vs, err := managedViolations(st.p, st.b, p, st.managed)
+	if err == nil && len(vs) == 0 {
+		return nil
+	}
+	lines := violationLines(vs, err)
+	for _, line := range lines {
+		st.io.Println(Paint.Fail(sanitize.Terminal(line, false)))
+	}
+	st.audit(audit.Base{Event: audit.EventPolicy, Decision: DecisionRefusedManaged, Error: strings.Join(lines, "; ")})
+	return fmt.Errorf("%w: %s", ErrManaged, sanitize.Terminal(lines[0], false))
+}
+
+// reviewPolicy compares the current policy with the approved one and asks
+// the human to approve a first policy or a loosening.
+func (st *starter) reviewPolicy(ctx context.Context, stateDir, key string, cur Policy) (Policy, string, error) {
 	io := st.io
 	ap, ok, err := loadApproved(st.p, stateDir, key, cur)
 	if err != nil {
@@ -461,7 +519,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
 			return nil, "", errApprovalUnrecorded
 		}
-		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+		if err := config.SaveApprovedManaged(st.p, stateDir, key, cur, managedFP(st.managed)); err != nil {
 			return nil, "", st.failed(err)
 		}
 		st.reviewed, st.nameTyped = true, cur.Profile().Production
@@ -472,7 +530,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 		return ap, "", nil
 	}
 	if !Loosens(changes) {
-		if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+		if err := config.SaveApprovedManaged(st.p, stateDir, key, cur, managedFP(st.managed)); err != nil {
 			return nil, "", err
 		}
 		io.Println("policy tightened since the last session:")
@@ -502,7 +560,7 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 	if st.audit(audit.Base{Event: audit.EventPolicy, Decision: "applied", Approval: st.approver.Mode()}) != nil {
 		return nil, "", errApprovalUnrecorded
 	}
-	if err := config.SaveApproved(st.p, stateDir, key, cur); err != nil {
+	if err := config.SaveApprovedManaged(st.p, stateDir, key, cur, managedFP(st.managed)); err != nil {
 		return nil, "", st.failed(err)
 	}
 	st.reviewed, st.nameTyped = true, production

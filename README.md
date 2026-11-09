@@ -155,6 +155,7 @@ The product plugs its own operations in between, through `console.Backend`.
 | | `fingerprint` | fprintd verification (desktop security level 2) and a fake for tests |
 | | `sysconf` | the machine-wide `/etc/<name>/system.toml` of the separated setup; process, tty and relay probes |
 | Config and secrets | `config` | config lookup, secret-safe TOML decoding, profiles, `Policy`, diff helpers, approved store |
+| | `managed` | the company-managed `managed.toml` of the family: root-owned, optionally signed, bounds users may tighten but never loosen |
 | | `secrets` | credential sources: terminal prompt, OS keychain, Vault CLI; `Sanitize`, `Wipe` |
 | | `plans` | a lock's persisted plans awaiting a decision: bound, single use, 0600 |
 | Data protection | `pii` | value detectors, mask modes, name heuristics, the redacted-reference store |
