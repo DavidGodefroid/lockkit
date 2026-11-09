@@ -18,6 +18,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -28,19 +29,44 @@ import (
 	"github.com/DavidGodefroid/lockkit/refusal"
 )
 
+// protocolVersions are the MCP revisions a server accepts, newest first.
+// They are pinned so that an SDK upgrade cannot negotiate a revision mcpkit
+// was not tested with: adding one is a deliberate change.
+var protocolVersions = []string{"2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"}
+
+// multiRoundTrip is the first revision whose results carry resultType.
+const multiRoundTrip = "2026-07-28"
+
+// ProtocolVersions returns the MCP revisions the servers of New accept,
+// newest first.
+func ProtocolVersions() []string { return slices.Clone(protocolVersions) }
+
 // New returns p's MCP server, reported to the client as p.Name and version
-// ("dev" when empty), with the server instructions shown to the model.
+// ("dev" when empty), with the server instructions shown to the model. It
+// accepts the ProtocolVersions only.
 func New(p kit.Product, version, instructions string) *mcp.Server {
 	if version == "" {
 		version = "dev"
 	}
-	return mcp.NewServer(&mcp.Implementation{Name: p.Name, Version: version}, &mcp.ServerOptions{Instructions: instructions})
+	return mcp.NewServer(&mcp.Implementation{Name: p.Name, Version: version}, &mcp.ServerOptions{Instructions: instructions, SupportedProtocolVersions: ProtocolVersions()})
 }
+
+// completed holds the servers Serve gave completeResults, so that a server
+// served twice gets it once.
+var completed sync.Map
 
 // Serve runs s on r and w (the agent's stdin and stdout: w carries only the
 // protocol) until the client disconnects or ctx ends; both are a clean end
 // (nil). Neither r nor w is closed.
+//
+// Serve adds the outermost receiving middleware of s (add a product's own
+// before): it gives every tools/call result the resultType that a client at
+// revision 2026-07-28 or later requires, also when a product's middleware
+// replaced the SDK's result with its own.
 func Serve(ctx context.Context, s *mcp.Server, r io.Reader, w io.Writer) error {
+	if _, done := completed.LoadOrStore(s, true); !done {
+		s.AddReceivingMiddleware(completeResults)
+	}
 	t := &mcp.IOTransport{Reader: io.NopCloser(r), Writer: nopWriteCloser{w}}
 	if err := s.Run(ctx, t); err != nil && !errors.Is(err, io.EOF) && ctx.Err() == nil {
 		return err
@@ -51,6 +77,63 @@ func Serve(ctx context.Context, s *mcp.Server, r io.Reader, w io.Writer) error {
 type nopWriteCloser struct{ io.Writer }
 
 func (nopWriteCloser) Close() error { return nil }
+
+// completeResults gives a tools/call result without resultType one, for a
+// client at revision 2026-07-28 or later. The SDK keeps resultType in an
+// unexported field that it sets on its own result only, so a result that a
+// middleware builds (to rewrite the SDK's argument-validation text, say)
+// has none, and the client rejects the answer as malformed. Only decoding
+// a result sets the field, so this re-decodes it.
+func completeResults(next mcp.MethodHandler) mcp.MethodHandler {
+	return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+		res, err := next(ctx, method, req)
+		r, ok := res.(*mcp.CallToolResult)
+		if err != nil || !ok || r == nil || !usesResultType(req) {
+			return res, err
+		}
+		b, err := json.Marshal(r)
+		if err != nil {
+			return res, nil
+		}
+		var wire map[string]json.RawMessage
+		if json.Unmarshal(b, &wire) != nil {
+			return res, nil
+		}
+		if _, has := wire["resultType"]; has {
+			return res, nil
+		}
+		wire["resultType"] = json.RawMessage(`"complete"`)
+		if r.InputRequests != nil {
+			wire["resultType"] = json.RawMessage(`"input_required"`)
+		}
+		if b, err = json.Marshal(wire); err != nil {
+			return res, nil
+		}
+		out := new(mcp.CallToolResult)
+		if json.Unmarshal(b, out) != nil {
+			return res, nil
+		}
+		if out.Content == nil && !out.NeedsInput() {
+			out.Content = []mcp.Content{} // as the SDK's own: never null
+		}
+		if e := r.GetError(); e != nil {
+			out.SetError(e) // keeps the content; for logging middleware
+		}
+		return out, nil
+	}
+}
+
+// usesResultType tells whether the client of req is at a revision whose
+// results carry resultType, as the SDK decides it: by the revision the
+// client asked for.
+func usesResultType(req mcp.Request) bool {
+	ss, ok := req.GetSession().(*mcp.ServerSession)
+	if !ok || ss == nil {
+		return false
+	}
+	p := ss.InitializeParams()
+	return p != nil && p.ProtocolVersion >= multiRoundTrip
+}
 
 // Profiles resolves the profile of a tool call.
 type Profiles struct {

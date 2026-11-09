@@ -893,6 +893,15 @@ what to ask of the user; `NoConsoleLine` for the text). Run integers that
 may exceed 2^53 through `mcpkit.Exact`/`ExactRows`; `NonNil` keeps `[]` in
 structured output.
 
+**Protocol revisions.** `New` accepts only `mcpkit.ProtocolVersions()`
+(pinned: an SDK upgrade does not add a revision by itself). A client at
+revision 2026-07-28 or later rejects a `tools/call` result without
+`resultType`, and the SDK sets that field (unexported) on its own results
+only. Add your receiving middleware (to rewrite the SDK's argument-
+validation text as your refusal, say) before `Serve`: `Serve` adds the
+outermost one, which gives a result your middleware built the
+`resultType` it lacks.
+
 **Hub mode.** Put `mcpkit.RequesterFromEnv()` (an `ipc.Requester`: lea's
 `LEA_AGENT` and the hash of `LEA_AGENT_TOKEN`, so the raw token never
 reaches the console; empty outside lea; never write `Token` to the audit
