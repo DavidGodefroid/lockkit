@@ -138,7 +138,9 @@ func (a Asker) Ask(ctx context.Context, id int64, q Ask, record func(audit.Base)
 // refuses it (ErrPolicyOnly, audited as refused). Whatever another approver
 // answers, the request is pending: a hub that refuses the ticket or cannot
 // be reached never turns into a prompt here. The pending request is passed
-// to record (audit.EventPending, with its ticket).
+// to record (audit.EventPending, with its ticket). A delivered ticket the
+// approver (an Awaiter) sees decided within its short wait comes back
+// Decided too.
 func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncApprover, d Decision, record func(audit.Base)) Approval {
 	p, err := aa.Submit(ctx, d)
 	if p.Ticket == "" {
@@ -168,5 +170,11 @@ func (a Asker) submit(ctx context.Context, id int64, frame string, aa AsyncAppro
 		line += Paint.Dim(" (not delivered yet: " + sanitize.Terminal(err.Error(), false) + ")")
 	}
 	a.IO.Println(line)
-	return Approval{Pending: &p, Refusal: PendingResp(id, a.Lock, p)}
+	// A ticket an auto rule decides in milliseconds runs in this same
+	// call: the product sees Decided and runs it (Approval.Decided).
+	decided := false
+	if aw, ok := aa.(Awaiter); ok && err == nil {
+		decided = aw.Await(ctx, p.Ticket)
+	}
+	return Approval{Pending: &p, Decided: decided, Refusal: PendingResp(id, a.Lock, p)}
 }

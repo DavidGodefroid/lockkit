@@ -93,6 +93,10 @@ const (
 	RateTotal  = 300
 	// MaxWait bounds a long poll (the hub's own bound).
 	MaxWait = 60 * time.Second
+	// DecisionWait is how long a run waits for the decision on the ticket
+	// it just pushed (Await) before it answers pending: about what an
+	// auto rule of the decider takes (tens of milliseconds), with room.
+	DecisionWait = 2 * time.Second
 	// MaxInbox bounds the decisions kept for plans not yet run.
 	MaxInbox = plans.MaxPlans
 	// MaxRequests bounds the hub requests waiting to be handled.
@@ -709,6 +713,33 @@ func (c *Client) Poll(ctx context.Context, wait time.Duration) (int, error) {
 		c.requests = append(c.requests, q)
 	}
 	return kept, errors.Join(bad...)
+}
+
+// Await waits up to wait (at most MaxWait) for a decision on ticketID,
+// as Poll keeps them (Watch runs it), and reports whether one is kept: the
+// product then runs the ticket at once (Begin), and the agent never hears
+// pending for a ticket an auto rule decided in milliseconds. A decision
+// kept already answers at once; ctx ending, or none within wait, is false.
+// Await neither verifies nor acts on the decision: Begin does.
+func (c *Client) Await(ctx context.Context, ticketID string, wait time.Duration) bool {
+	t := time.NewTimer(min(max(wait, 0), MaxWait))
+	defer t.Stop()
+	for {
+		c.mu.Lock()
+		_, ok := c.inbox[ticketID]
+		wake := c.wake
+		c.mu.Unlock()
+		if ok {
+			return true
+		}
+		select {
+		case <-wake:
+		case <-t.C:
+			return false
+		case <-ctx.Done():
+			return false
+		}
+	}
 }
 
 // verify checks a decision as the hub sent it: signed by the pinned hub
