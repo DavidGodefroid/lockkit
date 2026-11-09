@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.16.1 (2026-11-09)
 
 - hubclient: a `Begin` racing `EndDenied` (Watch) on a denied ticket no
   longer fails with `plans: transition not allowed: denied → denied`: it
