@@ -6,6 +6,7 @@ import (
 
 	"github.com/DavidGodefroid/lockkit/audit"
 	"github.com/DavidGodefroid/lockkit/config"
+	"github.com/DavidGodefroid/lockkit/hubclient"
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/sanitize"
 )
@@ -91,6 +92,11 @@ type Profile struct {
 	// methods; never hello, status or the console's other methods),
 	// MaxSession after that long in all. 0 takes 20m and 4h.
 	IdleTimeout, MaxSession time.Duration
+	// TicketLimits bound the tickets the console's hub client opens
+	// (config.Base.TicketLimits; zero fields take hubclient's defaults).
+	// The console applies them on start and whenever a policy comes in
+	// force, so a raise counts only once reviewed.
+	TicketLimits hubclient.Limits
 }
 
 // PIIBackend is implemented by a backend whose policy has mask rules: the

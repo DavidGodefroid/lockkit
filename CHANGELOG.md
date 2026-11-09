@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- console: `Profile.TicketLimits` (`hubclient.Limits`, set from
+  `config.Base.TicketLimits()`) reaches the console's hub client on start
+  and whenever a policy comes in force: a profile's `limits.*` raise
+  applies once reviewed (typed name on production), a cut at once. A
+  lock no longer calls `Hub.Client.SetLimits` itself (#150).
+
 ## v0.16.0 (2026-11-08)
 
 - console: `Asker` answers a ticket refused over the hub client's limits

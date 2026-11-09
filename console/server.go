@@ -186,6 +186,9 @@ func (s *Server) apply(p Policy) {
 	if s.profile.MaxSession <= 0 {
 		s.profile.MaxSession = 4 * time.Hour
 	}
+	if s.cfg.Hub != nil && s.cfg.Hub.Client != nil {
+		s.cfg.Hub.Client.SetLimits(s.profile.TicketLimits)
+	}
 }
 
 func (s *Server) println(line string) { s.cfg.IO.Println(line) }

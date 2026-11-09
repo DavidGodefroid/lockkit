@@ -64,7 +64,7 @@ func (p fakePolicy) Describe() []string {
 func (p fakePolicy) Profile() Profile {
 	return Profile{Name: p.Name, Production: p.Production, Where: p.Host + ":5671", Host: p.Host, Port: 5671, DefaultPort: 5671,
 		User: p.Base.User, Credentials: p.Base.Credentials, VaultPath: p.Base.VaultPath, CredentialsTTL: p.Base.CredentialsTTL,
-		IdleTimeout: p.Base.IdleTimeout, MaxSession: p.Base.MaxSession}
+		IdleTimeout: p.Base.IdleTimeout, MaxSession: p.Base.MaxSession, TicketLimits: p.Base.TicketLimits()}
 }
 
 func uat() fakePolicy {
