@@ -139,6 +139,13 @@ func sanitizeDecodeError(path string, err error) error {
 // SecretKey reports a key with a part that names a secret (secretWords).
 func SecretKey(key toml.Key) bool {
 	for _, part := range key {
+		// Each field whole first: a camelCase split must never let
+		// through what the lower-cased field names (pAsSwOrD).
+		for _, field := range keyFields(part) {
+			if secretWords[strings.ToLower(field)] {
+				return true
+			}
+		}
 		words := keyWords(part)
 		for i, word := range words {
 			if secretWords[word] || i > 0 && secretWords[words[i-1]+word] {
@@ -149,11 +156,16 @@ func SecretKey(key toml.Key) bool {
 	return false
 }
 
+// keyFields splits a key part at "_", "-" and ".".
+func keyFields(part string) []string {
+	return strings.FieldsFunc(part, func(r rune) bool { return r == '_' || r == '-' || r == '.' })
+}
+
 // keyWords splits a key part at "_", "-", "." and camelCase boundaries
 // (authToken, APIKey), in lower case.
 func keyWords(part string) []string {
 	var words []string
-	for _, field := range strings.FieldsFunc(part, func(r rune) bool { return r == '_' || r == '-' || r == '.' }) {
+	for _, field := range keyFields(part) {
 		rs := []rune(field)
 		start := 0
 		for i := 1; i < len(rs); i++ {

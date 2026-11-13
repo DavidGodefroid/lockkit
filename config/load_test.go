@@ -163,7 +163,7 @@ func TestProfileNameNeverEchoed(t *testing.T) {
 }
 
 func TestSecretKeyWords(t *testing.T) {
-	for _, key := range []string{"passphrase", "apikey", "api-key", "api_key", "bearer", "cookie", "authToken", "apiKey", "APIKey", "cookie_domain", "vault-token"} {
+	for _, key := range []string{"passphrase", "apikey", "api-key", "api_key", "bearer", "cookie", "authToken", "apiKey", "APIKey", "cookie_domain", "vault-token", "ToKeN", "SeCrEt", "pAsSwOrD", "db_PaSsWoRd", "PassWord", "aPiKeY"} {
 		if !SecretKey(toml.Key{key}) {
 			t.Errorf("SecretKey(%q) = false", key)
 		}
