@@ -8,7 +8,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 - console: the pending policy diff shown at `:review` is printed through
   `PrintContext`, so it reaches the question file of the "Apply these
   changes?" decision: a human answering from lockhub or a phone sees the
-  change they apply (#160).
+  change they apply (#160). A question file whose context exceeds
+  `MaxQuestionLines` or `MaxQuestionBytes` now starts it with
+  `… N earlier lines not shown` instead of dropping its oldest lines
+  silently.
 
 ## v0.17.0 (2026-11-13)
 - console: `Profile.TicketLimits` (`hubclient.Limits`, set from

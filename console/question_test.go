@@ -202,14 +202,19 @@ func TestQuestionFileFormat(t *testing.T) {
 		t.Fatalf("parse of an unknown second line: %q %q", p, l)
 	}
 
-	// Bounds: the last MaxQuestionLines lines, at most MaxQuestionBytes.
+	// Bounds: the last MaxQuestionLines lines, at most MaxQuestionBytes,
+	// the first saying how many earlier ones were left out (#160).
 	var many []string
 	for i := range 100 {
 		many = append(many, "line "+strconv.Itoa(i))
 	}
 	_, lines = ParseQuestion(formatQuestion("Q?", many))
-	if len(lines) != MaxQuestionLines || lines[0] != "line 60" || lines[len(lines)-1] != "line 99" {
-		t.Fatalf("line bound: %d lines, %q..%q", len(lines), lines[0], lines[len(lines)-1])
+	if len(lines) != MaxQuestionLines || lines[0] != "… 61 earlier lines not shown" || lines[1] != "line 61" || lines[len(lines)-1] != "line 99" {
+		t.Fatalf("line bound: %d lines, %q, %q..%q", len(lines), lines[0], lines[1], lines[len(lines)-1])
+	}
+	_, lines = ParseQuestion(formatQuestion("Q?", many[:MaxQuestionLines]))
+	if len(lines) != MaxQuestionLines || lines[0] != "line 0" {
+		t.Fatalf("a context that fits is cut: %d lines, %q", len(lines), lines[0])
 	}
 	long := strings.Repeat("é", 3000) // 6000 bytes each
 	f := formatQuestion("Q?", []string{"first", long, long})
@@ -221,7 +226,7 @@ func TestQuestionFileFormat(t *testing.T) {
 			t.Fatalf("cut inside a rune: %q", l)
 		}
 	}
-	if total > MaxQuestionBytes || len(lines) == 0 || lines[len(lines)-1] != long {
+	if total > MaxQuestionBytes || len(lines) != 2 || lines[0] != "… 2 earlier lines not shown" || lines[1] != long {
 		t.Fatalf("byte bound: %d bytes, %d lines", total, len(lines))
 	}
 	_, lines = ParseQuestion(formatQuestion("Q?", []string{strings.Repeat("x", 3*MaxQuestionBytes)}))
