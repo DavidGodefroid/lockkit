@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -70,12 +71,19 @@ type Assets struct {
 	ProjectConfig []byte
 	// ClaudeAllow are the calls merged into Claude Code's
 	// permissions.allow at user scope, and listed in the project notes:
-	// only calls that never touch data without the console's approval.
+	// only calls the human may run without a prompt (masked or
+	// policy-bounded answers).
 	ClaudeAllow []string
+	// ClaudeAllowNote is the sentence the project notes put before the
+	// ClaudeAllow list, saying what those calls may do (optional; the
+	// default is neutral: they answer within the console's policy and
+	// budgets).
+	ClaudeAllowNote string
 	// ClaudeAllowProject also merges ClaudeAllow into the project's
 	// .claude/settings.local.json (personal, not the shared
 	// .claude/settings.json) on a project init: for a product whose listed
-	// calls only ever see masked data.
+	// calls only ever see masked data. It is skipped when .mcp.json already
+	// holds a server of the product's name that init did not write.
 	ClaudeAllowProject bool
 	// ClaudeNote ends the Claude Code notes of a project init (optional).
 	ClaudeNote string
@@ -165,19 +173,40 @@ func (w Wiring) Init(root, agent string) (Result, error) {
 	if err := w.check(); err != nil {
 		return Result{}, err
 	}
+	if !slices.Contains(Agents(), agent) {
+		return Result{}, fmt.Errorf("unknown agent %q (want one of %s)", agent, strings.Join(Agents(), ", "))
+	}
+	realRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return Result{}, fmt.Errorf("project root: %w", err)
+	}
+	realRoot, err = filepath.Abs(realRoot)
+	if err != nil {
+		return Result{}, fmt.Errorf("project root: %w", err)
+	}
+	b := base{root: realRoot, contained: true, display: func(r string) string { return r }}
+
 	n := w.name()
 	var steps []step
 	var notes string
 	switch agent {
 	case "claude":
+		// The MCP entry is computed first: an entry of the product's name
+		// that init did not write (kept) is foreign, and nothing is allowed
+		// for it.
+		mcp, err := w.mcpEntry(".mcp.json", w.mcpServer(map[string]any{"type": "stdio"}))(b)
+		if err != nil {
+			return Result{}, err
+		}
 		steps = []step{
-			w.mcpEntry(".mcp.json", w.mcpServer(map[string]any{"type": "stdio"})),
+			func(base) (change, error) { return mcp, nil },
 			w.plainFile(".claude/skills/"+n+"/SKILL.md", w.Assets.Skill),
 		}
-		if w.Assets.ClaudeAllowProject && len(w.Assets.ClaudeAllow) > 0 {
+		foreign := mcp.action.Status == StatusKept
+		if !foreign && w.Assets.ClaudeAllowProject && len(w.Assets.ClaudeAllow) > 0 {
 			steps = append(steps, w.localSettings(w.jsonStrings(".claude/settings.local.json", []string{"permissions", "allow"}, w.Assets.ClaudeAllow)))
 		}
-		notes = w.claudeNotes()
+		notes = w.claudeNotes(foreign)
 	case "codex":
 		steps = []step{w.section("AGENTS.md")}
 		notes = w.codexNotes()
@@ -194,22 +223,11 @@ func (w Wiring) Init(root, agent string) (Result, error) {
 			w.mcpEntry(".gemini/settings.json", w.mcpServer(map[string]any{"timeout": 600000})),
 			w.section("GEMINI.md"),
 		}
-	default:
-		return Result{}, fmt.Errorf("unknown agent %q (want one of %s)", agent, strings.Join(Agents(), ", "))
 	}
 	if w.Assets.ProjectConfig != nil {
 		steps = append(steps, w.configIfAbsent(w.Product.ProjectDir()+"/config.toml"))
 	}
 
-	realRoot, err := filepath.EvalSymlinks(root)
-	if err != nil {
-		return Result{}, fmt.Errorf("project root: %w", err)
-	}
-	realRoot, err = filepath.Abs(realRoot)
-	if err != nil {
-		return Result{}, fmt.Errorf("project root: %w", err)
-	}
-	b := base{root: realRoot, contained: true, display: func(r string) string { return r }}
 	acts, _, err := w.apply(b, steps, false, nil)
 	if err != nil && acts == nil { // a step failed: nothing was written
 		return Result{}, err
@@ -632,35 +650,34 @@ func (w Wiring) localSettings(st step) step {
 	}
 }
 
-// claudeNotes lists the calls the human may allow, then ClaudeNote.
-func (w Wiring) claudeNotes() string {
+// defaultAllowNote introduces the ClaudeAllow list when the product gives
+// no ClaudeAllowNote.
+const defaultAllowNote = "The calls below answer within the console's policy and budgets, without a prompt."
+
+// claudeNotes lists the calls the human may allow, then ClaudeNote. When
+// .mcp.json holds a foreign entry of the product's name, it only warns.
+func (w Wiring) claudeNotes(foreign bool) string {
+	n := w.name()
+	if foreign {
+		return fmt.Sprintf(".mcp.json already has a %q server that %s init did not write: check what it runs before Claude Code asks you to approve it; no calls were allowed. Remove that entry and run init again to wire %s.\n\n", n, n, n)
+	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "Claude Code asks once whether to use the project MCP server %q; approve it.\n", w.name())
+	fmt.Fprintf(&b, "Claude Code asks once whether to use the project MCP server %q; approve it.\n", n)
+	note := strings.TrimSpace(w.Assets.ClaudeAllowNote)
+	if note == "" {
+		note = defaultAllowNote
+	}
 	if len(w.Assets.ClaudeAllow) > 0 && w.Assets.ClaudeAllowProject {
-		b.WriteString("The calls below never touch data without the console's approval; they are in\n" +
-			"\"permissions.allow\" in .claude/settings.local.json (personal: check that git\n" +
-			"ignores it), so Claude Code does not prompt for them. Remove them there to be\n" +
-			"asked again:\n\n")
-		for i, a := range w.Assets.ClaudeAllow {
-			q, _ := marshalPlain(a)
-			b.WriteString("  " + string(q))
-			if i < len(w.Assets.ClaudeAllow)-1 {
-				b.WriteString(",")
-			}
-			b.WriteString("\n")
-		}
+		b.WriteString(note + "\n" +
+			"They are in \"permissions.allow\" in .claude/settings.local.json (personal:\n" +
+			"check that git ignores it). Remove them there to be asked again:\n\n")
+		w.writeAllow(&b)
 	} else if len(w.Assets.ClaudeAllow) > 0 {
-		b.WriteString("Optional: the calls below never touch data without the console's approval. To stop\n" +
-			"Claude Code prompting for them, add them to \"permissions.allow\" in\n" +
-			".claude/settings.local.json (personal) or .claude/settings.json (shared):\n\n")
-		for i, a := range w.Assets.ClaudeAllow {
-			q, _ := marshalPlain(a)
-			b.WriteString("  " + string(q))
-			if i < len(w.Assets.ClaudeAllow)-1 {
-				b.WriteString(",")
-			}
-			b.WriteString("\n")
-		}
+		b.WriteString(note + "\n" +
+			"Optional: to stop Claude Code prompting for them, add them to\n" +
+			"\"permissions.allow\" in .claude/settings.local.json (personal) or\n" +
+			".claude/settings.json (shared):\n\n")
+		w.writeAllow(&b)
 	}
 	b.WriteString("\n")
 	if w.Assets.ClaudeNote != "" {
@@ -671,6 +688,18 @@ func (w Wiring) claudeNotes() string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+// writeAllow writes ClaudeAllow as indented JSON strings, one per line.
+func (w Wiring) writeAllow(b *strings.Builder) {
+	for i, a := range w.Assets.ClaudeAllow {
+		q, _ := marshalPlain(a)
+		b.WriteString("  " + string(q))
+		if i < len(w.Assets.ClaudeAllow)-1 {
+			b.WriteString(",")
+		}
+		b.WriteString("\n")
+	}
 }
 
 func (w Wiring) codexNotes() string {
