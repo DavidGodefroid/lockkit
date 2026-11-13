@@ -407,3 +407,148 @@ func TestMergeProfiles(t *testing.T) {
 		}
 	}
 }
+
+// signedSource writes a signed managed file in a fresh directory; its
+// verifier fails the test when called.
+func signedSource(t *testing.T) (*Source, string) {
+	t.Helper()
+	s, dir := testSource(t, 0, func([]byte, []byte, update.Identity) error {
+		t.Error("the verifier was called despite a matching stamp")
+		return errors.New("called")
+	})
+	write(t, filepath.Join(dir, FileName), sample, 0o644)
+	write(t, filepath.Join(dir, BundleName), "bundle", 0o644)
+	write(t, filepath.Join(dir, SignerName), signerTOML, 0o644)
+	return s, dir
+}
+
+// stampOf is the stamp of dir's files, as lox computes it on the host.
+func stampOf(t *testing.T, dir string) string {
+	t.Helper()
+	s, _ := testSource(t, 0, func([]byte, []byte, update.Identity) error { return nil })
+	s.path = filepath.Join(dir, FileName)
+	f, err := s.Load(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	stamp, err := VerifiedStamp(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return stamp
+}
+
+// A stamp lox wrote for these exact bytes stands for the signature check.
+func TestVerifiedStampMatches(t *testing.T) {
+	s, dir := signedSource(t)
+	stamp := stampOf(t, dir)
+	if !strings.HasPrefix(stamp, "sha256:") || len(stamp) != len("sha256:")+64 {
+		t.Fatalf("stamp %q", stamp)
+	}
+	write(t, filepath.Join(dir, VerifiedName), stamp+"\n", 0o644)
+	f, err := s.Load(context.Background())
+	if err != nil || !f.Signed {
+		t.Fatalf("stamped: %v, %v", f, err)
+	}
+	if again, err := VerifiedStamp(f); err != nil || again != stamp {
+		t.Fatalf("stamp of a stamped file: %q, %v", again, err)
+	}
+	// Without the trailing newline too.
+	write(t, filepath.Join(dir, VerifiedName), stamp, 0o644)
+	s.cached = nil
+	if f, err := s.Load(context.Background()); err != nil || !f.Signed {
+		t.Fatalf("stamp without newline: %v, %v", f, err)
+	}
+}
+
+// A stamp written for other bytes is a refusal: the signature is not
+// checked instead.
+func TestVerifiedStampMismatchRefuses(t *testing.T) {
+	for _, tc := range []struct{ name, file, data string }{
+		{"file", FileName, sample + "\n"},
+		{"bundle", BundleName, "other bundle"},
+		{"signer", SignerName, signerTOML + "\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s, dir := signedSource(t)
+			write(t, filepath.Join(dir, VerifiedName), stampOf(t, dir)+"\n", 0o644)
+			if _, err := s.Load(context.Background()); err != nil {
+				t.Fatal(err)
+			}
+			write(t, filepath.Join(dir, tc.file), tc.data, 0o644)
+			if _, err := s.Load(context.Background()); err == nil || !strings.Contains(err.Error(), VerifiedName+" does not match") {
+				t.Fatalf("%s changed: %v", tc.name, err)
+			}
+		})
+	}
+	s, dir := signedSource(t)
+	write(t, filepath.Join(dir, VerifiedName), "garbage\n", 0o644)
+	if _, err := s.Load(context.Background()); err == nil || !strings.Contains(err.Error(), VerifiedName) {
+		t.Fatalf("garbage stamp: %v", err)
+	}
+}
+
+// The stamp is root-owned like managed.toml.
+func TestVerifiedStampOwnership(t *testing.T) {
+	s, dir := signedSource(t)
+	stamp := stampOf(t, dir)
+	path := filepath.Join(dir, VerifiedName)
+	write(t, path, stamp, 0o666)
+	if _, err := s.Load(context.Background()); err == nil || !strings.Contains(err.Error(), path+" must be writable by root only") {
+		t.Fatalf("writable stamp: %v", err)
+	}
+	write(t, path, stamp, 0o644)
+	s.owner = func(fi fs.FileInfo) (uint32, bool) {
+		if filepath.Base(fi.Name()) == VerifiedName {
+			return 1000, true
+		}
+		return 0, true
+	}
+	if _, err := s.Load(context.Background()); err == nil || !strings.Contains(err.Error(), path+" must be owned by root") {
+		t.Fatalf("user-owned stamp: %v", err)
+	}
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(dir, SignerName), path); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Load(context.Background()); err == nil || !strings.Contains(err.Error(), "not a regular file") {
+		t.Fatalf("symlinked stamp: %v", err)
+	}
+}
+
+// No stamp: the verifier runs as before. No bundle: a stamp is ignored.
+func TestVerifiedStampAbsentOrUnsigned(t *testing.T) {
+	calls := 0
+	s, dir := testSource(t, 0, func([]byte, []byte, update.Identity) error { calls++; return nil })
+	write(t, filepath.Join(dir, FileName), sample, 0o644)
+	write(t, filepath.Join(dir, BundleName), "bundle", 0o644)
+	write(t, filepath.Join(dir, SignerName), signerTOML, 0o644)
+	if f, err := s.Load(context.Background()); err != nil || !f.Signed || calls != 1 {
+		t.Fatalf("no stamp: %v, %v, %d calls", f, err, calls)
+	}
+
+	if err := os.Remove(filepath.Join(dir, BundleName)); err != nil {
+		t.Fatal(err)
+	}
+	write(t, filepath.Join(dir, VerifiedName), "garbage", 0o666)
+	f, err := s.Load(context.Background())
+	if err != nil || f.Signed || calls != 1 {
+		t.Fatalf("no bundle, stamp: %v, %v, %d calls", f, err, calls)
+	}
+	if _, err := VerifiedStamp(f); err == nil {
+		t.Fatal("stamp of an unsigned file")
+	}
+	if _, err := VerifiedStamp(nil); err == nil {
+		t.Fatal("stamp of no file")
+	}
+	parsed, err := Parse([]byte(sample))
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsed.Signed = true
+	if _, err := VerifiedStamp(parsed); err == nil {
+		t.Fatal("stamp of a file Load did not read")
+	}
+}

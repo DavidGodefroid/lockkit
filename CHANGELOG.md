@@ -5,6 +5,10 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- managed: `Load` accepts `managed.toml.verified`, the root-owned stamp
+  lox writes with `VerifiedStamp` once it verified the signature on the
+  host: a match counts the file signed without cosign (a lock in a
+  container has none), a mismatch is a refusal (#175).
 - console: `:reopen` puts the loosening the human refused (at start or at
   `:review`) back to pending while it is still in the config files, so
   that `:review` can approve it later without editing the files; it is
