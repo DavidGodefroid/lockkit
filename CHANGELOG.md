@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- managed: `File.Decode` into a `map[string]any` (or an `any`, or a
+  struct with such a field) now takes a section holding nested tables:
+  inline tables, sub-tables, tables nested deeper and arrays of tables no
+  longer fail with `unknown key "limits.x"`. Struct targets stay strict:
+  a key a struct does not declare is still refused, nested structs
+  included. Closes #192.
 - pii: new opt-in detectors `plate` (BE, FR and Dutch sidecode 4-11
   licence plates, upper case with dashes) and `postal_address` (BE, FR,
   NL and English street addresses with their postcode and locality),

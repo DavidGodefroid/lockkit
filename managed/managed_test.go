@@ -552,3 +552,95 @@ func TestVerifiedStampAbsentOrUnsigned(t *testing.T) {
 		t.Fatal("stamp of a file Load did not read")
 	}
 }
+
+func TestDecodeNestedIntoMap(t *testing.T) {
+	f, err := Parse([]byte(`version = 1
+[lockmq.defaults]
+tier = "read"
+limits = { max_rows = 10 }
+[lockmq.defaults.queue]
+size = 5
+[lockmq.defaults.deep.inner]
+x = 1
+[[lockmq.defaults.rules]]
+name = "a"
+[[lockmq.defaults.rules]]
+name = "b"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m map[string]any
+	if ok, err := f.Decode(&m, "lockmq", KindDefaults); !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	if l, _ := m["limits"].(map[string]any); l["max_rows"] != int64(10) {
+		t.Fatalf("limits %#v", m["limits"])
+	}
+	if q, _ := m["queue"].(map[string]any); q["size"] != int64(5) {
+		t.Fatalf("queue %#v", m["queue"])
+	}
+	if d, _ := m["deep"].(map[string]any); d["inner"].(map[string]any)["x"] != int64(1) {
+		t.Fatalf("deep %#v", m["deep"])
+	}
+	if r, _ := m["rules"].([]map[string]any); len(r) != 2 || r[1]["name"] != "b" {
+		t.Fatalf("rules %#v", m["rules"])
+	}
+	var a any
+	if ok, err := f.Decode(&a, "lockmq", KindDefaults); !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+}
+
+func TestDecodeMapFieldStaysStrictElsewhere(t *testing.T) {
+	f, err := Parse([]byte(`version = 1
+[lockmq.defaults]
+tier = "read"
+[lockmq.defaults.extra]
+anything = 1
+[lockmq.defaults.extra.sub]
+y = 2
+[lockmq.defaults.limits]
+max_rows = 10
+[[lockmq.defaults.rules]]
+name = "a"
+opts = { k = 1 }
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	type limits struct {
+		MaxRows int `toml:"max_rows"`
+	}
+	type rule struct {
+		Name string         `toml:"name"`
+		Opts map[string]any `toml:"opts"`
+	}
+	type defaults struct {
+		Tier   string         `toml:"tier"`
+		Extra  map[string]any `toml:"extra"`
+		Limits limits         `toml:"limits"`
+		Rules  []rule         `toml:"rules"`
+	}
+	var v defaults
+	if ok, err := f.Decode(&v, "lockmq", KindDefaults); !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	if v.Extra["sub"].(map[string]any)["y"] != int64(2) || v.Limits.MaxRows != 10 || v.Rules[0].Opts["k"] != int64(1) {
+		t.Fatalf("decoded %+v", v)
+	}
+	for key, data := range map[string]string{
+		"limits.min_rows": "version = 1\n[lockmq.defaults.limits]\nmin_rows = 1\n",
+		"rules.label":     "version = 1\n[[lockmq.defaults.rules]]\nlabel = \"x\"\n",
+		"other":           "version = 1\n[lockmq.defaults]\nother = 1\n",
+	} {
+		f, err := Parse([]byte(data))
+		if err != nil {
+			t.Fatal(key, err)
+		}
+		var v defaults
+		if _, err := f.Decode(&v, "lockmq", KindDefaults); err == nil || !strings.Contains(err.Error(), "unknown key \""+key+"\"") {
+			t.Errorf("%s: %v", key, err)
+		}
+	}
+}
