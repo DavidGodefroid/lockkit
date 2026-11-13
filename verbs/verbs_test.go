@@ -6,6 +6,8 @@ import (
 	"errors"
 	"flag"
 	"io"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -52,6 +54,13 @@ func TestRefuseSecrets(t *testing.T) {
 		{"pwd", []string{"--pwd=" + secret}, true, false},
 		{"url with password", []string{"--url", "amqp://app:" + secret + "@mq:5672/"}, true, false},
 		{"keyword dsn", []string{"--user", "host=db password=" + secret}, true, false},
+		{"swallowed api-key flag", []string{"--url", "--api-key=" + secret}, true, false},
+		{"bearer token", []string{"--auth", "Bearer " + secret}, true, false},
+		{"authorization header", []string{"--key", "Authorization: " + secret}, true, false},
+		{"url with a token", []string{"--url", "https://" + secret + "@mq"}, true, false},
+		{"url with @ in the path", []string{"--url", "https://mq:15672/x@y"}, false, true},
+		{"path with :@", []string{"--key", "/data/v1:2@x.db"}, false, true},
+		{"positional bearer", []string{"--profile", "dev", "bearer " + secret}, true, false},
 		{"positional with password", []string{"--profile", "dev", "https://app:" + secret + "@mq"}, true, false},
 		{"flag after a positional", []string{"--profile", "dev", "stray", "--password", secret}, true, false},
 		{"bare positional", []string{"--profile", "dev", secret}, false, false},
@@ -200,6 +209,8 @@ func TestParseNeverQuotes(t *testing.T) {
 		{"missing value", []string{"--user"}, "--user needs a value", false},
 		{"unknown flag", []string{"--" + secret, "x"}, "unknown flag", false},
 		{"unknown secret flag", []string{"--db-password=" + secret}, "unknown flag", true},
+		{"unknown api-key flag", []string{"--api-key", secret}, "unknown flag", true},
+		{"unknown camelCase flag", []string{"--authToken=" + secret}, "unknown flag", true},
 		{"bad syntax", []string{"---" + secret}, "bad flag syntax", false},
 		{"secret flag defined", []string{"--password", secret}, "--password", true},
 		{"positional", []string{secret}, "positional", false},
@@ -232,16 +243,141 @@ func TestParseNeverQuotes(t *testing.T) {
 
 func TestWantsJSON(t *testing.T) {
 	for args, want := range map[string]bool{
-		"--bogus --json":    true,
-		"-json --x":         true,
-		"--json=true":       true,
-		"--json=false":      false,
-		"--user json":       false,
-		"-- --json":         false,
-		"--non-interactive": false,
+		"--bogus --json":         true,
+		"-json --x":              true,
+		"--json=true":            true,
+		"--json=false":           false,
+		"--user json":            false,
+		"-- --json":              false,
+		"--non-interactive":      false,
+		"--json=1":               true,
+		"-json=t":                true,
+		"--json=TRUE":            true,
+		"--json --json=false":    false,
+		"--json=0 -json":         true,
+		"--json=maybe":           false,
+		"--json -- --json=false": true,
 	} {
 		if got := WantsJSON(strings.Fields(args)); got != want {
 			t.Errorf("WantsJSON(%q) = %v", args, got)
 		}
+	}
+}
+
+// setErrValue is a Value whose Set error names another flag.
+type setErrValue struct{}
+
+func (setErrValue) String() string { return "" }
+func (setErrValue) Set(string) error {
+	return errors.New("want a number, like -port 5672 or -name x: y")
+}
+
+func TestParseErrorNamesItsOwnFlag(t *testing.T) {
+	fs := profileFlags()
+	fs.Int("port", 0, "")
+	fs.Var(setErrValue{}, "vhost", "")
+	err := Parse(testProduct, fs, []string{"--vhost", "x"})
+	if err == nil || err.Error() != "--vhost: invalid value" {
+		t.Fatalf("got %v", err)
+	}
+	for msg, want := range map[string]string{
+		"flag provided but not defined: -db-password":                "db-password",
+		"flag needs an argument: -user":                              "user",
+		`invalid value "a\" for flag -port: x" for flag -vhost: y`:   "vhost",
+		`invalid boolean value "x for -port: " for -production: bad`: "production",
+		"bad flag syntax: ---x -port":                                "",
+		"something -port: else":                                      "",
+	} {
+		if got := flagName(msg); got != want {
+			t.Errorf("flagName(%q) = %q, want %q", msg, got, want)
+		}
+	}
+}
+
+func TestRefuseSecretsSwallowedSecretFlag(t *testing.T) {
+	const secret = "s3cr3t-Value"
+	for _, args := range [][]string{
+		{"--user", "--password", secret},
+		{"--user", "-password=" + secret},
+		{"--user", "--db-token"},
+	} {
+		err := Parse(testProduct, profileFlags(), args)
+		if !errors.Is(err, ErrSecret) || !strings.Contains(err.Error(), "--user") || strings.Contains(err.Error(), secret) {
+			t.Errorf("%q: got %v", args, err)
+		}
+	}
+	if err := Parse(testProduct, profileFlags(), []string{"--user", "-x"}); err != nil {
+		t.Fatalf("--user -x: %v", err)
+	}
+}
+
+func TestParseHelp(t *testing.T) {
+	for _, h := range []string{"-h", "-help", "--help"} {
+		if err := Parse(testProduct, profileFlags(), []string{"--json", h}); !errors.Is(err, flag.ErrHelp) {
+			t.Errorf("%s: got %v", h, err)
+		}
+	}
+}
+
+// TestLauncherEndToEnd builds testdata/launcher, a `profile add` written
+// as GUIDE §14 shows, and runs it as a subprocess.
+func TestLauncherEndToEnd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("builds a binary")
+	}
+	goBin, err := exec.LookPath("go")
+	if err != nil {
+		t.Skip("no go toolchain")
+	}
+	bin := filepath.Join(t.TempDir(), "launcher")
+	if out, err := exec.Command(goBin, "build", "-o", bin, "./testdata/launcher").CombinedOutput(); err != nil {
+		t.Fatalf("go build: %v\n%s", err, out)
+	}
+	run := func(args ...string) (stdout, stderr string, code int) {
+		t.Helper()
+		var o, e bytes.Buffer
+		cmd := exec.Command(bin, args...)
+		cmd.Stdout, cmd.Stderr = &o, &e
+		err := cmd.Run()
+		var exit *exec.ExitError
+		switch {
+		case errors.As(err, &exit):
+			code = exit.ExitCode()
+		case err != nil:
+			t.Fatal(err)
+		}
+		return o.String(), e.String(), code
+	}
+
+	const secret = "s3cr3t-Value"
+	for _, args := range [][]string{
+		{"--non-interactive", "--json", "--user", "--password", secret},
+		{"--non-interactive", "--json", "--url", "https://" + secret + "@mq"},
+		{"--non-interactive", "--json=1", "--url", "--api-key=" + secret},
+	} {
+		stdout, stderr, code := run(args...)
+		if code == 0 || strings.Contains(stdout+stderr, secret) {
+			t.Errorf("%q: exit %d, leaks the secret: %q / %q", args, code, stdout, stderr)
+		}
+		var e Error
+		if strings.Count(stdout, "\n") != 1 || json.Unmarshal([]byte(stdout), &e) != nil || e.Code != CodeSecret || e.Lock != "lockmq" {
+			t.Errorf("%q: want one verbs.Error line with code secret, got %q", args, stdout)
+		}
+	}
+	if stdout, _, code := run("--non-interactive", "--json", "--user", "--password", secret); !strings.Contains(stdout, "--user") || code == 0 {
+		t.Errorf("does not name --user: %q", stdout)
+	}
+
+	for _, h := range []string{"-h", "-help"} {
+		stdout, stderr, code := run("--non-interactive", h)
+		if code != 0 || stdout != "" || !strings.Contains(stderr, "Usage of profile add") || !strings.Contains(stderr, "-"+FlagVaultPath) {
+			t.Errorf("%s: exit %d, stdout %q, stderr %q", h, code, stdout, stderr)
+		}
+	}
+
+	stdout, _, code := run("--non-interactive", "--json", "--profile", "uat", "--url", "https://mq:15672/x@y", "--user", "app")
+	var p Profile
+	if code != 0 || json.Unmarshal([]byte(stdout), &p) != nil || p.Profile != "uat" || p.Credentials != "ask" {
+		t.Fatalf("exit %d, stdout %q", code, stdout)
 	}
 }

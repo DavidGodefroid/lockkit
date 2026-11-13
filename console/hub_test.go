@@ -62,8 +62,8 @@ func TestHubOptionsFlags(t *testing.T) {
 }
 
 // A console is hub-attached only: without its hub flags, with only some
-// of them, or with --auto, Run refuses before any prompt, session or file.
-func TestRunRefusesNoHubPartialHubOrAuto(t *testing.T) {
+// of them, Run refuses before any prompt, session or file.
+func TestRunRefusesNoHubOrPartialHub(t *testing.T) {
 	pub, _, _ := ed25519.GenerateKey(nil)
 	keyFile := writeHubKey(t, pub)
 	for name, tc := range map[string]struct {
@@ -72,7 +72,6 @@ func TestRunRefusesNoHubPartialHubOrAuto(t *testing.T) {
 	}{
 		"none":    {Options{}, "configuration error: the console is launched by `lox run` only: --hub, --hub-key-file and --instance are required"},
 		"partial": {Options{Hub: HubOptions{URL: "http://lockhub:8443", KeyFile: keyFile, Home: t.TempDir()}}, "launched by `lox run` only"},
-		"auto":    {Options{Auto: true, Hub: HubOptions{URL: "http://lockhub:8443", KeyFile: keyFile, Instance: "mq-uat", Home: t.TempDir()}}, "--auto is gone"},
 	} {
 		b := &fakeBackend{policy: uat()}
 		io := &fakeIO{answers: []string{"y"}}

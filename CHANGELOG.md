@@ -5,6 +5,42 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- **Breaking** (ships in v0.18.0): the auto-mode identifiers, deprecated
+  since v0.9.0, are removed: `console.Options.Auto`,
+  `ServerConfig.Auto`, `Env.Auto()`, `(*Server).Auto()`,
+  `Approval.Auto`, `StatusView.Auto`, `StatusResult.AutoApprove` (the
+  `auto_approve` field of the status answer is gone from the wire),
+  the `Words` fields `AutoStart`, `AutoOn`, `Manual`,
+  `NoAutoProduction`, `NoAutoHub`, `StatusAuto`, `StatusManual` and
+  `ReviewAuto`, and `StatusModeRow`. `Screen.NeverAuto` and ticket
+  `Flags.NeverAuto` stay (hub auto rules). Callers to fix when each lock
+  bumps lockkit: lockmq `cmd/lockmq/console.go` (`Auto:`) and
+  `internal/mqconsole/handlers.go` (`env.Auto()`); lockfile
+  `cmd/lockfile/console.go` (`Auto:`) and `internal/clientcmd/sources.go`
+  (reads `auto_approve`: a missing field decodes as false, harmless);
+  lockhttp `cmd/lockhttp/console.go` (`Auto:`). locksql uses its own
+  fields (#120).
+- verbs: `Parse` reads the flag name of a flag package error from its
+  fixed shapes only (a `Value`'s `Set` error naming ` -port` no longer
+  names `--port`), and returns `flag.ErrHelp` unchanged for `-h`/`-help`
+  so that the launcher prints its usage and exits 0. `RefuseSecrets`
+  refuses a value that is itself a secret flag (`--user --password X`
+  is `secret`, naming `--user`). `WantsJSON` takes every
+  `strconv.ParseBool` form of `--json=` and the last occurrence wins
+  (#120).
+- config: `SecretKey` also refuses `passphrase`, `apikey`, `bearer` and
+  `cookie`, splits camelCase parts and tries adjacent parts joined
+  (`apiKey`, `api-key`, `api_key`, `authToken`); `credentials` stays
+  allowed (a contract flag). New `EmbedsSecret` adds a bearer token, an
+  `Authorization:` header and a URL with any userinfo
+  (`https://TOKEN@host`) to `EmbedsPassword`; `verbs` and `CheckValue`
+  use it. `EmbedsPassword` no longer refuses `https://mq:15672/x@y` or
+  `/data/v1:2@x.db`: it looks only at a URL's userinfo, and at
+  `user:pw@host` without a "/" before the "@". `CheckValue`'s error now
+  reads "looks like it embeds a secret (a password or a token)" (#120).
+- GUIDE §14: every `profile add`, the interactive one too, parses with
+  `verbs.Parse`; `-h` handling; `verbs/testdata/launcher` is the
+  end-to-end example (#120).
 - agentwire: a project `Init(root, "claude")` no longer allows any call
   when `.mcp.json` already holds a `<name>` server it did not write
   (`kept`): `.claude/settings.local.json` is left alone and the notes warn

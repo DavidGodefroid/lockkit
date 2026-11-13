@@ -29,11 +29,6 @@ type Options struct {
 	// AllowUnmask and ShowResults are the start-up switches (both refused
 	// at level 2; ShowResults refused at level 1 too).
 	AllowUnmask, ShowResults bool
-	// Auto is refused: auto mode is gone, lockhub decides every request.
-	//
-	// Deprecated: kept so that products still setting it build; Run
-	// refuses it. It goes in the next minor release.
-	Auto bool
 	// StateDir is the state base (kit.StateBase() when empty).
 	StateDir string
 	// TTY is the console's terminal device (nil when unknown).
@@ -175,9 +170,6 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		}
 	} else if err := o.Hub.check(); err != nil {
 		return err
-	}
-	if o.Auto {
-		return fmt.Errorf("%w: --auto is gone: lockhub decides every request", ErrConfig)
 	}
 	env := RealIsolationEnv(p, o.TTY)
 	if o.Isolation != nil {

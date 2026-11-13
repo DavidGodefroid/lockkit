@@ -26,10 +26,6 @@ type StatusView struct {
 	Policy  Policy
 	// ShowResults and AllowUnmask are the switches.
 	ShowResults, AllowUnmask bool
-	// Auto is always false: auto mode is gone, lockhub decides.
-	//
-	// Deprecated: it goes in the next minor release.
-	Auto bool
 	// Pending: a loosening awaits :review. Requests counts the change
 	// requests queued.
 	Pending  bool
@@ -107,13 +103,6 @@ type Worder interface {
 // text (a finding, a credentials mode, a change) must be escaped by the
 // product (sanitize.Terminal), as the console's own lines are.
 type Words struct {
-	// AutoStart, AutoOn, Manual, NoAutoProduction, NoAutoHub, StatusAuto,
-	// StatusManual and ReviewAuto are never printed: auto mode is gone,
-	// lockhub decides every request.
-	//
-	// Deprecated: kept so that products still setting them build; they go
-	// in the next minor release.
-	AutoStart, AutoOn, Manual, NoAutoProduction, NoAutoHub, StatusAuto, StatusManual, ReviewAuto string
 	// ResultsOn is printed when the clear results are switched on;
 	// StatusResults is their row of :status when on.
 	ResultsOn, StatusResults string

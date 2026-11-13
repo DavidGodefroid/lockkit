@@ -24,17 +24,12 @@ import (
 // StatusResult answers the status method: the console's part, and the
 // product's (Backend.Status) under "product".
 type StatusResult struct {
-	Profile    string `json:"profile"`
-	Production bool   `json:"production"`
-	// AutoApprove is always false: auto mode is gone, lockhub decides.
-	//
-	// Deprecated: kept on the wire for older clients; it goes in the next
-	// minor release.
-	AutoApprove    bool `json:"auto_approve"`
-	AllowUnmask    bool `json:"allow_unmask"`
-	ShowResults    bool `json:"show_results"`
-	IdleTimeoutInS int  `json:"idle_timeout_in_s"`
-	SessionEndsInS int  `json:"session_ends_in_s"`
+	Profile        string `json:"profile"`
+	Production     bool   `json:"production"`
+	AllowUnmask    bool   `json:"allow_unmask"`
+	ShowResults    bool   `json:"show_results"`
+	IdleTimeoutInS int    `json:"idle_timeout_in_s"`
+	SessionEndsInS int    `json:"session_ends_in_s"`
 	// Level is the security level: 0 session shape, 1 or 2 desktop shape.
 	Level   int `json:"level"`
 	Product any `json:"product,omitempty"`
@@ -64,11 +59,6 @@ type ServerConfig struct {
 	Now      func() time.Time
 	// AllowUnmask and ShowResults are the switches at start.
 	AllowUnmask, ShowResults bool
-	// Auto is refused by NewServer: auto mode is gone, lockhub decides.
-	//
-	// Deprecated: kept so that products still setting it build; it goes
-	// in the next minor release.
-	Auto bool
 	// Reconnect opens a new session (credentials, Connect, Checks) under
 	// the profile in force; nil (and ReconnectPolicy nil) means a lost
 	// connection ends the console. An EndError it returns ends the session
@@ -156,9 +146,6 @@ func NewServer(cfg ServerConfig) (*Server, error) {
 	}
 	if err := cfg.Product.Validate(); err != nil {
 		return nil, err
-	}
-	if cfg.Auto {
-		return nil, fmt.Errorf("%w: auto mode is gone: lockhub decides every request", ErrConfig)
 	}
 	if cfg.ShowResults && cfg.Level != 0 {
 		return nil, fmt.Errorf("%w: level %d does not accept --show-results", ErrConfig, cfg.Level)
@@ -525,11 +512,6 @@ func nonNil(s []string) []string {
 }
 
 // Env.
-
-// Auto implements Env: always false, auto mode is gone.
-//
-// Deprecated: lockhub decides every request.
-func (s *Server) Auto() bool { return false }
 
 // ShowResults implements Env.
 func (s *Server) ShowResults() bool { return s.showResults }

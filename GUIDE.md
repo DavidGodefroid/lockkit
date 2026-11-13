@@ -728,7 +728,7 @@ decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
 Vault lease); `env.Level(ctx, start)` levels the response time;
 `env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches
-(`env.Auto()` is deprecated and always false: there is no auto mode);
+(there is no auto mode: lockhub decides every request);
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
 
@@ -773,8 +773,8 @@ files.
 **Hub mode.** A console is hub-attached only. `console.HubOptions.Register(fs)`
 adds the flags `lox run` writes: `--hub URL --hub-key-file PATH --instance NAME`,
 all three required (`console.ErrNoHub` otherwise), plus `--hub-plain-http`
-for an http:// hub on its own network. There is no auto mode:
-`Options.Auto` and `ServerConfig.Auto` are deprecated and refused. The hub URL is
+for an http:// hub on its own network. There is no auto mode: lockhub
+decides every request. The hub URL is
 `http(s)://host[:port]` and nothing else: a user, password, path, query
 or fragment is refused (`hubclient.CanonicalURL`), and the hub is printed,
 logged and passed on (`HubOptions.Args`) in that form only. Pass them as `Options.Hub`: `Run`
@@ -1215,24 +1215,39 @@ idempotent, and exits 0 when the files are written or already there.
 Without `--non-interactive`, on a terminal, it asks for what the flags
 did not give; without a terminal it refuses with a usage error rather
 than wait for an answer. **No form of `profile add` takes, asks for or
-writes a secret.** The non-interactive form parses and checks its
-arguments with `verbs` before it writes anything:
+writes a secret.** *Every* `profile add`, the interactive one too,
+parses and checks its arguments with `verbs` before it asks or writes
+anything: the mode is itself a flag (`--non-interactive`), so the
+arguments are parsed before the mode is known, and an interactive call
+with `--json` would still leak a value through `fs.Parse`'s error:
 
 ```go
 asJSON := verbs.WantsJSON(args)                                     // known even when args do not parse
-if err := verbs.Parse(P, fs, args); err != nil { ... }              // never fs.Parse: its errors quote values
+if err := verbs.Parse(P, fs, args); errors.Is(err, flag.ErrHelp) {  // -h, -help
+	fs.SetOutput(os.Stderr); fs.Usage(); os.Exit(0)
+} else if err != nil { ... }                                        // never fs.Parse: its errors quote values
 cred, err := verbs.Credentials(*credentials, *vaultPath)            // "ask" or "vault"; keychain and anything else refused
 ```
 
-`verbs.Parse` discards the flag package's output, maps its errors to
-ones that name a flag fs defines and never quote an argument, and then
-runs `verbs.RefuseSecrets`: a flag named like a secret (`--password`,
-`--vault-token`, ...) whatever its value, a value that embeds a password
-(`user:pw@host`, `password=`) or a control character, and any positional
-argument (the flag package stops at the first one, so `profile add`
-takes flags only). It inspects each flag's `Value.String()`: a
-repeatable flag's `String` renders every value. These errors wrap
-`verbs.ErrSecret` for a secret. RefuseSecrets is a backstop: a lock never
+`verbs.WantsJSON` takes `--json`, `-json` and `--json=V` for any
+`strconv.ParseBool` form of V; the last occurrence wins and `--` ends the
+flags. `verbs.Parse` discards the flag package's output, maps its errors
+to ones that name a flag fs defines (read from the flag package's fixed
+message shapes, never from a `Value`'s own error) and never quote an
+argument, and then runs `verbs.RefuseSecrets`: a flag named like a
+secret (`config.SecretKey`: `--password`, `--vault-token`, `--api-key`,
+`--authToken`, ...) whatever its value; a value that embeds a secret
+(`config.EmbedsSecret`: `user:pw@host`, `password=`, `Bearer …`, an
+`Authorization:` header, `https://TOKEN@host`) or a control character; a
+value that is itself a secret flag (in `--user --password X`, `--user`
+took `--password` as its value: refused as `secret`, naming `--user`);
+and any positional argument (the flag package stops at the first one, so
+`profile add` takes flags only). It inspects each flag's
+`Value.String()`: a repeatable flag's `String` renders every value.
+These errors name the flag, never a value, and wrap `verbs.ErrSecret`
+for a secret. `-h` and `-help` (a lock does not define them) come back
+as `flag.ErrHelp`, unchanged: the launcher prints its usage on stderr and
+exits 0, as every Go CLI does. RefuseSecrets is a backstop: a lock never
 declares a target flag that carries a secret, and none of its own
 `profile add` errors (an unknown engine, a bad host, ...) quotes a flag
 value either; name the flag.

@@ -368,27 +368,14 @@ func TestApproveProductionTypedName(t *testing.T) {
 	}
 }
 
-// Auto mode is gone: NewServer refuses it, and Auto is always false.
-func TestNewServerRefusesAuto(t *testing.T) {
-	log, _ := audit.Open(testProduct, t.TempDir())
-	_, err := NewServer(ServerConfig{Product: testProduct, Backend: &fakeBackend{policy: uat()}, Policy: uat(),
-		Session: &fakeSession{}, Audit: log, IO: &fakeIO{}, Auto: true})
-	if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "auto mode is gone") {
-		t.Fatalf("err = %v", err)
-	}
-	if h := newHarness(t, uat(), nil); h.s.Auto() || h.s.Status().AutoApprove {
-		t.Fatal("auto mode reported")
-	}
-}
-
 func TestKeysAndCommands(t *testing.T) {
 	h := newHarness(t, uat(), nil)
 	// Shift+Tab and :mode switched auto mode, which is gone: nothing
 	// happens, nothing is audited.
 	h.s.Key(KeyShiftTab)
 	h.s.Command(context.Background(), ":mode")
-	if h.s.Auto() || strings.Contains(h.io.statusLine(), "mode") || len(h.records(t)) != 0 {
-		t.Fatalf("Shift+Tab: auto %v status %q records %v", h.s.Auto(), h.io.statusLine(), h.records(t))
+	if strings.Contains(h.io.statusLine(), "mode") || len(h.records(t)) != 0 {
+		t.Fatalf("Shift+Tab: status %q records %v", h.io.statusLine(), h.records(t))
 	}
 	h.s.Key(KeyCtrlO)
 	if !h.s.ShowResults() || !strings.Contains(h.io.statusLine(), "results clear") {
@@ -430,8 +417,8 @@ func TestLevel2Widening(t *testing.T) {
 	})
 	io.answers = []string{"y"}
 	h.s.Key(KeyShiftTab)
-	if h.s.Auto() || v.Calls != 0 {
-		t.Fatalf("Shift+Tab: auto %v calls %d", h.s.Auto(), v.Calls)
+	if v.Calls != 0 {
+		t.Fatalf("Shift+Tab: calls %d", v.Calls)
 	}
 	h.s.Key(KeyCtrlO)
 	if h.s.ShowResults() {

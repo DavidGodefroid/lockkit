@@ -85,7 +85,7 @@ func TestParseSSH(t *testing.T) {
 		}
 	}
 	_, err = ParseSSH(testProduct, RawSSH{Host: "u:pw@b", User: "u", Auth: SSHAuthAgent}, CredentialsAsk, errf)
-	if !strings.Contains(err.Error(), "ssh.host looks like a DSN with an embedded password; lockmq never reads secrets") {
+	if !strings.Contains(err.Error(), "ssh.host looks like it embeds a secret (a password or a token); lockmq never reads secrets") {
 		t.Fatalf("message: %v", err)
 	}
 }

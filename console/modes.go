@@ -164,13 +164,6 @@ func (s *Server) statusLines() []string {
 // StatusBoundaryRow are the values of the console's own :status rows, for
 // a StatusRower that keeps them; words (Words.StatusResults) word them.
 
-// StatusModeRow is the value of the former mode row: lockhub decides
-// every request.
-//
-// Deprecated: auto mode is gone and the console's :status has no mode
-// row; it goes in the next minor release.
-func StatusModeRow(StatusView, Words) string { return "lockhub decides every request" }
-
 // StatusResultsRow is the value of the results row.
 func StatusResultsRow(v StatusView, w Words) string {
 	results := "masked (the agent's view)"
