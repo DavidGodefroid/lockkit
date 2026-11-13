@@ -616,7 +616,9 @@ lines since the previous question (or since it started), the second line is `con
 and the lines follow, oldest first: the policy diff above `Apply these
 changes?`, the host key fingerprint above its prompt, the PRODUCTION
 banner. They have their colours dropped and their controls escaped, and
-are bounded (`MaxQuestionLines`, `MaxQuestionBytes`). What the human
+are bounded (`MaxQuestionLines`, `MaxQuestionBytes`): when older lines
+are left out, the first context line says how many (`… N earlier lines
+not shown`). What the human
 types, echoed or not, is never written. `console.ParseQuestion` reads the
 file; a reader that takes the first line still gets the prompt.
 

@@ -12,6 +12,7 @@ package console
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -96,7 +97,7 @@ func QuestionPath(socket string) string {
 
 // Bounds of the context kept with a question: the last MaxQuestionLines
 // lines printed above it, at most MaxQuestionBytes bytes (newlines
-// counted).
+// counted), a line saying how many earlier ones were left out included.
 const (
 	MaxQuestionLines = 40
 	MaxQuestionBytes = 8 << 10
@@ -135,16 +136,38 @@ func formatQuestion(prompt string, above []string) string {
 	for len(lines) > 0 && strings.TrimSpace(lines[len(lines)-1]) == "" {
 		lines = lines[:len(lines)-1]
 	}
-	if len(lines) > MaxQuestionLines {
-		lines = lines[len(lines)-MaxQuestionLines:]
+	// The oldest lines go first; when any goes, a first line says how many,
+	// so a reader never takes a cut context (a policy diff) for a whole one.
+	total := len(lines)
+	fit := func(reserve string) {
+		maxLines, maxBytes := MaxQuestionLines, MaxQuestionBytes
+		if reserve != "" {
+			maxLines, maxBytes = maxLines-1, maxBytes-len(reserve)-1
+		}
+		if len(lines) > maxLines {
+			lines = lines[len(lines)-maxLines:]
+		}
+		size := 0
+		for _, l := range lines {
+			size += len(l) + 1
+		}
+		for len(lines) > 0 && size > maxBytes {
+			size -= len(lines[0]) + 1
+			lines = lines[1:]
+		}
 	}
-	size := 0
-	for _, l := range lines {
-		size += len(l) + 1
+	fit("")
+	marker := ""
+	for len(lines) < total {
+		m := fmt.Sprintf("… %d earlier lines not shown", total-len(lines))
+		if m == marker {
+			break
+		}
+		marker = m
+		fit(marker)
 	}
-	for len(lines) > 0 && size > MaxQuestionBytes {
-		size -= len(lines[0]) + 1
-		lines = lines[1:]
+	if marker != "" {
+		lines = append([]string{marker}, lines...)
 	}
 	var b strings.Builder
 	b.WriteString(strings.TrimSpace(questionLine(prompt)) + "\n")

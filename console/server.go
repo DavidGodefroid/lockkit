@@ -971,9 +971,11 @@ func (s *Server) review(ctx context.Context) {
 		return
 	}
 	next := *s.pending
-	s.println("pending policy change for profile " + s.profile.Name + ":")
+	// The diff is context of the decision (#160): it reaches the question
+	// file, so a human answering from lockhub sees what they approve.
+	s.PrintContext("pending policy change for profile " + s.profile.Name + ":")
 	for _, line := range formatChangesOf(s.cfg.Backend, next.Diff(s.approved)) {
-		s.println(line)
+		s.PrintContext(line)
 	}
 	Bell(s.cfg.IO)
 	r := s.decide(ctx, policyDecision(s.profile.Production || next.Profile().Production, s.profile.Name))

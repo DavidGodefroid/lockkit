@@ -10,6 +10,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
   that `:review` can approve it later without editing the files; it is
   audited `policy` / `reopened`, and only the human's console reaches it
   (#158).
+- console: the pending policy diff shown at `:review` is printed through
+  `PrintContext`, so it reaches the question file of the "Apply these
+  changes?" decision: a human answering from lockhub or a phone sees the
+  change they apply (#160). A question file whose context exceeds
+  `MaxQuestionLines` or `MaxQuestionBytes` now starts it with
+  `… N earlier lines not shown` instead of dropping its oldest lines
+  silently.
 
 ## v0.17.0 (2026-11-13)
 
