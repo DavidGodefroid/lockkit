@@ -15,7 +15,7 @@ import (
 // longest IPv6 text form with an embedded IPv4 is 45 bytes.
 const maxIPRun = 64
 
-// findIPs returns the public IPv6 addresses (2000::/3, and IPv4-mapped or
+// scanIPs returns the public IPv6 addresses (2000::/3, and IPv4-mapped or
 // IPv4-compatible forms of a public IPv4) and the public IPv4 addresses of
 // s. An address glued to a letter, a digit or a dot ("v1.2.3.4",
 // "1.2.3.4.5") is a version or a name, not an address.
@@ -25,7 +25,7 @@ const maxIPRun = 64
 // there, after each ':' or '.' inside it, so that an address glued to a
 // hex dump or a MAC list is still found. Each try reads at most maxIPRun
 // bytes, so the scan stays linear.
-func findIPs(s string) []span {
+func scanIPs(s string) []span {
 	s = jsonEscapeView(s) // "\u0027203.0.113.7": same offsets
 	var out []span
 	for i := 0; i < len(s); i++ {
