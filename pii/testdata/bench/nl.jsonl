@@ -1,0 +1,860 @@
+{"id":"nl-secret-0001","lang":"nl","text":"--password akFAuFnPn8FUC7xAjPhGu39","spans":[{"start":11,"end":34,"kind":"secret"}]}
+{"id":"nl-secret-0002","lang":"nl","text":"Het nieuwe wachtwoord is 35sQUqBDZ_qymKdLXa!*z, wijzig het na het aanmelden.","spans":[{"start":25,"end":46,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0003","lang":"nl","text":"Authorization: Bearer !HH-AFh2sVAkn35gtAfSBMXUHWR","spans":[{"start":22,"end":49,"kind":"secret"}]}
+{"id":"nl-secret-0004","lang":"nl","text":"--password E5TyZeJRAggWvGhmA","spans":[{"start":11,"end":28,"kind":"secret"}]}
+{"id":"nl-secret-0005","lang":"nl","text":"mysql -u app -pcp3K9bhhfPv8EQcJEGo winkel","spans":[{"start":15,"end":34,"kind":"secret"}]}
+{"id":"nl-secret-0006","lang":"nl","text":"--password CLv*wL92859QMzWgJZQt","spans":[{"start":11,"end":31,"kind":"secret"}]}
+{"id":"nl-secret-0007","lang":"nl","text":"password=MUkiygK!iakyfCh","spans":[{"start":9,"end":24,"kind":"secret"}]}
+{"id":"nl-secret-0008","lang":"nl","text":"https://deploy:-6QmQMc9LfUESYbW!Dd7Sc6fT@git.example.com/app.git","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"nl-secret-0009","lang":"nl","text":"Het nieuwe wachtwoord is yWKBfGGdjvfwPdr45iE, wijzig het na het aanmelden.","spans":[{"start":25,"end":44,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0010","lang":"nl","text":"Authorization: Bearer B6D2wKmbZz3Uhtvhd","spans":[{"start":22,"end":39,"kind":"secret"}]}
+{"id":"nl-secret-0011","lang":"nl","text":"export DB_PASSWORD=wEUdztvHr3ZgEc8","spans":[{"start":19,"end":34,"kind":"secret"}]}
+{"id":"nl-secret-0012","lang":"nl","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.WMlifEzKmpA53B9xUssHGN_pq13z7O.rzzCjMuOO6MuIcZU7tC_-1E9dh9WgQc8ozJ_yVx2CHN","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"nl-secret-0013","lang":"nl","text":"--password dTTPRgtq8G-x*6X","spans":[{"start":11,"end":26,"kind":"secret"}]}
+{"id":"nl-secret-0014","lang":"nl","text":"Het nieuwe wachtwoord is UzSm2U4SCy**9QrH, wijzig het na het aanmelden.","spans":[{"start":25,"end":41,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0015","lang":"nl","text":"password=eyJhbGciOiJIUzI1NiJ9._xPk03Kee3rydRTIjZU6rMINkv7vGM.2DtbBCHfin0KbPl3Ooa9RL2U1RNikPSp3VQDtnh2Wyx","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"nl-secret-0016","lang":"nl","text":"mysql -u app -poHwX*cPyY5QsGuVr5XUwyk_y! winkel","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"nl-secret-0017","lang":"nl","text":"mysql -u app -pmGFThFay_-ko7C2W6 winkel","spans":[{"start":15,"end":32,"kind":"secret"}]}
+{"id":"nl-secret-0018","lang":"nl","text":"Authorization: Bearer KbD-wrXS3Byn-ApSr!np","spans":[{"start":22,"end":42,"kind":"secret"}]}
+{"id":"nl-secret-0019","lang":"nl","text":"Authorization: Bearer *zBmZaoydZiCjvf23E-FGx","spans":[{"start":22,"end":44,"kind":"secret"}]}
+{"id":"nl-secret-0020","lang":"nl","text":"Het nieuwe wachtwoord is -cwyjFw6-jg9kiKdkUATbueHpSW, wijzig het na het aanmelden.","spans":[{"start":25,"end":52,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0021","lang":"nl","text":"--password 4SDuy3GKM-xv34C","spans":[{"start":11,"end":26,"kind":"secret"}]}
+{"id":"nl-secret-0022","lang":"nl","text":"Authorization: Bearer 7chy4AoSBvw_9Vss5Q","spans":[{"start":22,"end":40,"kind":"secret"}]}
+{"id":"nl-secret-0023","lang":"nl","text":"password=hkKkToHc3XiYX6k95Vhq9LBnQQ","spans":[{"start":9,"end":35,"kind":"secret"}]}
+{"id":"nl-secret-0024","lang":"nl","text":"Het nieuwe wachtwoord is RnEUT4CQa8eGJHLzACQS7HJL, wijzig het na het aanmelden.","spans":[{"start":25,"end":49,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0025","lang":"nl","text":"Het nieuwe wachtwoord is eyJhbGciOiJIUzI1NiJ9.JdbZY4TlyfwAHqufKLDV4lQsPorpUJ.dHYc2N5PRf0FawGbb1oZTkX5kAeHzw0HkosPEo2ERW0, wijzig het na het aanmelden.","spans":[{"start":25,"end":120,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0026","lang":"nl","text":"--password BETrXAx2f3xt2LS_JgHV6qctD3","spans":[{"start":11,"end":37,"kind":"secret"}]}
+{"id":"nl-secret-0027","lang":"nl","text":"Authorization: Bearer 2tYBm7MfLaFccefzE4*","spans":[{"start":22,"end":41,"kind":"secret"}]}
+{"id":"nl-secret-0028","lang":"nl","text":"export DB_PASSWORD=LjvZZT2_-pU2qLT_D5xJuzDFoaf","spans":[{"start":19,"end":46,"kind":"secret"}]}
+{"id":"nl-secret-0029","lang":"nl","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.uoCdyd4R_-vkarBjB1hhbBZJZqAvia.qPqzHxyv9Bll1_QpqeuPj6CehZaMIm-Iwkycrbj9IJa","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"nl-secret-0030","lang":"nl","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.TcSkIK0cowZV7foFhp4lxHNhG0nx5V.d8vOVDNBhGuvY0sJrSSZSBCrcpL0Lv8QSBieISxgB3_","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"nl-secret-0031","lang":"nl","text":"Het nieuwe wachtwoord is cLc3WHWX_N7BzxRcrzTBHUqiT6X, wijzig het na het aanmelden.","spans":[{"start":25,"end":52,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0032","lang":"nl","text":"https://deploy:7-8jVC2E2Q4AwnmSgh@git.example.com/app.git","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"nl-secret-0033","lang":"nl","text":"Het nieuwe wachtwoord is AB2Y*oKpuo3MQ-NvUg, wijzig het na het aanmelden.","spans":[{"start":25,"end":43,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0034","lang":"nl","text":"mysql -u app -pjMCmSEDNJuXLHtoEdQ4Y winkel","spans":[{"start":15,"end":35,"kind":"secret"}]}
+{"id":"nl-secret-0035","lang":"nl","text":"export DB_PASSWORD=9XeN3r3-Vk6WrqmKFKck","spans":[{"start":19,"end":39,"kind":"secret"}]}
+{"id":"nl-secret-0036","lang":"nl","text":"password=B2nNjbRLmGYuF6Rg3A*","spans":[{"start":9,"end":28,"kind":"secret"}]}
+{"id":"nl-secret-0037","lang":"nl","text":"--password irRRf9Le6r!PY_W2-v47Qphc*!","spans":[{"start":11,"end":37,"kind":"secret"}]}
+{"id":"nl-secret-0038","lang":"nl","text":"password=SHohH_Ly6TDnit","spans":[{"start":9,"end":23,"kind":"secret"}]}
+{"id":"nl-secret-0039","lang":"nl","text":"https://deploy:fNfzgRLggG_YMS7tidsNenhw_@git.example.com/app.git","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"nl-secret-0040","lang":"nl","text":"export DB_PASSWORD=PDU9SPcu2s6nE2SCWr","spans":[{"start":19,"end":37,"kind":"secret"}]}
+{"id":"nl-secret-0041","lang":"nl","text":"--password eyJhbGciOiJIUzI1NiJ9.OGs6T3J2a-djEhysur2Udy1zVovLAO.xerqlzI3nSJN2EStI0vC831R7x8x-mwuGAyT8s4aIeD","spans":[{"start":11,"end":106,"kind":"secret"}]}
+{"id":"nl-secret-0042","lang":"nl","text":"password=kvy_!AQJMqnQ*QiaVrth","spans":[{"start":9,"end":29,"kind":"secret"}]}
+{"id":"nl-secret-0043","lang":"nl","text":"https://deploy:6qJkZ9ZvuCiFS4Rjx-@git.example.com/app.git","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"nl-secret-0044","lang":"nl","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.gSh1Q5jxg2RhqzdVch9abuStHidVJ6.8QDwuwwc0T7ykEYoM3f6wlP-9ezBIdkXPYTBagIqw0V","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"nl-secret-0045","lang":"nl","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.oWL3NmSRU3U9JZ7Ri4yqrynuqp6kmp.GgmbEQNLj0cbKsLXLDv-0vpRAtTFxq0S0FywYVnVada winkel","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"nl-secret-0046","lang":"nl","text":"Authorization: Bearer K3kkRRiVrVEhhpoH","spans":[{"start":22,"end":38,"kind":"secret"}]}
+{"id":"nl-secret-0047","lang":"nl","text":"mysql -u app -pZcL_!hi_BuXTMboj5snusEdRQA winkel","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"nl-secret-0048","lang":"nl","text":"Het nieuwe wachtwoord is _ogwoyPGjE!wYB4TL, wijzig het na het aanmelden.","spans":[{"start":25,"end":42,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0049","lang":"nl","text":"Het nieuwe wachtwoord is eyJhbGciOiJIUzI1NiJ9.gbbsg2VWCVWXskEm_FDO65gNt7waEU.REaddoT0owTEnaSmH3toOmGtjiH9gpvwnAbc2xzNq1q, wijzig het na het aanmelden.","spans":[{"start":25,"end":120,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"nl-secret-0050","lang":"nl","text":"--password q7ukrDpsSho6sqeJhw","spans":[{"start":11,"end":29,"kind":"secret"}]}
+{"id":"nl-secret-0051","lang":"nl","text":"password=u2mFS74kWjiRVb","spans":[{"start":9,"end":23,"kind":"secret"}]}
+{"id":"nl-secret-0052","lang":"nl","text":"password=QK!4D-WypUnhEuvz4sX33_v4c3a","spans":[{"start":9,"end":36,"kind":"secret"}]}
+{"id":"nl-secret-0053","lang":"nl","text":"mysql -u app -pDW4uZ*ekYsqgLczH3-9reARQA winkel","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"nl-secret-0054","lang":"nl","text":"--password k_PByTnXDPSCkk4vX","spans":[{"start":11,"end":28,"kind":"secret"}]}
+{"id":"nl-secret-0055","lang":"nl","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.r13sxBWVI_3HUJGbBN6rzhz421ieb7.xtd48wfixRHKqtvIJh_WWeMV1bLK5PjIAfLsbD4jfHF","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"nl-secret-0056","lang":"nl","text":"mysql -u app -poPknwCAR-JjA7q!XZWSWp2uz winkel","spans":[{"start":15,"end":39,"kind":"secret"}]}
+{"id":"nl-secret-0057","lang":"nl","text":"password=eyJhbGciOiJIUzI1NiJ9.hU4rBtgkA2likvp7tNEXMTfJxilNoi.nMhssASN2WXVy_xCsMLsD5uY5Hmqu0Y8lACY7PByda-","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"nl-secret-0058","lang":"nl","text":"export DB_PASSWORD=cn2x7FXhKDjgs84","spans":[{"start":19,"end":34,"kind":"secret"}]}
+{"id":"nl-secret-0059","lang":"nl","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.NAaKkC5wdb98rWfvKNr5QDAdnNoz5Z.q1z5VUryfHaAeN5a7rQl-TtWmDtzCO1i3zXPc6CdXiW winkel","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"nl-secret-0060","lang":"nl","text":"https://deploy:4XWNDBJjJuTC8NJcKZv@git.example.com/app.git","spans":[{"start":15,"end":34,"kind":"secret"}]}
+{"id":"nl-email-0001","lang":"nl","text":"Mail ons op femke.jacobs7​9@example.com.","spans":[{"start":12,"end":41,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0002","lang":"nl","text":"level=info msg=\"profile updated\" email=dries.aerts@ma​il.example.com","spans":[{"start":39,"end":70,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0003","lang":"nl","text":"Mail ons op geert.peeters@example.com.","spans":[{"start":12,"end":37,"kind":"email"}]}
+{"id":"nl-email-0004","lang":"nl","text":"Factuur vanochtend verstuurd naar jacobs_lien@shop.example.org.","spans":[{"start":34,"end":62,"kind":"email"}]}
+{"id":"nl-email-0005","lang":"nl","text":"{\"type\":\"user\",\"email\":\"joris.claessens@mail.example.com\",\"active\":true}","spans":[{"start":24,"end":56,"kind":"email"}]}
+{"id":"nl-email-0006","lang":"nl","text":"email: lemmens_katrien@shop.example.org","spans":[{"start":7,"end":39,"kind":"email"}]}
+{"id":"nl-email-0007","lang":"nl","text":"Mail ons op hermans_sanne@example.org.","spans":[{"start":12,"end":37,"kind":"email"}]}
+{"id":"nl-email-0008","lang":"nl","text":"Contact: lotte.lemmens93@example.co.uk","spans":[{"start":9,"end":38,"kind":"email"}]}
+{"id":"nl-email-0009","lang":"nl","text":"level=info msg=\"profile updated\" email=eline.lemmens@shop.example.org","spans":[{"start":39,"end":69,"kind":"email"}]}
+{"id":"nl-email-0010","lang":"nl","text":"Contact: daniël.öztürk@mail.example.com","spans":[{"start":9,"end":42,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0011","lang":"nl","text":"level=info msg=\"profile updated\" email=maarten.goossen​s@example.co.uk","spans":[{"start":39,"end":72,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0012","lang":"nl","text":"{\"type\":\"user\",\"email\":\"hanne.claessens72@example.com\",\"active\":true}","spans":[{"start":24,"end":53,"kind":"email"}]}
+{"id":"nl-email-0013","lang":"nl","text":"Factuur vanochtend verstuurd naar katrien.claess​ens@example.com.","spans":[{"start":34,"end":66,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0014","lang":"nl","text":"level=info msg=\"profile updated\" email=desmet_femke@example.org","spans":[{"start":39,"end":63,"kind":"email"}]}
+{"id":"nl-email-0015","lang":"nl","text":"Factuur vanochtend verstuurd naar bram.desmet54@mail.example.com.","spans":[{"start":34,"end":64,"kind":"email"}]}
+{"id":"nl-email-0016","lang":"nl","text":"Graag antwoorden aan lclaessens@shop.example.org voor vrijdag.","spans":[{"start":21,"end":48,"kind":"email"}]}
+{"id":"nl-email-0017","lang":"nl","text":"Factuur vanochtend verstuurd naar anaïs.vanderbeek@mail.example.com.","spans":[{"start":34,"end":68,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0018","lang":"nl","text":"email: aerts_joris@example.co.uk","spans":[{"start":7,"end":32,"kind":"email"}]}
+{"id":"nl-email-0019","lang":"nl","text":"Mail ons op Katrien+news@example.co.uk.","spans":[{"start":12,"end":38,"kind":"email"}]}
+{"id":"nl-email-0020","lang":"nl","text":"Factuur vanochtend verstuurd naar lotte.desmet@s​hop.example.org.","spans":[{"start":34,"end":66,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0021","lang":"nl","text":"{\"type\":\"user\",\"email\":\"hanne+news@example.co.uk\",\"active\":true}","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"nl-email-0022","lang":"nl","text":"Contact: sgoossens@example.org","spans":[{"start":9,"end":30,"kind":"email"}]}
+{"id":"nl-email-0023","lang":"nl","text":"{\"type\":\"user\",\"email\":\"Maarten.peeters@example.net\",\"active\":true}","spans":[{"start":24,"end":51,"kind":"email"}]}
+{"id":"nl-email-0024","lang":"nl","text":"Graag antwoorden aan Dries.claesse​ns@example.org voor vrijdag.","spans":[{"start":21,"end":51,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0025","lang":"nl","text":"Factuur vanochtend verstuurd naar dclaessens@example.co.uk.","spans":[{"start":34,"end":58,"kind":"email"}]}
+{"id":"nl-email-0026","lang":"nl","text":"Factuur vanochtend verstuurd naar joris.wuyts@mail.example.com.","spans":[{"start":34,"end":62,"kind":"email"}]}
+{"id":"nl-email-0027","lang":"nl","text":"Mail ons op lotte.wouters@mail.example.com.","spans":[{"start":12,"end":42,"kind":"email"}]}
+{"id":"nl-email-0028","lang":"nl","text":"email: Lwuyts@mail.example.com","spans":[{"start":7,"end":30,"kind":"email"}]}
+{"id":"nl-email-0029","lang":"nl","text":"Graag antwoorden aan geert.wouters@example.net voor vrijdag.","spans":[{"start":21,"end":46,"kind":"email"}]}
+{"id":"nl-email-0030","lang":"nl","text":"email: bram.wouters@example.org","spans":[{"start":7,"end":31,"kind":"email"}]}
+{"id":"nl-email-0031","lang":"nl","text":"Mail ons op claessens_eline@shop.example.org.","spans":[{"start":12,"end":44,"kind":"email"}]}
+{"id":"nl-email-0032","lang":"nl","text":"{\"type\":\"user\",\"email\":\"joris+news@mail.example.com\",\"active\":true}","spans":[{"start":24,"end":51,"kind":"email"}]}
+{"id":"nl-email-0033","lang":"nl","text":"Graag antwoorden aan hanne.lemmens@example.org voor vrijdag.","spans":[{"start":21,"end":46,"kind":"email"}]}
+{"id":"nl-email-0034","lang":"nl","text":"Mail ons op lotte.claessens@example.org.","spans":[{"start":12,"end":39,"kind":"email"}]}
+{"id":"nl-email-0035","lang":"nl","text":"level=info msg=\"profile updated\" email=femke.claessens@example.net","spans":[{"start":39,"end":66,"kind":"email"}]}
+{"id":"nl-email-0036","lang":"nl","text":"level=info msg=\"profile updated\" email=sanne.lemmens@example.com","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"nl-email-0037","lang":"nl","text":"Graag antwoorden aan geert.aerts​@example.org voor vrijdag.","spans":[{"start":21,"end":47,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0038","lang":"nl","text":"Mail ons op pieter.wouters25@shop.example.org.","spans":[{"start":12,"end":45,"kind":"email"}]}
+{"id":"nl-email-0039","lang":"nl","text":"email: Hermans_maarten@example.com","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"nl-email-0040","lang":"nl","text":"email: dries+news@example.net","spans":[{"start":7,"end":29,"kind":"email"}]}
+{"id":"nl-email-0041","lang":"nl","text":"Factuur vanochtend verstuurd naar sanne.desmet​@example.com.","spans":[{"start":34,"end":61,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0042","lang":"nl","text":"email: lemmens_pieter@example.org","spans":[{"start":7,"end":33,"kind":"email"}]}
+{"id":"nl-email-0043","lang":"nl","text":"Factuur vanochtend verstuurd naar sanne.peeters@s​hop.example.org.","spans":[{"start":34,"end":67,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0044","lang":"nl","text":"Mail ons op femke+shop@shop.example.org.","spans":[{"start":12,"end":39,"kind":"email"}]}
+{"id":"nl-email-0045","lang":"nl","text":"Graag antwoorden aan Lien.hermans03@example.com voor vrijdag.","spans":[{"start":21,"end":47,"kind":"email"}]}
+{"id":"nl-email-0046","lang":"nl","text":"Mail ons op joris.claessens@shop.example.org.","spans":[{"start":12,"end":44,"kind":"email"}]}
+{"id":"nl-email-0047","lang":"nl","text":"Contact: hanne.wuyts59@example.org","spans":[{"start":9,"end":34,"kind":"email"}]}
+{"id":"nl-email-0048","lang":"nl","text":"Graag antwoorden aan sanne+billing​@example.co.uk voor vrijdag.","spans":[{"start":21,"end":51,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0049","lang":"nl","text":"Factuur vanochtend verstuurd naar Paerts@example.com.","spans":[{"start":34,"end":52,"kind":"email"}]}
+{"id":"nl-email-0050","lang":"nl","text":"{\"type\":\"user\",\"email\":\"hwouters@example.net\",\"active\":true}","spans":[{"start":24,"end":44,"kind":"email"}]}
+{"id":"nl-email-0051","lang":"nl","text":"level=info msg=\"profile updated\" email=anaïs.vanderbeek@shop.example.org","spans":[{"start":39,"end":73,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0052","lang":"nl","text":"Contact: lien.goossens​@example.co.uk","spans":[{"start":9,"end":39,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0053","lang":"nl","text":"email: noël.verhaegen@example.co.uk","spans":[{"start":7,"end":36,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0054","lang":"nl","text":"Mail ons op maarten.goossens62@mail.example.com.","spans":[{"start":12,"end":47,"kind":"email"}]}
+{"id":"nl-email-0055","lang":"nl","text":"{\"type\":\"user\",\"email\":\"hermans_dries@s​hop.example.org\",\"active\":true}","spans":[{"start":24,"end":57,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0056","lang":"nl","text":"Factuur vanochtend verstuurd naar jclaessens@example.net.","spans":[{"start":34,"end":56,"kind":"email"}]}
+{"id":"nl-email-0057","lang":"nl","text":"email: geert.lemmens@example.co.uk","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"nl-email-0058","lang":"nl","text":"Factuur vanochtend verstuurd naar Wouters_katrien@shop.example.org.","spans":[{"start":34,"end":66,"kind":"email"}]}
+{"id":"nl-email-0059","lang":"nl","text":"level=info msg=\"profile updated\" email=daniël.öztürk@example.com","spans":[{"start":39,"end":67,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"nl-email-0060","lang":"nl","text":"Factuur vanochtend verstuurd naar wout.peeters@example.com.","spans":[{"start":34,"end":58,"kind":"email"}]}
+{"id":"nl-iban-0001","lang":"nl","text":"Bankrekening: BE48281998044894","spans":[{"start":14,"end":30,"kind":"iban"}]}
+{"id":"nl-iban-0002","lang":"nl","text":"Bankrekening: BE39028190836245","spans":[{"start":14,"end":30,"kind":"iban"}]}
+{"id":"nl-iban-0003","lang":"nl","text":"Bankrekening: BE27 6653 7203 6314","spans":[{"start":14,"end":33,"kind":"iban"}]}
+{"id":"nl-iban-0004","lang":"nl","text":"Graag de terugbetaling op rekening NL62UNTT0792187383 storten voor maandag.","spans":[{"start":35,"end":53,"kind":"iban"}]}
+{"id":"nl-iban-0005","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE97 5742 3081 0901\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"nl-iban-0006","lang":"nl","text":"level=info msg=\"profile updated\" iban=BE79097687054818","spans":[{"start":38,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0007","lang":"nl","text":"IBAN NL34 BGZA 4683 6355 82 (zichtrekening)","spans":[{"start":5,"end":35,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0008","lang":"nl","text":"Graag de terugbetaling op rekening NL０９ VKVD ７３３０ ７９２０ ８４ storten voor maandag.","spans":[{"start":35,"end":81,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0009","lang":"nl","text":"level=info msg=\"profile updated\" iban=BE83 7600 8413 9180","spans":[{"start":38,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0010","lang":"nl","text":"IBAN BE52 6521 3727 8943 (zichtrekening)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"nl-iban-0011","lang":"nl","text":"Graag de terugbetaling op rekening NL18 PWWG 9209 2234 27 storten voor maandag.","spans":[{"start":35,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0012","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE03 0194 4267 1606\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"nl-iban-0013","lang":"nl","text":"level=info msg=\"profile updated\" iban=be26089127497285","spans":[{"start":38,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0014","lang":"nl","text":"iban: BE68 3369 2519 7701","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"nl-iban-0015","lang":"nl","text":"iban: NL16 BOMQ 6616 6088 62","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"nl-iban-0016","lang":"nl","text":"Bankrekening: BE98399948289846","spans":[{"start":14,"end":30,"kind":"iban"}]}
+{"id":"nl-iban-0017","lang":"nl","text":"Bankrekening: NL20 CMCD 9518 2340 21","spans":[{"start":14,"end":36,"kind":"iban"}]}
+{"id":"nl-iban-0018","lang":"nl","text":"Graag de terugbetaling op rekening BE47 7208 9160 3138 storten voor maandag.","spans":[{"start":35,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0019","lang":"nl","text":"level=info msg=\"profile updated\" iban=BE81 7556 5491 6583","spans":[{"start":38,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0020","lang":"nl","text":"iban: NL74 KDBT 6454 1131 67","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"nl-iban-0021","lang":"nl","text":"IBAN NL73 AFLF 3945 2805 68 (zichtrekening)","spans":[{"start":5,"end":27,"kind":"iban"}]}
+{"id":"nl-iban-0022","lang":"nl","text":"Graag de terugbetaling op rekening NL43 KMIO 2690 8330 49 storten voor maandag.","spans":[{"start":35,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0023","lang":"nl","text":"level=info msg=\"profile updated\" iban=NL33GYSL8172348951","spans":[{"start":38,"end":56,"kind":"iban"}]}
+{"id":"nl-iban-0024","lang":"nl","text":"iban: BE216456​00209426","spans":[{"start":6,"end":25,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0025","lang":"nl","text":"level=info msg=\"profile updated\" iban=NL75BZUA2518712136","spans":[{"start":38,"end":56,"kind":"iban"}]}
+{"id":"nl-iban-0026","lang":"nl","text":"level=info msg=\"profile updated\" iban=BE20399501527292","spans":[{"start":38,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0027","lang":"nl","text":"iban: NL23HITY3311896898","spans":[{"start":6,"end":24,"kind":"iban"}]}
+{"id":"nl-iban-0028","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE33385295093201\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"iban"}]}
+{"id":"nl-iban-0029","lang":"nl","text":"Bankrekening: BE64857600974340","spans":[{"start":14,"end":30,"kind":"iban"}]}
+{"id":"nl-iban-0030","lang":"nl","text":"IBAN BE71 7973 3904 2983 (zichtrekening)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"nl-iban-0031","lang":"nl","text":"Bankrekening: BE68 3996 3496 8164","spans":[{"start":14,"end":33,"kind":"iban"}]}
+{"id":"nl-iban-0032","lang":"nl","text":"Bankrekening: BE95 9597 2399 4056","spans":[{"start":14,"end":33,"kind":"iban"}]}
+{"id":"nl-iban-0033","lang":"nl","text":"Bankrekening: NL50RNUU9687187887","spans":[{"start":14,"end":32,"kind":"iban"}]}
+{"id":"nl-iban-0034","lang":"nl","text":"level=info msg=\"profile updated\" iban=NL７２ THBV １９７５ ３３１３ ３５","spans":[{"start":38,"end":84,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0035","lang":"nl","text":"iban: BE06 3272 6655 1275","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"nl-iban-0036","lang":"nl","text":"IBAN BE20 2769 5976 0153 (zichtrekening)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"nl-iban-0037","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"NL91 SYKU 3743 8362 75\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"nl-iban-0038","lang":"nl","text":"iban: BE２８７７８６５０５６５７２３","spans":[{"start":6,"end":50,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0039","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE38601575633241\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"iban"}]}
+{"id":"nl-iban-0040","lang":"nl","text":"Bankrekening: BE34826717039926","spans":[{"start":14,"end":30,"kind":"iban"}]}
+{"id":"nl-iban-0041","lang":"nl","text":"iban: BE21 3980 5090 1780","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"nl-iban-0042","lang":"nl","text":"Graag de terugbetaling op rekening BE04 9680 8125 7577 storten voor maandag.","spans":[{"start":35,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0043","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE57581117871082\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"iban"}]}
+{"id":"nl-iban-0044","lang":"nl","text":"Graag de terugbetaling op rekening NL32 BHYO 7318 6824 15 storten voor maandag.","spans":[{"start":35,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0045","lang":"nl","text":"iban: NL66 SIWT 4705 6406 19","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"nl-iban-0046","lang":"nl","text":"level=info msg=\"profile updated\" iban=nl52kszo5450911429","spans":[{"start":38,"end":56,"kind":"iban"}]}
+{"id":"nl-iban-0047","lang":"nl","text":"level=info msg=\"profile updated\" iban=NL64 HFVF 6035 3822 52","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"nl-iban-0048","lang":"nl","text":"IBAN NL63VNDB2959650978 (zichtrekening)","spans":[{"start":5,"end":23,"kind":"iban"}]}
+{"id":"nl-iban-0049","lang":"nl","text":"Graag de terugbetaling op rekening BE46 0103 2936 7475 storten voor maandag.","spans":[{"start":35,"end":54,"kind":"iban"}]}
+{"id":"nl-iban-0050","lang":"nl","text":"Bankrekening: BE66 7458 7704 7193","spans":[{"start":14,"end":33,"kind":"iban"}]}
+{"id":"nl-iban-0051","lang":"nl","text":"level=info msg=\"profile updated\" iban=BE27 4829 4803 6587","spans":[{"start":38,"end":57,"kind":"iban"}]}
+{"id":"nl-iban-0052","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE48494552794363\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"iban"}]}
+{"id":"nl-iban-0053","lang":"nl","text":"iban: BE９２ ５７８７ ４４３５ ９２１６","spans":[{"start":6,"end":53,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0054","lang":"nl","text":"level=info msg=\"profile updated\" iban=NL40 EVQI 3766 7348 73","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"nl-iban-0055","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"BE30 2447 0717 2091\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"nl-iban-0056","lang":"nl","text":"IBAN BE058665​51629256 (zichtrekening)","spans":[{"start":5,"end":24,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0057","lang":"nl","text":"iban: BE90 6419​ 3745 4331","spans":[{"start":6,"end":28,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"nl-iban-0058","lang":"nl","text":"Bankrekening: BE90 6373 0394 3684","spans":[{"start":14,"end":33,"kind":"iban"}]}
+{"id":"nl-iban-0059","lang":"nl","text":"{\"type\":\"user\",\"iban\":\"NL86 FYRP 5519 0762 61\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"nl-iban-0060","lang":"nl","text":"Graag de terugbetaling op rekening BE90 0077 9802 3740 storten voor maandag.","spans":[{"start":35,"end":54,"kind":"iban"}]}
+{"id":"nl-card-0001","lang":"nl","text":"level=info msg=\"profile updated\" card_number=5555 5531 6722 9729","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"nl-card-0002","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4111 1158 6835 4410\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0003","lang":"nl","text":"De klant betaalde met 5555 5536 4059 4277.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0004","lang":"nl","text":"kaart ３７８２８２００４１８５３２６ geweigerd","spans":[{"start":6,"end":51,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0005","lang":"nl","text":"kaart 5555 5547 2749 1379 geweigerd","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"nl-card-0006","lang":"nl","text":"Gebruikte kaart: 2223 0037 7548 8597, vervalt volgend jaar.","spans":[{"start":17,"end":36,"kind":"card"}]}
+{"id":"nl-card-0007","lang":"nl","text":"kaart 3782 829515 81071 geweigerd","spans":[{"start":6,"end":23,"kind":"card"}]}
+{"id":"nl-card-0008","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4000003347531630\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"nl-card-0009","lang":"nl","text":"level=info msg=\"profile updated\" card_number=4111-1166-3635-8857","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"nl-card-0010","lang":"nl","text":"De klant betaalde met 3782 822425 58664.","spans":[{"start":22,"end":39,"kind":"card"}]}
+{"id":"nl-card-0011","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"2223 0022 0052 0768\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0012","lang":"nl","text":"Gebruikte kaart: ４１１１１１２８５８７２５２８７, vervalt volgend jaar.","spans":[{"start":17,"end":65,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0013","lang":"nl","text":"card_number: 4242-4254-8836-4679","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0014","lang":"nl","text":"kaart 2223004921095765 geweigerd","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"nl-card-0015","lang":"nl","text":"level=info msg=\"profile updated\" card_number=４１１１-１１２６-８３７４-０６２６","spans":[{"start":45,"end":96,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0016","lang":"nl","text":"card_number: 5555 5568 8064 2854","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0017","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4000 0007 6423 5281\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0018","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"2223 0083 5126 9808\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0019","lang":"nl","text":"kaart 5555554546551445 geweigerd","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"nl-card-0020","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4111-1112-9313-5276\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0021","lang":"nl","text":"De klant betaalde met 378282526586852.","spans":[{"start":22,"end":37,"kind":"card"}]}
+{"id":"nl-card-0022","lang":"nl","text":"Gebruikte kaart: 3782 824303 70047, vervalt volgend jaar.","spans":[{"start":17,"end":34,"kind":"card"}]}
+{"id":"nl-card-0023","lang":"nl","text":"Gebruikte kaart: 4111 1143 2736 9085, vervalt volgend jaar.","spans":[{"start":17,"end":36,"kind":"card"}]}
+{"id":"nl-card-0024","lang":"nl","text":"De klant betaalde met 4000-0007-6472-4888.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0025","lang":"nl","text":"De klant betaalde met 4111-1111-8975-1244.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0026","lang":"nl","text":"De klant betaalde met 5555 5520 8738 7229.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0027","lang":"nl","text":"kaart 5555 5530 8432 2862 geweigerd","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"nl-card-0028","lang":"nl","text":"card_number: 4242 4203 7367 4258","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0029","lang":"nl","text":"kaart 5555 5551 5302 9344 geweigerd","spans":[{"start":6,"end":31,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0030","lang":"nl","text":"kaart ４１１１-１１９９-６６７１-５９２８ geweigerd","spans":[{"start":6,"end":57,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0031","lang":"nl","text":"level=info msg=\"profile updated\" card_number=5555-5544-1875-8771","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"nl-card-0032","lang":"nl","text":"De klant betaalde met ４０００００５０１５６４９２５５.","spans":[{"start":22,"end":70,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0033","lang":"nl","text":"card_number: 4000-0046-9382-1435","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0034","lang":"nl","text":"level=info msg=\"profile updated\" card_number=2223000105962218","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"nl-card-0035","lang":"nl","text":"card_number: 4242 4214 5718 8249","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0036","lang":"nl","text":"De klant betaalde met 4000-0092-5867-2719.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0037","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"2223 0067 3898 7084\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0038","lang":"nl","text":"card_number: 4111114618131103","spans":[{"start":13,"end":29,"kind":"card"}]}
+{"id":"nl-card-0039","lang":"nl","text":"kaart 4000 0050 7953 8915 geweigerd","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"nl-card-0040","lang":"nl","text":"kaart 4111116971261062 geweigerd","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"nl-card-0041","lang":"nl","text":"Gebruikte kaart: 4242 4284 9799 1532, vervalt volgend jaar.","spans":[{"start":17,"end":36,"kind":"card"}]}
+{"id":"nl-card-0042","lang":"nl","text":"card_number: 2223-0058-7046-6832","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"nl-card-0043","lang":"nl","text":"kaart 4111119404192508 geweigerd","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"nl-card-0044","lang":"nl","text":"kaart 2223006826553855 geweigerd","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"nl-card-0045","lang":"nl","text":"De klant betaalde met ４１１１-１１８９-３０１５-９７７５.","spans":[{"start":22,"end":73,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0046","lang":"nl","text":"kaart 4242 4228 7392 2724 geweigerd","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"nl-card-0047","lang":"nl","text":"De klant betaalde met 5555 5521 6559 9745.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0048","lang":"nl","text":"kaart 378282594555425 geweigerd","spans":[{"start":6,"end":21,"kind":"card"}]}
+{"id":"nl-card-0049","lang":"nl","text":"level=info msg=\"profile updated\" card_number=3782-820​702-60086","spans":[{"start":45,"end":65,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0050","lang":"nl","text":"kaart ４０００ ００５２ ７４４９ ２７３６ geweigerd","spans":[{"start":6,"end":57,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0051","lang":"nl","text":"Gebruikte kaart: 4000 0020 9940 9466, vervalt volgend jaar.","spans":[{"start":17,"end":36,"kind":"card"}]}
+{"id":"nl-card-0052","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4000 0098 4240 6178\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0053","lang":"nl","text":"kaart 3782 822​489 27962 geweigerd","spans":[{"start":6,"end":26,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0054","lang":"nl","text":"De klant betaalde met 4000 0090 5897 0362.","spans":[{"start":22,"end":41,"kind":"card"}]}
+{"id":"nl-card-0055","lang":"nl","text":"card_number: 3782-829137-39940","spans":[{"start":13,"end":30,"kind":"card"}]}
+{"id":"nl-card-0056","lang":"nl","text":"Gebruikte kaart: ２２２３００５２８１６０３０８０, vervalt volgend jaar.","spans":[{"start":17,"end":65,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"nl-card-0057","lang":"nl","text":"De klant betaalde met 4111112264080145.","spans":[{"start":22,"end":38,"kind":"card"}]}
+{"id":"nl-card-0058","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"2223 0099 4130 7769\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-card-0059","lang":"nl","text":"De klant betaalde met 4111114603599793.","spans":[{"start":22,"end":38,"kind":"card"}]}
+{"id":"nl-card-0060","lang":"nl","text":"{\"type\":\"user\",\"card_number\":\"4111-1156-0655-0147\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"nl-be_niss-0001","lang":"nl","text":"Het rijksregisternummer 411217 334 04 is geregistreerd.","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0002","lang":"nl","text":"niss: 16.09.17-527.70","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0003","lang":"nl","text":"Het rijksregisternummer 99.04.06-857.03 is geregistreerd.","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0004","lang":"nl","text":"Rijksregisternummer: 12.02.15-080.56","spans":[{"start":21,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0005","lang":"nl","text":"level=info msg=\"profile updated\" niss=86.08.23-780.04","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0006","lang":"nl","text":"niss: 42101545151","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0007","lang":"nl","text":"Rijksregisternummer: 77.09.24-110.74","spans":[{"start":21,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0008","lang":"nl","text":"Het rijksregisternummer 18072006780 is geregistreerd.","spans":[{"start":24,"end":35,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0009","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"87.12.09-880.82\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0010","lang":"nl","text":"INSZ 66.05.12-986.75 van de patiënt.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0011","lang":"nl","text":"INSZ ５４１０１０５３３８０ van de patiënt.","spans":[{"start":5,"end":38,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0012","lang":"nl","text":"level=info msg=\"profile updated\" niss=30.09.25-888.25","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0013","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"68.03.14-556.85\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0014","lang":"nl","text":"INSZ ５３０９１３７８８９５ van de patiënt.","spans":[{"start":5,"end":38,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0015","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"440508 067 70\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0016","lang":"nl","text":"niss: 640916 224 24","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0017","lang":"nl","text":"niss: 37072493643","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0018","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"７７０９１５３９８５６\",\"active\":true}","spans":[{"start":23,"end":56,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0019","lang":"nl","text":"INSZ ４８.０４.０７-２８５.５６ van de patiënt.","spans":[{"start":5,"end":42,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0020","lang":"nl","text":"Het rijksregisternummer 32.11.1​9-182.94 is geregistreerd.","spans":[{"start":24,"end":42,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0021","lang":"nl","text":"INSZ 150111 019 02 van de patiënt.","spans":[{"start":5,"end":18,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0022","lang":"nl","text":"Rijksregisternummer: 43092244258","spans":[{"start":21,"end":32,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0023","lang":"nl","text":"Rijksregisternummer: 16.05.24-778.66","spans":[{"start":21,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0024","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"82.01.09-267.28\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0025","lang":"nl","text":"Het rijksregisternummer 72.05.28-261.58 is geregistreerd.","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0026","lang":"nl","text":"niss: 71082255145","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0027","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"98071786157\",\"active\":true}","spans":[{"start":23,"end":34,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0028","lang":"nl","text":"niss: 98.12.13-690.92","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0029","lang":"nl","text":"level=info msg=\"profile updated\" niss=64.12.03-698.58","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0030","lang":"nl","text":"INSZ 44.11.15-577.71 van de patiënt.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0031","lang":"nl","text":"niss: 89.12.05-667.69","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0032","lang":"nl","text":"niss: 45112155234","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0033","lang":"nl","text":"Het rijksregisternummer 470508 588 97 is geregistreerd.","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0034","lang":"nl","text":"Het rijksregisternummer 67.01.02-551.27 is geregistreerd.","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0035","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"60062​760383\",\"active\":true}","spans":[{"start":23,"end":37,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0036","lang":"nl","text":"INSZ 21.01.20-229.07 van de patiënt.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0037","lang":"nl","text":"Het rijksregisternummer 980608 380 25 is geregistreerd.","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0038","lang":"nl","text":"Het rijksregisternummer 96091223628 is geregistreerd.","spans":[{"start":24,"end":35,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0039","lang":"nl","text":"niss: 65.03.05-908.37","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0040","lang":"nl","text":"INSZ 300128 749 18 van de patiënt.","spans":[{"start":5,"end":18,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0041","lang":"nl","text":"niss: 95110496517","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0042","lang":"nl","text":"level=info msg=\"profile updated\" niss=12122730328","spans":[{"start":38,"end":49,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0043","lang":"nl","text":"level=info msg=\"profile updated\" niss=231115 563 32","spans":[{"start":38,"end":53,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0044","lang":"nl","text":"INSZ 78.05.13-449.58 van de patiënt.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0045","lang":"nl","text":"Rijksregisternummer: 18032292804","spans":[{"start":21,"end":32,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0046","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"090222​ 296 52\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0047","lang":"nl","text":"Het rijksregisternummer 32.07.07-146.74 is geregistreerd.","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0048","lang":"nl","text":"Rijksregisternummer: 21.07.04-616.45","spans":[{"start":21,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0049","lang":"nl","text":"level=info msg=\"profile updated\" niss=140112 229 32","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0050","lang":"nl","text":"level=info msg=\"profile updated\" niss=３２.０８.２１-７２５.５２","spans":[{"start":38,"end":75,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0051","lang":"nl","text":"Het rijksregisternummer 320217 533 31 is geregistreerd.","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0052","lang":"nl","text":"level=info msg=\"profile updated\" niss=160121 642 70","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0053","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"00.04.24-876.13\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0054","lang":"nl","text":"{\"type\":\"user\",\"niss\":\"29030​142281\",\"active\":true}","spans":[{"start":23,"end":37,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-be_niss-0055","lang":"nl","text":"Het rijksregisternummer 98.12.20-042.45 is geregistreerd.","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0056","lang":"nl","text":"Rijksregisternummer: 70.11.20-794.56","spans":[{"start":21,"end":36,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0057","lang":"nl","text":"niss: 54.07.24-023.52","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0058","lang":"nl","text":"niss: 411017 037 93","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0059","lang":"nl","text":"niss: 48.10.19-555.50","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"nl-be_niss-0060","lang":"nl","text":"Rijksregisternummer: 42.04.1​0-104.21","spans":[{"start":21,"end":39,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0001","lang":"nl","text":"Uw BSN is ４１７３.３３.６７５.","spans":[{"start":10,"end":39,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0002","lang":"nl","text":"De werknemer gaf nummer 5798​66336 op.","spans":[{"start":24,"end":36,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0003","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"5367.46.175\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0004","lang":"nl","text":"bsn: 8124.​66.834","spans":[{"start":5,"end":19,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0005","lang":"nl","text":"De werknemer gaf nummer 560468623 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0006","lang":"nl","text":"De werknemer gaf nummer 479923632 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0007","lang":"nl","text":"BSN: 936793673","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0008","lang":"nl","text":"Burgerservicenummer 1668.93.651 van de klant.","spans":[{"start":20,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0009","lang":"nl","text":"level=info msg=\"profile updated\" bsn=602740022","spans":[{"start":37,"end":46,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0010","lang":"nl","text":"Burgerservicenummer 4881.44.619 van de klant.","spans":[{"start":20,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0011","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"430959503\",\"active\":true}","spans":[{"start":22,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0012","lang":"nl","text":"BSN: 452222862","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0013","lang":"nl","text":"BSN: ２１８０３０８１２","spans":[{"start":5,"end":32,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0014","lang":"nl","text":"BSN: 228877027","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0015","lang":"nl","text":"Uw BSN is 666557755.","spans":[{"start":10,"end":19,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0016","lang":"nl","text":"Burgerservicenummer 344062697 van de klant.","spans":[{"start":20,"end":29,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0017","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"728832008\",\"active\":true}","spans":[{"start":22,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0018","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"2145.​14.730\",\"active\":true}","spans":[{"start":22,"end":36,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0019","lang":"nl","text":"Uw BSN is 489224003.","spans":[{"start":10,"end":19,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0020","lang":"nl","text":"Burgerservicenummer 358585260 van de klant.","spans":[{"start":20,"end":29,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0021","lang":"nl","text":"Burgerservicenummer 544176509 van de klant.","spans":[{"start":20,"end":29,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0022","lang":"nl","text":"De werknemer gaf nummer ６２４１０７１５２ op.","spans":[{"start":24,"end":51,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0023","lang":"nl","text":"level=info msg=\"profile updated\" bsn=７６４５５１６９３","spans":[{"start":37,"end":64,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0024","lang":"nl","text":"BSN: 1497.98.805","spans":[{"start":5,"end":16,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0025","lang":"nl","text":"bsn: 422196319","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0026","lang":"nl","text":"Burgerservicenummer 612874783 van de klant.","spans":[{"start":20,"end":29,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0027","lang":"nl","text":"bsn: 470033861","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0028","lang":"nl","text":"BSN: 6949.75.746","spans":[{"start":5,"end":16,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0029","lang":"nl","text":"bsn: 7486​66837","spans":[{"start":5,"end":17,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0030","lang":"nl","text":"De werknemer gaf nummer 681597355 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0031","lang":"nl","text":"bsn: ８０５２８２４４０","spans":[{"start":5,"end":32,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0032","lang":"nl","text":"level=info msg=\"profile updated\" bsn=745606829","spans":[{"start":37,"end":46,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0033","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"829076992\",\"active\":true}","spans":[{"start":22,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0034","lang":"nl","text":"Burgerservicenummer 194248896 van de klant.","spans":[{"start":20,"end":29,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0035","lang":"nl","text":"De werknemer gaf nummer 540904995 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0036","lang":"nl","text":"BSN: 5543.94.078","spans":[{"start":5,"end":16,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0037","lang":"nl","text":"level=info msg=\"profile updated\" bsn=2389​72069","spans":[{"start":37,"end":49,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0038","lang":"nl","text":"De werknemer gaf nummer 395373980 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0039","lang":"nl","text":"Burgerservicenummer 3935.30.942 van de klant.","spans":[{"start":20,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0040","lang":"nl","text":"Uw BSN is 945720373.","spans":[{"start":10,"end":19,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0041","lang":"nl","text":"Uw BSN is 136030257.","spans":[{"start":10,"end":19,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0042","lang":"nl","text":"Uw BSN is 1472.65.290.","spans":[{"start":10,"end":21,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0043","lang":"nl","text":"bsn: 810239632","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0044","lang":"nl","text":"bsn: 771059188","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0045","lang":"nl","text":"level=info msg=\"profile updated\" bsn=298504388","spans":[{"start":37,"end":46,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0046","lang":"nl","text":"Uw BSN is 7976.09.775.","spans":[{"start":10,"end":21,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0047","lang":"nl","text":"level=info msg=\"profile updated\" bsn=895947092","spans":[{"start":37,"end":46,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0048","lang":"nl","text":"level=info msg=\"profile updated\" bsn=7587.49.958","spans":[{"start":37,"end":48,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0049","lang":"nl","text":"{\"type\":\"user\",\"bsn\":\"548512875\",\"active\":true}","spans":[{"start":22,"end":31,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0050","lang":"nl","text":"BSN: 272080469","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0051","lang":"nl","text":"BSN: 704955283","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0052","lang":"nl","text":"Burgerservicenummer 2986​53023 van de klant.","spans":[{"start":20,"end":32,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0053","lang":"nl","text":"bsn: 344854486","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0054","lang":"nl","text":"bsn: 103874434","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0055","lang":"nl","text":"De werknemer gaf nummer 306811352 op.","spans":[{"start":24,"end":33,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0056","lang":"nl","text":"bsn: 8148.52.257","spans":[{"start":5,"end":16,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0057","lang":"nl","text":"level=info msg=\"profile updated\" bsn=９８５９.４８.９７８","spans":[{"start":37,"end":66,"kind":"nl_bsn"}],"tags":["hard_positive"]}
+{"id":"nl-nl_bsn-0058","lang":"nl","text":"BSN: 3738.01.191","spans":[{"start":5,"end":16,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0059","lang":"nl","text":"Uw BSN is 950175468.","spans":[{"start":10,"end":19,"kind":"nl_bsn"}]}
+{"id":"nl-nl_bsn-0060","lang":"nl","text":"bsn: 259911495","spans":[{"start":5,"end":14,"kind":"nl_bsn"}]}
+{"id":"nl-person_name-0001","lang":"nl","text":"Ondertekend door Lien Q​. Aerts, kantoordirecteur.","spans":[{"start":17,"end":33,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0002","lang":"nl","text":"Bel Faviric Zosainckx even over de levering.","spans":[{"start":4,"end":21,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0003","lang":"nl","text":"Bel Eline S. Lemmens even over de levering.","spans":[{"start":4,"end":20,"kind":"person_name"}]}
+{"id":"nl-person_name-0004","lang":"nl","text":"Afspraak met Quiys Arhoven morgenvroeg.","spans":[{"start":13,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0005","lang":"nl","text":"level=info msg=\"profile updated\" customer=KATRIEN JACOBS","spans":[{"start":42,"end":56,"kind":"person_name"}]}
+{"id":"nl-person_name-0006","lang":"nl","text":"Dossier opgevolgd door Jacobs, Bram.","spans":[{"start":23,"end":35,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0007","lang":"nl","text":"Ondertekend door Moleric Wouters, kantoordirecteur.","spans":[{"start":17,"end":32,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0008","lang":"nl","text":"customer: Lirath Lemmens","spans":[{"start":10,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0009","lang":"nl","text":"customer: Tays Jacobs","spans":[{"start":10,"end":21,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0010","lang":"nl","text":"Afspraak met Goossens, Lien morgenvroeg.","spans":[{"start":13,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0011","lang":"nl","text":"level=info msg=\"profile updated\" customer=Mevrouw Nilemans","spans":[{"start":50,"end":58,"kind":"person_name"}]}
+{"id":"nl-person_name-0012","lang":"nl","text":"level=info msg=\"profile updated\" customer=Morath Lemmens","spans":[{"start":42,"end":56,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0013","lang":"nl","text":"Dossier opgevolgd door Wouters, Dries.","spans":[{"start":23,"end":37,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0014","lang":"nl","text":"customer: DRIES GOOSSENS","spans":[{"start":10,"end":24,"kind":"person_name"}]}
+{"id":"nl-person_name-0015","lang":"nl","text":"Bel Karadel Karimans even over de levering.","spans":[{"start":4,"end":20,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0016","lang":"nl","text":"Dossier opgevolgd door Hanne Quiriens.","spans":[{"start":23,"end":37,"kind":"person_name"}]}
+{"id":"nl-person_name-0017","lang":"nl","text":"customer: pieter​ jacobs","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0018","lang":"nl","text":"Dossier opgevolgd door Hermans, Bram.","spans":[{"start":23,"end":36,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0019","lang":"nl","text":"Bel Niralo Wuyts even over de levering.","spans":[{"start":4,"end":16,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0020","lang":"nl","text":"Bel Dhr. Beaert even over de levering.","spans":[{"start":9,"end":15,"kind":"person_name"}]}
+{"id":"nl-person_name-0021","lang":"nl","text":"Ondertekend door Dhr. Goos​sens, kantoordirecteur.","spans":[{"start":22,"end":33,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0022","lang":"nl","text":"Ondertekend door Dr. Wouters, kantoordirecteur.","spans":[{"start":21,"end":28,"kind":"person_name"}]}
+{"id":"nl-person_name-0023","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"Wuyts, Femke\",\"active\":true}","spans":[{"start":27,"end":39,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0024","lang":"nl","text":"level=info msg=\"profile updated\" customer=Dhr. Aerts","spans":[{"start":47,"end":52,"kind":"person_name"}]}
+{"id":"nl-person_name-0025","lang":"nl","text":"Bel Bevimir Wouters even over de levering.","spans":[{"start":4,"end":19,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0026","lang":"nl","text":"Dossier opgevolgd door lotte wouters.","spans":[{"start":23,"end":36,"kind":"person_name"}]}
+{"id":"nl-person_name-0027","lang":"nl","text":"Ondertekend door Mevr. Goos​sens, kantoordirecteur.","spans":[{"start":23,"end":34,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0028","lang":"nl","text":"customer: Mevr. Desmet","spans":[{"start":16,"end":22,"kind":"person_name"}]}
+{"id":"nl-person_name-0029","lang":"nl","text":"customer: Quiane Goossens","spans":[{"start":10,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0030","lang":"nl","text":"customer: Duradel Arlehoven","spans":[{"start":10,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0031","lang":"nl","text":"Dossier opgevolgd door Arleth Beleaert.","spans":[{"start":23,"end":38,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0032","lang":"nl","text":"Dossier opgevolgd door Lisaane Wouters.","spans":[{"start":23,"end":38,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0033","lang":"nl","text":"Afspraak met Veran Fasahoven morgenvroeg.","spans":[{"start":13,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0034","lang":"nl","text":"level=info msg=\"profile updated\" customer=Pieter Zoramans","spans":[{"start":42,"end":57,"kind":"person_name"}]}
+{"id":"nl-person_name-0035","lang":"nl","text":"Dossier opgevolgd door Mevr. Liaert.","spans":[{"start":29,"end":35,"kind":"person_name"}]}
+{"id":"nl-person_name-0036","lang":"nl","text":"customer: Fanoys Desmet","spans":[{"start":10,"end":23,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0037","lang":"nl","text":"Bel Beradel Fasahoven even over de levering.","spans":[{"start":4,"end":21,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0038","lang":"nl","text":"Dossier opgevolgd door Veralo Peeters.","spans":[{"start":23,"end":37,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0039","lang":"nl","text":"Bel Elylevia Veriens even over de levering.","spans":[{"start":4,"end":20,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0040","lang":"nl","text":"Ondertekend door Dr. Moleinckx, kantoordirecteur.","spans":[{"start":21,"end":30,"kind":"person_name"}]}
+{"id":"nl-person_name-0041","lang":"nl","text":"Dossier opgevolgd door Wuyts, Eline.","spans":[{"start":23,"end":35,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0042","lang":"nl","text":"Ondertekend door Nirimir Aerts, kantoordirecteur.","spans":[{"start":17,"end":30,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0043","lang":"nl","text":"level=info msg=\"profile updated\" customer=Femke Jacobs","spans":[{"start":42,"end":54,"kind":"person_name"}]}
+{"id":"nl-person_name-0044","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"Moriane Jacobs\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0045","lang":"nl","text":"customer: Eline F.​ Goossens","spans":[{"start":10,"end":30,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0046","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"Roys Talehoven\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0047","lang":"nl","text":"level=info msg=\"profile updated\" customer=eline claessens","spans":[{"start":42,"end":57,"kind":"person_name"}]}
+{"id":"nl-person_name-0048","lang":"nl","text":"Afspraak met Dulevia Lemmens morgenvroeg.","spans":[{"start":13,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0049","lang":"nl","text":"Afspraak met Lisavia Claessens morgenvroeg.","spans":[{"start":13,"end":30,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0050","lang":"nl","text":"Dossier opgevolgd door WOUT CLAESSENS.","spans":[{"start":23,"end":37,"kind":"person_name"}]}
+{"id":"nl-person_name-0051","lang":"nl","text":"customer: femke claessens","spans":[{"start":10,"end":25,"kind":"person_name"}]}
+{"id":"nl-person_name-0052","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"femke jacobs\",\"active\":true}","spans":[{"start":27,"end":39,"kind":"person_name"}]}
+{"id":"nl-person_name-0053","lang":"nl","text":"Bel Dries A​rnohoven even over de levering.","spans":[{"start":4,"end":22,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0054","lang":"nl","text":"customer: Geert Tasainckx","spans":[{"start":10,"end":25,"kind":"person_name"}]}
+{"id":"nl-person_name-0055","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"katrien ​claessens\",\"active\":true}","spans":[{"start":27,"end":47,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0056","lang":"nl","text":"{\"type\":\"user\",\"customer\":\"Mevrouw Wouters\",\"active\":true}","spans":[{"start":35,"end":42,"kind":"person_name"}]}
+{"id":"nl-person_name-0057","lang":"nl","text":"Afspraak met PIETER PEETERS morgenvroeg.","spans":[{"start":13,"end":27,"kind":"person_name"}]}
+{"id":"nl-person_name-0058","lang":"nl","text":"Bel Arralo Dunoinckx even over de levering.","spans":[{"start":4,"end":20,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0059","lang":"nl","text":"Afspraak met Zorimir Desmet morgenvroeg.","spans":[{"start":13,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-person_name-0060","lang":"nl","text":"Ondertekend door Katrien ​Ninoinckx, kantoordirecteur.","spans":[{"start":17,"end":37,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0001","lang":"nl","text":"client_ip: 203.0.113.215","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"nl-ip-0002","lang":"nl","text":"Aanmelding vanaf 203.0.113.122 vanochtend.","spans":[{"start":17,"end":30,"kind":"ip"}]}
+{"id":"nl-ip-0003","lang":"nl","text":"client_ip: ::ffff:203.0.113.93","spans":[{"start":11,"end":30,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0004","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=2001:4860:4860::8888","spans":[{"start":43,"end":63,"kind":"ip"}]}
+{"id":"nl-ip-0005","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.249\",\"active\":true}","spans":[{"start":28,"end":48,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0006","lang":"nl","text":"Aanmelding vanaf 192.0.2.148 vanochtend.","spans":[{"start":17,"end":28,"kind":"ip"}]}
+{"id":"nl-ip-0007","lang":"nl","text":"client_ip: 2001:db8:a745::225","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"nl-ip-0008","lang":"nl","text":"client_ip: ::ffff:203.0.113.158","spans":[{"start":11,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0009","lang":"nl","text":"Toegang geweigerd voor １９８.５１.１００.７３.","spans":[{"start":23,"end":56,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0010","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"8.8.8.8\",\"active\":true}","spans":[{"start":28,"end":35,"kind":"ip"}]}
+{"id":"nl-ip-0011","lang":"nl","text":"Toegang geweigerd voor 9.9.9.9.","spans":[{"start":23,"end":30,"kind":"ip"}]}
+{"id":"nl-ip-0012","lang":"nl","text":"Verzoek geblokkeerd: client 192.0.2.89.","spans":[{"start":28,"end":38,"kind":"ip"}]}
+{"id":"nl-ip-0013","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.46\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0014","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.206\",\"active\":true}","spans":[{"start":28,"end":39,"kind":"ip"}]}
+{"id":"nl-ip-0015","lang":"nl","text":"Verzoek geblokkeerd: client 192.0.2.183.","spans":[{"start":28,"end":39,"kind":"ip"}]}
+{"id":"nl-ip-0016","lang":"nl","text":"Verzoek geblokkeerd: client 203.0.113.223.","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0017","lang":"nl","text":"Verzoek geblokkeerd: client 2606:4700:4700::1111.","spans":[{"start":28,"end":48,"kind":"ip"}]}
+{"id":"nl-ip-0018","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=203.0.113.128","spans":[{"start":43,"end":56,"kind":"ip"}]}
+{"id":"nl-ip-0019","lang":"nl","text":"Toegang geweigerd voor 2606:4700:4700::1111.","spans":[{"start":23,"end":43,"kind":"ip"}]}
+{"id":"nl-ip-0020","lang":"nl","text":"Aanmelding vanaf 198.51.100.43 vanochtend.","spans":[{"start":17,"end":30,"kind":"ip"}]}
+{"id":"nl-ip-0021","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.236\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0022","lang":"nl","text":"Verzoek geblokkeerd: client 192.0.2.104.","spans":[{"start":28,"end":39,"kind":"ip"}]}
+{"id":"nl-ip-0023","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:9b07::fe7\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"nl-ip-0024","lang":"nl","text":"client_ip: 2620:fe::fe","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"nl-ip-0025","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.20\",\"active\":true}","spans":[{"start":28,"end":47,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0026","lang":"nl","text":"Aanmelding vanaf 192.0.2.252 vanochtend.","spans":[{"start":17,"end":28,"kind":"ip"}]}
+{"id":"nl-ip-0027","lang":"nl","text":"client_ip: 2001:db8:6d2e::cc1","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"nl-ip-0028","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:a100::992\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"nl-ip-0029","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.48\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0030","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:9801::77a\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"nl-ip-0031","lang":"nl","text":"Toegang geweigerd voor ::ffff:203.0.113.22.","spans":[{"start":23,"end":42,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0032","lang":"nl","text":"Verzoek geblokkeerd: client 2001:db8:677c::a32.","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"nl-ip-0033","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=::ffff:203.0.113.175","spans":[{"start":43,"end":63,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0034","lang":"nl","text":"Verzoek geblokkeerd: client 198.51.100.108.","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"nl-ip-0035","lang":"nl","text":"Toegang geweigerd voor 203.0.113.89.","spans":[{"start":23,"end":35,"kind":"ip"}]}
+{"id":"nl-ip-0036","lang":"nl","text":"Toegang geweigerd voor 203.0.113.30.","spans":[{"start":23,"end":35,"kind":"ip"}]}
+{"id":"nl-ip-0037","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.35\",\"active\":true}","spans":[{"start":28,"end":38,"kind":"ip"}]}
+{"id":"nl-ip-0038","lang":"nl","text":"Toegang geweigerd voor 2001:db8:88ef::dfc.","spans":[{"start":23,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0039","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=2001:db8:3c59::348","spans":[{"start":43,"end":61,"kind":"ip"}]}
+{"id":"nl-ip-0040","lang":"nl","text":"Aanmelding vanaf 8.8.8.8 vanochtend.","spans":[{"start":17,"end":24,"kind":"ip"}]}
+{"id":"nl-ip-0041","lang":"nl","text":"Verzoek geblokkeerd: client ::ffff:203.0.113.232.","spans":[{"start":28,"end":48,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0042","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=２０３.０.１１３.１０９","spans":[{"start":43,"end":76,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0043","lang":"nl","text":"Verzoek geblokkeerd: client 203.0.113.101.","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"nl-ip-0044","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"１９２.０.２.２１６\",\"active\":true}","spans":[{"start":28,"end":55,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0045","lang":"nl","text":"client_ip: 2001:db8:7728::c2b","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"nl-ip-0046","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=1.1.1.1","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"nl-ip-0047","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=2620:fe::fe","spans":[{"start":43,"end":54,"kind":"ip"}]}
+{"id":"nl-ip-0048","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.212\",\"active\":true}","spans":[{"start":28,"end":48,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0049","lang":"nl","text":"Toegang geweigerd voor ２００１:db８:cf１９::da２.","spans":[{"start":23,"end":57,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0050","lang":"nl","text":"Toegang geweigerd voor ::ffff:203.0.113.22.","spans":[{"start":23,"end":42,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0051","lang":"nl","text":"Aanmelding vanaf 8.8.8.8 vanochtend.","spans":[{"start":17,"end":24,"kind":"ip"}]}
+{"id":"nl-ip-0052","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=198.51.100.117","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"nl-ip-0053","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=2606:4700:​4700::1111","spans":[{"start":43,"end":66,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0054","lang":"nl","text":"Toegang geweigerd voor 2620:fe::fe.","spans":[{"start":23,"end":34,"kind":"ip"}]}
+{"id":"nl-ip-0055","lang":"nl","text":"Aanmelding vanaf 2001:4860:4860::8888 vanochtend.","spans":[{"start":17,"end":37,"kind":"ip"}]}
+{"id":"nl-ip-0056","lang":"nl","text":"Aanmelding vanaf ::ffff:203.0.113.101 vanochtend.","spans":[{"start":17,"end":37,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0057","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"203.0.​113.75\",\"active\":true}","spans":[{"start":28,"end":43,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0058","lang":"nl","text":"level=info msg=\"profile updated\" client_ip=1.1.1.1","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"nl-ip-0059","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"203.0.​113.227\",\"active\":true}","spans":[{"start":28,"end":44,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-ip-0060","lang":"nl","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.94\",\"active\":true}","spans":[{"start":28,"end":47,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0001","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"+３１ ６ ２３１６９０９２\",\"active\":true}","spans":[{"start":24,"end":60,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0002","lang":"nl","text":"level=info msg=\"profile updated\" phone=+31 6 12673188","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"nl-phone-0003","lang":"nl","text":"Gsm 06-97376403 (enkel 's avonds).","spans":[{"start":4,"end":15,"kind":"phone"}]}
+{"id":"nl-phone-0004","lang":"nl","text":"phone: 06 40 34 63 23","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"nl-phone-0005","lang":"nl","text":"level=info msg=\"profile updated\" phone=0475 77 12 73","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"nl-phone-0006","lang":"nl","text":"Tel.: 09 782 53 32","spans":[{"start":6,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0007","lang":"nl","text":"Bel me op 020-220 9739 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0008","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"0475 60 22 42\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"nl-phone-0009","lang":"nl","text":"Gsm 0475 91 98 21 (enkel 's avonds).","spans":[{"start":4,"end":17,"kind":"phone"}]}
+{"id":"nl-phone-0010","lang":"nl","text":"Bel me op 09 263 21 85 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0011","lang":"nl","text":"Gsm 09 103 84 38 (enkel 's avonds).","spans":[{"start":4,"end":16,"kind":"phone"}]}
+{"id":"nl-phone-0012","lang":"nl","text":"level=info msg=\"profile updated\" phone=09 207 47 65","spans":[{"start":39,"end":51,"kind":"phone"}]}
+{"id":"nl-phone-0013","lang":"nl","text":"Gsm 06 99 99 74 05 (enkel 's avonds).","spans":[{"start":4,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0014","lang":"nl","text":"Tel.: 020-139 7348","spans":[{"start":6,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0015","lang":"nl","text":"level=info msg=\"profile updated\" phone=+32 475 08 51 00","spans":[{"start":39,"end":55,"kind":"phone"}]}
+{"id":"nl-phone-0016","lang":"nl","text":"Tel.: +32 475 86 09 01","spans":[{"start":6,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0017","lang":"nl","text":"Tel.: 0475 52 74 70","spans":[{"start":6,"end":19,"kind":"phone"}]}
+{"id":"nl-phone-0018","lang":"nl","text":"Tel.: 020-464 1284","spans":[{"start":6,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0019","lang":"nl","text":"level=info msg=\"profile updated\" phone=06-66364813","spans":[{"start":39,"end":50,"kind":"phone"}]}
+{"id":"nl-phone-0020","lang":"nl","text":"level=info msg=\"profile updated\" phone=0475 55 38 88","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"nl-phone-0021","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"0475 87 49 82\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"nl-phone-0022","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"０６-５１９２５３６４\",\"active\":true}","spans":[{"start":24,"end":55,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0023","lang":"nl","text":"Tel.: 06 69 05 04 37","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"nl-phone-0024","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"06 34 94 33 45\",\"active\":true}","spans":[{"start":24,"end":42,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0025","lang":"nl","text":"Bel me op +32 475 56 64 06 na zes uur.","spans":[{"start":10,"end":26,"kind":"phone"}]}
+{"id":"nl-phone-0026","lang":"nl","text":"level=info msg=\"profile updated\" phone=0031 20 211 0772","spans":[{"start":39,"end":55,"kind":"phone"}]}
+{"id":"nl-phone-0027","lang":"nl","text":"Bel me op +３１ ６ ９８６４２７６０ na zes uur.","spans":[{"start":10,"end":46,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0028","lang":"nl","text":"Tel.: 09 473 59 46","spans":[{"start":6,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0029","lang":"nl","text":"phone: +31 6 41086041","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"nl-phone-0030","lang":"nl","text":"Tel.: +31 6 68563975","spans":[{"start":6,"end":22,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0031","lang":"nl","text":"level=info msg=\"profile updated\" phone=06 54 59 45 36","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"nl-phone-0032","lang":"nl","text":"Gsm 020-388 4018 (enkel 's avonds).","spans":[{"start":4,"end":16,"kind":"phone"}]}
+{"id":"nl-phone-0033","lang":"nl","text":"level=info msg=\"profile updated\" phone=+32 475 11 16 69","spans":[{"start":39,"end":55,"kind":"phone"}]}
+{"id":"nl-phone-0034","lang":"nl","text":"Gsm 020-624 2995 (enkel 's avonds).","spans":[{"start":4,"end":17,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0035","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"09 079 64 63\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone"}]}
+{"id":"nl-phone-0036","lang":"nl","text":"Tel.: +31 6 14050320","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"nl-phone-0037","lang":"nl","text":"Gsm +32 475 25 91 30 (enkel 's avonds).","spans":[{"start":4,"end":20,"kind":"phone"}]}
+{"id":"nl-phone-0038","lang":"nl","text":"Tel.: +31 6 54603301","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"nl-phone-0039","lang":"nl","text":"Bel me op ０４７５ ８６ ９９ ５８ na zes uur.","spans":[{"start":10,"end":43,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0040","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"+31 6 27785216\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"nl-phone-0041","lang":"nl","text":"Gsm +３１ ６ ６２５２３５５８ (enkel 's avonds).","spans":[{"start":4,"end":40,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0042","lang":"nl","text":"Tel.: 020-269 8351","spans":[{"start":6,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0043","lang":"nl","text":"level=info msg=\"profile updated\" phone=0475 48 84 14","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"nl-phone-0044","lang":"nl","text":"Gsm 09 967 29 39 (enkel 's avonds).","spans":[{"start":4,"end":16,"kind":"phone"}]}
+{"id":"nl-phone-0045","lang":"nl","text":"phone: 06-97396488","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0046","lang":"nl","text":"Gsm +32 475 91 52 25 (enkel 's avonds).","spans":[{"start":4,"end":20,"kind":"phone"}]}
+{"id":"nl-phone-0047","lang":"nl","text":"Gsm 020-48​9 2067 (enkel 's avonds).","spans":[{"start":4,"end":19,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0048","lang":"nl","text":"Tel.: 0031 20 716 1791","spans":[{"start":6,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0049","lang":"nl","text":"Bel me op 020-806 5476 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0050","lang":"nl","text":"Bel me op +32 475 ​52 11 33 na zes uur.","spans":[{"start":10,"end":29,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0051","lang":"nl","text":"level=info msg=\"profile updated\" phone=０４７５ ３１ ７５ ７５","spans":[{"start":39,"end":72,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0052","lang":"nl","text":"phone: 06-89370393","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"nl-phone-0053","lang":"nl","text":"Gsm ０２０-２８４ １５２８ (enkel 's avonds).","spans":[{"start":4,"end":36,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0054","lang":"nl","text":"level=info msg=\"profile updated\" phone=06-13019384","spans":[{"start":39,"end":50,"kind":"phone"}]}
+{"id":"nl-phone-0055","lang":"nl","text":"phone: +３１ ６ ２５４３５９６１","spans":[{"start":7,"end":43,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone-0056","lang":"nl","text":"Bel me op 0031 20 409 0148 na zes uur.","spans":[{"start":10,"end":26,"kind":"phone"}]}
+{"id":"nl-phone-0057","lang":"nl","text":"Bel me op 06 23 29 66 73 na zes uur.","spans":[{"start":10,"end":24,"kind":"phone"}]}
+{"id":"nl-phone-0058","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"0475 87 17 16\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"nl-phone-0059","lang":"nl","text":"Bel me op 020-038 4237 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone"}]}
+{"id":"nl-phone-0060","lang":"nl","text":"Tel.: ０６-７３０６３９４１","spans":[{"start":6,"end":37,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0001","lang":"nl","text":"Tel.: 20 945 1416","spans":[{"start":6,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0002","lang":"nl","text":"Bereikbaar op 31 6 24821990 tijdens de week.","spans":[{"start":14,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0003","lang":"nl","text":"Bel me op 475 98 06 02 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0004","lang":"nl","text":"Bel me op 20 579 2328 na zes uur.","spans":[{"start":10,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0005","lang":"nl","text":"Bereikbaar op 31 6 05503516 tijdens de week.","spans":[{"start":14,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0006","lang":"nl","text":"Bereikbaar op 475 86 50 27 tijdens de week.","spans":[{"start":14,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0007","lang":"nl","text":"Bereikbaar op 6 02359705 tijdens de week.","spans":[{"start":14,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0008","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"6 57206457\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0009","lang":"nl","text":"level=info msg=\"profile updated\" phone=20 107 0367","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0010","lang":"nl","text":"Bel me op 6 53072765 na zes uur.","spans":[{"start":10,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0011","lang":"nl","text":"phone: 475 00 52 59","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0012","lang":"nl","text":"level=info msg=\"profile updated\" phone=475 39 61 19","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0013","lang":"nl","text":"phone: 31 6 01322029","spans":[{"start":7,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0014","lang":"nl","text":"level=info msg=\"profile updated\" phone=10 056 9042","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0015","lang":"nl","text":"Bereikbaar op 6 76466345 tijdens de week.","spans":[{"start":14,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0016","lang":"nl","text":"Bereikbaar op 10 911 4328 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0017","lang":"nl","text":"phone: 20 164 1637","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0018","lang":"nl","text":"Bereikbaar op 20 363 7850 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0019","lang":"nl","text":"Bel me op 31 6 93064018 na zes uur.","spans":[{"start":10,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0020","lang":"nl","text":"level=info msg=\"profile updated\" phone=20 272 8047","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0021","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"10 722 5450\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0022","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"10 219 2703\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0023","lang":"nl","text":"Bereikbaar op 20 094 8651 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0024","lang":"nl","text":"phone: 20 209 5877","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0025","lang":"nl","text":"level=info msg=\"profile updated\" phone=10 741 1532","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0026","lang":"nl","text":"phone: 31 6 99245557","spans":[{"start":7,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0027","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"6 53922667\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0028","lang":"nl","text":"Bereikbaar op 20 316 0544 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0029","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"475 98 11 16\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0030","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"475 79 99 78\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0031","lang":"nl","text":"level=info msg=\"profile updated\" phone=31 6 37875830","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0032","lang":"nl","text":"Bel me op 31 6 52891244 na zes uur.","spans":[{"start":10,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0033","lang":"nl","text":"phone: 6 50270675","spans":[{"start":7,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0034","lang":"nl","text":"Tel.: 31 6 90450039","spans":[{"start":6,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0035","lang":"nl","text":"Bereikbaar op 31 6 26563342 tijdens de week.","spans":[{"start":14,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0036","lang":"nl","text":"Tel.: 475 78 49 47","spans":[{"start":6,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0037","lang":"nl","text":"Tel.: 475 99 26 82","spans":[{"start":6,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0038","lang":"nl","text":"Bel me op 6 29265230 na zes uur.","spans":[{"start":10,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0039","lang":"nl","text":"Bel me op 20 170 0879 na zes uur.","spans":[{"start":10,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0040","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"31 6 04491602\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0041","lang":"nl","text":"level=info msg=\"profile updated\" phone=31 6 50481862","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0042","lang":"nl","text":"Bel me op 31 6 20506585 na zes uur.","spans":[{"start":10,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0043","lang":"nl","text":"Bel me op 10 772 2407 na zes uur.","spans":[{"start":10,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0044","lang":"nl","text":"phone: 20 289 9453","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0045","lang":"nl","text":"phone: 6 76079263","spans":[{"start":7,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0046","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"31 6 24275178\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0047","lang":"nl","text":"level=info msg=\"profile updated\" phone=475 68 40 10","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0048","lang":"nl","text":"Bereikbaar op 475 09 44 95 tijdens de week.","spans":[{"start":14,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0049","lang":"nl","text":"level=info msg=\"profile updated\" phone=6 57972395","spans":[{"start":39,"end":49,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0050","lang":"nl","text":"Bel me op 6 66928541 na zes uur.","spans":[{"start":10,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0051","lang":"nl","text":"Bel me op 20 238 2954 na zes uur.","spans":[{"start":10,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0052","lang":"nl","text":"Bereikbaar op 20 945 7113 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0053","lang":"nl","text":"Bel me op 31 6 06998681 na zes uur.","spans":[{"start":10,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0054","lang":"nl","text":"Tel.: 6 02519198","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0055","lang":"nl","text":"Bel me op 475 35 32 19 na zes uur.","spans":[{"start":10,"end":22,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0056","lang":"nl","text":"Bereikbaar op 475 66 96 15 tijdens de week.","spans":[{"start":14,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0057","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"10 618 4697\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0058","lang":"nl","text":"{\"type\":\"user\",\"phone\":\"6 75533184\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0059","lang":"nl","text":"Tel.: 31 6 33774174","spans":[{"start":6,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-phone_loose-0060","lang":"nl","text":"Bereikbaar op 20 800 1407 tijdens de week.","spans":[{"start":14,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"nl-mixed-0001","lang":"nl","text":"Contacteer Geert Hermans op 020-921 8807 of via daniël.öztürk@shop.example.org.","spans":[{"start":11,"end":24,"kind":"person_name"},{"start":28,"end":40,"kind":"phone"},{"start":48,"end":81,"kind":"email"}]}
+{"id":"nl-mixed-0002","lang":"nl","text":"Contacteer Pieter Lemmens op 09 500 07 57 of via pieter.goossens@example.net.","spans":[{"start":11,"end":25,"kind":"person_name"},{"start":29,"end":41,"kind":"phone"},{"start":49,"end":76,"kind":"email"}]}
+{"id":"nl-mixed-0003","lang":"nl","text":"{\"naam\":\"Joris Hermans\",\"email\":\"noël.verhaegen@mail.example.com\",\"telefoon\":\"+31 6 28576262\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":65,"kind":"email"},{"start":79,"end":93,"kind":"phone"}]}
+{"id":"nl-mixed-0004","lang":"nl","text":"{\"naam\":\"Geert Peeters\",\"email\":\"katrien.lemmens@shop.example.org\",\"telefoon\":\"+32 475 46 93 71\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":65,"kind":"email"},{"start":79,"end":95,"kind":"phone"}]}
+{"id":"nl-mixed-0005","lang":"nl","text":"Joris Hermans <bram.jacobs@example.net>, gsm +32 475 29 87 19","spans":[{"start":0,"end":13,"kind":"person_name"},{"start":15,"end":38,"kind":"email"},{"start":45,"end":61,"kind":"phone"}]}
+{"id":"nl-mixed-0006","lang":"nl","text":"Contacteer Dries Wuyts op 06-30965458 of via joris.claessens@example.com.","spans":[{"start":11,"end":22,"kind":"person_name"},{"start":26,"end":37,"kind":"phone"},{"start":45,"end":72,"kind":"email"}]}
+{"id":"nl-mixed-0007","lang":"nl","text":"{\"naam\":\"Wout Wouters\",\"email\":\"llemmens@mail.example.com\",\"telefoon\":\"06-23389286\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":57,"kind":"email"},{"start":71,"end":82,"kind":"phone"}]}
+{"id":"nl-mixed-0008","lang":"nl","text":"Contacteer Lien Wouters op 09 216 66 39 of via bram.goossens@example.com.","spans":[{"start":11,"end":23,"kind":"person_name"},{"start":27,"end":39,"kind":"phone"},{"start":47,"end":72,"kind":"email"}]}
+{"id":"nl-mixed-0009","lang":"nl","text":"Lotte Goossens <eline.claessens@mail.example.com>, gsm 0031 20 468 0989","spans":[{"start":0,"end":14,"kind":"person_name"},{"start":16,"end":48,"kind":"email"},{"start":55,"end":71,"kind":"phone"}]}
+{"id":"nl-mixed-0010","lang":"nl","text":"{\"naam\":\"Sanne Aerts\",\"email\":\"hanne.peeters@example.co.uk\",\"telefoon\":\"0475 34 33 91\"}","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":31,"end":58,"kind":"email"},{"start":72,"end":85,"kind":"phone"}]}
+{"id":"nl-mixed-0011","lang":"nl","text":"Contacteer Lien Hermans op +31 6 03948850 of via bram.desmet@example.com.","spans":[{"start":11,"end":23,"kind":"person_name"},{"start":27,"end":41,"kind":"phone"},{"start":49,"end":72,"kind":"email"}]}
+{"id":"nl-mixed-0012","lang":"nl","text":"{\"naam\":\"Joris Jacobs\",\"email\":\"daniël.öztürk@example.com\",\"telefoon\":\"0475 21 89 16\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":60,"kind":"email"},{"start":74,"end":87,"kind":"phone"}]}
+{"id":"nl-mixed-0013","lang":"nl","text":"{\"naam\":\"Geert Lemmens\",\"email\":\"joris.claessens@example.co.uk\",\"telefoon\":\"0031 20 351 4139\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":62,"kind":"email"},{"start":76,"end":92,"kind":"phone"}]}
+{"id":"nl-mixed-0014","lang":"nl","text":"{\"naam\":\"Geert Desmet\",\"email\":\"sanne.lemmens@example.org\",\"telefoon\":\"0475 39 81 20\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":57,"kind":"email"},{"start":71,"end":84,"kind":"phone"}]}
+{"id":"nl-mixed-0015","lang":"nl","text":"Contacteer Lien Lemmens op 0031 20 686 7094 of via joris.peeters@example.net.","spans":[{"start":11,"end":23,"kind":"person_name"},{"start":27,"end":43,"kind":"phone"},{"start":51,"end":76,"kind":"email"}]}
+{"id":"nl-mixed-0016","lang":"nl","text":"{\"naam\":\"Eline Lemmens\",\"email\":\"wout.desmet@example.org\",\"telefoon\":\"+31 6 14045746\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":56,"kind":"email"},{"start":70,"end":84,"kind":"phone"}]}
+{"id":"nl-mixed-0017","lang":"nl","text":"{\"naam\":\"Femke Aerts\",\"email\":\"kclaessens@example.co.uk\",\"telefoon\":\"09 686 80 84\"}","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":31,"end":55,"kind":"email"},{"start":69,"end":81,"kind":"phone"}]}
+{"id":"nl-mixed-0018","lang":"nl","text":"{\"naam\":\"Dries Hermans\",\"email\":\"dries.wuyts40@example.org\",\"telefoon\":\"06 96 59 07 74\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":58,"kind":"email"},{"start":72,"end":86,"kind":"phone"}]}
+{"id":"nl-mixed-0019","lang":"nl","text":"Katrien Hermans <bram.wuyts@example.org>, gsm 06-97251914","spans":[{"start":0,"end":15,"kind":"person_name"},{"start":17,"end":39,"kind":"email"},{"start":46,"end":57,"kind":"phone"}]}
+{"id":"nl-mixed-0020","lang":"nl","text":"{\"naam\":\"Bram Wouters\",\"email\":\"Desmet_femke@example.net\",\"telefoon\":\"06 88 66 24 15\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":56,"kind":"email"},{"start":70,"end":84,"kind":"phone"}]}
+{"id":"nl-neg-0001","lang":"nl","text":"Levering verwacht op 26/06/2020.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0002","lang":"nl","text":"Factuur INV-2026-950816 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0003","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0004","lang":"nl","text":"Agent bijgewerkt naar version 8.2.6.166.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0005","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0006","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0007","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0008","lang":"nl","text":"Commit 0b8014e uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0009","lang":"nl","text":"Commit 574cdff0dd02a2630749fc248829ac3bd4fbd4ae uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0010","lang":"nl","text":"Bestelling 256616000 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0011","lang":"nl","text":"Factuur INV-2024-636998 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0012","lang":"nl","text":"Voorraad: 795 253 562 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0013","lang":"nl","text":"Health check vanaf 127.0.0.1 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0014","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0015","lang":"nl","text":"Rekening BE15 4216 5075 4739 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0016","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0017","lang":"nl","text":"Nummer 04120517554 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0018","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0019","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0020","lang":"nl","text":"Commit 984df3e89d1781e0ab61c591f5b76ddd8aa376ab9b7142c6606b337a5ac66359 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0021","lang":"nl","text":"Bestelling 9771930 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0022","lang":"nl","text":"Commit 6729ea3 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0023","lang":"nl","text":"Uw bestelling nr. 567383736 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0024","lang":"nl","text":"Artikel REF 96-473-367 is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0025","lang":"nl","text":"Testnummer 4111 1198 2147 3546 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0026","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0027","lang":"nl","text":"Levering verwacht op 21/01/2022.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0028","lang":"nl","text":"Agent bijgewerkt naar build 10.0.19437.4307.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0029","lang":"nl","text":"Commit 2edc2d9 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0030","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0031","lang":"nl","text":"Rekening NL37 LSKH 8425 5313 13 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0032","lang":"nl","text":"Factuur INV-2025-936497 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0033","lang":"nl","text":"BSN-controle mislukt voor 571992494.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0034","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0035","lang":"nl","text":"Taak klaar om 2026-11-26T23:59:45Z.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0036","lang":"nl","text":"Te betalen: € 91.872,90.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0037","lang":"nl","text":"Barcode 5405104039614 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0038","lang":"nl","text":"Te betalen: € 91.219,97.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0039","lang":"nl","text":"Testnummer 4000 0087 2841 9227 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0040","lang":"nl","text":"Voorraad: 515 834 270 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0041","lang":"nl","text":"Rekening BE31 4709 0229 3089 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0042","lang":"nl","text":"Bestelling 453274595 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0043","lang":"nl","text":"Barcode 5488715147428 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0044","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0045","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0046","lang":"nl","text":"Voorraad: 551 427 857 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0047","lang":"nl","text":"Te betalen: € 79.152,54.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0048","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0049","lang":"nl","text":"Bestelling 1015533969 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0050","lang":"nl","text":"Te betalen: € 36.933,06.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0051","lang":"nl","text":"Voorraad: 363 877 814 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0052","lang":"nl","text":"Nummer 86.03.06-213.10 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0053","lang":"nl","text":"Taak klaar om 2026-03-27T02:41:26Z.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0054","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0055","lang":"nl","text":"Te betalen: € 63.475,60.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0056","lang":"nl","text":"Factuur FAC/2022/3559 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0057","lang":"nl","text":"Voorraad: 355 082 824 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0058","lang":"nl","text":"Voorraad: 784 828 132 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0059","lang":"nl","text":"Nummer 98031505803 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0060","lang":"nl","text":"Health check vanaf 192.168.220.164 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0061","lang":"nl","text":"Nummer 77.04.13-816.09 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0062","lang":"nl","text":"Factuur FAC/2022/4997 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0063","lang":"nl","text":"Commit 4be6ff4 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0064","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0065","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0066","lang":"nl","text":"Uw bestelling nr. 44827687 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0067","lang":"nl","text":"Barcode 5400796213519 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0068","lang":"nl","text":"Commit b93ff94b44e22f08c9ecd7f31f9b592036f541fa02cd469f9444bfe1d4e5b4ac uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0069","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0070","lang":"nl","text":"Uw bestelling nr. 261935 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0071","lang":"nl","text":"Factuur FAC/2020/0131 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0072","lang":"nl","text":"Levering verwacht op 2026-01-11.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0073","lang":"nl","text":"BSN-controle mislukt voor 383248163.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0074","lang":"nl","text":"Barcode 5400564430902 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0075","lang":"nl","text":"BSN-controle mislukt voor 178578072.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0076","lang":"nl","text":"Rekening NL32 ZZXJ 4626 4097 67 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0077","lang":"nl","text":"Agent bijgewerkt naar Chrome/131.0.6782.27.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0078","lang":"nl","text":"Health check vanaf fd00::b8e geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0079","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0080","lang":"nl","text":"Factuur INV-2026-667687 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0081","lang":"nl","text":"Uw bestelling nr. 7409410 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0082","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0083","lang":"nl","text":"Uw bestelling nr. 288538414 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0084","lang":"nl","text":"Barcode 5418162619438 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0085","lang":"nl","text":"Voorraad: 884 120 323 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0086","lang":"nl","text":"Barcode 5406134779822 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0087","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0088","lang":"nl","text":"Taak klaar om 2026-05-18 18:54:52.590.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0089","lang":"nl","text":"Uw bestelling nr. 7310378144 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0090","lang":"nl","text":"Health check vanaf 192.168.98.55 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0091","lang":"nl","text":"Nummer 591218 840 70 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0092","lang":"nl","text":"Agent bijgewerkt naar version 8.0.7.352.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0093","lang":"nl","text":"Nummer 67.10.11-108.23 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0094","lang":"nl","text":"Artikel RMS88648 is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0095","lang":"nl","text":"Factuur INV-2020-127189 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0096","lang":"nl","text":"Nummer 49.12.11-773.63 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0097","lang":"nl","text":"Commit 738c39c8a382a70589e4214deca8ec6237b7cd2d uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0098","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0099","lang":"nl","text":"Agent bijgewerkt naar version 9.5.4.81.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0100","lang":"nl","text":"Rekening BE95 3550 5046 7353 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0101","lang":"nl","text":"Factuur INV-2020-565348 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0102","lang":"nl","text":"Te betalen: € 51.608,70.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0103","lang":"nl","text":"Commit 9d557f40b391caeebf316bc2d8aec7fbb5c5ae7b uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0104","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0105","lang":"nl","text":"Te betalen: € 89.875,91.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0106","lang":"nl","text":"Voorraad: 926 543 067 stuks.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0107","lang":"nl","text":"Agent bijgewerkt naar build 10.0.19755.4578.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0108","lang":"nl","text":"Health check vanaf 192.168.97.219 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0109","lang":"nl","text":"Uw bestelling nr. 483775 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0110","lang":"nl","text":"Nummer 74.11.21-759.97 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0111","lang":"nl","text":"Taak klaar om 2026-08-11T00:53:39Z.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0112","lang":"nl","text":"Commit 37b61b0 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0113","lang":"nl","text":"Commit f080dfb333cd92c74f8b73a2045f0a0b343b1e20 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0114","lang":"nl","text":"Taak klaar om 2026-06-12T08:53:04Z.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0115","lang":"nl","text":"Uw bestelling nr. 30920273 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0116","lang":"nl","text":"Bestelling 664121618 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0117","lang":"nl","text":"Factuur F2026-00009 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0118","lang":"nl","text":"Uw bestelling nr. 7250373 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0119","lang":"nl","text":"Agent bijgewerkt naar build 10.0.19267.361.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0120","lang":"nl","text":"Uw bestelling nr. 7050939 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0121","lang":"nl","text":"Agent bijgewerkt naar v0.21.8.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0122","lang":"nl","text":"Barcode 5497219035810 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0123","lang":"nl","text":"Uw bestelling nr. 5506093453 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0124","lang":"nl","text":"Health check vanaf 10.158.158.124 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0125","lang":"nl","text":"Testnummer 3782 8229 7787 516 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0126","lang":"nl","text":"Nummer 980412 737 41 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0127","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0128","lang":"nl","text":"Bestelling 547853 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0129","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0130","lang":"nl","text":"Testnummer 2223 0006 2239 6054 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0131","lang":"nl","text":"Rekening NL37 ADNT 7893 1579 33 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0132","lang":"nl","text":"Agent bijgewerkt naar v6.29.17.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0133","lang":"nl","text":"Uw bestelling nr. 146077 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0134","lang":"nl","text":"Taak klaar om 2026-06-04 20:29:07.884.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0135","lang":"nl","text":"Artikel SKU-6431-M is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0136","lang":"nl","text":"Agent bijgewerkt naar v4.23.12.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0137","lang":"nl","text":"Barcode 5445638450325 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0138","lang":"nl","text":"BSN-controle mislukt voor 608580160.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0139","lang":"nl","text":"Barcode 5429195051973 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0140","lang":"nl","text":"Commit 56a84836b1c55b27dd7ea0e5cb81c1af30d6325d73b534b3c6020a2576b1e7f5 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0141","lang":"nl","text":"Taak klaar om 2026-09-11T02:02:56Z.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0142","lang":"nl","text":"Agent bijgewerkt naar version 2.0.9.244.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0143","lang":"nl","text":"Factuur INV-2024-442053 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0144","lang":"nl","text":"Levering verwacht op 10-01-2026.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0145","lang":"nl","text":"Commit b46be58b1679ceec420bd3338e4942e166b72586 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0146","lang":"nl","text":"Testnummer 3782 8247 3538 321 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0147","lang":"nl","text":"Health check vanaf fd00::919 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0148","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0149","lang":"nl","text":"Uw bestelling nr. 9507926523 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0150","lang":"nl","text":"Te betalen: € 34.483,23.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0151","lang":"nl","text":"Rekening BE11 8984 1806 7405 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0152","lang":"nl","text":"Factuur F2020-73501 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0153","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0154","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0155","lang":"nl","text":"Factuur INV-2025-974036 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0156","lang":"nl","text":"Factuur F2025-66762 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0157","lang":"nl","text":"Levering verwacht op 07-02-2019.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0158","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0159","lang":"nl","text":"Health check vanaf 192.168.147.12 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0160","lang":"nl","text":"Nummer 16062716768 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0161","lang":"nl","text":"Te betalen: € 60.421,36.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0162","lang":"nl","text":"Taak klaar om 2026-03-06 19:00:29.138.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0163","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0164","lang":"nl","text":"Taak klaar om 1738581328.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0165","lang":"nl","text":"Factuur INV-2020-818214 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0166","lang":"nl","text":"Health check vanaf 10.165.198.34 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0167","lang":"nl","text":"Barcode 5454849112595 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0168","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0169","lang":"nl","text":"Factuur INV-2023-814414 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0170","lang":"nl","text":"Levering verwacht op 2023-05-28.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0171","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0172","lang":"nl","text":"Levering verwacht op 21-10-2019.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0173","lang":"nl","text":"Agent bijgewerkt naar version 8.2.6.310.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0174","lang":"nl","text":"Uw bestelling nr. 466993794 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0175","lang":"nl","text":"Te betalen: € 57.619,15.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0176","lang":"nl","text":"Testnummer 4242 4274 6345 3104 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0177","lang":"nl","text":"Commit 9735293e3c920efb737a071fae1cbb691823df7ccc5ddb2bea7b0ce272e063b5 uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0178","lang":"nl","text":"Taak klaar om 2026-02-25 05:45:35.106.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0179","lang":"nl","text":"Agent bijgewerkt naar version 5.7.7.121.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0180","lang":"nl","text":"Agent bijgewerkt naar v0.28.2.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0181","lang":"nl","text":"Barcode 5493262177071 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0182","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0183","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0184","lang":"nl","text":"Testnummer 4000 0048 9776 9366 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0185","lang":"nl","text":"BSN-controle mislukt voor 747758715.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0186","lang":"nl","text":"Factuur FAC/2021/8152 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0187","lang":"nl","text":"Agent bijgewerkt naar v8.7.3.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0188","lang":"nl","text":"Nummer 42.02.01-850.75 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0189","lang":"nl","text":"Te betalen: € 22.631,64.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0190","lang":"nl","text":"Levering verwacht op 2023-02-11.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0191","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0192","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0193","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0194","lang":"nl","text":"Artikel SKU-9124-XS is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0195","lang":"nl","text":"Te betalen: € 18.784,61.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0196","lang":"nl","text":"Factuur FAC/2020/4139 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0197","lang":"nl","text":"Rekening NL65 KDRI 6884 6637 60 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0198","lang":"nl","text":"Artikel WGW17392 is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0199","lang":"nl","text":"Barcode 5450423210718 gescand aan kassa drie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0200","lang":"nl","text":"Health check vanaf 127.0.0.1 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0201","lang":"nl","text":"Rekening BE14 2237 7947 6891 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0202","lang":"nl","text":"Health check vanaf 172.27.153.22 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0203","lang":"nl","text":"Uw bestelling nr. 83332126 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0204","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0205","lang":"nl","text":"Levering verwacht op 2020-03-02.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0206","lang":"nl","text":"Taak klaar om 1755786633.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0207","lang":"nl","text":"Factuur F2025-77113 is betaald.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0208","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0209","lang":"nl","text":"Levering verwacht op 17-10-2020.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0210","lang":"nl","text":"Commit baec1ec uitgerold op staging.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0211","lang":"nl","text":"Artikel LTR66320 is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0212","lang":"nl","text":"BSN-controle mislukt voor 490709870.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0213","lang":"nl","text":"Nummer 86.02.06-844.28 geweigerd door het register.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0214","lang":"nl","text":"Agent bijgewerkt naar v1.22.16.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0215","lang":"nl","text":"Te betalen: € 2.749,18.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0216","lang":"nl","text":"BSN-controle mislukt voor 423223303.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0217","lang":"nl","text":"Bestelling 3649544636 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0218","lang":"nl","text":"Rekening BE23 6162 6565 2136 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0219","lang":"nl","text":"Nieuwe Collectie Herfst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0220","lang":"nl","text":"Taak klaar om 1717962306.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0221","lang":"nl","text":"Uw bestelling nr. 87520967 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0222","lang":"nl","text":"BSN-controle mislukt voor 884422829.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0223","lang":"nl","text":"Uw bestelling nr. 8649586 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0224","lang":"nl","text":"BSN-controle mislukt voor 338353281.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0225","lang":"nl","text":"Rekening NL12 QOCZ 9093 6841 65 geweigerd: controlegetal fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0226","lang":"nl","text":"Taak klaar om 1752009576.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0227","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0228","lang":"nl","text":"Health check vanaf 127.0.0.1 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0229","lang":"nl","text":"Uw bestelling nr. 251219104 ligt klaar.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0230","lang":"nl","text":"Bestelling 5979712 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0231","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0232","lang":"nl","text":"Bestelbon Goedgekeurd door Directie.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0233","lang":"nl","text":"Bestelling 2879293 is vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0234","lang":"nl","text":"Testnummer 2223 0004 0948 5748 is ongeldig.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0235","lang":"nl","text":"Taak klaar om 1782550311.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0236","lang":"nl","text":"Agent bijgewerkt naar version 2.9.5.160.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0237","lang":"nl","text":"Artikel SKU-2987-M is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0238","lang":"nl","text":"Health check vanaf 127.0.0.1 geslaagd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0239","lang":"nl","text":"Artikel SKU-7885-XS is terug op voorraad.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-0240","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}

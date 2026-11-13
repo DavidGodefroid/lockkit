@@ -198,6 +198,10 @@ builds on it too.
   of the human, and on production takes the typed profile name.
 - In hub mode, a lock executes only on a decision signed by the hub key it
   pinned, bound to the exact plan that was approved.
+- Masking is best effort. PII detection quality: precision and recall per
+  detector and language on a synthetic bench, held to a CI baseline, in
+  [pii/testdata/bench/RESULTS.md](pii/testdata/bench/RESULTS.md); its
+  Known gaps section lists what the detectors miss most.
 
 Details: [GUIDE.md § 6](GUIDE.md#6-config-and-policy-the-ai-tightens-the-human-loosens),
 [§ 10](GUIDE.md#10-the-console-and-the-backend-seam) and

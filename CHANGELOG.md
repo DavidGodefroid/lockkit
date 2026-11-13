@@ -59,6 +59,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   (exported, set to `managed.Load`) re-reads the file at every policy
   poll, and `CheckManaged` / `ManagedLines` refuse a policy beyond the
   bounds at start (#176).
+- pii: a public detection bench. `TestBench` measures precision, recall
+  and F1 of every detector per language (en, fr, nl, de), the masked
+  share and the field-name heuristics on a generated synthetic corpus
+  (`pii/testdata/bench`, `go run ./pii/internal/benchgen`), and fails
+  when a metric falls below `baseline.json`; the figures and known gaps
+  are in `pii/testdata/bench/RESULTS.md` (#129).
 - managed: `Load` accepts `managed.toml.verified`, the root-owned stamp
   lox writes with `VerifiedStamp` once it verified the signature on the
   host: a match counts the file signed without cosign (a lock in a
