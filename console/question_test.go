@@ -486,11 +486,6 @@ func TestRunReviewQuestionFileShowsReloadDiff(t *testing.T) {
 			StateDir: t.TempDir(), Isolation: runEnv(t), Harden: func() error { return nil }, Ready: func(s string) { ready <- s }})
 	}()
 	path := <-term.path
-	// The socket's directory is made once the console serves: made here,
-	// the start's questions reach their file too.
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		t.Fatal(err)
-	}
 	answer := func(line string) {
 		t.Helper()
 		if _, err := w.WriteString(line + "\n"); err != nil {
@@ -555,5 +550,123 @@ func waitScreen(t *testing.T, screen *lockedBuffer, want string, within time.Dur
 			t.Fatalf("screen without %q:\n%s", want, screen)
 		}
 		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+// firstStartQuestion runs a console of pol in a Terminal on its very first
+// start after boot, the runtime directory not made yet, and returns the
+// first question file it writes, read while the question waits, and the
+// file's path; the question is then answered with answer, and the start
+// ended at the next one (#180).
+func firstStartQuestion(t *testing.T, pol fakePolicy, answer string) (string, string) {
+	t.Helper()
+	env := runEnv(t)
+	rt := filepath.Join(os.Getenv("LOCKMQ_RUNTIME_DIR"), "fresh")
+	t.Setenv("LOCKMQ_RUNTIME_DIR", rt)
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+	screen := &lockedBuffer{}
+	term := &pathTerminal{Terminal: NewTerminal(r, screen), path: make(chan string, 1)}
+	done := make(chan error, 1)
+	go func() {
+		done <- Run(context.Background(), testProduct, &fakeBackend{policy: pol}, Options{Profile: pol.Name, Hub: testHub(t), IO: term,
+			StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }})
+	}()
+	var path string
+	select {
+	case path = <-term.path:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, screen)
+	}
+	if !strings.HasPrefix(path, rt+string(filepath.Separator)) {
+		t.Fatalf("question file %q outside %q", path, rt)
+	}
+	deadline := time.Now().Add(5 * time.Second)
+	var q []byte
+	for {
+		if q, err = os.ReadFile(path); err == nil {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("no question file %s: %v\n%s", path, err, screen)
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	if fi, err := os.Lstat(filepath.Dir(path)); err != nil || fi.Mode().Perm() != 0o700 {
+		t.Fatalf("socket dir: %v %v", fi, err)
+	}
+	if _, err := w.WriteString(answer + "\n"); err != nil {
+		t.Fatal(err)
+	}
+	// Answered: the next question (the password) replaces it; no answer
+	// to that one ends the start, and its file goes.
+	for {
+		f, err := os.ReadFile(path)
+		if err != nil || string(f) != string(q) {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("question still pending after %q\n%s", answer, screen)
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	w.Close()
+	<-done
+	waitFile(t, path, "")
+	if strings.Contains(screen.String(), "shown on this terminal only") {
+		t.Errorf("warned on a socket dir it could make:\n%s", screen)
+	}
+	return string(q), path
+}
+
+// On the very first start, the runtime directory not made yet, the policy
+// review is in the question file while it waits, with the policy printed
+// above it.
+func TestRunFirstStartRecordsReview(t *testing.T) {
+	q, _ := firstStartQuestion(t, uat(), "y")
+	prompt, above := ParseQuestion(q)
+	if prompt != "Apply these changes? [y/N]" || !strings.Contains(q, "\n"+QuestionContextMark+"\n") ||
+		len(above) == 0 || above[0] != "First start of profile uat: review its policy." {
+		t.Fatalf("question file:\n%s", q)
+	}
+}
+
+// Same for the typed name of a PRODUCTION profile on its first start.
+func TestRunFirstStartRecordsProductionName(t *testing.T) {
+	q, _ := firstStartQuestion(t, prod(), "prod")
+	prompt, above := ParseQuestion(q)
+	if prompt != `Apply these changes? Type the profile name "prod" to apply them:` ||
+		len(above) == 0 || above[0] != "First start of profile prod: review its policy." {
+		t.Fatalf("question file:\n%s", q)
+	}
+}
+
+// A socket directory that cannot be made keeps the questions on the
+// terminal, with one warning; the start is refused at the socket.
+func TestRunSocketDirUnmade(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("root writes in a read-only directory")
+	}
+	env := runEnv(t)
+	ro := os.Getenv("LOCKMQ_RUNTIME_DIR")
+	if err := os.Chmod(ro, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(ro, 0o700) })
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"pw"}}
+	err := Run(context.Background(), testProduct, &fakeBackend{policy: uat()}, Options{Profile: "uat", Hub: testHub(t), IO: io,
+		StateDir: t.TempDir(), Isolation: env, Harden: func() error { return nil }})
+	if err == nil {
+		t.Fatal("served without a socket directory")
+	}
+	if n := strings.Count(io.plain(), "shown on this terminal only"); n != 1 {
+		t.Errorf("%d warnings:\n%s", n, io.plain())
+	}
+	if p := io.promptList(); len(p) == 0 || !strings.Contains(p[0], "Apply these changes") {
+		t.Errorf("prompts: %q", p)
 	}
 }

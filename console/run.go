@@ -225,9 +225,16 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	key := config.ApprovedKey(o.ProjectRoot, o.Profile)
 	// The question the console waits for is kept next to its socket, where
-	// lox attach and lea read it: they attach after it was printed.
+	// lox attach and lea read it: they attach after it was printed. On a
+	// first start the socket's directory is made here, before the first
+	// question; one that cannot be made only keeps the questions on this
+	// terminal (Listen refuses it below).
 	if socket, err := iso.SocketPath(config.ProjectKeyOf(o.ProjectRoot), o.Profile); err == nil {
-		RecordQuestions(o.IO, socket)
+		if err := iso.PrepareSocketDir(socket); err != nil {
+			o.IO.Println(Paint.Warn(red + "the questions of this start are shown on this terminal only: " + sanitize.Terminal(err.Error(), false) + reset))
+		} else {
+			RecordQuestions(o.IO, socket)
+		}
 	}
 	// A production profile, loaded or approved before, never runs in an
 	// X11 session: refused before the policy review.

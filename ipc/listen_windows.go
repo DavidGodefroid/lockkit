@@ -14,6 +14,10 @@ import (
 
 func privateDir(string) error { return fmt.Errorf("ipc: console socket %w", ErrUnsupported) }
 
+// PrivateDir does nothing on Windows: there is no private socket
+// directory, and Listen refuses.
+func PrivateDir(string) error { return nil }
+
 func restrictSocket(string) error { return fmt.Errorf("ipc: console socket %w", ErrUnsupported) }
 
 // ListenShared refuses on Windows.
