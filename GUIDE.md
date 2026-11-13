@@ -913,7 +913,10 @@ func (b *queueBackend) read(ctx context.Context, req ipc.Request, env console.En
 ```
 
 The console's own commands and keys: `:review` (pending loosening and
-change requests), `:status`, `:results` / Ctrl-O (clear results,
+change requests), `:reopen` (the loosening the human refused, at start or
+at `:review`, pending again while it is still in the config files, for
+`:review` to approve as a first approval would; audited `reopened`; no
+client method re-opens it), `:status`, `:results` / Ctrl-O (clear results,
 refused at levels 1 and 2, as is `--show-results` at start), `:unmask` (confirmed), `:quit`.
 Every widening the console decides itself (the policy review at start,
 a loosening at `:review`, `:unmask` allowing unmasked output) takes `y`

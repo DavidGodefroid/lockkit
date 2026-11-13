@@ -947,6 +947,10 @@ func FormatChanges(changes []config.Change) []string {
 // and asks the human to apply the latter.
 func (s *Server) review(ctx context.Context) {
 	if len(s.requests) == 0 && s.pending == nil && len(s.managedLines) == 0 {
+		if s.refused != "" {
+			s.println("nothing to review; the policy change you refused is still in the config files (:reopen to review it again)")
+			return
+		}
 		s.println("nothing to review")
 		return
 	}
@@ -995,6 +999,31 @@ func (s *Server) review(ctx context.Context) {
 		return
 	}
 	s.println("policy change applied")
+}
+
+// reopen offers again the loosening the human refused, at start or at
+// :review, while it is still in the config files: it is pending again, for
+// :review to approve as a first approval would. Only the human reaches it
+// (a console command): no client method re-opens a refused change.
+func (s *Server) reopen() {
+	if s.refused == "" {
+		s.println("no refused policy change to re-open")
+		return
+	}
+	refused := s.refused
+	s.refused = ""
+	s.CheckPolicy()
+	if s.pending == nil {
+		if s.lastLoadErr != "" {
+			// The files cannot be read: the refusal stands.
+			s.refused = refused
+		}
+		s.println("no refused policy change to re-open")
+		return
+	}
+	if config.Fingerprint(*s.pending) == refused {
+		s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: "reopened"})
+	}
 }
 
 // newPolicyLike returns a pointer to a new zero value of p's dynamic type,

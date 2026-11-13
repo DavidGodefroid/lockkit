@@ -3,6 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- console: `:reopen` puts the loosening the human refused (at start or at
+  `:review`) back to pending while it is still in the config files, so
+  that `:review` can approve it later without editing the files; it is
+  audited `policy` / `reopened`, and only the human's console reaches it
+  (#158).
+
 ## v0.17.0 (2026-11-13)
 
 - console: `Profile.TicketLimits` (`hubclient.Limits`, set from

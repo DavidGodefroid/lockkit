@@ -26,7 +26,7 @@ import (
 // Events of the console.
 const (
 	EventLogin     = "login"
-	EventPolicy    = "policy"    // policy change, applied or refused (see Decision)
+	EventPolicy    = "policy"    // policy change, applied, refused or reopened (see Decision)
 	EventRefused   = "refused"   // request refused by the policy
 	EventApproved  = "approved"  // the human approved
 	EventDenied    = "denied"    // the human denied
