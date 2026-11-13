@@ -269,10 +269,11 @@ func Normalise(kind, value string) string {
 			return "+" + d[2:]
 		}
 		return d
-	case "iban":
+	case "iban", "eu_vat", "be_company":
 		return strings.Map(func(r rune) rune {
-			// An IBAN is ASCII letters and digits: anything else is a
-			// separator (and upper-casing stays idempotent).
+			// An IBAN, a VAT or a company number is ASCII letters and
+			// digits: anything else is a separator (and upper-casing
+			// stays idempotent).
 			if r >= 'a' && r <= 'z' {
 				return r - 'a' + 'A'
 			}

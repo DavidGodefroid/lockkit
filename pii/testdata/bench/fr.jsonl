@@ -858,3 +858,183 @@
 {"id":"fr-neg-0238","lang":"fr","text":"Compte FR20 2818 8323 1392 1171 3784 466 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-0239","lang":"fr","text":"Livraison prévue le 02-02-2024.","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-0240","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-eu_vat-0001","lang":"fr","text":"Merci d'indiquer notre numéro de TVA FR 04539319383 sur la facture.","spans":[{"start":38,"end":52,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0002","lang":"fr","text":"vat_number: FR92157088455","spans":[{"start":12,"end":25,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0003","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"LU 56988417\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0004","lang":"fr","text":"TVA intracommunautaire BE1358118279 (autoliquidation).","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0005","lang":"fr","text":"N° TVA : BE 0902.349.230","spans":[{"start":10,"end":25,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0006","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"FR 36590516220\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0007","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE 0207574951","spans":[{"start":44,"end":57,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0008","lang":"fr","text":"N° TVA : FR50173153581","spans":[{"start":10,"end":23,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0009","lang":"fr","text":"N° TVA : FR 9039​5948303","spans":[{"start":10,"end":27,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0010","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"BE0658079078\",\"active\":true}","spans":[{"start":29,"end":41,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0011","lang":"fr","text":"Merci d'indiquer notre numéro de TVA BE0311.995.748 sur la facture.","spans":[{"start":38,"end":52,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0012","lang":"fr","text":"vat_number: BE1725825186","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0013","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"BE 1734294078\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0014","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE 0929238422","spans":[{"start":44,"end":57,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0015","lang":"fr","text":"TVA intracommunautaire BE0049071607 (autoliquidation).","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0016","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"BE0539.720.866\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0017","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"BE1753​400902\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0018","lang":"fr","text":"Merci d'indiquer notre numéro de TVA LU 37123617 sur la facture.","spans":[{"start":38,"end":49,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0019","lang":"fr","text":"Merci d'indiquer notre numéro de TVA FR 24 778 753 543 sur la facture.","spans":[{"start":38,"end":55,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0020","lang":"fr","text":"vat_number: BE0994615531","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0021","lang":"fr","text":"N° TVA : LU 30120327","spans":[{"start":10,"end":21,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0022","lang":"fr","text":"TVA intracommunautaire BE 0554.298.085 (autoliquidation).","spans":[{"start":23,"end":38,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0023","lang":"fr","text":"TVA intracommunautaire BE0280​750959 (autoliquidation).","spans":[{"start":23,"end":38,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0024","lang":"fr","text":"N° TVA : LU 94394208","spans":[{"start":10,"end":23,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0025","lang":"fr","text":"N° TVA : BE 1248.901.526","spans":[{"start":10,"end":25,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0026","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE0486.790.837","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0027","lang":"fr","text":"Merci d'indiquer notre numéro de TVA LU９１１５３９０１ sur la facture.","spans":[{"start":38,"end":64,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0028","lang":"fr","text":"vat_number: BE ０６６７０３２９７０","spans":[{"start":12,"end":45,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0029","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"FR82391321562\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0030","lang":"fr","text":"TVA intracommunautaire LU 19946011 (autoliquidation).","spans":[{"start":23,"end":34,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0031","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=FR 90 585 201 996","spans":[{"start":44,"end":61,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0032","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE0803296689","spans":[{"start":44,"end":56,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0033","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE1100096596","spans":[{"start":44,"end":56,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0034","lang":"fr","text":"N° TVA : be０８８６７３７３７６","spans":[{"start":10,"end":42,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0035","lang":"fr","text":"vat_number: BE0807.878.356","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0036","lang":"fr","text":"vat_number: BE1542979889","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0037","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=LU 75314123","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0038","lang":"fr","text":"Merci d'indiquer notre numéro de TVA BE 1456.676.219 sur la facture.","spans":[{"start":38,"end":53,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0039","lang":"fr","text":"TVA intracommunautaire FR34434302246 (autoliquidation).","spans":[{"start":23,"end":36,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0040","lang":"fr","text":"Merci d'indiquer notre numéro de TVA FR9268​8422154 sur la facture.","spans":[{"start":38,"end":54,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0041","lang":"fr","text":"TVA intracommunautaire LU86957848 (autoliquidation).","spans":[{"start":23,"end":33,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0042","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=LU60830781","spans":[{"start":44,"end":54,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0043","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"BE0752​374956\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0044","lang":"fr","text":"TVA intracommunautaire FR 68531238302 (autoliquidation).","spans":[{"start":23,"end":38,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0045","lang":"fr","text":"Merci d'indiquer notre numéro de TVA BE1046503702 sur la facture.","spans":[{"start":38,"end":50,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0046","lang":"fr","text":"Merci d'indiquer notre numéro de TVA be1897943867 sur la facture.","spans":[{"start":38,"end":50,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0047","lang":"fr","text":"N° TVA : FR 61 781 401 041","spans":[{"start":10,"end":31,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"fr-eu_vat-0048","lang":"fr","text":"Merci d'indiquer notre numéro de TVA FR85294402752 sur la facture.","spans":[{"start":38,"end":51,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0049","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"FR93205587453\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0050","lang":"fr","text":"level=info msg=\"profile updated\" vat_number=BE 0520.942.260","spans":[{"start":44,"end":59,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0051","lang":"fr","text":"N° TVA : BE1137043007","spans":[{"start":10,"end":22,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0052","lang":"fr","text":"N° TVA : BE0962372632","spans":[{"start":10,"end":22,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0053","lang":"fr","text":"Merci d'indiquer notre numéro de TVA be0201665572 sur la facture.","spans":[{"start":38,"end":50,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0054","lang":"fr","text":"N° TVA : LU96833717","spans":[{"start":10,"end":20,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0055","lang":"fr","text":"TVA intracommunautaire lu98257212 (autoliquidation).","spans":[{"start":23,"end":33,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0056","lang":"fr","text":"Merci d'indiquer notre numéro de TVA LU 33540048 sur la facture.","spans":[{"start":38,"end":49,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0057","lang":"fr","text":"TVA intracommunautaire LU83985450 (autoliquidation).","spans":[{"start":23,"end":33,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0058","lang":"fr","text":"{\"type\":\"user\",\"vat_number\":\"LU72365787\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0059","lang":"fr","text":"N° TVA : LU 25724939","spans":[{"start":10,"end":21,"kind":"eu_vat"}]}
+{"id":"fr-eu_vat-0060","lang":"fr","text":"N° TVA : BE0788587135","spans":[{"start":10,"end":22,"kind":"eu_vat"}]}
+{"id":"fr-neg-eu_vat-0001","lang":"fr","text":"Clé erronée : LU53190246","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0002","lang":"fr","text":"Clé erronée : LU44926589","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0003","lang":"fr","text":"VIES a refusé le numéro de TVA BE0937109206.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0004","lang":"fr","text":"VIES a refusé le numéro de TVA BE0035986864.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0005","lang":"fr","text":"Clé erronée : fr32915106736","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0006","lang":"fr","text":"Clé erronée : BE1971779013","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0007","lang":"fr","text":"VIES a refusé le numéro de TVA fr63821657689.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0008","lang":"fr","text":"Clé erronée : FR07243045912","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0009","lang":"fr","text":"VIES a refusé le numéro de TVA BE0257706593.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0010","lang":"fr","text":"VIES a refusé le numéro de TVA BE1570963017.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0011","lang":"fr","text":"Clé erronée : BE0491309795","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0012","lang":"fr","text":"Clé erronée : BE1155467345","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0013","lang":"fr","text":"VIES a refusé le numéro de TVA LU74713880.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0014","lang":"fr","text":"Clé erronée : BE0835070585","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0015","lang":"fr","text":"VIES a refusé le numéro de TVA BE0806424083.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0016","lang":"fr","text":"Clé erronée : be1615392506","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0017","lang":"fr","text":"Clé erronée : BE0335914896","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0018","lang":"fr","text":"Clé erronée : FR67341983539","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0019","lang":"fr","text":"Clé erronée : fr73388627446","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0020","lang":"fr","text":"Clé erronée : BE1253780993","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0021","lang":"fr","text":"VIES a refusé le numéro de TVA BE1943122175.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0022","lang":"fr","text":"Clé erronée : be0702782387","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0023","lang":"fr","text":"Clé erronée : LU43774544","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0024","lang":"fr","text":"Clé erronée : be0799596117","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0025","lang":"fr","text":"Clé erronée : FR98397021317","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0026","lang":"fr","text":"VIES a refusé le numéro de TVA BE0623421236.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0027","lang":"fr","text":"Clé erronée : FR22949159777","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0028","lang":"fr","text":"Clé erronée : be0672482575","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0029","lang":"fr","text":"VIES a refusé le numéro de TVA LU40249745.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-eu_vat-0030","lang":"fr","text":"VIES a refusé le numéro de TVA be0715393937.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-be_company-0001","lang":"fr","text":"Inscrite à la BCE sous le numéro 0900963516.","spans":[{"start":35,"end":45,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0002","lang":"fr","text":"company_number: 0789.207.638","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0003","lang":"fr","text":"Numéro d'entreprise : 0967.6​34.980","spans":[{"start":23,"end":38,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0004","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0615 352 459\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0005","lang":"fr","text":"company_number: 0371.632.734","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0006","lang":"fr","text":"company_number: ０３３４ ９０９ ２２７","spans":[{"start":16,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0007","lang":"fr","text":"company_number: 0332 902 218","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0008","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"１１８６ ２４８ ６３２\",\"active\":true}","spans":[{"start":33,"end":65,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0009","lang":"fr","text":"company_number: 0531 722 623","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0010","lang":"fr","text":"Numéro d'entreprise : 0089.052.829","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"fr-be_company-0011","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0705176439\",\"active\":true}","spans":[{"start":33,"end":43,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0012","lang":"fr","text":"company_number: 0304 853 083","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0013","lang":"fr","text":"level=info msg=\"profile updated\" company_number=０１９２ ６８１ ３９２","spans":[{"start":48,"end":80,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0014","lang":"fr","text":"BCE １８２８ ９０３ ７２２","spans":[{"start":4,"end":36,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0015","lang":"fr","text":"Numéro d'entreprise : 1268.036.656","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"fr-be_company-0016","lang":"fr","text":"Inscrite à la BCE sous le numéro 0813882359.","spans":[{"start":35,"end":45,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0017","lang":"fr","text":"company_number: 0785.425.727","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0018","lang":"fr","text":"BCE 1402.404.224","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"fr-be_company-0019","lang":"fr","text":"Inscrite à la BCE sous le numéro 0350989055.","spans":[{"start":35,"end":45,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0020","lang":"fr","text":"company_number: 0244.054.869","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0021","lang":"fr","text":"BCE 0223313202","spans":[{"start":4,"end":14,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0022","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"1198.400.851\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0023","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0819.076.809\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0024","lang":"fr","text":"company_number: 1717 950 172","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0025","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0067 063 622\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0026","lang":"fr","text":"Inscrite à la BCE sous le numéro 0848.606.775.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0027","lang":"fr","text":"Numéro d'entreprise : 0009.408.604","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"fr-be_company-0028","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0388.6​45.148\",\"active\":true}","spans":[{"start":33,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0029","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0052.232.916\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0030","lang":"fr","text":"company_number: 1771.470.517","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0031","lang":"fr","text":"company_number: 0143.209.315","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"fr-be_company-0032","lang":"fr","text":"BCE ０３９０.２１６.４４９","spans":[{"start":4,"end":36,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0033","lang":"fr","text":"Inscrite à la BCE sous le numéro 0676.717.827.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0034","lang":"fr","text":"Numéro d'entreprise : 0057138542","spans":[{"start":23,"end":33,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0035","lang":"fr","text":"level=info msg=\"profile updated\" company_number=０３２８.３５３.２１５","spans":[{"start":48,"end":80,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0036","lang":"fr","text":"Inscrite à la BCE sous le numéro 0440 554 895.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0037","lang":"fr","text":"level=info msg=\"profile updated\" company_number=1194.533.125","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"fr-be_company-0038","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"1768701364\",\"active\":true}","spans":[{"start":33,"end":43,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0039","lang":"fr","text":"Inscrite à la BCE sous le numéro 1926.2​73.411.","spans":[{"start":35,"end":50,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0040","lang":"fr","text":"BCE １９６９ １１５ ３４１","spans":[{"start":4,"end":36,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0041","lang":"fr","text":"BCE 0149 646 254","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"fr-be_company-0042","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0472 221 734\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0043","lang":"fr","text":"Inscrite à la BCE sous le numéro 1829.159.781.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0044","lang":"fr","text":"level=info msg=\"profile updated\" company_number=0200433177","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0045","lang":"fr","text":"BCE 0633.157.602","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"fr-be_company-0046","lang":"fr","text":"Inscrite à la BCE sous le numéro 0562.463.309.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0047","lang":"fr","text":"level=info msg=\"profile updated\" company_number=0633175616","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0048","lang":"fr","text":"level=info msg=\"profile updated\" company_number=0998361117","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0049","lang":"fr","text":"level=info msg=\"profile updated\" company_number=0090759435","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0050","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"1716 909 601\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0051","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"０７４８.７３５.６７４\",\"active\":true}","spans":[{"start":33,"end":65,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0052","lang":"fr","text":"level=info msg=\"profile updated\" company_number=0304.073.323","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"fr-be_company-0053","lang":"fr","text":"BCE 0915.112.351","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"fr-be_company-0054","lang":"fr","text":"BCE 1493.0​25.681","spans":[{"start":4,"end":19,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0055","lang":"fr","text":"Inscrite à la BCE sous le numéro 1744.146.013.","spans":[{"start":35,"end":47,"kind":"be_company"}]}
+{"id":"fr-be_company-0056","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0113 497 819\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0057","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"1341.344.803\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0058","lang":"fr","text":"BCE 0679.9​83.757","spans":[{"start":4,"end":19,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-be_company-0059","lang":"fr","text":"{\"type\":\"user\",\"company_number\":\"0095 121 366\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"fr-be_company-0060","lang":"fr","text":"Numéro d'entreprise : １５５１.８０５.７０３","spans":[{"start":23,"end":55,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"fr-neg-be_company-0001","lang":"fr","text":"Colis 1421.830.043 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0002","lang":"fr","text":"Colis 1408.378.133 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0003","lang":"fr","text":"Numéro 1839.130.675 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0004","lang":"fr","text":"Colis 1649.610.276 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0005","lang":"fr","text":"Colis 1053.010.240 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0006","lang":"fr","text":"Colis 1704.433.404 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0007","lang":"fr","text":"Colis 1845.668.632 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0008","lang":"fr","text":"Numéro 1126.824.576 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0009","lang":"fr","text":"Colis 1023.631.128 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0010","lang":"fr","text":"Colis 1606.203.047 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0011","lang":"fr","text":"Numéro 1089.356.483 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0012","lang":"fr","text":"Numéro 1691.674.596 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0013","lang":"fr","text":"Colis 1759.042.968 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0014","lang":"fr","text":"Colis 1551.974.539 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0015","lang":"fr","text":"Numéro 1037.035.917 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0016","lang":"fr","text":"Colis 1336.300.074 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0017","lang":"fr","text":"Numéro 1139.452.321 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0018","lang":"fr","text":"Colis 1569.430.422 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0019","lang":"fr","text":"Colis 1581.788.862 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0020","lang":"fr","text":"Colis 1641.575.563 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0021","lang":"fr","text":"Colis 1861.010.421 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0022","lang":"fr","text":"Numéro 1468.399.869 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0023","lang":"fr","text":"Numéro 1247.067.356 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0024","lang":"fr","text":"Numéro 1145.228.609 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0025","lang":"fr","text":"Numéro 1627.796.099 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0026","lang":"fr","text":"Numéro 1023.538.689 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0027","lang":"fr","text":"Colis 1033.392.087 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0028","lang":"fr","text":"Numéro 1014.564.881 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0029","lang":"fr","text":"Colis 1997.188.341 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_company-0030","lang":"fr","text":"Colis 1072.470.515 remis au transporteur.","spans":[],"tags":["hard_negative"]}

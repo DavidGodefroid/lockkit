@@ -3,6 +3,22 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- pii: new opt-in detectors `eu_vat` (BE, FR, NL, DE, LU VAT numbers,
+  checksums verified) and `be_company` (Belgian KBO/BCE company
+  numbers), run after `iban` and before `card`; `Normalise` keeps their
+  ASCII letters and digits, upper case. `Match` has a `Confidence`
+  (`ConfidenceHigh` for a verified checksum, `ConfidenceMedium` for a
+  pattern, `ConfidenceLow` for a gazetteer or context match); masked
+  output is unchanged. Context words raise weak candidates to low
+  confidence matches, additively: `phone` (without `phone_loose`) now
+  also finds `tel 612 345 678`, `be_niss` a valid number with other
+  separators after `NISS`/`rijksregister`, `be_company` ten bare digits
+  after `KBO`/`BCE`. New `FindField(field, s, ds)` uses the field name
+  as that context. `AllDetectors` is unchanged. Bench corpus extended
+  (appended blocks) and baseline updated (#130).
+
 ## v0.18.0 (2026-11-13)
 
 ### Breaking changes

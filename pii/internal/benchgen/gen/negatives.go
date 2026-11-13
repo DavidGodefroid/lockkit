@@ -210,4 +210,43 @@ var negValues = map[string]func(r *rand.Rand, lang string) string{
 		return fmt.Sprintf("fd00::%x", 1+r.IntN(0xfff))
 	},
 	"words": func(*rand.Rand, string) string { return "" },
+	// A wrong check, the number glued to its prefix: with a space, its
+	// digits alone are a fair phone or BSN candidate, and so are nine
+	// digits that pass the Dutch 11-proof.
+	"bad_vat": func(r *rand.Rand, lang string) string {
+		v := vatNumber(r, pick(r, vatCountries[lang]), false)
+		for strings.HasPrefix(v, "DE") && BSNValid(v[2:]) {
+			v = vatNumber(r, "DE", false)
+		}
+		if r.IntN(4) == 0 {
+			return strings.ToLower(v)
+		}
+		return v
+	},
+	// A wrong check on a number starting with 1: one starting with 0 is
+	// also a fair national phone number.
+	"bad_company": func(r *rand.Rand, _ string) string {
+		d := "1" + beCompany(r, false)[1:]
+		for BECompanyValid(d) {
+			d = "1" + beCompany(r, false)[1:]
+		}
+		return d[:4] + "." + d[4:7] + "." + d[7:]
+	},
+}
+
+// laterNegatives are the hard negatives of the kinds written after the
+// first corpus, per kind and language.
+var laterNegatives = map[string]map[string][]negFrame{
+	"eu_vat": {
+		// The value ends the sentence: words after it could make an IBAN.
+		"en": {{"bad_vat", "VIES rejected the VAT number {v}."}, {"bad_vat", "Wrong check digits: {v}"}},
+		"fr": {{"bad_vat", "VIES a refusé le numéro de TVA {v}."}, {"bad_vat", "Clé erronée : {v}"}},
+		"nl": {{"bad_vat", "VIES weigerde het btw-nummer {v}."}, {"bad_vat", "Foutief controlecijfer: {v}"}},
+		"de": {{"bad_vat", "VIES lehnte die USt-IdNr. {v} ab."}, {"bad_vat", "Falsche Prüfziffer: {v}"}},
+	},
+	"be_company": {
+		"fr": {{"bad_company", "Numéro {v} inconnu à la BCE."}, {"bad_company", "Colis {v} remis au transporteur."}},
+		"nl": {{"bad_company", "Nummer {v} onbekend in de KBO."}, {"bad_company", "Pakket {v} afgegeven aan de koerier."}},
+		"de": {{"bad_company", "Nummer {v} unbekannt in der ZDU."}, {"bad_company", "Paket {v} an den Kurier übergeben."}},
+	},
 }

@@ -8,11 +8,13 @@ import (
 )
 
 // Match is a value a detector recognised: the byte range [Start, End) of
-// the text it was found in, and the name of the detector (its kind:
-// "email", "iban", ...).
+// the text it was found in, the name of the detector (its kind: "email",
+// "iban", ...) and how sure the detector is. Confidence never changes what
+// is masked: keep it out of what an agent sees.
 type Match struct {
 	Start, End int
 	Kind       string
+	Confidence Confidence
 }
 
 // Find returns the values that Detect(s, ds) masks, as byte ranges of s:
@@ -24,12 +26,12 @@ type Match struct {
 // whose match overlaps an earlier mask makes one match of both (Detect
 // would mask the mask), and a Detector that is not one of this package's
 // cannot say where it found a value, so anything it masks makes the whole
-// text one match of its kind.
+// text one match of its kind (ConfidenceMedium).
 //
 // Past DetectLimit, the rest of s is one more match, of kind CutKind,
 // starting earlier where a value runs across the limit (the detectors scan
-// a little past it to find such values whole): the matches are always
-// safe to apply to s itself.
+// a little past it to find such values whole), with ConfidenceLow: nothing
+// was recognised there. The matches are always safe to apply to s itself.
 func Find(s string, ds []Detector) []Match {
 	if len(ds) == 0 {
 		return nil
@@ -78,10 +80,10 @@ func finish(ms []rankedMatch, rest int, src string) []Match {
 	for k, m := range merged {
 		if m.End > rest {
 			rest = min(rest, m.Start)
-			return append(merged[:k], Match{rest, len(src), CutKind})
+			return append(merged[:k], Match{rest, len(src), CutKind, ConfidenceLow})
 		}
 	}
-	return append(merged, Match{rest, len(src), CutKind})
+	return append(merged, Match{rest, len(src), CutKind, ConfidenceLow})
 }
 
 // backOverWord returns where the unscanned rest of s must start for a cut
@@ -142,24 +144,26 @@ func find(s string, ds []Detector, src *View) []rankedMatch {
 	var out []rankedMatch
 	cur := View{Text: s}
 	for rank, d := range ds {
-		var spans []span
+		var spans []gspan
 		if fd, ok := d.(finderDetector); ok {
 			spans = fd.spans(cur.Text)
 		} else if d.Mask(cur.Text) != cur.Text {
 			// Fail closed: a foreign detector cannot say where.
-			spans = []span{{0, len(cur.Text)}}
+			spans = []gspan{{span{0, len(cur.Text)}, ConfidenceMedium}}
 		}
 		if len(spans) == 0 {
 			continue
 		}
-		for _, sp := range spans {
+		plain := make([]span, len(spans))
+		for i, sp := range spans {
 			a, b := cur.Source(sp.start, sp.end)
 			if src != nil {
 				a, b = src.Source(a, b)
 			}
-			out = append(out, rankedMatch{Match{a, b, d.Name()}, rank})
+			out = append(out, rankedMatch{Match{a, b, d.Name(), sp.conf}, rank})
+			plain[i] = sp.span
 		}
-		cur = maskSpans(cur, spans)
+		cur = maskSpans(cur, plain)
 	}
 	return out
 }
@@ -223,7 +227,8 @@ func FindInViews(s string, ds []Detector) []Match {
 }
 
 // mergeMatches sorts matches and joins those that overlap; a joined match
-// takes the kind of its lowest-ranked part.
+// takes the kind and confidence of its lowest-ranked part, the highest
+// confidence among its parts of that kind.
 func mergeMatches(ms []rankedMatch) []Match {
 	if len(ms) == 0 {
 		return nil
@@ -234,8 +239,11 @@ func mergeMatches(ms []rankedMatch) []Match {
 		if n := len(merged); n > 0 && m.Start < merged[n-1].End {
 			p := &merged[n-1]
 			p.End = max(p.End, m.End)
-			if m.rank < p.rank {
-				p.rank, p.Kind = m.rank, m.Kind
+			switch {
+			case m.rank < p.rank:
+				p.rank, p.Kind, p.Confidence = m.rank, m.Kind, m.Confidence
+			case m.Kind == p.Kind:
+				p.Confidence = max(p.Confidence, m.Confidence)
 			}
 			continue
 		}

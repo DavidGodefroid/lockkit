@@ -858,3 +858,183 @@
 {"id":"nl-neg-0238","lang":"nl","text":"Health check vanaf 127.0.0.1 geslaagd.","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-0239","lang":"nl","text":"Artikel SKU-7885-XS is terug op voorraad.","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-0240","lang":"nl","text":"Klantendienst Gent Gesloten Wegens Inventaris.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-eu_vat-0001","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=NL468906204B09","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0002","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE １９４７.８７２.９３５\",\"active\":true}","spans":[{"start":29,"end":64,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0003","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=NL428288571B15","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0004","lang":"nl","text":"Gelieve ons btw-nummer be１４６３８９４６０３ op de factuur te vermelden.","spans":[{"start":23,"end":55,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0005","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"NL876230333B11\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0006","lang":"nl","text":"Btw BE 0386.443.248 (verlegd).","spans":[{"start":4,"end":21,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0007","lang":"nl","text":"Btw BE0715.786.457 (verlegd).","spans":[{"start":4,"end":18,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0008","lang":"nl","text":"vat_number: nl549513334b01","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0009","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE0532295814\",\"active\":true}","spans":[{"start":29,"end":41,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0010","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"nl５５２７２１３４７b１５\",\"active\":true}","spans":[{"start":29,"end":65,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0011","lang":"nl","text":"Gelieve ons btw-nummer NL163390204B19 op de factuur te vermelden.","spans":[{"start":23,"end":37,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0012","lang":"nl","text":"Btw-nummer: BE0124.793.666","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0013","lang":"nl","text":"vat_number: BE 1650.399.075","spans":[{"start":12,"end":27,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0014","lang":"nl","text":"Gelieve ons btw-nummer BE 0747.310.269 op de factuur te vermelden.","spans":[{"start":23,"end":38,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0015","lang":"nl","text":"vat_number: BE0784149186","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0016","lang":"nl","text":"Btw-nummer: BE 0989.816.011","spans":[{"start":12,"end":27,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0017","lang":"nl","text":"Btw-nummer: BE1460.607.093","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0018","lang":"nl","text":"Btw-nummer: BE0177​200588","spans":[{"start":12,"end":27,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0019","lang":"nl","text":"Btw NL805844156B08 (verlegd).","spans":[{"start":4,"end":18,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0020","lang":"nl","text":"Btw-nummer: BE1589513264","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0021","lang":"nl","text":"Gelieve ons btw-nummer NL 544373807B17 op de factuur te vermelden.","spans":[{"start":23,"end":38,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0022","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE 0229175267\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0023","lang":"nl","text":"Gelieve ons btw-nummer BE0100963736 op de factuur te vermelden.","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0024","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE００４６６８０５５６\",\"active\":true}","spans":[{"start":29,"end":61,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0025","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=BE0869925791","spans":[{"start":44,"end":56,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0026","lang":"nl","text":"Gelieve ons btw-nummer NL 484495422B05 op de factuur te vermelden.","spans":[{"start":23,"end":38,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0027","lang":"nl","text":"Btw-nummer: BE0053.988.022","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0028","lang":"nl","text":"vat_number: BE1825672335","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0029","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=NL713246339B07","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0030","lang":"nl","text":"Btw BE 0995270676 (verlegd).","spans":[{"start":4,"end":17,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0031","lang":"nl","text":"Btw-nummer: be1686​994504","spans":[{"start":12,"end":27,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0032","lang":"nl","text":"Gelieve ons btw-nummer BE0976159203 op de factuur te vermelden.","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0033","lang":"nl","text":"vat_number: NL 457643420B18","spans":[{"start":12,"end":27,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0034","lang":"nl","text":"vat_number: BE0886653541","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0035","lang":"nl","text":"vat_number: BE0961768757","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0036","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=be0719947460","spans":[{"start":44,"end":56,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0037","lang":"nl","text":"Btw-nummer: BE 0056277321","spans":[{"start":12,"end":25,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0038","lang":"nl","text":"Gelieve ons btw-nummer be0903054558 op de factuur te vermelden.","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0039","lang":"nl","text":"vat_number: BE 0522.772.788","spans":[{"start":12,"end":27,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0040","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=BE 0617.529.516","spans":[{"start":44,"end":60,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0041","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=be0048109525","spans":[{"start":44,"end":56,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0042","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE 0046646211\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0043","lang":"nl","text":"Btw BE 0668.647.526 (verlegd).","spans":[{"start":4,"end":19,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0044","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE０６０９.０９２.５９３\",\"active\":true}","spans":[{"start":29,"end":63,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0045","lang":"nl","text":"vat_number: NL840732296B05","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0046","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=nl247841341b12","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0047","lang":"nl","text":"vat_number: NL65616​3173B06","spans":[{"start":12,"end":29,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0048","lang":"nl","text":"level=info msg=\"profile updated\" vat_number=nl474346341b10","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0049","lang":"nl","text":"Gelieve ons btw-nummer NL 176330732B10 op de factuur te vermelden.","spans":[{"start":23,"end":38,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0050","lang":"nl","text":"Btw BE 1645.061.206 (verlegd).","spans":[{"start":4,"end":19,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0051","lang":"nl","text":"vat_number: BE0775419978","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0052","lang":"nl","text":"Btw BE 0266549664 (verlegd).","spans":[{"start":4,"end":17,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0053","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"BE0314.716.597\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0054","lang":"nl","text":"vat_number: BE0855328479","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0055","lang":"nl","text":"Btw BE1822817466 (verlegd).","spans":[{"start":4,"end":16,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0056","lang":"nl","text":"vat_number: nl３６１５４２７６８b１９","spans":[{"start":12,"end":48,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-eu_vat-0057","lang":"nl","text":"Btw-nummer: BE 0991562506","spans":[{"start":12,"end":25,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0058","lang":"nl","text":"Btw-nummer: BE0419256566","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0059","lang":"nl","text":"{\"type\":\"user\",\"vat_number\":\"NL 882120669B13\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}]}
+{"id":"nl-eu_vat-0060","lang":"nl","text":"Btw BE０４３２６８８０９６ (verlegd).","spans":[{"start":4,"end":36,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"nl-neg-eu_vat-0001","lang":"nl","text":"Foutief controlecijfer: NL338115544B19","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0002","lang":"nl","text":"Foutief controlecijfer: BE0215033468","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0003","lang":"nl","text":"Foutief controlecijfer: nl396506169b12","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0004","lang":"nl","text":"VIES weigerde het btw-nummer BE1950624012.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0005","lang":"nl","text":"VIES weigerde het btw-nummer BE0964682508.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0006","lang":"nl","text":"VIES weigerde het btw-nummer NL374548866B13.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0007","lang":"nl","text":"Foutief controlecijfer: NL468307398B16","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0008","lang":"nl","text":"VIES weigerde het btw-nummer be0029812078.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0009","lang":"nl","text":"Foutief controlecijfer: be0645964988","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0010","lang":"nl","text":"VIES weigerde het btw-nummer BE0439317957.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0011","lang":"nl","text":"VIES weigerde het btw-nummer BE0517161585.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0012","lang":"nl","text":"Foutief controlecijfer: nl668229163b06","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0013","lang":"nl","text":"Foutief controlecijfer: NL165600256B15","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0014","lang":"nl","text":"Foutief controlecijfer: NL858537107B06","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0015","lang":"nl","text":"VIES weigerde het btw-nummer NL389875559B06.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0016","lang":"nl","text":"Foutief controlecijfer: BE0842061429","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0017","lang":"nl","text":"Foutief controlecijfer: NL731790863B09","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0018","lang":"nl","text":"Foutief controlecijfer: be0876425857","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0019","lang":"nl","text":"VIES weigerde het btw-nummer BE0528705962.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0020","lang":"nl","text":"Foutief controlecijfer: BE0411691079","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0021","lang":"nl","text":"Foutief controlecijfer: BE0217524630","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0022","lang":"nl","text":"VIES weigerde het btw-nummer nl369446321b19.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0023","lang":"nl","text":"VIES weigerde het btw-nummer NL622574583B07.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0024","lang":"nl","text":"Foutief controlecijfer: BE0924107446","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0025","lang":"nl","text":"VIES weigerde het btw-nummer NL449891095B14.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0026","lang":"nl","text":"VIES weigerde het btw-nummer BE0585443556.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0027","lang":"nl","text":"VIES weigerde het btw-nummer BE0325285770.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0028","lang":"nl","text":"VIES weigerde het btw-nummer BE1093246131.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0029","lang":"nl","text":"Foutief controlecijfer: be0235158904","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-eu_vat-0030","lang":"nl","text":"Foutief controlecijfer: be0043084748","spans":[],"tags":["hard_negative"]}
+{"id":"nl-be_company-0001","lang":"nl","text":"Ondernemingsnummer: 0827.746.530","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0002","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0174.1​33.410\",\"active\":true}","spans":[{"start":33,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0003","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0267.326.852.","spans":[{"start":36,"end":48,"kind":"be_company"}]}
+{"id":"nl-be_company-0004","lang":"nl","text":"Ondernemingsnummer: 1790.005.237","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0005","lang":"nl","text":"level=info msg=\"profile updated\" company_number=1329.559.796","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0006","lang":"nl","text":"level=info msg=\"profile updated\" company_number=1030.2​08.789","spans":[{"start":48,"end":63,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0007","lang":"nl","text":"Ondernemingsnummer: 0962691544","spans":[{"start":20,"end":30,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0008","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0967 3​71 201\",\"active\":true}","spans":[{"start":33,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0009","lang":"nl","text":"KBO 0935.804.233","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0010","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0364.2​37.671\",\"active\":true}","spans":[{"start":33,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0011","lang":"nl","text":"Ondernemingsnummer: 0882 720 487","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0012","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0944525028.","spans":[{"start":36,"end":46,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0013","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0597 477 141","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0014","lang":"nl","text":"company_number: 0258 349 305","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0015","lang":"nl","text":"level=info msg=\"profile updated\" company_number=1858062912","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0016","lang":"nl","text":"KBO 0359.001.156","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0017","lang":"nl","text":"Ondernemingsnummer: 1920 587 033","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0018","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0532138238","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0019","lang":"nl","text":"Ondernemingsnummer: ０２１９ ２１６ ８３２","spans":[{"start":20,"end":52,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0020","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0538.375.932\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"nl-be_company-0021","lang":"nl","text":"KBO 0442763131","spans":[{"start":4,"end":14,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0022","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0739.698.838\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"nl-be_company-0023","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0462 254 587","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0024","lang":"nl","text":"Ondernemingsnummer: ０２９３ ３４７ ６９５","spans":[{"start":20,"end":52,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0025","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0670 162 409","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0026","lang":"nl","text":"company_number: 0308.247.588","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0027","lang":"nl","text":"company_number: 1984 817 166","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0028","lang":"nl","text":"Ondernemingsnummer: 0171.339.612","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0029","lang":"nl","text":"company_number: 0460.342.303","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0030","lang":"nl","text":"KBO 0208 428 848","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0031","lang":"nl","text":"KBO 0422 503 888","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0032","lang":"nl","text":"level=info msg=\"profile updated\" company_number=1513 628 976","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0033","lang":"nl","text":"Ondernemingsnummer: 0499928892","spans":[{"start":20,"end":30,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0034","lang":"nl","text":"KBO 0276.552.839","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0035","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0118.060.282.","spans":[{"start":36,"end":48,"kind":"be_company"}]}
+{"id":"nl-be_company-0036","lang":"nl","text":"Ondernemingsnummer: 0551 0​73 232","spans":[{"start":20,"end":35,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0037","lang":"nl","text":"company_number: 0832643149","spans":[{"start":16,"end":26,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0038","lang":"nl","text":"KBO 1341.524.450","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0039","lang":"nl","text":"company_number: 0768.350.361","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0040","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0923375464.","spans":[{"start":36,"end":46,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0041","lang":"nl","text":"company_number: 1595 224 089","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0042","lang":"nl","text":"level=info msg=\"profile updated\" company_number=1945 275 117","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0043","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0269028312","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0044","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0058.227.417","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0045","lang":"nl","text":"KBO 0872.790.459","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0046","lang":"nl","text":"Ondernemingsnummer: 0480761001","spans":[{"start":20,"end":30,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0047","lang":"nl","text":"KBO 0653 980 829","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0048","lang":"nl","text":"company_number: 0262.545.643","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0049","lang":"nl","text":"Ondernemingsnummer: 1323.133.745","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"nl-be_company-0050","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0895329695.","spans":[{"start":36,"end":46,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0051","lang":"nl","text":"company_number: 0315 603 752","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"nl-be_company-0052","lang":"nl","text":"KBO 0045.893.173","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"nl-be_company-0053","lang":"nl","text":"Ondernemingsnummer: 0943.8​57.807","spans":[{"start":20,"end":35,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0054","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"1225.547.983\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"nl-be_company-0055","lang":"nl","text":"Ingeschreven in de KBO onder nummer 0830.711.166.","spans":[{"start":36,"end":48,"kind":"be_company"}]}
+{"id":"nl-be_company-0056","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0920.051.433\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"nl-be_company-0057","lang":"nl","text":"level=info msg=\"profile updated\" company_number=0595.155.871","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"nl-be_company-0058","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"1226702877\",\"active\":true}","spans":[{"start":33,"end":43,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0059","lang":"nl","text":"{\"type\":\"user\",\"company_number\":\"0056547733\",\"active\":true}","spans":[{"start":33,"end":43,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-be_company-0060","lang":"nl","text":"Ingeschreven in de KBO onder nummer 1634939453.","spans":[{"start":36,"end":46,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"nl-neg-be_company-0001","lang":"nl","text":"Pakket 1924.716.682 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0002","lang":"nl","text":"Pakket 1735.308.241 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0003","lang":"nl","text":"Nummer 1176.611.006 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0004","lang":"nl","text":"Nummer 1885.259.363 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0005","lang":"nl","text":"Nummer 1411.944.818 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0006","lang":"nl","text":"Nummer 1916.565.212 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0007","lang":"nl","text":"Nummer 1750.840.045 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0008","lang":"nl","text":"Pakket 1610.719.528 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0009","lang":"nl","text":"Nummer 1472.889.255 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0010","lang":"nl","text":"Nummer 1969.169.727 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0011","lang":"nl","text":"Pakket 1529.188.615 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0012","lang":"nl","text":"Nummer 1081.384.489 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0013","lang":"nl","text":"Nummer 1029.278.239 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0014","lang":"nl","text":"Nummer 1411.195.250 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0015","lang":"nl","text":"Pakket 1601.224.379 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0016","lang":"nl","text":"Pakket 1816.883.226 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0017","lang":"nl","text":"Nummer 1334.913.440 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0018","lang":"nl","text":"Pakket 1211.290.092 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0019","lang":"nl","text":"Pakket 1074.729.232 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0020","lang":"nl","text":"Pakket 1940.543.716 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0021","lang":"nl","text":"Pakket 1147.793.722 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0022","lang":"nl","text":"Nummer 1820.234.508 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0023","lang":"nl","text":"Pakket 1230.328.821 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0024","lang":"nl","text":"Nummer 1896.065.154 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0025","lang":"nl","text":"Nummer 1159.720.528 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0026","lang":"nl","text":"Pakket 1336.340.938 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0027","lang":"nl","text":"Nummer 1501.724.974 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0028","lang":"nl","text":"Nummer 1875.907.398 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0029","lang":"nl","text":"Pakket 1910.078.456 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_company-0030","lang":"nl","text":"Nummer 1373.302.978 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}

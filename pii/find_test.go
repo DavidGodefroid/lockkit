@@ -41,7 +41,7 @@ func maskWith(s string, ms []Match) string {
 }
 
 func allDetectors(t testing.TB) []Detector {
-	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "secret", "ip"})
+	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "secret", "ip", "eu_vat", "be_company"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestFindForeignDetectorFailsClosed(t *testing.T) {
 		t.Errorf("Find = %v, want none", ms)
 	}
 	ms = Find("a secret", []Detector{foreignDetector{}})
-	if len(ms) != 1 || ms[0] != (Match{0, 8, "custom"}) {
+	if len(ms) != 1 || ms[0] != (Match{0, 8, "custom", ConfidenceMedium}) {
 		t.Errorf("Find = %v", ms)
 	}
 }
@@ -177,7 +177,7 @@ func TestFindCutsLongText(t *testing.T) {
 	}
 	s = "jean@example.com " + strings.Repeat("y", DetectLimit)
 	ms = Find(s, AllDetectors())
-	if len(ms) != 2 || ms[0] != (Match{0, 16, "email"}) || ms[1].Kind != CutKind || ms[1].End != len(s) {
+	if len(ms) != 2 || ms[0] != (Match{0, 16, "email", ConfidenceMedium}) || ms[1].Kind != CutKind || ms[1].End != len(s) {
 		t.Errorf("Find = %v", ms)
 	}
 }
@@ -218,6 +218,7 @@ func FuzzFindCoversDetect(f *testing.F) {
 		f.Add(s)
 	}
 	f.Add("a***(12) 345 6789 jo\u200bhn@example.com jean%40example.com &#64;")
+	f.Add("TVA BE 0123.456.749, KBO 0123456749, FR40303265045 NL004495445B01 tel 612 345 678")
 	ds := allDetectors(f)
 	f.Fuzz(func(t *testing.T, s string) {
 		if len(s) > 512 {

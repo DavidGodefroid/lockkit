@@ -32,12 +32,16 @@ var values = map[string]func(r *rand.Rand, lang string) (string, bool){
 	"phone_loose": func(r *rand.Rand, lang string) (string, bool) {
 		return digitsIn(r, pick(r, loosePhoneShapes[lang])), true
 	},
+	"eu_vat": func(r *rand.Rand, lang string) (string, bool) {
+		return formatVAT(r, vatNumber(r, pick(r, vatCountries[lang]), true)), false
+	},
+	"be_company": companyValue,
 }
 
 // digitKinds are the kinds whose values have digits a disguise can
 // rewrite.
 var digitKinds = map[string]bool{"iban": true, "card": true, "be_niss": true, "fr_nir": true,
-	"nl_bsn": true, "us_ssn": true, "ip": true, "phone": true}
+	"nl_bsn": true, "us_ssn": true, "ip": true, "phone": true, "eu_vat": true, "be_company": true}
 
 // disguise rewrites one value in five: full-width digits, a zero-width
 // space inside, or no-break spaces between digit groups.
@@ -310,6 +314,119 @@ func validSSN(r *rand.Rand) string {
 func formatSSN(r *rand.Rand, d string) string {
 	sep := pick(r, []string{"-", "-", " "})
 	return d[:3] + sep + d[3:5] + sep + d[5:]
+}
+
+// --- VAT and company numbers
+
+// BECompanyValid checks the 10 digits of a Belgian company number.
+func BECompanyValid(d string) bool {
+	return len(d) == 10 && (d[0] == '0' || d[0] == '1') && 97-Mod97(d[:8]) == int(d[8]-'0')*10+int(d[9]-'0')
+}
+
+// beCompany returns 10 digits of a Belgian company number, its check
+// valid or not.
+func beCompany(r *rand.Rand, valid bool) string {
+	for {
+		body := pick(r, []string{"0", "0", "0", "1"}) + digits(r, 7)
+		check := 97 - Mod97(body)
+		if !valid {
+			check = (check + 1 + r.IntN(90)) % 100
+		}
+		if d := fmt.Sprintf("%s%02d", body, check); BECompanyValid(d) == valid {
+			return d
+		}
+	}
+}
+
+// formatCompany writes 10 digits as 0xxx.xxx.xxx, 0xxx xxx xxx or bare.
+func formatCompany(r *rand.Rand, d string) string {
+	switch r.IntN(6) {
+	case 0, 1, 2:
+		return d[:4] + "." + d[4:7] + "." + d[7:]
+	case 3, 4:
+		return d[:4] + " " + d[4:7] + " " + d[7:]
+	}
+	return d
+}
+
+// companyValue is a Belgian company number; ten bare digits are a hard
+// positive (found only with a context word).
+func companyValue(r *rand.Rand, _ string) (string, bool) {
+	v := formatCompany(r, beCompany(r, true))
+	return v, !strings.ContainsAny(v, ". ")
+}
+
+var vatCountries = map[string][]string{"en": {"BE", "FR", "NL", "DE", "LU"}, "fr": {"FR", "BE", "BE", "LU"}, "nl": {"NL", "BE", "BE"}, "de": {"DE", "BE", "LU", "DE"}}
+
+// vatNumber returns a VAT number of a country without blanks, its check
+// valid or not.
+func vatNumber(r *rand.Rand, cc string, valid bool) string {
+	off := 0
+	if !valid {
+		off = 1 + r.IntN(8)
+	}
+	switch cc {
+	case "BE":
+		return "BE" + beCompany(r, valid)
+	case "FR":
+		siren := fmt.Sprint(1+r.IntN(9)) + digits(r, 8)
+		return fmt.Sprintf("FR%02d%s", ((12+3*Mod97(siren))%97+off)%100, siren)
+	case "NL":
+		for {
+			d := fmt.Sprint(1+r.IntN(9)) + digits(r, 7)
+			sum := 0
+			for i := range 8 {
+				sum += int(d[i]-'0') * (9 - i)
+			}
+			if last := (sum%11 + off) % 11; last < 10 {
+				return fmt.Sprintf("NL%s%dB%02d", d, last, 1+r.IntN(20))
+			}
+		}
+	case "DE":
+		d := fmt.Sprint(1+r.IntN(9)) + digits(r, 7)
+		return fmt.Sprintf("DE%s%d", d, (deCheck(d)+off)%10)
+	}
+	n := 100000 + r.IntN(900000)
+	return fmt.Sprintf("LU%d%02d", n, (n%89+off)%100)
+}
+
+// deCheck is the ISO 7064 MOD 11,10 check digit of 8 digits.
+func deCheck(d string) int {
+	p := 10
+	for i := range 8 {
+		s := (int(d[i]-'0') + p) % 10
+		if s == 0 {
+			s = 10
+		}
+		p = 2 * s % 11
+	}
+	if c := 11 - p; c != 10 {
+		return c
+	}
+	return 0
+}
+
+// formatVAT writes a VAT number bare, with a space after the prefix,
+// grouped as it is printed on invoices, or in lower case.
+func formatVAT(r *rand.Rand, v string) string {
+	cc, n := v[:2], v[2:]
+	switch r.IntN(10) {
+	case 0, 1, 2, 3:
+		return v
+	case 4, 5:
+		return cc + " " + n
+	case 6, 7, 8:
+		switch cc {
+		case "BE":
+			return cc + pick(r, []string{"", " "}) + n[:4] + "." + n[4:7] + "." + n[7:]
+		case "FR":
+			return cc + " " + n[:2] + " " + n[2:5] + " " + n[5:8] + " " + n[8:]
+		case "DE":
+			return cc + " " + n[:3] + " " + n[3:6] + " " + n[6:]
+		}
+		return cc + " " + n
+	}
+	return strings.ToLower(v)
 }
 
 // --- phones: 'd' is a random digit. The shapes keep to the ranges set
