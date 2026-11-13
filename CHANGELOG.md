@@ -3,8 +3,14 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## v0.17.0 (2026-11-13)
+## Unreleased
 
+- console: the pending policy diff shown at `:review` is printed through
+  `PrintContext`, so it reaches the question file of the "Apply these
+  changes?" decision: a human answering from lockhub or a phone sees the
+  change they apply (#160).
+
+## v0.17.0 (2026-11-13)
 - console: `Profile.TicketLimits` (`hubclient.Limits`, set from
   `config.Base.TicketLimits()`) reaches the console's hub client on start
   and whenever a policy comes in force: a profile's `limits.*` raise

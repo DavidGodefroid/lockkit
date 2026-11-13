@@ -398,3 +398,157 @@ func TestRunPrintsQuestionContext(t *testing.T) {
 
 // A product prints context through its Env: the Server passes it on.
 var _ ContextPrinter = (*Server)(nil)
+
+// The pending policy diff shown at :review is context of its decision: it
+// reaches the question file with the prompt, so a human answering from
+// lockhub or a phone sees what they apply (#160). The change requests
+// from clients, printed with Println, stay on the terminal.
+func TestReviewRecordsPolicyDiffInQuestion(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+	term := NewTerminal(r, io.Discard)
+	path := filepath.Join(t.TempDir(), "1a2b3c4d-uat.question")
+	term.SetQuestionFile(path)
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.IO = term })
+
+	looser := uat()
+	looser.Tier = "peek"
+	h.b.policy = looser
+	h.s.CheckPolicy()
+	h.s.requests = []string{"agent asks: widen orders"}
+	diff := formatChangesOf(h.b, looser.Diff(uat()))
+	if len(diff) == 0 {
+		t.Fatal("no diff lines")
+	}
+	done := make(chan struct{})
+	go func() {
+		h.s.Command(context.Background(), ":review")
+		close(done)
+	}()
+	want := "Apply these changes? [y/N]\n" + QuestionContextMark + "\npending policy change for profile uat:\n"
+	for _, line := range diff {
+		want += ansi.ReplaceAllString(line, "") + "\n"
+	}
+	waitFile(t, path, want)
+	if _, err := w.WriteString("y\n"); err != nil {
+		t.Fatal(err)
+	}
+	<-done
+	waitFile(t, path, "")
+	if h.s.PolicyPending() {
+		t.Fatal("loosening still pending after y")
+	}
+}
+
+// pathTerminal is a Terminal that tells where Run keeps its questions.
+type pathTerminal struct {
+	*Terminal
+	path chan string
+}
+
+func (p *pathTerminal) SetQuestionFile(path string) {
+	p.Terminal.SetQuestionFile(path)
+	select {
+	case p.path <- path:
+	default:
+	}
+}
+
+// End to end: a console run in a Terminal records, in the question file
+// next to its socket, the diff of a policy reloaded from the config files
+// with the :review decision about it, and the answer applies it (#160).
+func TestRunReviewQuestionFileShowsReloadDiff(t *testing.T) {
+	if testing.Short() {
+		t.Skip("waits for a policy poll")
+	}
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+	screen := &lockedBuffer{}
+	term := &pathTerminal{Terminal: NewTerminal(r, screen), path: make(chan string, 1)}
+	b := &fakeBackend{policy: uat()}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	go func() {
+		done <- Run(context.Background(), testProduct, b, Options{Profile: "uat", Hub: testHub(t), IO: term,
+			StateDir: t.TempDir(), Isolation: runEnv(t), Harden: func() error { return nil }, Ready: func(s string) { ready <- s }})
+	}()
+	path := <-term.path
+	// The socket's directory is made once the console serves: made here,
+	// the start's questions reach their file too.
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	answer := func(line string) {
+		t.Helper()
+		if _, err := w.WriteString(line + "\n"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// The questions of the start (the policy, the password), answered as
+	// they reach the question file.
+	var socket string
+	asked := ""
+	for socket == "" {
+		select {
+		case socket = <-ready:
+			continue
+		case err := <-done:
+			t.Fatalf("Run: %v\n%s", err, screen)
+		case <-time.After(10 * time.Millisecond):
+		}
+		f, err := os.ReadFile(path)
+		if err != nil || string(f) == asked {
+			continue
+		}
+		asked = string(f)
+		if prompt, _ := ParseQuestion(asked); strings.HasPrefix(prompt, "Password") {
+			answer("pw")
+		} else {
+			answer("y")
+		}
+	}
+	if path != QuestionPath(socket) {
+		t.Fatalf("question file %q, socket %q", path, socket)
+	}
+	waitFile(t, path, "")
+
+	looser := uat()
+	looser.Tier = "peek"
+	b.mu.Lock()
+	b.policy = looser
+	b.mu.Unlock()
+	waitScreen(t, screen, "pending policy change (loosening)", 3*PolicyPoll)
+	answer(":review")
+	want := "Apply these changes? [y/N]\n" + QuestionContextMark + "\npending policy change for profile uat:\n"
+	for _, line := range formatChangesOf(b, looser.Diff(uat())) {
+		want += ansi.ReplaceAllString(line, "") + "\n"
+	}
+	waitFile(t, path, want)
+	answer("y")
+	waitFile(t, path, "")
+	waitScreen(t, screen, "policy change applied", 5*time.Second)
+	if r := dialAndCall(t, socket, ipc.MethodLogout, nil); r.Error != nil {
+		t.Fatal(r.Error)
+	}
+	<-done
+}
+
+// waitScreen waits until the screen shows want.
+func waitScreen(t *testing.T, screen *lockedBuffer, want string, within time.Duration) {
+	t.Helper()
+	deadline := time.Now().Add(within)
+	for !strings.Contains(screen.String(), want) {
+		if time.Now().After(deadline) {
+			t.Fatalf("screen without %q:\n%s", want, screen)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
