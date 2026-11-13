@@ -45,6 +45,7 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"slices"
 	"strings"
@@ -175,7 +176,9 @@ func (f *File) Has(tool string) bool {
 
 // Decode decodes the table at key (["locksql", "bounds"], ["lox"],
 // ["locksql", "profiles", "prod-erp"]) into into, strictly: a key into does
-// not declare is refused. It returns false, into untouched, when f is nil
+// not declare is refused, at any depth of nested structs. A map or an any
+// (into itself, or one of its fields) declares every key under it, nested
+// tables and arrays of tables included. It returns false, into untouched, when f is nil
 // or has no such table. into is overlaid, not reset: a product decodes its
 // managed defaults first, then its config files over them.
 func (f *File) Decode(into any, key ...string) (bool, error) {
@@ -220,7 +223,9 @@ func (f *File) name() string {
 }
 
 // decodeTable decodes m into into through TOML, refusing keys into does
-// not declare.
+// not declare. A key under a map or interface (any) does not need to be
+// declared: toml reports the keys of a table nested in a map or an any as
+// undecoded, although they landed in it.
 func decodeTable(m map[string]any, into any) error {
 	b, err := toml.Marshal(m)
 	if err != nil {
@@ -230,10 +235,99 @@ func decodeTable(m map[string]any, into any) error {
 	if err != nil {
 		return errors.New(strings.TrimPrefix(err.Error(), "toml: "))
 	}
-	if und := md.Undecoded(); len(und) > 0 {
-		return fmt.Errorf("unknown key %q", und[0].String())
+	for _, k := range md.Undecoded() {
+		if !freeForm(reflect.TypeOf(into), k) {
+			return fmt.Errorf("unknown key %q", k.String())
+		}
 	}
 	return nil
+}
+
+var unmarshalerType = reflect.TypeFor[toml.Unmarshaler]()
+
+// freeForm reports whether key, walked down from t, lands under a map, an
+// interface or a toml.Unmarshaler, which take any key. A struct field
+// matches as toml matches it: its toml tag or its name, exactly or
+// ignoring case, through embedded structs. Arrays of tables add no key.
+func freeForm(t reflect.Type, key toml.Key) bool {
+	for {
+		for t.Kind() == reflect.Pointer {
+			t = t.Elem()
+		}
+		if t.Implements(unmarshalerType) || reflect.PointerTo(t).Implements(unmarshalerType) {
+			return true
+		}
+		switch t.Kind() {
+		case reflect.Interface:
+			return true
+		case reflect.Slice, reflect.Array:
+			t = t.Elem()
+			continue
+		}
+		if len(key) == 0 {
+			return false
+		}
+		switch t.Kind() {
+		case reflect.Map:
+			t = t.Elem()
+		case reflect.Struct:
+			ft, ok := fieldType(t, key[0])
+			if !ok {
+				return false
+			}
+			t = ft
+		default:
+			return false
+		}
+		key = key[1:]
+	}
+}
+
+// fieldType is the type of struct t's field that toml decodes key into.
+func fieldType(t reflect.Type, key string) (reflect.Type, bool) {
+	var fold reflect.Type
+	for _, f := range tomlFields(t) {
+		if f.name == key {
+			return f.typ, true
+		}
+		if fold == nil && strings.EqualFold(f.name, key) {
+			fold = f.typ
+		}
+	}
+	return fold, fold != nil
+}
+
+type tomlField struct {
+	name string
+	typ  reflect.Type
+}
+
+func tomlFields(t reflect.Type) []tomlField {
+	var out []tomlField
+	for f := range t.Fields() {
+		name, _, _ := strings.Cut(f.Tag.Get("toml"), ",")
+		if name == "-" {
+			continue
+		}
+		if f.Anonymous && name == "" {
+			ft := f.Type
+			if ft.Kind() == reflect.Pointer {
+				ft = ft.Elem()
+			}
+			if ft.Kind() == reflect.Struct {
+				out = append(out, tomlFields(ft)...)
+				continue
+			}
+		}
+		if !f.IsExported() {
+			continue
+		}
+		if name == "" {
+			name = f.Name
+		}
+		out = append(out, tomlField{name, f.Type})
+	}
+	return out
 }
 
 // Parse decodes and validates a managed file's bytes: version 1, known
