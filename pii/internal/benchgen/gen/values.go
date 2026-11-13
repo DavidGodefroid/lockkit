@@ -63,19 +63,19 @@ func disguise(r *rand.Rand, kind, v string) (string, bool) {
 		var b strings.Builder
 		for _, c := range body {
 			if c >= '0' && c <= '9' {
-				c = '０' + c - '0'
+				c = '\uff10' + c - '0'
 			}
 			b.WriteRune(c)
 		}
 		body = b.String()
 	case "nbsp":
-		body = strings.ReplaceAll(body, " ", pick(r, []string{" ", " "}))
+		body = strings.ReplaceAll(body, " ", pick(r, []string{"\u00a0", "\u202f"}))
 	default:
 		i := len(body) / 2
 		for i > 0 && !utf8.RuneStart(body[i]) {
 			i--
 		}
-		body = body[:i] + "​" + body[i:]
+		body = body[:i] + "\u200b" + body[i:]
 	}
 	return prefix + body, true
 }

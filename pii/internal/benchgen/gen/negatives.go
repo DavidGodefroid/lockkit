@@ -87,7 +87,7 @@ var negValues = map[string]func(r *rand.Rand, lang string) string{
 		case "en":
 			return fmt.Sprintf("€%d,%03d.%02d", th, rest, cents)
 		case "fr":
-			return fmt.Sprintf("%d%s%03d,%02d €", th, pick(r, []string{" ", " ", " "}), rest, cents)
+			return fmt.Sprintf("%d%s%03d,%02d €", th, pick(r, []string{" ", "\u00a0", "\u202f"}), rest, cents)
 		case "nl":
 			return fmt.Sprintf("€ %d.%03d,%02d", th, rest, cents)
 		}
