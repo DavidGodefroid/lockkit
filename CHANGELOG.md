@@ -12,6 +12,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
   sentence before the allow list no longer says the calls "never touch
   data": the product sets it with the new `Assets.ClaudeAllowNote`, else a
   neutral default applies (#109).
+- console: on its very first start (the runtime directory not made yet)
+  a console makes its private socket directory before the first
+  question, so the start's questions (policy review, PRODUCTION name,
+  `User:`, host key, secrets) reach the question file; one that cannot
+  be made prints one warning and keeps them on the terminal. New
+  `ipc.PrivateDir`, which `Listen` uses (#180).
 - managed: `Load` accepts `managed.toml.verified`, the root-owned stamp
   lox writes with `VerifiedStamp` once it verified the signature on the
   host: a match counts the file signed without cosign (a lock in a

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -371,5 +372,25 @@ func TestIsolationNeverEchoesClientGroup(t *testing.T) {
 	_, err := CheckIsolation(testProduct, &fakeIO{}, env)
 	if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "client_group") {
 		t.Errorf("%v", err)
+	}
+}
+
+// In a separated setup the console makes no socket directory: the
+// install makes the shared one (#180). Alone, it makes a private one.
+func TestPrepareSocketDir(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "run")
+	sep := &Isolation{Product: testProduct, Sys: separated()}
+	if err := sep.PrepareSocketDir(filepath.Join(dir, "x.sock")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Lstat(dir); !os.IsNotExist(err) {
+		t.Fatalf("separated setup made %s: %v", dir, err)
+	}
+	alone := &Isolation{Product: testProduct}
+	if err := alone.PrepareSocketDir(filepath.Join(dir, "x.sock")); err != nil {
+		t.Fatal(err)
+	}
+	if fi, err := os.Lstat(dir); err != nil || fi.Mode().Perm() != 0o700 {
+		t.Fatalf("private dir: %v %v", fi, err)
 	}
 }

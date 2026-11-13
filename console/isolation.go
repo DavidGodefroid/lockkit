@@ -400,6 +400,16 @@ func (iso *Isolation) SocketPath(projectKey, profile string) (string, error) {
 	return ipc.SocketPath(iso.Product, projectKey, profile)
 }
 
+// PrepareSocketDir makes the private directory of the socket at path, so
+// that the questions asked before Listen reach their file next to it. In
+// a separated setup it does nothing: the install makes the shared one.
+func (iso *Isolation) PrepareSocketDir(path string) error {
+	if iso.Sys != nil {
+		return nil
+	}
+	return ipc.PrivateDir(path)
+}
+
 // Listen opens the socket.
 func (iso *Isolation) Listen(path string) (net.Listener, error) {
 	if iso.Sys != nil {

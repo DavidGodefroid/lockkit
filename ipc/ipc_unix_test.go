@@ -128,6 +128,45 @@ func TestListenRefusesSymlinkDir(t *testing.T) {
 	}
 }
 
+// PrivateDir, which Listen uses, makes the socket's directory 0700,
+// tightens a wider one, and refuses a symlink and a directory of another
+// user (#180).
+func TestPrivateDir(t *testing.T) {
+	d := shortDir(t)
+	fresh := filepath.Join(d, "a", "run", "x.sock")
+	if err := PrivateDir(fresh); err != nil {
+		t.Fatal(err)
+	}
+	if fi, err := os.Lstat(filepath.Dir(fresh)); err != nil || !fi.IsDir() || fi.Mode().Perm() != 0o700 {
+		t.Fatalf("made dir: %v %v", fi, err)
+	}
+	wide := filepath.Join(d, "wide")
+	if err := os.Mkdir(wide, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(wide, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := PrivateDir(filepath.Join(wide, "x.sock")); err != nil {
+		t.Fatal(err)
+	}
+	if fi, _ := os.Stat(wide); fi.Mode().Perm() != 0o700 {
+		t.Errorf("wide dir mode = %v, want 0700", fi.Mode().Perm())
+	}
+	if err := os.Symlink(wide, filepath.Join(d, "link")); err != nil {
+		t.Fatal(err)
+	}
+	if err := PrivateDir(filepath.Join(d, "link", "x.sock")); err == nil || !strings.Contains(err.Error(), "not a directory") {
+		t.Errorf("symlinked dir: %v", err)
+	}
+	if os.Getuid() != 0 {
+		// The root directory is root's.
+		if err := PrivateDir("/x.sock"); err == nil || !strings.Contains(err.Error(), "not by you") {
+			t.Errorf("dir of another user: %v", err)
+		}
+	}
+}
+
 func TestSecondListenAlreadyRunning(t *testing.T) {
 	path := sockPath(t)
 	ln, err := Listen(path)

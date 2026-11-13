@@ -13,9 +13,11 @@ import (
 	"github.com/DavidGodefroid/lockkit/kit"
 )
 
-// privateDir creates the socket's parent directory with mode 0700 and
-// checks that it is a real directory (not a symlink) owned by the user.
-func privateDir(path string) error {
+// PrivateDir creates the parent directory of the console socket at path
+// with mode 0700 (tightening a wider mode) and checks that it is a real
+// directory (not a symlink) owned by the user. Listen calls it; a console
+// calls it before its first question, whose file sits next to the socket.
+func PrivateDir(path string) error {
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("ipc: %w", err)
@@ -41,6 +43,8 @@ func privateDir(path string) error {
 	}
 	return nil
 }
+
+func privateDir(path string) error { return PrivateDir(path) }
 
 func restrictSocket(path string) error {
 	if err := os.Chmod(path, 0o600); err != nil {
