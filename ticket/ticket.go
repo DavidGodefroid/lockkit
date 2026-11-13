@@ -182,7 +182,10 @@ type Decision struct {
 	Rule *Rule `json:"rule,omitempty"`
 	// Secret, on an approval of a connect ticket that asked for one
 	// (Subject.SecretTo), is the backend's secret sealed to the lock
-	// (SealSecret, OpenSecret): the hub relays it without reading it.
+	// (SealSecret, OpenSecret): the hub relays it without reading it. On
+	// an approval of a read or action ticket with Subject.Inputs, it is
+	// the values the human typed, sealed the same way under their own
+	// context (SealInputs, OpenInputs).
 	Secret *Sealed `json:"secret,omitempty"`
 	Sig    string  `json:"sig,omitempty"`
 }
@@ -274,6 +277,11 @@ func (t *Ticket) Validate() error {
 	// A grant covers many reads: an auto mode never approves one.
 	if t.Risk == RiskGrant && !t.Flags.NeverAuto {
 		return invalid("flags.never_auto: required on a %s ticket", RiskGrant)
+	}
+	// Only a human types a value: no auto rule decides a ticket asking
+	// for one.
+	if t.Subject != nil && len(t.Subject.Inputs) > 0 && !t.Flags.NeverAuto {
+		return invalid("flags.never_auto: required on a ticket with subject.inputs")
 	}
 	if len(t.Screen.Body)+len(t.Screen.Warnings) > maxLines {
 		return invalid("screen: more than %d lines", maxLines)
@@ -540,14 +548,14 @@ var ErrExpired = errors.New("ticket: expired")
 
 // Match checks that d answers t: same ticket id, instance, lock key and
 // plan hash; a VersionKinds ticket is answered by a VersionKinds decision
-// (which names its rule), and only a connect ticket that asked for a
-// secret gets one. A lock calls it with its own ticket (never one rebuilt
+// (which names its rule), and only a ticket that asked for a sealed box
+// (a connect secret, typed inputs: Subject.SecretTo) gets one. A lock calls it with its own ticket (never one rebuilt
 // from the decision) before acting on d.
 func (d *Decision) Match(t *Ticket) error {
 	switch {
 	case t.V == VersionKinds && d.V != VersionKinds:
 		return fmt.Errorf("%w: a version %d decision on a version %d ticket", ErrMismatch, d.V, t.V)
-	case d.Secret != nil && (t.Kind != KindConnect || t.Subject == nil || t.Subject.SecretTo == ""):
+	case d.Secret != nil && (t.Subject == nil || t.Subject.SecretTo == ""):
 		return fmt.Errorf("%w: %w: a secret the ticket did not ask for", ErrMismatch, ErrNoSecret)
 	case d.Ticket != t.ID:
 		return fmt.Errorf("%w: ticket %s, expected %s", ErrMismatch, d.Ticket, t.ID)

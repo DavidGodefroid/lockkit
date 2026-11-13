@@ -174,6 +174,13 @@ type HubTicket struct {
 	// are the lock's own (lazyconn), not a plan's.
 	Kind    ticket.Kind
 	Subject *ticket.Subject
+	// Inputs names the values the human types for the request (the
+	// plan's placeholders; ticket.Subject.Inputs): on a read or action
+	// Kind only. The ticket gets a one-use key the values are sealed to,
+	// kept in the store's memory only, and is never decided by an auto
+	// rule; the run gets the values (hubclient.Client.Begin,
+	// plans.Plan.Inputs), which neither the hub nor the agent sees.
+	Inputs []string
 }
 
 // Hub is a console's hub mode: the plans awaiting a decision and the hub
@@ -280,6 +287,10 @@ type hubApprover struct {
 // errNoHubTicket: the product drew a screen without a HubTicket.
 var errNoHubTicket = errors.New("the request carries no hub ticket")
 
+// errInputsKind: typed inputs asked on a ticket that is not a read or an
+// action.
+var errInputsKind = errors.New("typed inputs are asked on a read or action ticket only")
+
 // errConnectTicket: a plan's ticket of kind connect.
 var errConnectTicket = errors.New("a connect ticket is the lock's own (lazyconn), not a plan's")
 
@@ -296,12 +307,26 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	if h.Kind == ticket.KindConnect {
 		return Pending{}, errConnectTicket
 	}
+	subj := h.Subject
+	if len(h.Inputs) > 0 {
+		if h.Kind != ticket.KindRead && h.Kind != ticket.KindAction {
+			return Pending{}, errInputsKind
+		}
+		s := ticket.Subject{}
+		if subj != nil {
+			s = *subj
+		}
+		s.Inputs = ticket.SortInputs(h.Inputs)
+		subj = &s
+	}
 	t := ticket.NewTicket(ticket.Source{Lock: a.lock}, h.Risk, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
 	if h.Kind != "" {
-		t = ticket.NewKindTicket(ticket.Source{Lock: a.lock}, h.Kind, h.Risk, h.Subject, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
+		t = ticket.NewKindTicket(ticket.Source{Lock: a.lock}, h.Kind, h.Risk, subj, p.Binding.PlanHash, p.Binding.PolicyFP, a.now(), ticket.ClampTTL(h.Risk, 0))
 	}
 	t.Workspace, t.Requester = h.Workspace, h.Requester
-	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: t.Flags.NeverAuto || d.Screen.NeverAuto, Retype: d.Retype}
+	// Only a human types a value: a ticket asking for some is never auto
+	// (the hub client gives it its one-use key).
+	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: t.Flags.NeverAuto || d.Screen.NeverAuto || len(h.Inputs) > 0, Retype: d.Retype}
 	// The screen this console would show: sealed to the pinned devices
 	// only (SubmitClear), never sent as it is.
 	s := d.Screen

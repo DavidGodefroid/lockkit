@@ -845,6 +845,29 @@ pool's `OnEvent` (connected, denied, failed, closed, with the decision's
 rule). Connect tickets are not plans: a restarted lock starts
 disconnected and asks again.
 
+**Typed inputs.** A plan's read or action ticket can ask the human for
+values the agent never chooses nor sees (a placeholder the plan runs
+on): set `HubTicket.Inputs` to their names (`[a-z0-9_]{1,32}`, at most
+16; `ticket.Subject.Inputs`, sorted for you) with `Kind` read or action;
+any other kind is refused before a push. The hub client gives the ticket
+a one-use X25519 key (`Subject.SecretTo`) when it signs it and keeps the
+private half in the plans store's memory only (`Store.KeepInputKey`,
+never written; dropped once the plan runs or ends), and sets
+`Flags.NeverAuto`: no auto rule decides it (`ticket.ErrAuto`). `lox run`
+verifies the ticket under the lock key it pins and seals the typed
+values to it (`ticket.SealInputs`, in `Decision.Secret`, under their own
+associated data `lockkit/plan-inputs/v1`: a connect secret never opens
+as inputs, nor the reverse). `Begin` opens them (`Decision.OpenInputs`)
+and returns them on the plan, `Plan.Inputs` (never stored): run the plan
+with them, then `secrets.Wipe` each. Audit the names only,
+`audit.Base.Inputs = audit.InputNames(plan.Inputs)` (`"inputs":
+["email"]`), never a value. An approval without the values, or whose box
+does not open, ends the plan Denied (`hubclient.ErrBadDecision`). A lock
+restarted since it pushed the ticket has lost the key: `Begin` answers
+`ticket.ErrExpired`, so `h.RenewResp` asks again, under a new key. The
+console never caches a value: reusing one across tickets is the
+product's business.
+
 **Reveal and re-approval.** In hub mode pass the console's clear screen
 to `SubmitClear` (the console's own `Submit` does): it stays in the plan,
 and a local facade the lock pins (`--facade-keys-file`) can ask for it
@@ -1094,9 +1117,14 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unle
   refuse replays on the ticket id and the decision nonce, not on bytes.
 - **Sealed boxes** (`Seal`/`Open`: X25519, HKDF-SHA256,
   XChaCha20-Poly1305) carry what the hub must not read: an `unlock`
-  secret, a clear screen for a device, a reveal. The associated data binds
-  a box to its ticket. Seal only to a key whose `KeyCert` verifies under an
-  Ed25519 key you pinned.
+  secret, a clear screen for a device, a reveal, the values a human typed
+  for a plan (`SealInputs`). The associated data binds a box to its
+  ticket and to its use (`ContextSecret`, `ContextInputs`). Seal only to a
+  key whose `KeyCert` verifies under an Ed25519 key you pinned, or that a
+  ticket verified under the pinned lock key carries (`Subject.SecretTo`).
+  Typed values never reach the hub (it relays the box), the agent (the
+  lock runs them, its answers are the product's) or the audit (names
+  only).
 - `HashOf(v)` is the plan hash or policy fingerprint of any value:
   `sha256:` over its canonical JSON.
 

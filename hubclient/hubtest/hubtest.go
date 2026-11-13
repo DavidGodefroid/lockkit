@@ -202,7 +202,8 @@ func (h *Hub) Decide(id string, out ticket.Outcome, reason string) {
 // DecideWith is Decide signed with key (nil: the hub's), mod applied to
 // the decision before signing (nil: none). A VersionKinds ticket gets a
 // VersionKinds decision, by a human (mod may name an auto rule, or seal
-// a secret: ticket.SealSecret over the ticket the hub holds).
+// a secret or typed inputs: ticket.SealSecret or ticket.SealInputs over
+// the ticket the hub holds).
 func (h *Hub) DecideWith(id string, out ticket.Outcome, reason string, key ed25519.PrivateKey, mod func(*ticket.Decision)) {
 	h.t.Helper()
 	h.mu.Lock()

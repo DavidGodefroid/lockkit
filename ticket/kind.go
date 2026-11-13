@@ -137,8 +137,16 @@ type Subject struct {
 	// this ticket, signed with the ticket. The decision carries the
 	// secret sealed to it (Decision.Secret): the hub relays a box it
 	// cannot open. Set when the profile is "ask", or its Vault token has
-	// expired.
+	// expired. On a read or action ticket with Inputs, it is the key the
+	// typed values are sealed to (SealInputs).
 	SecretTo string `json:"secret_to,omitempty"`
+	// Inputs, on a read or action ticket, names the values the human
+	// types for the request (placeholders of the plan): sorted, distinct,
+	// at most MaxInputs names of [a-z0-9_]{1,32}. Names only, never a
+	// value: the values come back sealed to SecretTo in the decision
+	// (SealInputs, Decision.OpenInputs), and the ticket is
+	// Flags.NeverAuto.
+	Inputs []string `json:"inputs,omitempty"`
 	// Verb is an action's verb ("publish", "purge", "GET") or an
 	// endpoint's method.
 	Verb string `json:"verb,omitempty"`
@@ -226,12 +234,26 @@ func (s *Subject) validate(k Kind) error {
 			return invalid("subject.secret_to: not an X25519 key")
 		}
 	}
+	if err := validInputs(s.Inputs); err != nil {
+		return err
+	}
+	if len(s.Inputs) > 0 {
+		switch {
+		case k != KindRead && k != KindAction:
+			return invalid("subject.inputs: not part of a %s ticket", k)
+		case s.SecretTo == "":
+			return invalid("subject.inputs: typed values need subject.secret_to, the key they are sealed to")
+		}
+	} else if s.SecretTo != "" && k != KindConnect {
+		return invalid("subject.secret_to: not part of a %s ticket without inputs", k)
+	}
 	only := func(allowed ...string) error {
 		set := map[string]string{"profile": s.Profile, "endpoint": s.Endpoint, "credential": s.Credential,
 			"secret_to": s.SecretTo, "verb": s.Verb, "target": s.Target}
 		for _, a := range allowed {
 			delete(set, a)
 		}
+		delete(set, "secret_to") // checked above, with inputs
 		for _, name := range []string{"profile", "endpoint", "credential", "secret_to", "verb", "target"} {
 			if v, ok := set[name]; ok && v != "" {
 				return invalid("subject.%s: not part of a %s ticket", name, k)
