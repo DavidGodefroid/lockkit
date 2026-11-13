@@ -1308,3 +1308,183 @@
 {"id":"nl-neg-birth_date-0028","lang":"nl","text":"Contract getekend op 23-03-1987.","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-birth_date-0029","lang":"nl","text":"Factuurdatum: 1972-09-22","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-birth_date-0030","lang":"nl","text":"Garantie tot 2003-10-28.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-plate-0001","lang":"nl","text":"Wagen VT-318-P staat op niveau -1.","spans":[{"start":6,"end":14,"kind":"plate"}]}
+{"id":"nl-plate-0002","lang":"nl","text":"Nummerplaat 1 DSX 059 geflitst.","spans":[{"start":12,"end":21,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0003","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=96SNZK","spans":[{"start":47,"end":53,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0004","lang":"nl","text":"Nummerplaat 1-PPP-677 geflitst.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"nl-plate-0005","lang":"nl","text":"license_plate: 1-RCR-871","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"nl-plate-0006","lang":"nl","text":"{\"type\":\"user\",\"license_plate\":\"1VPC255\",\"active\":true}","spans":[{"start":32,"end":39,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0007","lang":"nl","text":"license_plate: RL-HT-57","spans":[{"start":15,"end":23,"kind":"plate"}]}
+{"id":"nl-plate-0008","lang":"nl","text":"{\"type\":\"user\",\"license_plate\":\"V-631-XV\",\"active\":true}","spans":[{"start":32,"end":40,"kind":"plate"}]}
+{"id":"nl-plate-0009","lang":"nl","text":"Wagen 6-RLH-19 staat op niveau -1.","spans":[{"start":6,"end":14,"kind":"plate"}]}
+{"id":"nl-plate-0010","lang":"nl","text":"Kenteken: KP-62-TH","spans":[{"start":10,"end":18,"kind":"plate"}]}
+{"id":"nl-plate-0011","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=VV 571 X","spans":[{"start":47,"end":55,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0012","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=5-VKB-06","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"nl-plate-0013","lang":"nl","text":"Nummerplaat １-CJD-７２３ geflitst.","spans":[{"start":12,"end":29,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0014","lang":"nl","text":"Wagen 1-NAL-402 staat op niveau -1.","spans":[{"start":6,"end":15,"kind":"plate"}]}
+{"id":"nl-plate-0015","lang":"nl","text":"Nummerplaat 2-NKF-088 geflitst.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"nl-plate-0016","lang":"nl","text":"Nummerplaat 2-TPW-649 geflitst.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"nl-plate-0017","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=1-GVL-993","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0018","lang":"nl","text":"Kenteken: SZ-５０２-J","spans":[{"start":10,"end":24,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0019","lang":"nl","text":"license_plate: TKV-​51-K","spans":[{"start":15,"end":26,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0020","lang":"nl","text":"Nummerplaat 2-XMF-144 geflitst.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"nl-plate-0021","lang":"nl","text":"Wagen LD-73-VJ staat op niveau -1.","spans":[{"start":6,"end":14,"kind":"plate"}]}
+{"id":"nl-plate-0022","lang":"nl","text":"license_plate: LZG-２８-G","spans":[{"start":15,"end":27,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0023","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=2-WHA-913","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0024","lang":"nl","text":"license_plate: K-896-VL","spans":[{"start":15,"end":23,"kind":"plate"}]}
+{"id":"nl-plate-0025","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=2-VKL-708","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0026","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=LKB161","spans":[{"start":47,"end":53,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0027","lang":"nl","text":"license_plate: 2 NTS 420","spans":[{"start":15,"end":24,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0028","lang":"nl","text":"Kenteken: 1-HK​L-836","spans":[{"start":10,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0029","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=2-FMC-038","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0030","lang":"nl","text":"Nummerplaat VP-900-L geflitst.","spans":[{"start":12,"end":20,"kind":"plate"}]}
+{"id":"nl-plate-0031","lang":"nl","text":"Kenteken: 7-LRX-93","spans":[{"start":10,"end":18,"kind":"plate"}]}
+{"id":"nl-plate-0032","lang":"nl","text":"Nummerplaat GH-46-SB geflitst.","spans":[{"start":12,"end":20,"kind":"plate"}]}
+{"id":"nl-plate-0033","lang":"nl","text":"license_plate: 0-VJX-29","spans":[{"start":15,"end":23,"kind":"plate"}]}
+{"id":"nl-plate-0034","lang":"nl","text":"Kenteken: 1-THP-739","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"nl-plate-0035","lang":"nl","text":"{\"type\":\"user\",\"license_plate\":\"1-QYM-453\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"nl-plate-0036","lang":"nl","text":"Nummerplaat DZD 470 geflitst.","spans":[{"start":12,"end":19,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0037","lang":"nl","text":"license_plate: 26LXJH","spans":[{"start":15,"end":21,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0038","lang":"nl","text":"Nummerplaat PS-872-S geflitst.","spans":[{"start":12,"end":20,"kind":"plate"}]}
+{"id":"nl-plate-0039","lang":"nl","text":"Kenteken: NGW249","spans":[{"start":10,"end":16,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0040","lang":"nl","text":"{\"type\":\"user\",\"license_plate\":\"2-DJO-761\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"nl-plate-0041","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=FB-ZJ-57","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"nl-plate-0042","lang":"nl","text":"license_plate: 29 XKZ 2","spans":[{"start":15,"end":23,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0043","lang":"nl","text":"Wagen 09-VFB-1 staat op niveau -1.","spans":[{"start":6,"end":14,"kind":"plate"}]}
+{"id":"nl-plate-0044","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=SMV-157","spans":[{"start":47,"end":54,"kind":"plate"}]}
+{"id":"nl-plate-0045","lang":"nl","text":"Kenteken: RJ-849-N","spans":[{"start":10,"end":18,"kind":"plate"}]}
+{"id":"nl-plate-0046","lang":"nl","text":"license_plate: 2-KVN-455","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"nl-plate-0047","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=2-QEQ-577","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0048","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=1 IMV 647","spans":[{"start":47,"end":56,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0049","lang":"nl","text":"Wagen TB-80-DP staat op niveau -1.","spans":[{"start":6,"end":14,"kind":"plate"}]}
+{"id":"nl-plate-0050","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=1-PKX-902","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"nl-plate-0051","lang":"nl","text":"Wagen FLM​-570 staat op niveau -1.","spans":[{"start":6,"end":16,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0052","lang":"nl","text":"Kenteken: S-16​4-NP","spans":[{"start":10,"end":21,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0053","lang":"nl","text":"license_plate: 2-HWY-813","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"nl-plate-0054","lang":"nl","text":"{\"type\":\"user\",\"license_plate\":\"6-KZ​N-77\",\"active\":true}","spans":[{"start":32,"end":43,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0055","lang":"nl","text":"Kenteken: TDG-２４-H","spans":[{"start":10,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0056","lang":"nl","text":"level=info msg=\"profile updated\" license_plate=2 MAS 967","spans":[{"start":47,"end":56,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0057","lang":"nl","text":"license_plate: PL25PR","spans":[{"start":15,"end":21,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0058","lang":"nl","text":"Nummerplaat １-HZO-１７９ geflitst.","spans":[{"start":12,"end":29,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"nl-plate-0059","lang":"nl","text":"Kenteken: 1-WVG-246","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"nl-plate-0060","lang":"nl","text":"Nummerplaat 82-JH-BF geflitst.","spans":[{"start":12,"end":20,"kind":"plate"}]}
+{"id":"nl-neg-plate-0001","lang":"nl","text":"Bestelling INV-719 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0002","lang":"nl","text":"Zie ticket RR-8870-GE.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0003","lang":"nl","text":"Bestelling REF-402 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0004","lang":"nl","text":"Zie ticket WC-3096-DN.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0005","lang":"nl","text":"Bestelling MV-7536-ZQ is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0006","lang":"nl","text":"Zie ticket OE-021-YW-05.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0007","lang":"nl","text":"Bestelling RL-8470-AO is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0008","lang":"nl","text":"Zie ticket DB-6602-GG.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0009","lang":"nl","text":"Zie ticket JX-381-NT-96.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0010","lang":"nl","text":"Zie ticket SA-336-DK-86.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0011","lang":"nl","text":"Zie ticket VK-5371-JW.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0012","lang":"nl","text":"Zie ticket TKT-512.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0013","lang":"nl","text":"Zie ticket IO-563-WS-90.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0014","lang":"nl","text":"Bestelling INV-263 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0015","lang":"nl","text":"Bestelling GH-6260-KT is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0016","lang":"nl","text":"Zie ticket REF-335.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0017","lang":"nl","text":"Zie ticket NE-2905-RP.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0018","lang":"nl","text":"Zie ticket QV-596-TE-95.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0019","lang":"nl","text":"Bestelling ISO-866 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0020","lang":"nl","text":"Bestelling CVE-590 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0021","lang":"nl","text":"Zie ticket PZ-2086-XJ.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0022","lang":"nl","text":"Bestelling ZO-1874-UG is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0023","lang":"nl","text":"Bestelling DR-1975-WS is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0024","lang":"nl","text":"Bestelling JP-426-RQ-40 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0025","lang":"nl","text":"Bestelling EM-2540-NB is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0026","lang":"nl","text":"Zie ticket HZ-707-PY-03.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0027","lang":"nl","text":"Zie ticket FH-3499-AY.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0028","lang":"nl","text":"Bestelling ISO-573 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0029","lang":"nl","text":"Bestelling NP-875-QX-67 is verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-plate-0030","lang":"nl","text":"Zie ticket YF-928-TZ-73.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-postal_address-0001","lang":"nl","text":"Woonachtig: Schoollaan 52, 8302 JK Zwolle","spans":[{"start":12,"end":41,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0002","lang":"nl","text":"address: Kastanjelaan 2, 5465 Brugge","spans":[{"start":9,"end":36,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0003","lang":"nl","text":"Adres: Schoolstraat 133, 3315 MR Utrecht","spans":[{"start":7,"end":40,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0004","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Berkenlaan 153\",\"active\":true}","spans":[{"start":26,"end":40,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0005","lang":"nl","text":"Adres: Hoogsingel 76, 4764 OA Leiden","spans":[{"start":7,"end":36,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0006","lang":"nl","text":"Leveren op Meir 221.","spans":[{"start":11,"end":19,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0007","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Molenweg 113B, 4231 Leuven\",\"active\":true}","spans":[{"start":26,"end":52,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0008","lang":"nl","text":"Woonachtig: Kastanjeweg 27a, 6538 EJ Utrecht","spans":[{"start":12,"end":44,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0009","lang":"nl","text":"level=info msg=\"profile updated\" address=Beukenstraat 95","spans":[{"start":41,"end":56,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0010","lang":"nl","text":"address: Kouter 62","spans":[{"start":9,"end":18,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0011","lang":"nl","text":"address: Dorpsweg 104","spans":[{"start":9,"end":21,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0012","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Rokin 120\",\"active\":true}","spans":[{"start":26,"end":35,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0013","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Hooglaan 200, 1151 KQ Utrecht\",\"active\":true}","spans":[{"start":26,"end":55,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0014","lang":"nl","text":"address: Schoollaan 237a, 4196 Hasselt","spans":[{"start":9,"end":38,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0015","lang":"nl","text":"address: Berkenstraat 138, 2002 Hasselt","spans":[{"start":9,"end":39,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0016","lang":"nl","text":"level=info msg=\"profile updated\" address=Molenlaan 204, 7544 IZ Zwolle","spans":[{"start":41,"end":70,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0017","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Meir 220a\",\"active\":true}","spans":[{"start":26,"end":35,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0018","lang":"nl","text":"level=info msg=\"profile updated\" address=Berkenstraat 153 bus 2, 8527 Leuven","spans":[{"start":41,"end":76,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0019","lang":"nl","text":"address: Kastanjedreef 137 bus 9, 2469 Mechelen","spans":[{"start":9,"end":47,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0020","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Dorpsweg 113\",\"active\":true}","spans":[{"start":26,"end":38,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0021","lang":"nl","text":"address: Schoolweg 58, 2469 Leuven","spans":[{"start":9,"end":34,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0022","lang":"nl","text":"Adres: Beukenplein 57b, 3290 Gent","spans":[{"start":7,"end":33,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0023","lang":"nl","text":"Leveren op Rokin 124.","spans":[{"start":11,"end":20,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0024","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Lindenlaan 193, 6433 Gent\",\"active\":true}","spans":[{"start":26,"end":51,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0025","lang":"nl","text":"address: Berkenstraat 232, 2486 Gent","spans":[{"start":9,"end":36,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0026","lang":"nl","text":"level=info msg=\"profile updated\" address=Hoogplein 144, 3933 Mechelen","spans":[{"start":41,"end":69,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0027","lang":"nl","text":"Woonachtig: Kerklaan 208, 7245 KC Utrecht","spans":[{"start":12,"end":41,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0028","lang":"nl","text":"address: Stationssingel 231, 2052 XM Leiden","spans":[{"start":9,"end":43,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0029","lang":"nl","text":"Adres: Kouter 78","spans":[{"start":7,"end":16,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0030","lang":"nl","text":"Woonachtig: Molenstraat 198, 1864 ZE Leiden","spans":[{"start":12,"end":43,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0031","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Beukensingel 67, 4479 FQ Zwolle\",\"active\":true}","spans":[{"start":26,"end":57,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0032","lang":"nl","text":"address: Schoolweg 47B, 6136 Brugge","spans":[{"start":9,"end":35,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0033","lang":"nl","text":"Woonachtig: Meir 194","spans":[{"start":12,"end":20,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0034","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Lindenstraat 29b, 5352 BW Zwolle\",\"active\":true}","spans":[{"start":26,"end":58,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0035","lang":"nl","text":"address: Schoolstraat 97","spans":[{"start":9,"end":24,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0036","lang":"nl","text":"level=info msg=\"profile updated\" address=Hoogweg 164","spans":[{"start":41,"end":52,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0037","lang":"nl","text":"Adres: Schoolweg 121","spans":[{"start":7,"end":20,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0038","lang":"nl","text":"level=info msg=\"profile updated\" address=Stationsweg 102, 5919 Gent","spans":[{"start":41,"end":67,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0039","lang":"nl","text":"Leveren op Molenstraat 45 bus 12, 9973 Leuven.","spans":[{"start":11,"end":45,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0040","lang":"nl","text":"Woonachtig: Molenstraat 163, 9821 Leuven","spans":[{"start":12,"end":40,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0041","lang":"nl","text":"Leveren op Kastanjelaan 138B, 9469 Mechelen.","spans":[{"start":11,"end":43,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0042","lang":"nl","text":"Leveren op Stationsplein 12.","spans":[{"start":11,"end":27,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0043","lang":"nl","text":"Adres: Schoolstraat 151, 4422 KV Utrecht","spans":[{"start":7,"end":40,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0044","lang":"nl","text":"Adres: Damrak 131","spans":[{"start":7,"end":17,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0045","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Molenlaan 158, 4218 BC Zwolle\",\"active\":true}","spans":[{"start":26,"end":55,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0046","lang":"nl","text":"Leveren op Stationsweg 78, 2852 Gent.","spans":[{"start":11,"end":36,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0047","lang":"nl","text":"address: Damrak 70","spans":[{"start":9,"end":18,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0048","lang":"nl","text":"Leveren op Berkenstraat 40, 2270 DG Utrecht.","spans":[{"start":11,"end":43,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0049","lang":"nl","text":"Leveren op Schoolweg 123, 3839 Hasselt.","spans":[{"start":11,"end":38,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0050","lang":"nl","text":"address: Kastanjeweg 86","spans":[{"start":9,"end":23,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0051","lang":"nl","text":"Woonachtig: Beukensingel 69a, 4084 PE Leiden","spans":[{"start":12,"end":44,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0052","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Kastanjelaan 203\",\"active\":true}","spans":[{"start":26,"end":42,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0053","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Kerkplein 152b\",\"active\":true}","spans":[{"start":26,"end":40,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0054","lang":"nl","text":"{\"type\":\"user\",\"address\":\"Lindenstraat 96b, 5691 EY Utrecht\",\"active\":true}","spans":[{"start":26,"end":59,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0055","lang":"nl","text":"level=info msg=\"profile updated\" address=Kastanjedreef 8, 8176 Mechelen","spans":[{"start":41,"end":71,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0056","lang":"nl","text":"address: Meir 8","spans":[{"start":9,"end":15,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0057","lang":"nl","text":"Woonachtig: Rokin 241B","spans":[{"start":12,"end":22,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0058","lang":"nl","text":"Leveren op Dorpslaan 209 bus 7, 8542 Leuven.","spans":[{"start":11,"end":43,"kind":"postal_address"}]}
+{"id":"nl-postal_address-0059","lang":"nl","text":"Woonachtig: Damrak 155","spans":[{"start":12,"end":22,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-postal_address-0060","lang":"nl","text":"Adres: Kouter 49","spans":[{"start":7,"end":16,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"nl-neg-postal_address-0001","lang":"nl","text":"Werken in de Schoolplein deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0002","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0003","lang":"nl","text":"Werken in de Kerklaan deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0004","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0005","lang":"nl","text":"Werken in de Schoolplein deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0006","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0007","lang":"nl","text":"De Kastanjeplein is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0008","lang":"nl","text":"Werken in de Kastanjestraat deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0009","lang":"nl","text":"De Berkenplein is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0010","lang":"nl","text":"Werken in de Kastanjelaan deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0011","lang":"nl","text":"Werken in de Schoolstraat deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0012","lang":"nl","text":"De Kastanjestraat is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0013","lang":"nl","text":"De Hoogplein is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0014","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0015","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0016","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0017","lang":"nl","text":"Werken in de Berkenplein deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0018","lang":"nl","text":"Werken in de Berkenplein deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0019","lang":"nl","text":"De Beukenlaan is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0020","lang":"nl","text":"De Dorpslaan is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0021","lang":"nl","text":"Werken in de Beukenstraat deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0022","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0023","lang":"nl","text":"Werken in de Stationsstraat deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0024","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0025","lang":"nl","text":"Werken in de Beukenstraat deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0026","lang":"nl","text":"De Schoollaan is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0027","lang":"nl","text":"Werken in de Hooglaan deze zomer.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0028","lang":"nl","text":"De vergadering begint over 12 minuten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0029","lang":"nl","text":"De Dorpsplein is afgesloten.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-postal_address-0030","lang":"nl","text":"De Kastanjestraat is afgesloten.","spans":[],"tags":["hard_negative"]}

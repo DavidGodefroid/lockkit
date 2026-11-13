@@ -335,17 +335,20 @@ itself (lockssh runs its commands there).
 
 - `pii.Detectors([]string{"email", "phone", "iban", "card"})` (also `be_niss`,
   `fr_nir`, `nl_bsn`, `us_ssn`, and the opt-in `phone_loose`, `eu_vat`,
-  `be_company`, `be_eid`, `passport`, `birth_date`);
+  `be_company`, `be_eid`, `passport`, `birth_date`, `plate`,
+  `postal_address`);
   `pii.Detect(v, ds)` masks what they find in a text or integer value, or an
   integral float (`|f| < 1e19`), scanning at most `DetectLimit` bytes.
   - `email`: Unicode letters, digits and marks in the local part and the
-    domain labels (RFC 6531); a letters-only top-level domain.
+    domain labels (RFC 6531); a letters-only top-level domain. An
+    apostrophe may join two parts of the local part (`o'hara`), never
+    open or close it (`'a@b.com'` keeps its quotes).
   - Wherever a space separates digits, U+00A0, U+202F and U+2009 do too;
     full-width digits count as digits. Other Unicode forms (full-width
     letters, other compatibility characters) are not folded.
   - `phone`: `+` and 8 to 15 digits, `00` and 10 to 17 digits, or a
     national number: a trunk 0, 9 to 11 digits, a first group of at least
-    2 digits. `phone_loose` adds national numbers without a trunk 0
+    2 digits (12 digits for a German mobile, `015x`/`016x`/`017x`). `phone_loose` adds national numbers without a trunk 0
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
@@ -368,7 +371,7 @@ itself (lockssh runs its commands there).
   `card`, `be_niss`, `fr_nir`, `nl_bsn`, `eu_vat`, `be_company`,
   `be_eid`),
   `ConfidenceMedium` (a pattern: `phone`, `phone_loose`, `email`, `ip`,
-  `secret`, `us_ssn`, a French VAT number with a letter in its key, a
+  `secret`, `us_ssn`, `plate`, `postal_address`, a French VAT number with a letter in its key, a
   `Detector` of your own) or `ConfidenceLow` (`person_name`, `passport`,
   `birth_date`, a candidate raised by a context, the `CutKind` rest). It never changes what is
   masked; keep it out of anything an agent sees, or it tells which masks
@@ -397,6 +400,22 @@ itself (lockssh runs its commands there).
     `date de naissance`, `geboren`, `geboortedatum`, `Geburtsdatum`,
     `geb.`) or in a field so named (`birth_date`, `dateOfBirth`,
     `date_naissance`, `dob`): never every date.
+  - `plate`: a licence plate in upper case with its dashes: Belgian
+    `1-ABC-123` and `ABC-123` (not after `INV`, `REF`, `SKU`, `CVE`,
+    `ISO` and other reference prefixes), French `AB-123-CD`, Dutch
+    sidecodes 4 to 11 (`XX-99-XX` ... `XXX-99-X`). Not found: plates
+    with spaces or without dashes, in lower case, glued to another
+    group (`AB-123-CD-45`).
+  - `postal_address`: a street (a type word, `rue`, `avenue`,
+    `boulevard`, `chaussée`, `place`, `straat`, `laan`, `weg`, `plein`,
+    `steenweg`, `street`, `road`, ..., then a name with a capitalised
+    word, then a number; a Dutch compound, `Kerkstraat 12`; a number
+    first, `12 rue de la Paix`, `221B Baker Street`), with a box
+    (`bte 3`, `bus 2`), and the postcode (BE/FR 4/5 digits, NL
+    `1234 AB`) and locality that follow on the same line: the match
+    covers street through locality. Not found: a street without a type
+    word (`Damrak 1`), in lower case (`rue de la loi 16`), a postcode
+    and locality alone.
   - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
     IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
     link-local, multicast, unspecified, broadcast and reserved addresses
@@ -507,7 +526,9 @@ itself (lockssh runs its commands there).
   part too), phone digits with `+` for international numbers (`00`, `+00`
   → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
   digits of an IBAN, a VAT or a company number, upper case, a passport
-  number in upper case, a birth date as `YYYY-MM-DD`, a person name in lower case with single
+  number in upper case, a birth date as `YYYY-MM-DD`, a plate's ASCII
+  letters and digits in upper case, an address in lower case with
+  single spaces, a person name in lower case with single
   spaces, digits of
   cards, national ids and eID cards, canonical IP (IPv4-mapped → IPv4). Keep epochs
   with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)

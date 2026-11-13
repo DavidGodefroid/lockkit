@@ -888,6 +888,276 @@
 {"id":"en-neg-eu_vat-0028","lang":"en","text":"VIES rejected the VAT number LU78561419.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-eu_vat-0029","lang":"en","text":"VIES rejected the VAT number BE0799035260.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-eu_vat-0030","lang":"en","text":"Wrong check digits: LU63002888","spans":[],"tags":["hard_negative"]}
+{"id":"en-be_company-0001","lang":"en","text":"Registered with the KBO under 0719 238 964.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0002","lang":"en","text":"Registered with the KBO under 0268066527.","spans":[{"start":30,"end":40,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0003","lang":"en","text":"company_number: 0150 0​17 032","spans":[{"start":16,"end":31,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0004","lang":"en","text":"Belgian company number 1734 219 349","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0005","lang":"en","text":"Belgian company number ０２６１.７３７.０７８","spans":[{"start":23,"end":55,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0006","lang":"en","text":"level=info msg=\"profile updated\" company_number=０８７１ ２２８ ２６４","spans":[{"start":48,"end":80,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0007","lang":"en","text":"Belgian company number 0012017112","spans":[{"start":23,"end":33,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0008","lang":"en","text":"Registered with the KBO under 0080.856.032.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0009","lang":"en","text":"company_number: 0601.432.860","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0010","lang":"en","text":"Belgian company number 0482.344.079","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0011","lang":"en","text":"Belgian company number 0225 052 470","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0012","lang":"en","text":"company_number: 1970 519 861","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0013","lang":"en","text":"level=info msg=\"profile updated\" company_number=0492999926","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0014","lang":"en","text":"company_number: 0581 398 105","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0015","lang":"en","text":"{\"type\":\"user\",\"company_number\":\"０８２３.５２８.６１４\",\"active\":true}","spans":[{"start":33,"end":65,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0016","lang":"en","text":"Belgian company number 0633.635.573","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0017","lang":"en","text":"level=info msg=\"profile updated\" company_number=0371.859.396","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"en-be_company-0018","lang":"en","text":"company_number: ０６４９.６９１.９４４","spans":[{"start":16,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0019","lang":"en","text":"level=info msg=\"profile updated\" company_number=1062 363 893","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"en-be_company-0020","lang":"en","text":"company_number: 0635815006","spans":[{"start":16,"end":26,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0021","lang":"en","text":"Registered with the KBO under ０７８３.４１４.５６０.","spans":[{"start":30,"end":62,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0022","lang":"en","text":"Belgian company number 0499.373.222","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0023","lang":"en","text":"Registered with the KBO under 0819.295.454.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0024","lang":"en","text":"Company no. 0981 840 730","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0025","lang":"en","text":"company_number: 0326.666.702","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0026","lang":"en","text":"level=info msg=\"profile updated\" company_number=1641.221.291","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"en-be_company-0027","lang":"en","text":"{\"type\":\"user\",\"company_number\":\"0493 850 457\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"en-be_company-0028","lang":"en","text":"Company no. ０２０１ ０１７ ６５２","spans":[{"start":12,"end":44,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0029","lang":"en","text":"Company no. 0494.931.909","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0030","lang":"en","text":"Company no. 1446.933.954","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0031","lang":"en","text":"Belgian company number 0529.862.696","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0032","lang":"en","text":"{\"type\":\"user\",\"company_number\":\"０１６２.５０６.４７４\",\"active\":true}","spans":[{"start":33,"end":65,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0033","lang":"en","text":"company_number: ０９６９ ４８９ ３６３","spans":[{"start":16,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0034","lang":"en","text":"level=info msg=\"profile updated\" company_number=0873025041","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0035","lang":"en","text":"Company no. 0951.852.684","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0036","lang":"en","text":"Company no. 0382.118.434","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0037","lang":"en","text":"Belgian company number 0073.471.164","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0038","lang":"en","text":"company_number: 1739.550.191","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0039","lang":"en","text":"Company no. 0353.532.039","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0040","lang":"en","text":"level=info msg=\"profile updated\" company_number=0367.9​17.634","spans":[{"start":48,"end":63,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0041","lang":"en","text":"Registered with the KBO under 0893 339 811.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0042","lang":"en","text":"Company no. 0002 900 397","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0043","lang":"en","text":"level=info msg=\"profile updated\" company_number=0744 9​08 926","spans":[{"start":48,"end":63,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0044","lang":"en","text":"level=info msg=\"profile updated\" company_number=1218.5​51.414","spans":[{"start":48,"end":63,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0045","lang":"en","text":"Company no. 0692.930.287","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0046","lang":"en","text":"Registered with the KBO under 0962.608.006.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0047","lang":"en","text":"Registered with the KBO under 0134.740.522.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0048","lang":"en","text":"Company no. 0094.618.154","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0049","lang":"en","text":"Registered with the KBO under 0186.3​10.373.","spans":[{"start":30,"end":45,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0050","lang":"en","text":"Belgian company number 1372 035 207","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0051","lang":"en","text":"Company no. 0438.535.911","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0052","lang":"en","text":"{\"type\":\"user\",\"company_number\":\"0865.523.575\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"en-be_company-0053","lang":"en","text":"Company no. 0589.064.667","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-be_company-0054","lang":"en","text":"Belgian company number 0075.753.436","spans":[{"start":23,"end":35,"kind":"be_company"}]}
+{"id":"en-be_company-0055","lang":"en","text":"level=info msg=\"profile updated\" company_number=0432.789.947","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"en-be_company-0056","lang":"en","text":"Registered with the KBO under 1343.339.538.","spans":[{"start":30,"end":42,"kind":"be_company"}]}
+{"id":"en-be_company-0057","lang":"en","text":"Registered with the KBO under 0469304608.","spans":[{"start":30,"end":40,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0058","lang":"en","text":"company_number: 1289 152 764","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"en-be_company-0059","lang":"en","text":"Company no. ０７９７.０６０.３８１","spans":[{"start":12,"end":44,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"en-be_company-0060","lang":"en","text":"Company no. 1347 690 383","spans":[{"start":12,"end":24,"kind":"be_company"}]}
+{"id":"en-neg-be_company-0001","lang":"en","text":"Company number 1410.808.202 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0002","lang":"en","text":"Parcel 1368.685.804 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0003","lang":"en","text":"Company number 1464.518.369 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0004","lang":"en","text":"Parcel 1167.533.419 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0005","lang":"en","text":"Parcel 1420.953.945 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0006","lang":"en","text":"Company number 1426.320.574 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0007","lang":"en","text":"Parcel 1021.990.798 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0008","lang":"en","text":"Parcel 1034.921.157 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0009","lang":"en","text":"Parcel 1823.355.875 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0010","lang":"en","text":"Parcel 1379.215.716 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0011","lang":"en","text":"Company number 1968.766.779 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0012","lang":"en","text":"Parcel 1618.926.673 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0013","lang":"en","text":"Company number 1352.662.041 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0014","lang":"en","text":"Company number 1943.968.944 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0015","lang":"en","text":"Company number 1490.796.490 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0016","lang":"en","text":"Parcel 1800.317.484 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0017","lang":"en","text":"Parcel 1698.155.526 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0018","lang":"en","text":"Company number 1274.667.492 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0019","lang":"en","text":"Company number 1087.093.156 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0020","lang":"en","text":"Parcel 1801.853.709 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0021","lang":"en","text":"Parcel 1693.995.285 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0022","lang":"en","text":"Parcel 1965.642.689 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0023","lang":"en","text":"Parcel 1121.624.502 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0024","lang":"en","text":"Company number 1854.453.638 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0025","lang":"en","text":"Company number 1866.304.383 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0026","lang":"en","text":"Parcel 1910.874.596 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0027","lang":"en","text":"Company number 1883.515.156 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0028","lang":"en","text":"Parcel 1299.963.797 handed to the courier.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0029","lang":"en","text":"Company number 1555.009.700 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_company-0030","lang":"en","text":"Company number 1436.617.109 not found in the KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"en-be_eid-0001","lang":"en","text":"Belgian ID card no. 594-9831848-64","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0002","lang":"en","text":"eID card 593-9689728-70 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0003","lang":"en","text":"Belgian ID card no. 597-8615787-29","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0004","lang":"en","text":"id_card_number: 596-5326200-24","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0005","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"599-9059501-23\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0006","lang":"en","text":"eID card 592-2990031-87 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0007","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=595-9768917-65","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"en-be_eid-0008","lang":"en","text":"Identity card number: 592-810​0540-54","spans":[{"start":22,"end":39,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0009","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"592-8680082-21\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0010","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"593-6739006-88\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0011","lang":"en","text":"Belgian ID card no. 591-6611310-86","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0012","lang":"en","text":"Identity card number: 595-0683635-94","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0013","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=599-9173134-69","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"en-be_eid-0014","lang":"en","text":"id_card_number: ５９１-３３８１９３５-３５","spans":[{"start":16,"end":54,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0015","lang":"en","text":"eID card 599-0142473-11 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0016","lang":"en","text":"id_card_number: 595-5775240-72","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0017","lang":"en","text":"Identity card number: 594-8964952-57","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0018","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=599-308​8744-04","spans":[{"start":48,"end":65,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0019","lang":"en","text":"Identity card number: 596-2259248-18","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0020","lang":"en","text":"Identity card number: ５９６-４０６５４０６-３６","spans":[{"start":22,"end":60,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0021","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"598-4658250-71\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0022","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"593-8125236-91\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0023","lang":"en","text":"id_card_number: 591-4395978-40","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0024","lang":"en","text":"eID card 598-2936748-28 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0025","lang":"en","text":"eID card 599-9708670-68 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0026","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"595-3410680-81\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0027","lang":"en","text":"eID card 594-6543779-04 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0028","lang":"en","text":"Identity card number: 592-7143591-10","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0029","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=598-7514555-17","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"en-be_eid-0030","lang":"en","text":"Belgian ID card no. 591-4174061-59","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0031","lang":"en","text":"Belgian ID card no. 594-7947016-39","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0032","lang":"en","text":"Identity card number: 591-503​9529-93","spans":[{"start":22,"end":39,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0033","lang":"en","text":"id_card_number: ５９２-６３４１４１８-２７","spans":[{"start":16,"end":54,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0034","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"598-1363089-97\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0035","lang":"en","text":"eID card 599-4055970-43 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0036","lang":"en","text":"eID card 592-1569259-74 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0037","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"598-1614449-33\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0038","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"592-0830615-85\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0039","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=596-6030307-08","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"en-be_eid-0040","lang":"en","text":"id_card_number: 599-2172709-37","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0041","lang":"en","text":"Belgian ID card no. 596-3920139-75","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0042","lang":"en","text":"id_card_number: 592-6478442-87","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0043","lang":"en","text":"Belgian ID card no. 593-2206623-30","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0044","lang":"en","text":"id_card_number: 596-6003843-25","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0045","lang":"en","text":"Identity card number: 595-3148381-70","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0046","lang":"en","text":"Belgian ID card no. 597-0733582-44","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0047","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"593-4767572-82\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0048","lang":"en","text":"Belgian ID card no. 592-687​6656-19","spans":[{"start":20,"end":37,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0049","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=591-527​1680-26","spans":[{"start":48,"end":65,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0050","lang":"en","text":"Belgian ID card no. 598-1477677-31","spans":[{"start":20,"end":34,"kind":"be_eid"}]}
+{"id":"en-be_eid-0051","lang":"en","text":"id_card_number: 590-8327357-30","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0052","lang":"en","text":"eID card ５９４-８２４２２７１-２６ expired.","spans":[{"start":9,"end":47,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"en-be_eid-0053","lang":"en","text":"eID card 595-9146387-81 expired.","spans":[{"start":9,"end":23,"kind":"be_eid"}]}
+{"id":"en-be_eid-0054","lang":"en","text":"id_card_number: 591-9872545-84","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0055","lang":"en","text":"id_card_number: 590-2429314-72","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0056","lang":"en","text":"id_card_number: 591-8198760-34","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0057","lang":"en","text":"id_card_number: 592-1790092-38","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"en-be_eid-0058","lang":"en","text":"Identity card number: 598-0843730-76","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"en-be_eid-0059","lang":"en","text":"{\"type\":\"user\",\"id_card_number\":\"590-5142131-90\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"en-be_eid-0060","lang":"en","text":"level=info msg=\"profile updated\" id_card_number=599-6549033-12","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"en-neg-be_eid-0001","lang":"en","text":"Card 597-1031916-29 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0002","lang":"en","text":"Card 596-2000922-82 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0003","lang":"en","text":"Reference 592-3308151-97 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0004","lang":"en","text":"Card 594-2955820-62 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0005","lang":"en","text":"Card 592-0251596-08 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0006","lang":"en","text":"Card 594-5286163-36 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0007","lang":"en","text":"Card 594-2824759-17 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0008","lang":"en","text":"Card 597-8583042-00 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0009","lang":"en","text":"Reference 592-4105337-18 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0010","lang":"en","text":"Card 590-3997417-01 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0011","lang":"en","text":"Reference 599-1134777-71 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0012","lang":"en","text":"Reference 591-3269434-10 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0013","lang":"en","text":"Card 590-2977369-23 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0014","lang":"en","text":"Reference 599-7659660-59 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0015","lang":"en","text":"Card 596-8506759-89 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0016","lang":"en","text":"Card 593-8151173-03 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0017","lang":"en","text":"Card 592-1373317-86 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0018","lang":"en","text":"Reference 595-0108391-20 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0019","lang":"en","text":"Card 594-1671856-63 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0020","lang":"en","text":"Card 592-6703124-63 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0021","lang":"en","text":"Reference 596-4661665-37 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0022","lang":"en","text":"Card 591-5649867-58 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0023","lang":"en","text":"Reference 596-0392019-73 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0024","lang":"en","text":"Reference 599-3784524-73 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0025","lang":"en","text":"Reference 594-6917207-09 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0026","lang":"en","text":"Card 591-8997687-29 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0027","lang":"en","text":"Card 594-0645109-59 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0028","lang":"en","text":"Card 594-8925453-74 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0029","lang":"en","text":"Reference 599-6610218-31 unknown.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-be_eid-0030","lang":"en","text":"Card 592-9204324-78 rejected: wrong check digits.","spans":[],"tags":["hard_negative"]}
+{"id":"en-passport-0001","lang":"en","text":"Passport EM849463 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0002","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EK612183\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0003","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EK043136\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0004","lang":"en","text":"Passport number: EH14​6292","spans":[{"start":17,"end":28,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0005","lang":"en","text":"passport_number: EK727778","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0006","lang":"en","text":"Passport EH146467 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0007","lang":"en","text":"Passport number: EM558653","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0008","lang":"en","text":"Passport no. EH391192","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0009","lang":"en","text":"passport_number: EK316414","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0010","lang":"en","text":"Passport no. EN546743","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0011","lang":"en","text":"passport_number: EK86​2689","spans":[{"start":17,"end":28,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0012","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EP458518","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0013","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EP847283","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0014","lang":"en","text":"passport_number: EL890399","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0015","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EJ187416\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0016","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EP303081\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0017","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EH296028\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0018","lang":"en","text":"passport_number: EN５０６７３０","spans":[{"start":17,"end":37,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0019","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EM13​7492\",\"active\":true}","spans":[{"start":34,"end":45,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0020","lang":"en","text":"Passport number: EK463543","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0021","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EH159437\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0022","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EL628816\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0023","lang":"en","text":"Passport EH056381 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0024","lang":"en","text":"Passport EH946888 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0025","lang":"en","text":"Passport no. EM306191","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0026","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EP733504\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0027","lang":"en","text":"Passport no. EK184966","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0028","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EN013381","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0029","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EN867926","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0030","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EH303965","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0031","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EL451202\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0032","lang":"en","text":"passport_number: EK051524","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0033","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EL213792","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0034","lang":"en","text":"Passport number: EK868921","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0035","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EL972260","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0036","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EN５４８９６０","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0037","lang":"en","text":"Passport number: EP625509","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0038","lang":"en","text":"Passport EL560185 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0039","lang":"en","text":"Passport EJ015784 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0040","lang":"en","text":"Passport EL48​3060 issued in Brussels.","spans":[{"start":9,"end":20,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0041","lang":"en","text":"passport_number: EL６０５４８１","spans":[{"start":17,"end":37,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0042","lang":"en","text":"Passport no. EK363578","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0043","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EN92​7143\",\"active\":true}","spans":[{"start":34,"end":45,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0044","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EL138600\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0045","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EN557712","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0046","lang":"en","text":"Passport number: EJ984654","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0047","lang":"en","text":"Passport no. EN７５１７６０","spans":[{"start":13,"end":33,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0048","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EL058549\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0049","lang":"en","text":"Passport EJ46​7214 issued in Brussels.","spans":[{"start":9,"end":20,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0050","lang":"en","text":"Passport EM022427 issued in Brussels.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"en-passport-0051","lang":"en","text":"{\"type\":\"user\",\"passport_number\":\"EL693609\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"en-passport-0052","lang":"en","text":"Passport no. EJ238719","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0053","lang":"en","text":"Passport no. EK185684","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0054","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EM154869","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0055","lang":"en","text":"passport_number: EH726464","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-passport-0056","lang":"en","text":"Passport no. EN906759","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0057","lang":"en","text":"level=info msg=\"profile updated\" passport_number=EK003810","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"en-passport-0058","lang":"en","text":"Passport no. EM429436","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"en-passport-0059","lang":"en","text":"Passport no. EL９８９３０６","spans":[{"start":13,"end":33,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"en-passport-0060","lang":"en","text":"Passport number: EK918481","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"en-neg-passport-0001","lang":"en","text":"Parcel EN278821 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0002","lang":"en","text":"Parcel EK811022 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0003","lang":"en","text":"Batch EN488811 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0004","lang":"en","text":"Batch EN608315 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0005","lang":"en","text":"Parcel EM875137 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0006","lang":"en","text":"Batch EN790347 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0007","lang":"en","text":"Parcel EM032454 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0008","lang":"en","text":"Parcel EP604358 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0009","lang":"en","text":"Parcel EP338580 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0010","lang":"en","text":"Parcel EJ584186 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0011","lang":"en","text":"Batch EM057670 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0012","lang":"en","text":"Parcel EN833539 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0013","lang":"en","text":"Batch EM925193 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0014","lang":"en","text":"Parcel EL656904 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0015","lang":"en","text":"Batch EN898928 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0016","lang":"en","text":"Parcel EN681311 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0017","lang":"en","text":"Parcel EP806435 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0018","lang":"en","text":"Parcel EM606865 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0019","lang":"en","text":"Batch EK122569 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0020","lang":"en","text":"Parcel EM839998 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0021","lang":"en","text":"Batch EJ435364 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0022","lang":"en","text":"Parcel EL602583 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0023","lang":"en","text":"Batch EL182567 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0024","lang":"en","text":"Batch EL194850 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0025","lang":"en","text":"Parcel EL376736 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0026","lang":"en","text":"Batch EN944835 checked.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0027","lang":"en","text":"Parcel EH286994 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0028","lang":"en","text":"Parcel EL547481 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0029","lang":"en","text":"Parcel EJ844458 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-passport-0030","lang":"en","text":"Parcel EN197984 shipped this morning.","spans":[],"tags":["hard_negative"]}
 {"id":"en-birth_date-0001","lang":"en","text":"Date of birth: 07/06/2008","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
 {"id":"en-birth_date-0002","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"14 February 2008\",\"active\":true}","spans":[{"start":29,"end":45,"kind":"birth_date"}]}
 {"id":"en-birth_date-0003","lang":"en","text":"Date of birth: 20 November 1932","spans":[{"start":15,"end":31,"kind":"birth_date"}]}
@@ -978,3 +1248,183 @@
 {"id":"en-neg-birth_date-0028","lang":"en","text":"Contract signed on 04/15/1998.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-birth_date-0029","lang":"en","text":"Invoice date: 1994-08-17","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-birth_date-0030","lang":"en","text":"Invoice date: July 18, 1996","spans":[],"tags":["hard_negative"]}
+{"id":"en-plate-0001","lang":"en","text":"Licence plate MM-404-HD","spans":[{"start":14,"end":23,"kind":"plate"}]}
+{"id":"en-plate-0002","lang":"en","text":"license_plate: ２-CXW-０８７","spans":[{"start":15,"end":32,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0003","lang":"en","text":"Speeding ticket for GV-６８２-JP.","spans":[{"start":20,"end":35,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0004","lang":"en","text":"level=info msg=\"profile updated\" license_plate=FV-621-LR","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"en-plate-0005","lang":"en","text":"Vehicle TB-969-ZD parked in bay 4.","spans":[{"start":8,"end":17,"kind":"plate"}]}
+{"id":"en-plate-0006","lang":"en","text":"level=info msg=\"profile updated\" license_plate=03-BFN-6","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"en-plate-0007","lang":"en","text":"level=info msg=\"profile updated\" license_plate=LF-VK-64","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"en-plate-0008","lang":"en","text":"Licence plate SX-091-H","spans":[{"start":14,"end":22,"kind":"plate"}]}
+{"id":"en-plate-0009","lang":"en","text":"level=info msg=\"profile updated\" license_plate=２-SHI-５４１","spans":[{"start":47,"end":64,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0010","lang":"en","text":"Licence plate KB-318-G","spans":[{"start":14,"end":22,"kind":"plate"}]}
+{"id":"en-plate-0011","lang":"en","text":"level=info msg=\"profile updated\" license_plate=7DFF20","spans":[{"start":47,"end":53,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0012","lang":"en","text":"Speeding ticket for GS-567-V.","spans":[{"start":20,"end":28,"kind":"plate"}]}
+{"id":"en-plate-0013","lang":"en","text":"level=info msg=\"profile updated\" license_plate=WT-140-KT","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"en-plate-0014","lang":"en","text":"license_plate: 4-PBL-70","spans":[{"start":15,"end":23,"kind":"plate"}]}
+{"id":"en-plate-0015","lang":"en","text":"license_plate: AV-789-WM","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0016","lang":"en","text":"Speeding ticket for 1-PHV-374.","spans":[{"start":20,"end":29,"kind":"plate"}]}
+{"id":"en-plate-0017","lang":"en","text":"Vehicle PVV-31-R parked in bay 4.","spans":[{"start":8,"end":16,"kind":"plate"}]}
+{"id":"en-plate-0018","lang":"en","text":"Speeding ticket for 1-PU​G-985.","spans":[{"start":20,"end":32,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0019","lang":"en","text":"Speeding ticket for FX-113-RL.","spans":[{"start":20,"end":29,"kind":"plate"}]}
+{"id":"en-plate-0020","lang":"en","text":"Licence plate CF-150-FY","spans":[{"start":14,"end":23,"kind":"plate"}]}
+{"id":"en-plate-0021","lang":"en","text":"Vehicle TE-379-QV parked in bay 4.","spans":[{"start":8,"end":17,"kind":"plate"}]}
+{"id":"en-plate-0022","lang":"en","text":"license_plate: NF-024-CE","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0023","lang":"en","text":"Licence plate RV-839-X","spans":[{"start":14,"end":22,"kind":"plate"}]}
+{"id":"en-plate-0024","lang":"en","text":"license_plate: TTP 771","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0025","lang":"en","text":"level=info msg=\"profile updated\" license_plate=1-DIW-775","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"en-plate-0026","lang":"en","text":"license_plate: JZ-６７０-RX","spans":[{"start":15,"end":30,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0027","lang":"en","text":"level=info msg=\"profile updated\" license_plate=FF-128-DD","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"en-plate-0028","lang":"en","text":"Speeding ticket for XM-４８６-ZJ.","spans":[{"start":20,"end":35,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0029","lang":"en","text":"license_plate: NR-108-AT","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0030","lang":"en","text":"license_plate: DX-0​47-XP","spans":[{"start":15,"end":27,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0031","lang":"en","text":"Speeding ticket for R-717-HS.","spans":[{"start":20,"end":28,"kind":"plate"}]}
+{"id":"en-plate-0032","lang":"en","text":"Vehicle ZR-０２２-VH parked in bay 4.","spans":[{"start":8,"end":23,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0033","lang":"en","text":"Licence plate １-CEQ-６０９","spans":[{"start":14,"end":31,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0034","lang":"en","text":"Speeding ticket for NY-110-HH.","spans":[{"start":20,"end":29,"kind":"plate"}]}
+{"id":"en-plate-0035","lang":"en","text":"level=info msg=\"profile updated\" license_plate=8-RHH-58","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"en-plate-0036","lang":"en","text":"Speeding ticket for 2-HMW-288.","spans":[{"start":20,"end":29,"kind":"plate"}]}
+{"id":"en-plate-0037","lang":"en","text":"Vehicle SH-563-BL parked in bay 4.","spans":[{"start":8,"end":17,"kind":"plate"}]}
+{"id":"en-plate-0038","lang":"en","text":"license_plate: KF-578-YB","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0039","lang":"en","text":"{\"type\":\"user\",\"license_plate\":\"ZNJ​-465\",\"active\":true}","spans":[{"start":32,"end":42,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0040","lang":"en","text":"Licence plate 20-K​FP-5","spans":[{"start":14,"end":25,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0041","lang":"en","text":"Speeding ticket for RM-086-NW.","spans":[{"start":20,"end":29,"kind":"plate"}]}
+{"id":"en-plate-0042","lang":"en","text":"Licence plate JZT 73 J","spans":[{"start":14,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0043","lang":"en","text":"{\"type\":\"user\",\"license_plate\":\"AE-343-YM\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"en-plate-0044","lang":"en","text":"{\"type\":\"user\",\"license_plate\":\"GD-107-AA\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"en-plate-0045","lang":"en","text":"license_plate: FD-512-FW","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0046","lang":"en","text":"Speeding ticket for 86-RBV-6.","spans":[{"start":20,"end":28,"kind":"plate"}]}
+{"id":"en-plate-0047","lang":"en","text":"license_plate: PT-983-ND","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0048","lang":"en","text":"level=info msg=\"profile updated\" license_plate=WY-０００-WD","spans":[{"start":47,"end":62,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0049","lang":"en","text":"license_plate: MB-794-PJ","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0050","lang":"en","text":"level=info msg=\"profile updated\" license_plate=LG-１９７-TN","spans":[{"start":47,"end":62,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0051","lang":"en","text":"Vehicle 0-XBL-12 parked in bay 4.","spans":[{"start":8,"end":16,"kind":"plate"}]}
+{"id":"en-plate-0052","lang":"en","text":"Licence plate PG 182 NV","spans":[{"start":14,"end":23,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0053","lang":"en","text":"level=info msg=\"profile updated\" license_plate=0-SNJ-79","spans":[{"start":47,"end":55,"kind":"plate"}]}
+{"id":"en-plate-0054","lang":"en","text":"license_plate: 1-UYD-543","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0055","lang":"en","text":"license_plate: 1-QPP-068","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-plate-0056","lang":"en","text":"Speeding ticket for 4-JVK-91.","spans":[{"start":20,"end":28,"kind":"plate"}]}
+{"id":"en-plate-0057","lang":"en","text":"license_plate: VT-TP-９７","spans":[{"start":15,"end":27,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"en-plate-0058","lang":"en","text":"{\"type\":\"user\",\"license_plate\":\"SN-323-ER\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"en-plate-0059","lang":"en","text":"level=info msg=\"profile updated\" license_plate=LP-010-BC","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"en-plate-0060","lang":"en","text":"license_plate: AH-795-FA","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"en-neg-plate-0001","lang":"en","text":"Order YF-3781-RP shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0002","lang":"en","text":"Order SKU-415 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0003","lang":"en","text":"Order TT-908-IY-31 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0004","lang":"en","text":"See ticket HQ-8376-NH for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0005","lang":"en","text":"See ticket TKT-028 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0006","lang":"en","text":"Order KZ-293-VL-77 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0007","lang":"en","text":"Order INV-778 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0008","lang":"en","text":"See ticket INV-323 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0009","lang":"en","text":"See ticket FF-353-LZ-88 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0010","lang":"en","text":"See ticket JG-622-DK-23 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0011","lang":"en","text":"Order GA-094-ML-76 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0012","lang":"en","text":"See ticket SKU-527 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0013","lang":"en","text":"Order ZZ-7135-MU shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0014","lang":"en","text":"See ticket INV-229 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0015","lang":"en","text":"See ticket SF-3125-UD for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0016","lang":"en","text":"Order REF-792 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0017","lang":"en","text":"See ticket ISO-475 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0018","lang":"en","text":"Order ON-655-JI-58 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0019","lang":"en","text":"Order UG-5220-BU shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0020","lang":"en","text":"Order REF-074 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0021","lang":"en","text":"See ticket DY-800-CU-73 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0022","lang":"en","text":"See ticket LV-3164-SN for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0023","lang":"en","text":"See ticket AV-884-GQ-98 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0024","lang":"en","text":"See ticket INV-082 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0025","lang":"en","text":"Order IJ-5736-TE shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0026","lang":"en","text":"See ticket WO-2729-OQ for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0027","lang":"en","text":"Order OC-380-SD-00 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0028","lang":"en","text":"Order TKT-645 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0029","lang":"en","text":"Order BI-074-JX-26 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-plate-0030","lang":"en","text":"See ticket REF-897 for details.","spans":[],"tags":["hard_negative"]}
+{"id":"en-postal_address-0001","lang":"en","text":"level=info msg=\"profile updated\" address=31 High Lane","spans":[{"start":41,"end":53,"kind":"postal_address"}]}
+{"id":"en-postal_address-0002","lang":"en","text":"Billing address: Place de la Loi 31 bte 11, 6851 Namur","spans":[{"start":17,"end":54,"kind":"postal_address"}]}
+{"id":"en-postal_address-0003","lang":"en","text":"Billing address: mill street 146","spans":[{"start":17,"end":32,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0004","lang":"en","text":"level=info msg=\"profile updated\" address=199 Station Street","spans":[{"start":41,"end":59,"kind":"postal_address"}]}
+{"id":"en-postal_address-0005","lang":"en","text":"Ship to Rue du Marché 14.","spans":[{"start":8,"end":25,"kind":"postal_address"}]}
+{"id":"en-postal_address-0006","lang":"en","text":"{\"type\":\"user\",\"address\":\"station street 30\",\"active\":true}","spans":[{"start":26,"end":43,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0007","lang":"en","text":"address: 223 High Lane","spans":[{"start":9,"end":22,"kind":"postal_address"}]}
+{"id":"en-postal_address-0008","lang":"en","text":"address: Berkenweg 71, 2849 MP Utrecht","spans":[{"start":9,"end":38,"kind":"postal_address"}]}
+{"id":"en-postal_address-0009","lang":"en","text":"Delivered to Kerksingel 150, 4474 YM Leiden this morning.","spans":[{"start":13,"end":43,"kind":"postal_address"}]}
+{"id":"en-postal_address-0010","lang":"en","text":"Billing address: 238 Queen Street","spans":[{"start":17,"end":33,"kind":"postal_address"}]}
+{"id":"en-postal_address-0011","lang":"en","text":"level=info msg=\"profile updated\" address=68 Church Street","spans":[{"start":41,"end":57,"kind":"postal_address"}]}
+{"id":"en-postal_address-0012","lang":"en","text":"address: Kouter 37B","spans":[{"start":9,"end":19,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0013","lang":"en","text":"level=info msg=\"profile updated\" address=Lindenweg 196","spans":[{"start":41,"end":54,"kind":"postal_address"}]}
+{"id":"en-postal_address-0014","lang":"en","text":"address: Rue Louise 167, 2341 Liège","spans":[{"start":9,"end":36,"kind":"postal_address"}]}
+{"id":"en-postal_address-0015","lang":"en","text":"{\"type\":\"user\",\"address\":\"church street 212\",\"active\":true}","spans":[{"start":26,"end":43,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0016","lang":"en","text":"address: 222 Church Street","spans":[{"start":9,"end":26,"kind":"postal_address"}]}
+{"id":"en-postal_address-0017","lang":"en","text":"level=info msg=\"profile updated\" address=Beukensingel 62, 9603 WZ Leiden","spans":[{"start":41,"end":72,"kind":"postal_address"}]}
+{"id":"en-postal_address-0018","lang":"en","text":"level=info msg=\"profile updated\" address=178 Station Lane","spans":[{"start":41,"end":57,"kind":"postal_address"}]}
+{"id":"en-postal_address-0019","lang":"en","text":"level=info msg=\"profile updated\" address=154 Church Road","spans":[{"start":41,"end":56,"kind":"postal_address"}]}
+{"id":"en-postal_address-0020","lang":"en","text":"address: 64b High Lane","spans":[{"start":9,"end":22,"kind":"postal_address"}]}
+{"id":"en-postal_address-0021","lang":"en","text":"{\"type\":\"user\",\"address\":\"247 Station Lane\",\"active\":true}","spans":[{"start":26,"end":42,"kind":"postal_address"}]}
+{"id":"en-postal_address-0022","lang":"en","text":"Ship to 163a Elm Lane.","spans":[{"start":8,"end":21,"kind":"postal_address"}]}
+{"id":"en-postal_address-0023","lang":"en","text":"address: 201 Church Road","spans":[{"start":9,"end":24,"kind":"postal_address"}]}
+{"id":"en-postal_address-0024","lang":"en","text":"Billing address: 124 Baker Street","spans":[{"start":17,"end":33,"kind":"postal_address"}]}
+{"id":"en-postal_address-0025","lang":"en","text":"{\"type\":\"user\",\"address\":\"Chaussée de Namur 78, 2274 Namur\",\"active\":true}","spans":[{"start":26,"end":59,"kind":"postal_address"}]}
+{"id":"en-postal_address-0026","lang":"en","text":"Ship to Rue de Namur 237.","spans":[{"start":8,"end":24,"kind":"postal_address"}]}
+{"id":"en-postal_address-0027","lang":"en","text":"Delivered to 95 Mill Street this morning.","spans":[{"start":13,"end":27,"kind":"postal_address"}]}
+{"id":"en-postal_address-0028","lang":"en","text":"Delivered to 171 Park Street this morning.","spans":[{"start":13,"end":28,"kind":"postal_address"}]}
+{"id":"en-postal_address-0029","lang":"en","text":"Ship to 200 Elm Street.","spans":[{"start":8,"end":22,"kind":"postal_address"}]}
+{"id":"en-postal_address-0030","lang":"en","text":"Delivered to Rue Victor Hugo 200 bte 3, 1680 Liège this morning.","spans":[{"start":13,"end":51,"kind":"postal_address"}]}
+{"id":"en-postal_address-0031","lang":"en","text":"Ship to Molenlaan 97, 5253 WE Utrecht.","spans":[{"start":8,"end":37,"kind":"postal_address"}]}
+{"id":"en-postal_address-0032","lang":"en","text":"{\"type\":\"user\",\"address\":\"Kastanjesingel 226\",\"active\":true}","spans":[{"start":26,"end":44,"kind":"postal_address"}]}
+{"id":"en-postal_address-0033","lang":"en","text":"level=info msg=\"profile updated\" address=178 Queen Street","spans":[{"start":41,"end":57,"kind":"postal_address"}]}
+{"id":"en-postal_address-0034","lang":"en","text":"level=info msg=\"profile updated\" address=201 Church Street","spans":[{"start":41,"end":58,"kind":"postal_address"}]}
+{"id":"en-postal_address-0035","lang":"en","text":"level=info msg=\"profile updated\" address=165b Elm Lane","spans":[{"start":41,"end":54,"kind":"postal_address"}]}
+{"id":"en-postal_address-0036","lang":"en","text":"Billing address: 117 Mill Road","spans":[{"start":17,"end":30,"kind":"postal_address"}]}
+{"id":"en-postal_address-0037","lang":"en","text":"address: 97B Baker Road","spans":[{"start":9,"end":23,"kind":"postal_address"}]}
+{"id":"en-postal_address-0038","lang":"en","text":"{\"type\":\"user\",\"address\":\"church street 47\",\"active\":true}","spans":[{"start":26,"end":42,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0039","lang":"en","text":"Delivered to 163 Station Street this morning.","spans":[{"start":13,"end":31,"kind":"postal_address"}]}
+{"id":"en-postal_address-0040","lang":"en","text":"Billing address: 41 Queen Lane","spans":[{"start":17,"end":30,"kind":"postal_address"}]}
+{"id":"en-postal_address-0041","lang":"en","text":"Delivered to rue des tilleuls 96a this morning.","spans":[{"start":13,"end":33,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0042","lang":"en","text":"address: Damrak 64","spans":[{"start":9,"end":18,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0043","lang":"en","text":"Ship to Beukenlaan 185B, 3930 OM Haarlem.","spans":[{"start":8,"end":40,"kind":"postal_address"}]}
+{"id":"en-postal_address-0044","lang":"en","text":"Billing address: baker street 110B","spans":[{"start":17,"end":34,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0045","lang":"en","text":"Ship to Rokin 170.","spans":[{"start":8,"end":17,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0046","lang":"en","text":"{\"type\":\"user\",\"address\":\"Schoollaan 149a, 8067 FS Leiden\",\"active\":true}","spans":[{"start":26,"end":57,"kind":"postal_address"}]}
+{"id":"en-postal_address-0047","lang":"en","text":"Billing address: Boulevard du Moulin 99 bte 18, 2917 Uccle","spans":[{"start":17,"end":58,"kind":"postal_address"}]}
+{"id":"en-postal_address-0048","lang":"en","text":"{\"type\":\"user\",\"address\":\"108 High Street\",\"active\":true}","spans":[{"start":26,"end":41,"kind":"postal_address"}]}
+{"id":"en-postal_address-0049","lang":"en","text":"Billing address: Chaussée Saint-Michel 108, 7209 Liège","spans":[{"start":17,"end":56,"kind":"postal_address"}]}
+{"id":"en-postal_address-0050","lang":"en","text":"Ship to Place Louise 80 bte 14, 7028 Liège.","spans":[{"start":8,"end":43,"kind":"postal_address"}]}
+{"id":"en-postal_address-0051","lang":"en","text":"level=info msg=\"profile updated\" address=147 High Lane","spans":[{"start":41,"end":54,"kind":"postal_address"}]}
+{"id":"en-postal_address-0052","lang":"en","text":"Billing address: baker street 101","spans":[{"start":17,"end":33,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"en-postal_address-0053","lang":"en","text":"Billing address: Molenlaan 17, 1581 LL Leiden","spans":[{"start":17,"end":45,"kind":"postal_address"}]}
+{"id":"en-postal_address-0054","lang":"en","text":"{\"type\":\"user\",\"address\":\"Hoogstraat 83\",\"active\":true}","spans":[{"start":26,"end":39,"kind":"postal_address"}]}
+{"id":"en-postal_address-0055","lang":"en","text":"Delivered to Lindensingel 32, 2939 SG Haarlem this morning.","spans":[{"start":13,"end":45,"kind":"postal_address"}]}
+{"id":"en-postal_address-0056","lang":"en","text":"Delivered to 39 Church Street this morning.","spans":[{"start":13,"end":29,"kind":"postal_address"}]}
+{"id":"en-postal_address-0057","lang":"en","text":"Ship to Chaussée des Tilleuls 216.","spans":[{"start":8,"end":34,"kind":"postal_address"}]}
+{"id":"en-postal_address-0058","lang":"en","text":"Billing address: 124 Elm Street","spans":[{"start":17,"end":31,"kind":"postal_address"}]}
+{"id":"en-postal_address-0059","lang":"en","text":"Ship to 188 Elm Road.","spans":[{"start":8,"end":20,"kind":"postal_address"}]}
+{"id":"en-postal_address-0060","lang":"en","text":"address: Molenlaan 150, 4205 ZD Haarlem","spans":[{"start":9,"end":39,"kind":"postal_address"}]}
+{"id":"en-neg-postal_address-0001","lang":"en","text":"The shop on Queen Road moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0002","lang":"en","text":"Church Road is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0003","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0004","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0005","lang":"en","text":"Mill Road is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0006","lang":"en","text":"The shop on Station Street moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0007","lang":"en","text":"Park Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0008","lang":"en","text":"The shop on Mill Street moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0009","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0010","lang":"en","text":"High Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0011","lang":"en","text":"The shop on Park Street moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0012","lang":"en","text":"Church Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0013","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0014","lang":"en","text":"Park Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0015","lang":"en","text":"Station Road is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0016","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0017","lang":"en","text":"Queen Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0018","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0019","lang":"en","text":"The shop on Station Road moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0020","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0021","lang":"en","text":"The shop on Baker Street moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0022","lang":"en","text":"Station Road is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0023","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0024","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0025","lang":"en","text":"The meeting will take place in 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0026","lang":"en","text":"Queen Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0027","lang":"en","text":"Station Road is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0028","lang":"en","text":"The shop on Park Road moved.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0029","lang":"en","text":"Queen Street is closed for the parade.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-postal_address-0030","lang":"en","text":"The shop on Park Street moved.","spans":[],"tags":["hard_negative"]}

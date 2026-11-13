@@ -1308,3 +1308,183 @@
 {"id":"fr-neg-birth_date-0028","lang":"fr","text":"Garantie jusqu'au 1981-02-21.","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-birth_date-0029","lang":"fr","text":"Date de facture : 23/12/1980","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-birth_date-0030","lang":"fr","text":"Contrat signé le 2006-04-26.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-plate-0001","lang":"fr","text":"license_plate: 2PDJ514","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0002","lang":"fr","text":"license_plate: 1-LNO-414","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-plate-0003","lang":"fr","text":"Plaque d'immatriculation : 2-CYD-899","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0004","lang":"fr","text":"Véhicule CM-909-XZ stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0005","lang":"fr","text":"Véhicule DZ-８１９-JZ stationné au niveau -1.","spans":[{"start":10,"end":25,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0006","lang":"fr","text":"Amende pour XDV-373.","spans":[{"start":12,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0007","lang":"fr","text":"Véhicule SX-066-ZB stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0008","lang":"fr","text":"license_plate: PT-037-FG","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-plate-0009","lang":"fr","text":"Plaque d'immatriculation : 1-VBY-114","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0010","lang":"fr","text":"Véhicule JKR-786 stationné au niveau -1.","spans":[{"start":10,"end":17,"kind":"plate"}]}
+{"id":"fr-plate-0011","lang":"fr","text":"Véhicule 1-OPC-001 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0012","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=NZZ-205","spans":[{"start":47,"end":54,"kind":"plate"}]}
+{"id":"fr-plate-0013","lang":"fr","text":"Amende pour １-XBW-６１５.","spans":[{"start":12,"end":29,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0014","lang":"fr","text":"Plaque d'immatriculation : 2-AFQ-078","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0015","lang":"fr","text":"Véhicule 2-RRC-291 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0016","lang":"fr","text":"license_plate: PV432HN","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0017","lang":"fr","text":"Amende pour BY-509-WQ.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"fr-plate-0018","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=BG-804-CR","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"fr-plate-0019","lang":"fr","text":"Plaque d'immatriculation : 2-GCI-205","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0020","lang":"fr","text":"Plaque d'immatriculation : WA-795-KF","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0021","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"KW-832-WA\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"fr-plate-0022","lang":"fr","text":"Amende pour MK-544-RP.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"fr-plate-0023","lang":"fr","text":"Amende pour JT798LD.","spans":[{"start":12,"end":19,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0024","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=ZH-703-XD","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"fr-plate-0025","lang":"fr","text":"Amende pour FT-765-QA.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"fr-plate-0026","lang":"fr","text":"Plaque d'immatriculation : 1 PPK 123","spans":[{"start":27,"end":36,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0027","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=DJ-605-ME","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"fr-plate-0028","lang":"fr","text":"license_plate: HD609AJ","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0029","lang":"fr","text":"Véhicule QQ-730-ND stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0030","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=２-BBK-４４５","spans":[{"start":47,"end":64,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0031","lang":"fr","text":"Amende pour 2-YCK-596.","spans":[{"start":12,"end":21,"kind":"plate"}]}
+{"id":"fr-plate-0032","lang":"fr","text":"Véhicule 1-MCL-679 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0033","lang":"fr","text":"Plaque d'immatriculation : VRD-386","spans":[{"start":27,"end":34,"kind":"plate"}]}
+{"id":"fr-plate-0034","lang":"fr","text":"Véhicule EE-563-GR stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0035","lang":"fr","text":"Plaque d'immatriculation : RV 026 LT","spans":[{"start":27,"end":36,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0036","lang":"fr","text":"Plaque d'immatriculation : 1-WHQ-786","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0037","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"PFB-816\",\"active\":true}","spans":[{"start":32,"end":39,"kind":"plate"}]}
+{"id":"fr-plate-0038","lang":"fr","text":"Véhicule GR-899-MW stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0039","lang":"fr","text":"Plaque d'immatriculation : 2-JVC-545","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0040","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"SMF-１３５\",\"active\":true}","spans":[{"start":32,"end":45,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0041","lang":"fr","text":"Plaque d'immatriculation : SN-248-MW","spans":[{"start":27,"end":36,"kind":"plate"}]}
+{"id":"fr-plate-0042","lang":"fr","text":"license_plate: 2JZE536","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0043","lang":"fr","text":"Véhicule XV-587-WW stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0044","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"1-UJQ-373\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"fr-plate-0045","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"1ZNX244\",\"active\":true}","spans":[{"start":32,"end":39,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0046","lang":"fr","text":"license_plate: JV-962-MR","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-plate-0047","lang":"fr","text":"license_plate: 1KXR702","spans":[{"start":15,"end":22,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0048","lang":"fr","text":"Amende pour QV-9​89-JW.","spans":[{"start":12,"end":24,"kind":"plate"}],"tags":["hard_positive"]}
+{"id":"fr-plate-0049","lang":"fr","text":"Véhicule 1-MAH-691 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0050","lang":"fr","text":"license_plate: 2-JNR-278","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-plate-0051","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=2-LAD-115","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"fr-plate-0052","lang":"fr","text":"Véhicule 2-WKE-289 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0053","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=JW-171-CS","spans":[{"start":47,"end":56,"kind":"plate"}]}
+{"id":"fr-plate-0054","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=HWF-585","spans":[{"start":47,"end":54,"kind":"plate"}]}
+{"id":"fr-plate-0055","lang":"fr","text":"license_plate: TRP-682","spans":[{"start":15,"end":22,"kind":"plate"}]}
+{"id":"fr-plate-0056","lang":"fr","text":"license_plate: RR-060-RC","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-plate-0057","lang":"fr","text":"level=info msg=\"profile updated\" license_plate=XYG-994","spans":[{"start":47,"end":54,"kind":"plate"}]}
+{"id":"fr-plate-0058","lang":"fr","text":"{\"type\":\"user\",\"license_plate\":\"QS-205-KF\",\"active\":true}","spans":[{"start":32,"end":41,"kind":"plate"}]}
+{"id":"fr-plate-0059","lang":"fr","text":"Véhicule 2-JHC-534 stationné au niveau -1.","spans":[{"start":10,"end":19,"kind":"plate"}]}
+{"id":"fr-plate-0060","lang":"fr","text":"license_plate: 2-BBD-111","spans":[{"start":15,"end":24,"kind":"plate"}]}
+{"id":"fr-neg-plate-0001","lang":"fr","text":"Commande RW-955-CI-82 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0002","lang":"fr","text":"Commande TE-7576-PS expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0003","lang":"fr","text":"Commande TKT-480 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0004","lang":"fr","text":"Commande LT-5043-NI expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0005","lang":"fr","text":"Commande KT-6899-DS expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0006","lang":"fr","text":"Commande BE-5975-WT expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0007","lang":"fr","text":"Voir le ticket GL-9738-VL.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0008","lang":"fr","text":"Voir le ticket SKU-933.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0009","lang":"fr","text":"Voir le ticket ISO-097.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0010","lang":"fr","text":"Commande II-1012-HQ expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0011","lang":"fr","text":"Voir le ticket IM-7990-TU.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0012","lang":"fr","text":"Commande YT-916-TB-64 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0013","lang":"fr","text":"Commande CVE-722 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0014","lang":"fr","text":"Voir le ticket GS-847-GQ-03.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0015","lang":"fr","text":"Commande FB-110-OK-66 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0016","lang":"fr","text":"Voir le ticket GC-250-LD-68.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0017","lang":"fr","text":"Voir le ticket CVE-472.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0018","lang":"fr","text":"Commande BV-873-RZ-93 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0019","lang":"fr","text":"Commande TKT-767 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0020","lang":"fr","text":"Commande WR-563-QX-18 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0021","lang":"fr","text":"Commande XE-141-CB-34 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0022","lang":"fr","text":"Voir le ticket AW-6305-PR.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0023","lang":"fr","text":"Commande INV-838 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0024","lang":"fr","text":"Commande OL-361-YA-83 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0025","lang":"fr","text":"Commande MU-5194-GO expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0026","lang":"fr","text":"Voir le ticket QG-8878-VX.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0027","lang":"fr","text":"Commande TKT-138 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0028","lang":"fr","text":"Voir le ticket PN-796-QS-52.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0029","lang":"fr","text":"Commande IL-722-CZ-80 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-plate-0030","lang":"fr","text":"Voir le ticket WL-073-SY-78.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-postal_address-0001","lang":"fr","text":"Livraison : rue des tilleuls 172.","spans":[{"start":12,"end":32,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"fr-postal_address-0002","lang":"fr","text":"Adresse : Place du Marché 245a, 6531 Ixelles","spans":[{"start":10,"end":45,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0003","lang":"fr","text":"Domicile : Rue Louise 38","spans":[{"start":11,"end":24,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0004","lang":"fr","text":"Adresse : Rue des Écoles 112 bte 4, 3909 Namur","spans":[{"start":10,"end":47,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0005","lang":"fr","text":"{\"type\":\"user\",\"address\":\"Place de la Loi 54, 8824 Uccle\",\"active\":true}","spans":[{"start":26,"end":56,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0006","lang":"fr","text":"Livraison : Rue du Moulin 120, 4776 Uccle.","spans":[{"start":12,"end":41,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0007","lang":"fr","text":"address: Rue Louise 227, 2100 Liège","spans":[{"start":9,"end":36,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0008","lang":"fr","text":"address: 217 avenue de la Loi, 68879 Nantes","spans":[{"start":9,"end":43,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0009","lang":"fr","text":"Domicile : Chaussée de la Station 135, 1189 Mons","spans":[{"start":11,"end":49,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0010","lang":"fr","text":"address: 142 rue de la Station, 46814 Nantes","spans":[{"start":9,"end":44,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0011","lang":"fr","text":"Livraison : Boulevard de la Station 135, 3566 Wavre.","spans":[{"start":12,"end":51,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0012","lang":"fr","text":"level=info msg=\"profile updated\" address=Avenue du Moulin 108a","spans":[{"start":41,"end":62,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0013","lang":"fr","text":"Adresse : 148 avenue de la Loi, 16071 Lyon","spans":[{"start":10,"end":42,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0014","lang":"fr","text":"Domicile : 95a place des Tilleuls, 19373 Lyon","spans":[{"start":11,"end":45,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0015","lang":"fr","text":"Adresse : 41 boulevard des Tilleuls, 33933 Nantes","spans":[{"start":10,"end":49,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0016","lang":"fr","text":"Livraison : Rue des Tilleuls 144.","spans":[{"start":12,"end":32,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0017","lang":"fr","text":"Livraison : Avenue du Moulin 81B.","spans":[{"start":12,"end":32,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0018","lang":"fr","text":"address: rue du marché 241","spans":[{"start":9,"end":27,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"fr-postal_address-0019","lang":"fr","text":"Adresse : Chaussée de la Loi 83b, 1939 Wavre","spans":[{"start":10,"end":45,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0020","lang":"fr","text":"Adresse : Avenue Saint-Michel 47","spans":[{"start":10,"end":32,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0021","lang":"fr","text":"address: Chaussée des Écoles 124 bte 4, 2982 Wavre","spans":[{"start":9,"end":52,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0022","lang":"fr","text":"Domicile : Boulevard de la Loi 181 bte 11, 4278 Namur","spans":[{"start":11,"end":53,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0023","lang":"fr","text":"Livraison : 225 rue de la Station, 31207 Rennes.","spans":[{"start":12,"end":47,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0024","lang":"fr","text":"address: Avenue du Marché 29","spans":[{"start":9,"end":29,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0025","lang":"fr","text":"level=info msg=\"profile updated\" address=Place des Écoles 126a","spans":[{"start":41,"end":63,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0026","lang":"fr","text":"Adresse : 30 place des Écoles, 19449 Lyon","spans":[{"start":10,"end":42,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0027","lang":"fr","text":"level=info msg=\"profile updated\" address=250b place des Tilleuls","spans":[{"start":41,"end":64,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0028","lang":"fr","text":"address: Chaussée des Tilleuls 21, 7435 Uccle","spans":[{"start":9,"end":46,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0029","lang":"fr","text":"Livraison : 23 place du Marché, 79200 Lyon.","spans":[{"start":12,"end":43,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0030","lang":"fr","text":"Livraison : Avenue Saint-Michel 217, 8079 Liège.","spans":[{"start":12,"end":48,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0031","lang":"fr","text":"Domicile : Avenue Louise 59, 8983 Ixelles","spans":[{"start":11,"end":41,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0032","lang":"fr","text":"level=info msg=\"profile updated\" address=rue de namur 120B","spans":[{"start":41,"end":58,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"fr-postal_address-0033","lang":"fr","text":"Adresse : 158 rue des Tilleuls, 94353 Lille","spans":[{"start":10,"end":43,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0034","lang":"fr","text":"level=info msg=\"profile updated\" address=Boulevard de Namur 104 bte 19, 5037 Liège","spans":[{"start":41,"end":83,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0035","lang":"fr","text":"level=info msg=\"profile updated\" address=Rue des Tilleuls 141, 2551 Ixelles","spans":[{"start":41,"end":75,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0036","lang":"fr","text":"level=info msg=\"profile updated\" address=33 place Saint-Michel, 45140 Nantes","spans":[{"start":41,"end":76,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0037","lang":"fr","text":"Adresse : 86 boulevard Saint-Michel, 12422 Lyon","spans":[{"start":10,"end":47,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0038","lang":"fr","text":"Domicile : Avenue Victor Hugo 102, 1377 Mons","spans":[{"start":11,"end":44,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0039","lang":"fr","text":"address: 85 place Victor Hugo, 80502 Rennes","spans":[{"start":9,"end":43,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0040","lang":"fr","text":"address: Avenue Victor Hugo 84b bte 11","spans":[{"start":9,"end":38,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0041","lang":"fr","text":"Livraison : Boulevard Victor Hugo 218, 2719 Liège.","spans":[{"start":12,"end":50,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0042","lang":"fr","text":"Livraison : Avenue du Marché 53 bte 9, 2357 Ixelles.","spans":[{"start":12,"end":52,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0043","lang":"fr","text":"{\"type\":\"user\",\"address\":\"Boulevard Saint-Michel 213, 9910 Mons\",\"active\":true}","spans":[{"start":26,"end":63,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0044","lang":"fr","text":"Adresse : rue de namur 3b","spans":[{"start":10,"end":25,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"fr-postal_address-0045","lang":"fr","text":"{\"type\":\"user\",\"address\":\"Chaussée de la Station 114 bte 3, 9796 Namur\",\"active\":true}","spans":[{"start":26,"end":71,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0046","lang":"fr","text":"level=info msg=\"profile updated\" address=16 rue de la Loi, 22116 Lille","spans":[{"start":41,"end":70,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0047","lang":"fr","text":"{\"type\":\"user\",\"address\":\"Chaussée de la Station 168, 3321 Namur\",\"active\":true}","spans":[{"start":26,"end":65,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0048","lang":"fr","text":"level=info msg=\"profile updated\" address=Place du Moulin 192, 1902 Liège","spans":[{"start":41,"end":73,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0049","lang":"fr","text":"Adresse : Place de la Station 101","spans":[{"start":10,"end":33,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0050","lang":"fr","text":"address: 64B place du Moulin, 73759 Lyon","spans":[{"start":9,"end":40,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0051","lang":"fr","text":"Domicile : Rue du Marché 107, 3556 Wavre","spans":[{"start":11,"end":41,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0052","lang":"fr","text":"Livraison : Chaussée des Tilleuls 240, 3407 Namur.","spans":[{"start":12,"end":50,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0053","lang":"fr","text":"Adresse : Chaussée des Écoles 127B, 5919 Ixelles","spans":[{"start":10,"end":50,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0054","lang":"fr","text":"Adresse : Avenue de la Station 228 bte 6, 7049 Mons","spans":[{"start":10,"end":51,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0055","lang":"fr","text":"Livraison : 229b place Louise.","spans":[{"start":12,"end":29,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0056","lang":"fr","text":"Adresse : Avenue Louise 171, 8649 Mons","spans":[{"start":10,"end":38,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0057","lang":"fr","text":"address: 142B rue du Moulin, 85336 Rennes","spans":[{"start":9,"end":41,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0058","lang":"fr","text":"address: rue du moulin 122","spans":[{"start":9,"end":26,"kind":"postal_address"}],"tags":["hard_positive"]}
+{"id":"fr-postal_address-0059","lang":"fr","text":"Livraison : Avenue de la Loi 237, 1634 Namur.","spans":[{"start":12,"end":44,"kind":"postal_address"}]}
+{"id":"fr-postal_address-0060","lang":"fr","text":"{\"type\":\"user\",\"address\":\"228 avenue des Écoles, 20165 Nantes\",\"active\":true}","spans":[{"start":26,"end":62,"kind":"postal_address"}]}
+{"id":"fr-neg-postal_address-0001","lang":"fr","text":"Travaux dans la rue Saint-Michel cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0002","lang":"fr","text":"La place des Tilleuls est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0003","lang":"fr","text":"La avenue des Écoles est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0004","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0005","lang":"fr","text":"La place Saint-Michel est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0006","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0007","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0008","lang":"fr","text":"La place des Écoles est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0009","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0010","lang":"fr","text":"Travaux dans la avenue Victor Hugo cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0011","lang":"fr","text":"Travaux dans la avenue du Moulin cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0012","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0013","lang":"fr","text":"Travaux dans la avenue des Écoles cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0014","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0015","lang":"fr","text":"La place des Écoles est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0016","lang":"fr","text":"La avenue de Namur est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0017","lang":"fr","text":"Travaux dans la rue des Écoles cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0018","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0019","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0020","lang":"fr","text":"Travaux dans la rue Louise cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0021","lang":"fr","text":"Travaux dans la avenue Saint-Michel cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0022","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0023","lang":"fr","text":"La place des Tilleuls est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0024","lang":"fr","text":"La avenue Saint-Michel est fermée jusqu'à lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0025","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0026","lang":"fr","text":"Travaux dans la rue des Écoles cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0027","lang":"fr","text":"Travaux dans la place Louise cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0028","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0029","lang":"fr","text":"Travaux dans la place des Tilleuls cet été.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-postal_address-0030","lang":"fr","text":"La réunion aura lieu dans 12 minutes.","spans":[],"tags":["hard_negative"]}

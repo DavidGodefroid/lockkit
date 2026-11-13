@@ -5,6 +5,14 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- pii: new opt-in detectors `plate` (BE, FR and Dutch sidecode 4-11
+  licence plates, upper case with dashes) and `postal_address` (BE, FR,
+  NL and English street addresses with their postcode and locality),
+  both pattern only (medium). Gaps the bench found: `fr_nir` now runs
+  before `card`, so a NIR whose digits pass Luhn is a NIR (fr recall
+  0.783 to 1.000; `AllDetectors` keeps the same detectors in that new
+  order); `phone` finds 12-digit German mobiles (`0151 23456789`); an
+  e-mail local part may hold an apostrophe (`o'hara`). Closes #130.
 - pii: new opt-in detectors `be_eid` (Belgian identity card numbers,
   `ddd-ddddddd-dd`, mod 97, high confidence), and the context-only
   `passport` (Belgian passport numbers after a passport word) and
