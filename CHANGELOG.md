@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- console: `:reopen` puts the loosening the human refused (at start or at
+  `:review`) back to pending while it is still in the config files, so
+  that `:review` can approve it later without editing the files; it is
+  audited `policy` / `reopened`, and only the human's console reaches it
+  (#158).
 - console: the pending policy diff shown at `:review` is printed through
   `PrintContext`, so it reaches the question file of the "Apply these
   changes?" decision: a human answering from lockhub or a phone sees the
@@ -14,6 +19,7 @@ GUIDE.md is the contract between lockkit and the products built on it.
   silently.
 
 ## v0.17.0 (2026-11-13)
+
 - console: `Profile.TicketLimits` (`hubclient.Limits`, set from
   `config.Base.TicketLimits()`) reaches the console's hub client on start
   and whenever a policy comes in force: a profile's `limits.*` raise

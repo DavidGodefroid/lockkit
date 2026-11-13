@@ -120,6 +120,8 @@ func (s *Server) Command(ctx context.Context, line string) {
 	case "":
 	case ":review":
 		s.review(ctx)
+	case ":reopen":
+		s.reopen()
 	case ":status":
 		for _, l := range s.statusLines() {
 			s.println(l)
@@ -131,7 +133,7 @@ func (s *Server) Command(ctx context.Context, line string) {
 	case ":quit":
 		s.End("quit")
 	default:
-		s.println("commands: :review (pending policy change and change requests) · :status · :results (Ctrl-O) · :unmask · :quit")
+		s.println("commands: :review (pending policy change and change requests) · :reopen (a refused policy change) · :status · :results (Ctrl-O) · :unmask · :quit")
 	}
 }
 
