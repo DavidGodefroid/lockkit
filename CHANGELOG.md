@@ -3,7 +3,27 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.19.0 (2026-11-13)
+
+### Behaviour changes
+
+Masking with the default detectors (`AllDetectors`, or a list naming
+`phone`, `fr_nir`, `card`, `be_niss`, `email`) can mask more, or under
+another kind, after a bump; the new detectors are all opt-in (#130).
+
+- pii: `fr_nir` now runs before `card`: a French NIR whose digits pass
+  Luhn is masked as a NIR, no longer as a card number.
+- pii: `phone` without `phone_loose` also finds a national number after
+  a phone word (`tel 612 345 678`), and 12-digit German mobiles
+  (`0151 23456789`); `be_niss` finds a valid number with other
+  separators after `NISS`/`rijksregister`; an e-mail local part may hold
+  an apostrophe (`o'hara`).
+- pii: `Match` has a new `Confidence` field; masked output is unchanged.
+- managed: `File.Decode` into a `map[string]any` (or an `any`) now takes
+  nested tables where it failed with `unknown key` (#192). Struct
+  targets stay strict.
+
+### Changes
 
 - managed: `File.Decode` into a `map[string]any` (or an `any`, or a
   struct with such a field) now takes a section holding nested tables:
