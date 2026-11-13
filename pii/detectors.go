@@ -409,10 +409,10 @@ func mod97(s string) int {
 // ('a@b.com') keeps its quotes.
 var emailRe = regexp.MustCompile(`[\p{L}\p{M}\p{N}._%+\-]+(?:['’][\p{L}\p{M}\p{N}._%+\-]+)*@[\p{L}\p{M}\p{N}\-]+(?:\.[\p{L}\p{M}\p{N}\-]+)*\.\p{L}[\p{L}\p{M}]+`)
 
-// findEmails accepts a match only at the start of a word, never the tail of
+// scanEmails accepts a match only at the start of a word, never the tail of
 // a longer local part, or right where the previous address ended: an
 // address glued to a masked one (a@b.com-c@d.org) is masked too.
-func findEmails(s string) []span {
+func scanEmails(s string) []span {
 	last := -1
 	return scan(s, emailRe, 0, func(s string, start, end int) (int, bool) {
 		r, _ := utf8.DecodeLastRuneInString(s[:start])
@@ -433,7 +433,7 @@ func emailLocalRune(r rune) bool {
 // ibanRe ignores case: an IBAN typed in lower case is still an IBAN.
 var ibanRe = regexp.MustCompile(`(?i)[A-Z]{2}[0-9]{2}(?: ?[A-Z0-9]{4}){2,7}(?: ?[A-Z0-9]{1,4})?`)
 
-func findIBANs(s string) []span {
+func scanIBANs(s string) []span {
 	return scan(s, ibanRe, 44, func(s string, start, end int) (int, bool) {
 		if isAlnum(before(s, start)) {
 			return 0, false
@@ -489,7 +489,7 @@ func mod97step(m int, c byte) int {
 
 var cardRe = regexp.MustCompile(`[0-9](?:[ \-]?[0-9]){12,18}`)
 
-func findCards(s string) []span {
+func scanCards(s string) []span {
 	return scan(s, cardRe, 37, func(s string, start, end int) (int, bool) {
 		if isDigit(before(s, start)) {
 			return 0, false
@@ -532,7 +532,7 @@ func luhn(d []byte) bool {
 
 var nissRe = regexp.MustCompile(`[0-9]{2}[. ]?[0-9]{2}[. ]?[0-9]{2}[- ]?[0-9]{3}[. ]?[0-9]{2}`)
 
-func findNISS(s string) []span {
+func scanNISS(s string) []span {
 	return scan(s, nissRe, 15, func(s string, start, end int) (int, bool) {
 		if isDigit(before(s, start)) || isDigit(after(s, end)) {
 			return 0, false
@@ -552,7 +552,7 @@ func findNISS(s string) []span {
 
 var nirRe = regexp.MustCompile(`[1-478] ?[0-9]{2} ?[0-9]{2} ?(?:[0-9]{2}|2[ABab]) ?[0-9]{3} ?[0-9]{3} ?[0-9]{2}`)
 
-func findNIR(s string) []span {
+func scanNIR(s string) []span {
 	return scan(s, nirRe, 21, func(s string, start, end int) (int, bool) {
 		if isAlnum(before(s, start)) || isDigit(after(s, end)) {
 			return 0, false
@@ -576,7 +576,7 @@ func findNIR(s string) []span {
 
 var bsnRe = regexp.MustCompile(`[0-9]{9}|[0-9]{4}\.[0-9]{2}\.[0-9]{3}`)
 
-func findBSN(s string) []span {
+func scanBSN(s string) []span {
 	return scan(s, bsnRe, 11, func(s string, start, end int) (int, bool) {
 		if b := before(s, start); isDigit(b) || b == '.' {
 			return 0, false
@@ -601,7 +601,7 @@ func findBSN(s string) []span {
 
 var ssnRe = regexp.MustCompile(`[0-9]{3}[- ][0-9]{2}[- ][0-9]{4}`)
 
-func findSSN(s string) []span {
+func scanSSN(s string) []span {
 	return scan(s, ssnRe, 11, func(s string, start, end int) (int, bool) {
 		if b := before(s, start); isDigit(b) || b == '-' {
 			return 0, false

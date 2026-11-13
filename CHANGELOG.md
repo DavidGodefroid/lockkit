@@ -3,6 +3,18 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+### Changes
+
+- pii: the `email`, `iban`, `card`, `be_niss`, `fr_nir`, `nl_bsn`,
+  `us_ssn` and `ip` finders skip their regexp or scan when a byte-level
+  check shows the text cannot hold a match (no `@`; too few digits; no
+  letter-letter-digit-digit run; too few `:` or `.`). Results are
+  unchanged (an exactness test and fuzz target compare each finder with
+  and without its prefilter); `FindInViews` with `AllDetectors` on short
+  log messages runs about 3x faster (#195).
+
 ## v0.19.0 (2026-11-13)
 
 ### Behaviour changes
