@@ -31,10 +31,9 @@ func TestInitClaudeAllowProjectGolden(t *testing.T) {
 	if _, ok := got[".claude/settings.json"]; ok {
 		t.Fatal("the shared settings.json was written")
 	}
-	wantNotes := "The calls below never touch data without the console's approval; they are in\n" +
-		"\"permissions.allow\" in .claude/settings.local.json (personal: check that git\n" +
-		"ignores it), so Claude Code does not prompt for them. Remove them there to be\n" +
-		"asked again:\n\n" +
+	wantNotes := "The calls below answer within the console's policy and budgets, without a prompt.\n" +
+		"They are in \"permissions.allow\" in .claude/settings.local.json (personal:\n" +
+		"check that git ignores it). Remove them there to be asked again:\n\n" +
 		"  \"mcp__lockmq__lockmq_status\",\n  \"Bash(lockmq status:*)\"\n\nReads are approved in the console.\n\n"
 	if !strings.HasSuffix(res.Notes, wantNotes) {
 		t.Fatalf("notes = %q", res.Notes)
@@ -128,7 +127,181 @@ func TestInitClaudeAllowProjectOffByDefault(t *testing.T) {
 	if _, ok := files(t, root)[".claude/settings.local.json"]; ok {
 		t.Fatal("settings.local.json written without ClaudeAllowProject")
 	}
-	if !strings.Contains(res.Notes, "Optional: the calls below") {
+	if !strings.Contains(res.Notes, "Optional: to stop Claude Code prompting") {
+		t.Fatalf("notes = %q", res.Notes)
+	}
+}
+
+const foreignMCP = `{"mcpServers":{"lockmq":{"command":"sh","args":["-c","echo"]}}}`
+
+const foreignWarning = ".mcp.json already has a \"lockmq\" server that lockmq init did not write: check what it runs before Claude Code asks you to approve it; no calls were allowed. Remove that entry and run init again to wire lockmq.\n\n"
+
+func writeFile(t *testing.T, path, data string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func status(res Result, path string) string {
+	for _, a := range res.Actions {
+		if a.Path == path {
+			return a.Status
+		}
+	}
+	return ""
+}
+
+// A .mcp.json entry of the product's name that init did not write is
+// foreign: it is kept, nothing is allowed for it, and the notes only warn.
+func TestInitClaudeAllowProjectForeignEntry(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, ".mcp.json"), foreignMCP)
+	res, err := projectAllowWiring().Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := files(t, root)
+	if got[".mcp.json"] != foreignMCP {
+		t.Fatalf(".mcp.json = %q", got[".mcp.json"])
+	}
+	if s := status(res, ".mcp.json"); s != StatusKept {
+		t.Fatalf(".mcp.json status = %q", s)
+	}
+	if _, ok := got[".claude/settings.local.json"]; ok {
+		t.Fatal("settings.local.json written for a foreign entry")
+	}
+	if s := status(res, ".claude/settings.local.json"); s != "" {
+		t.Fatalf("settings.local.json action = %q", s)
+	}
+	if res.Notes != foreignWarning {
+		t.Fatalf("notes = %q", res.Notes)
+	}
+}
+
+// With a foreign entry, an existing settings.local.json is left byte for
+// byte.
+func TestInitClaudeAllowProjectForeignEntryKeepsSettings(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, ".mcp.json"), foreignMCP)
+	in := `{"permissions":{"allow":["Bash(ls:*)"]}}`
+	writeFile(t, filepath.Join(root, ".claude", "settings.local.json"), in)
+	res, err := projectAllowWiring().Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := files(t, root)[".claude/settings.local.json"]; got != in {
+		t.Fatalf("settings.local.json = %q", got)
+	}
+	if res.Notes != foreignWarning {
+		t.Fatalf("notes = %q", res.Notes)
+	}
+}
+
+// Without ClaudeAllowProject, a foreign entry gets the same warning instead
+// of the optional allow list.
+func TestInitClaudeForeignEntryOptional(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, ".mcp.json"), foreignMCP)
+	res, err := testWiring.Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Notes != foreignWarning {
+		t.Fatalf("notes = %q", res.Notes)
+	}
+}
+
+// Our exact entry already in .mcp.json (unchanged) is ours: the allow list
+// is still merged.
+func TestInitClaudeAllowProjectOwnEntry(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, ".mcp.json"), `{"mcpServers":{"lockmq":{"type":"stdio","command":"lockmq","args":["mcp","--quiet"]}}}`)
+	res, err := projectAllowWiring().Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s := status(res, ".mcp.json"); s != StatusUnchanged {
+		t.Fatalf(".mcp.json status = %q", s)
+	}
+	if s := status(res, ".claude/settings.local.json"); s != StatusCreated {
+		t.Fatalf("settings.local.json status = %q", s)
+	}
+	if !strings.Contains(files(t, root)[".claude/settings.local.json"], "mcp__lockmq__lockmq_status") {
+		t.Fatal("allow list not merged")
+	}
+	if !strings.Contains(res.Notes, "approve it.") || !strings.Contains(res.Notes, "\"mcp__lockmq__lockmq_status\"") {
+		t.Fatalf("notes = %q", res.Notes)
+	}
+}
+
+// The product's ClaudeAllowNote replaces the default sentence in both
+// branches; no note promises that calls never touch data.
+func TestInitClaudeAllowNote(t *testing.T) {
+	for _, project := range []bool{true, false} {
+		for _, note := range []string{"", "Searches return masked lines only.\n"} {
+			w := testWiring
+			w.Assets.ClaudeAllowProject = project
+			w.Assets.ClaudeAllowNote = note
+			res, err := w.Init(t.TempDir(), "claude")
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := defaultAllowNote
+			if note != "" {
+				want = "Searches return masked lines only."
+			}
+			intro := "approve it.\n" + want + "\n"
+			if project {
+				intro += "They are in \"permissions.allow\""
+			} else {
+				intro += "Optional: to stop"
+			}
+			if !strings.Contains(res.Notes, intro) {
+				t.Errorf("project=%v note=%q: notes = %q", project, note, res.Notes)
+			}
+			if strings.Contains(res.Notes, "never touch data") {
+				t.Errorf("project=%v note=%q: notes promise too much: %q", project, note, res.Notes)
+			}
+		}
+	}
+}
+
+// E2E: a foreign entry allows nothing; once the human removes it, init
+// wires the product and allows the calls.
+func TestInitClaudeAllowProjectForeignThenRemoved(t *testing.T) {
+	root := t.TempDir()
+	mcp := filepath.Join(root, ".mcp.json")
+	writeFile(t, mcp, `{"mcpServers":{"other":{"command":"x"},"lockmq":{"command":"sh","args":["-c","echo"]}}}`)
+	w := projectAllowWiring()
+	res, err := w.Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := files(t, root)[".claude/settings.local.json"]; ok || res.Notes != foreignWarning {
+		t.Fatalf("first run allowed calls: notes = %q", res.Notes)
+	}
+
+	writeFile(t, mcp, `{"mcpServers":{"other":{"command":"x"}}}`)
+	res, err = w.Init(root, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s := status(res, ".mcp.json"); s != StatusUpdated {
+		t.Fatalf(".mcp.json status = %q", s)
+	}
+	got := files(t, root)
+	if !strings.Contains(got[".mcp.json"], `"lockmq": {`) || !strings.Contains(got[".mcp.json"], `"other"`) {
+		t.Fatalf(".mcp.json = %q", got[".mcp.json"])
+	}
+	want := "{\n  \"permissions\": {\n    \"allow\": [\n      \"mcp__lockmq__lockmq_status\",\n      \"Bash(lockmq status:*)\"\n    ]\n  }\n}\n"
+	if got[".claude/settings.local.json"] != want {
+		t.Fatalf("settings.local.json = %q", got[".claude/settings.local.json"])
+	}
+	if !strings.Contains(res.Notes, "  \"mcp__lockmq__lockmq_status\",\n  \"Bash(lockmq status:*)\"\n") {
 		t.Fatalf("notes = %q", res.Notes)
 	}
 }

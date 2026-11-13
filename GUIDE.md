@@ -1048,6 +1048,7 @@ var Wiring = agentwire.Wiring{Product: P, Assets: agentwire.Assets{
 	CursorFrontMatter: cursorFront,    // .cursor/rules/lockmq.mdc
 	ProjectConfig:     exampleConfig,  // .lockmq/config.toml when absent (nil: none)
 	ClaudeAllow:       []string{"mcp__lockmq__lockmq_status", "Bash(lockmq status:*)"},
+	ClaudeAllowNote:   "...",          // optional: what the ClaudeAllow calls may do
 	ClaudeNote:        "...",          // optional end of the project notes
 }}
 ```
@@ -1056,15 +1057,24 @@ then `Wiring.Init(agentwire.ProjectRoot(P, cwd), agent)` for `<name> init
 <agent>`, `Wiring.InitUser(env, agent)` / `PendingUser` for the account
 (`env, _ := agentwire.SystemEnv()`), `agentwire.Detect(env)` and
 `Wiring.Unwired(env)` for your doctor's "agent wiring" line. Only list in
-`ClaudeAllow` calls that never touch data without the console's approval.
-`ClaudeAllow` is merged into `permissions.allow` at user scope by
+`ClaudeAllow` calls the human may run without a prompt: masked or
+policy-bounded answers. `ClaudeAllowNote` is the one sentence the project
+notes put before the list, saying what those calls may do (for locklog:
+searches return masked lines); without it they say "The calls below answer
+within the console's policy and budgets, without a prompt." Never promise
+there that the calls touch no data. `ClaudeAllow` is merged into `permissions.allow` at user scope by
 `InitUser`; a project `Init` only lists it in the notes, unless
 `ClaudeAllowProject` is set: then `Init(root, "claude")` also merges it into
 the project's `.claude/settings.local.json` (personal, never the shared
 `.claude/settings.json`), keeping the file's other keys and entries, and
 the notes say what was written. Set it only when every listed call answers
 with masked data and every approved operation is approved at the console
-or the hub (the human, not the allow list, decides). Codex and Gemini get
+or the hub (the human, not the allow list, decides). When `.mcp.json`
+already holds a `<name>` server that is not the product's exact entry
+(action `kept`: a cloned repository may ship one that runs anything), it is
+foreign: `Init` leaves it, writes nothing to `.claude/settings.local.json`,
+and the notes only warn the human to check what it runs before approving
+it, and to remove it and run init again to wire the product. Codex and Gemini get
 600 s tool timeouts from agentwire, which cover the console's 5 minute
 approval and a queued call.
 

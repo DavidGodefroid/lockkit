@@ -5,6 +5,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- agentwire: a project `Init(root, "claude")` no longer allows any call
+  when `.mcp.json` already holds a `<name>` server it did not write
+  (`kept`): `.claude/settings.local.json` is left alone and the notes warn
+  the human to check that server instead of asking to approve it. The
+  sentence before the allow list no longer says the calls "never touch
+  data": the product sets it with the new `Assets.ClaudeAllowNote`, else a
+  neutral default applies (#109).
 - console: a product with its own start-up (`NewServer`, not `Run`) gets
   the managed configuration's behaviour: `ServerConfig.LoadManaged`
   (exported, set to `managed.Load`) re-reads the file at every policy
