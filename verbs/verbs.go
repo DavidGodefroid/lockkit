@@ -74,7 +74,7 @@ func parseError(p kit.Product, fs *flag.FlagSet, err error) error {
 	name := flagName(msg)
 	switch {
 	case strings.HasPrefix(msg, "flag provided but not defined: "):
-		if config.SecretKey(strings.Split(name, "-")) {
+		if config.SecretKey([]string{name}) {
 			return fmt.Errorf("an unknown flag: %w: %s asks for it at start or reads it from Vault (--%s %s|%s)",
 				ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
 		}
@@ -158,7 +158,7 @@ func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 	}
 	for _, a := range fs.Args() {
 		name := strings.TrimLeft(strings.SplitN(a, "=", 2)[0], "-")
-		if strings.HasPrefix(a, "-") && config.SecretKey(strings.Split(name, "-")) || config.EmbedsSecret(a) {
+		if strings.HasPrefix(a, "-") && config.SecretKey([]string{name}) || config.EmbedsSecret(a) {
 			return fmt.Errorf("a positional argument: %w: profile add takes flags only", ErrSecret)
 		}
 	}
@@ -194,12 +194,12 @@ func WantsJSON(args []string) bool {
 }
 
 func checkArg(p kit.Product, label, name, val string) error {
-	if name != "" && config.SecretKey(strings.Split(name, "-")) {
+	if name != "" && config.SecretKey([]string{name}) {
 		return fmt.Errorf("%s: %w: %s asks for it at start or reads it from Vault (--%s %s|%s)",
 			label, ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
 	}
 	if v, ok := strings.CutPrefix(val, "-"); ok {
-		if taken, _, _ := strings.Cut(strings.TrimLeft(v, "-"), "="); taken != "" && config.SecretKey(strings.Split(taken, "-")) {
+		if taken, _, _ := strings.Cut(strings.TrimLeft(v, "-"), "="); taken != "" && config.SecretKey([]string{taken}) {
 			return fmt.Errorf("%s: %w: it took a secret flag as its value (a value is missing); %s asks for the secret at start or reads it from Vault (--%s %s|%s)",
 				label, ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
 		}

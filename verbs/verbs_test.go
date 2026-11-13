@@ -6,6 +6,8 @@ import (
 	"errors"
 	"flag"
 	"io"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -52,6 +54,7 @@ func TestRefuseSecrets(t *testing.T) {
 		{"pwd", []string{"--pwd=" + secret}, true, false},
 		{"url with password", []string{"--url", "amqp://app:" + secret + "@mq:5672/"}, true, false},
 		{"keyword dsn", []string{"--user", "host=db password=" + secret}, true, false},
+		{"swallowed api-key flag", []string{"--url", "--api-key=" + secret}, true, false},
 		{"bearer token", []string{"--auth", "Bearer " + secret}, true, false},
 		{"authorization header", []string{"--key", "Authorization: " + secret}, true, false},
 		{"url with a token", []string{"--url", "https://" + secret + "@mq"}, true, false},
@@ -206,6 +209,8 @@ func TestParseNeverQuotes(t *testing.T) {
 		{"missing value", []string{"--user"}, "--user needs a value", false},
 		{"unknown flag", []string{"--" + secret, "x"}, "unknown flag", false},
 		{"unknown secret flag", []string{"--db-password=" + secret}, "unknown flag", true},
+		{"unknown api-key flag", []string{"--api-key", secret}, "unknown flag", true},
+		{"unknown camelCase flag", []string{"--authToken=" + secret}, "unknown flag", true},
 		{"bad syntax", []string{"---" + secret}, "bad flag syntax", false},
 		{"secret flag defined", []string{"--password", secret}, "--password", true},
 		{"positional", []string{secret}, "positional", false},
@@ -311,5 +316,68 @@ func TestParseHelp(t *testing.T) {
 		if err := Parse(testProduct, profileFlags(), []string{"--json", h}); !errors.Is(err, flag.ErrHelp) {
 			t.Errorf("%s: got %v", h, err)
 		}
+	}
+}
+
+// TestLauncherEndToEnd builds testdata/launcher, a `profile add` written
+// as GUIDE §14 shows, and runs it as a subprocess.
+func TestLauncherEndToEnd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("builds a binary")
+	}
+	goBin, err := exec.LookPath("go")
+	if err != nil {
+		t.Skip("no go toolchain")
+	}
+	bin := filepath.Join(t.TempDir(), "launcher")
+	if out, err := exec.Command(goBin, "build", "-o", bin, "./testdata/launcher").CombinedOutput(); err != nil {
+		t.Fatalf("go build: %v\n%s", err, out)
+	}
+	run := func(args ...string) (stdout, stderr string, code int) {
+		t.Helper()
+		var o, e bytes.Buffer
+		cmd := exec.Command(bin, args...)
+		cmd.Stdout, cmd.Stderr = &o, &e
+		err := cmd.Run()
+		var exit *exec.ExitError
+		switch {
+		case errors.As(err, &exit):
+			code = exit.ExitCode()
+		case err != nil:
+			t.Fatal(err)
+		}
+		return o.String(), e.String(), code
+	}
+
+	const secret = "s3cr3t-Value"
+	for _, args := range [][]string{
+		{"--non-interactive", "--json", "--user", "--password", secret},
+		{"--non-interactive", "--json", "--url", "https://" + secret + "@mq"},
+		{"--non-interactive", "--json=1", "--url", "--api-key=" + secret},
+	} {
+		stdout, stderr, code := run(args...)
+		if code == 0 || strings.Contains(stdout+stderr, secret) {
+			t.Errorf("%q: exit %d, leaks the secret: %q / %q", args, code, stdout, stderr)
+		}
+		var e Error
+		if strings.Count(stdout, "\n") != 1 || json.Unmarshal([]byte(stdout), &e) != nil || e.Code != CodeSecret || e.Lock != "lockmq" {
+			t.Errorf("%q: want one verbs.Error line with code secret, got %q", args, stdout)
+		}
+	}
+	if stdout, _, code := run("--non-interactive", "--json", "--user", "--password", secret); !strings.Contains(stdout, "--user") || code == 0 {
+		t.Errorf("does not name --user: %q", stdout)
+	}
+
+	for _, h := range []string{"-h", "-help"} {
+		stdout, stderr, code := run("--non-interactive", h)
+		if code != 0 || stdout != "" || !strings.Contains(stderr, "Usage of profile add") || !strings.Contains(stderr, "-"+FlagVaultPath) {
+			t.Errorf("%s: exit %d, stdout %q, stderr %q", h, code, stdout, stderr)
+		}
+	}
+
+	stdout, _, code := run("--non-interactive", "--json", "--profile", "uat", "--url", "https://mq:15672/x@y", "--user", "app")
+	var p Profile
+	if code != 0 || json.Unmarshal([]byte(stdout), &p) != nil || p.Profile != "uat" || p.Credentials != "ask" {
+		t.Fatalf("exit %d, stdout %q", code, stdout)
 	}
 }
