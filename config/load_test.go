@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/BurntSushi/toml"
+
 	"github.com/DavidGodefroid/lockkit/kit"
 )
 
@@ -118,7 +120,7 @@ func TestCheckValue(t *testing.T) {
 			t.Errorf("%q accepted", bad)
 		}
 	}
-	if err := CheckValue(testProduct, "url", "amqps://u:pw@h"); err == nil || !strings.Contains(err.Error(), "url looks like a DSN with an embedded password; lockmq never reads secrets from config files") {
+	if err := CheckValue(testProduct, "url", "amqps://u:pw@h"); err == nil || !strings.Contains(err.Error(), "url looks like it embeds a secret (a password or a token); lockmq never reads secrets from config files") {
 		t.Errorf("message: %v", err)
 	}
 	for _, ok := range []string{"", "https://rabbitmq.example.com:15671", "u@h", "database/creds/ro"} {
@@ -156,6 +158,41 @@ func TestProfileNameNeverEchoed(t *testing.T) {
 			if err == nil || strings.Contains(err.Error(), "glsa_Canary") || !strings.Contains(err.Error(), "use letters, digits") {
 				t.Errorf("CheckProfileName(prod %v): %v", prod, err)
 			}
+		}
+	}
+}
+
+func TestSecretKeyWords(t *testing.T) {
+	for _, key := range []string{"passphrase", "apikey", "api-key", "api_key", "bearer", "cookie", "authToken", "apiKey", "APIKey", "cookie_domain", "vault-token"} {
+		if !SecretKey(toml.Key{key}) {
+			t.Errorf("SecretKey(%q) = false", key)
+		}
+	}
+	for _, key := range []string{"credentials", "tokenizer_path", "url", "user", "key", "auth", "vault_path", "PASSWORDLESS"} {
+		if SecretKey(toml.Key{key}) {
+			t.Errorf("SecretKey(%q) = true", key)
+		}
+	}
+}
+
+func TestEmbedsSecret(t *testing.T) {
+	const secret = "s3cr3tValue"
+	for _, s := range []string{"Authorization: Bearer " + secret, "bearer " + secret, "https://" + secret + "@host", "amqp://u:" + secret + "@h", "password=" + secret, "u:" + secret + "@h"} {
+		if !EmbedsSecret(s) {
+			t.Errorf("EmbedsSecret(%q) = false", s)
+		}
+		if err := CheckValue(testProduct, "url", s); err == nil || strings.Contains(err.Error(), secret) {
+			t.Errorf("CheckValue(%q): %v", s, err)
+		}
+	}
+	for _, s := range []string{"https://mq:15672/x@y", "/data/v1:2@x.db", "user@example.com", "https://mq.example.com:15671/vhost?a=b@c", "bearer", "database/creds/ro"} {
+		if EmbedsSecret(s) {
+			t.Errorf("EmbedsSecret(%q) = true", s)
+		}
+	}
+	for _, s := range []string{"https://mq:15672/x@y", "/data/v1:2@x.db", "https://TOKEN@host"} {
+		if EmbedsPassword(s) {
+			t.Errorf("EmbedsPassword(%q) = true", s)
 		}
 	}
 }

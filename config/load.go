@@ -93,9 +93,16 @@ func ProjectHash(root string) string {
 	return hex.EncodeToString(sum[:])[:8]
 }
 
-// secretWords are refused as config key names, or as a "_"/"-" separated
-// part of one, at any depth.
-var secretWords = map[string]bool{"password": true, "passwd": true, "pwd": true, "secret": true, "token": true}
+// secretWords are refused as config key names, or as a part of one, at
+// any depth. A key splits into parts at "_", "-", "." and camelCase
+// boundaries, and two adjacent parts are also tried joined (api-key,
+// api_key and apiKey are apikey). credential(s) is not one: --credentials
+// is a contract flag (GUIDE §14). cookie matches cookie_domain too, an
+// accepted false positive.
+var secretWords = map[string]bool{
+	"password": true, "passwd": true, "pwd": true, "secret": true, "token": true,
+	"passphrase": true, "apikey": true, "bearer": true, "cookie": true,
+}
 
 // Decode decodes TOML data into into. name labels errors. It refuses a key
 // that looks like a secret (password, token, ...) at any depth and any key
@@ -129,11 +136,12 @@ func sanitizeDecodeError(path string, err error) error {
 	return fmt.Errorf("config: %s: invalid TOML: %s", path, strings.TrimPrefix(err.Error(), "toml: "))
 }
 
-// SecretKey reports a key with a part that names a secret.
+// SecretKey reports a key with a part that names a secret (secretWords).
 func SecretKey(key toml.Key) bool {
 	for _, part := range key {
-		for _, word := range strings.FieldsFunc(strings.ToLower(part), func(r rune) bool { return r == '_' || r == '-' || r == '.' }) {
-			if secretWords[word] {
+		words := keyWords(part)
+		for i, word := range words {
+			if secretWords[word] || i > 0 && secretWords[words[i-1]+word] {
 				return true
 			}
 		}
@@ -141,21 +149,77 @@ func SecretKey(key toml.Key) bool {
 	return false
 }
 
+// keyWords splits a key part at "_", "-", "." and camelCase boundaries
+// (authToken, APIKey), in lower case.
+func keyWords(part string) []string {
+	var words []string
+	for _, field := range strings.FieldsFunc(part, func(r rune) bool { return r == '_' || r == '-' || r == '.' }) {
+		rs := []rune(field)
+		start := 0
+		for i := 1; i < len(rs); i++ {
+			lowerToUpper := unicode.IsUpper(rs[i]) && !unicode.IsUpper(rs[i-1])
+			acronymEnd := unicode.IsUpper(rs[i]) && unicode.IsUpper(rs[i-1]) && i+1 < len(rs) && unicode.IsLower(rs[i+1])
+			if lowerToUpper || acronymEnd {
+				words = append(words, strings.ToLower(string(rs[start:i])))
+				start = i
+			}
+		}
+		words = append(words, strings.ToLower(string(rs[start:])))
+	}
+	return words
+}
+
 // EmbedsPassword reports whether s looks like a DSN carrying a password:
-// user:pw@host, scheme://user:pw@host, or a keyword DSN with password=.
+// a keyword DSN with password= or pwd=, scheme://user:pw@host (only the
+// userinfo is looked at, so https://mq:15672/x@y is not one), or
+// user:pw@host without a scheme and without a "/" before the "@" (so
+// /data/v1:2@x.db is not one).
 func EmbedsPassword(s string) bool {
 	lower := strings.ToLower(s)
 	if strings.Contains(lower, "password=") || strings.Contains(lower, "pwd=") {
 		return true
 	}
-	if i := strings.Index(s, "://"); i >= 0 {
-		s = s[i+3:]
+	if strings.Contains(s, "://") {
+		userinfo, ok := urlUserinfo(s)
+		return ok && strings.Contains(userinfo, ":")
 	}
 	at := strings.LastIndex(s, "@")
-	if at < 0 {
+	if at < 0 || strings.Contains(s[:at], "/") {
 		return false
 	}
 	return strings.Contains(s[:at], ":")
+}
+
+// urlUserinfo is the userinfo of s with a scheme://: the authority (up to
+// the first "/", "?" or "#" after the scheme) before its last "@". ok is
+// false without a scheme or without an "@" in the authority.
+func urlUserinfo(s string) (string, bool) {
+	i := strings.Index(s, "://")
+	if i < 0 {
+		return "", false
+	}
+	authority := s[i+3:]
+	if j := strings.IndexAny(authority, "/?#"); j >= 0 {
+		authority = authority[:j]
+	}
+	at := strings.LastIndex(authority, "@")
+	if at < 0 {
+		return "", false
+	}
+	return authority[:at], true
+}
+
+var bearerRe = regexp.MustCompile(`(?i)\bbearer\s+\S`)
+
+// EmbedsSecret reports whether s looks like it carries a secret: what
+// EmbedsPassword reports, a bearer token ("Bearer abc"), an HTTP
+// Authorization header, or a URL with any userinfo (https://TOKEN@host).
+func EmbedsSecret(s string) bool {
+	if EmbedsPassword(s) || bearerRe.MatchString(s) || strings.Contains(strings.ToLower(s), "authorization:") {
+		return true
+	}
+	userinfo, ok := urlUserinfo(s)
+	return ok && userinfo != ""
 }
 
 // UnsafeRune reports a character that could alter or hide text on a
@@ -165,12 +229,12 @@ func UnsafeRune(r rune) bool {
 	return r == utf8.RuneError || unicode.IsControl(r) || unicode.In(r, unicode.Cf, unicode.Zl, unicode.Zp)
 }
 
-// CheckValue refuses a config value that embeds a password or holds a
-// character that could hide text on the approval screen, where config
-// values are shown to the human.
+// CheckValue refuses a config value that embeds a secret (EmbedsSecret)
+// or holds a character that could hide text on the approval screen, where
+// config values are shown to the human.
 func CheckValue(p kit.Product, key, val string) error {
-	if EmbedsPassword(val) {
-		return fmt.Errorf("%s looks like a DSN with an embedded password; %s never reads secrets from config files", key, p.Name)
+	if EmbedsSecret(val) {
+		return fmt.Errorf("%s looks like it embeds a secret (a password or a token); %s never reads secrets from config files", key, p.Name)
 	}
 	if strings.IndexFunc(val, UnsafeRune) >= 0 {
 		return fmt.Errorf("%s holds a control or formatting character", key)

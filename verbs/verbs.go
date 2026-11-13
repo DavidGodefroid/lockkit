@@ -40,8 +40,9 @@ const (
 )
 
 // ErrSecret is the refusal of a secret given on the command line: a flag
-// named like a secret (--password, --token, ...), a value that embeds a
-// password (user:pw@host, password=...), or a credential source other
+// named like a secret (--password, --token, --api-key, ...), a value that
+// embeds a secret (user:pw@host, password=..., Bearer ...,
+// https://TOKEN@host: config.EmbedsSecret), or a credential source other
 // than the console asking at start or Vault. errors.Is finds it in the
 // errors of RefuseSecrets and Credentials.
 var ErrSecret = errors.New("a secret is never given on the command line")
@@ -131,10 +132,10 @@ func flagName(msg string) string {
 
 // RefuseSecrets checks fs after fs.Parse, the parsed flags of a
 // non-interactive `profile add` (Parse calls it). It refuses a flag whose
-// name has a part that names a secret (password, passwd, pwd, secret,
-// token: --password, --vault-token, --api-secret), whatever its value; a
-// value that embeds a password or holds a control or formatting
-// character; a value that is itself a secret flag (in `--user --password
+// name has a part that names a secret (config.SecretKey: --password,
+// --vault-token, --api-secret, --api-key), whatever its value; a value
+// that embeds a secret (config.EmbedsSecret) or holds a control or
+// formatting character; a value that is itself a secret flag (in `--user --password
 // X`, --user took --password as its value); and any positional argument
 // (the flag package stops at the first one, so a flag after it would go
 // unchecked: `profile add` takes flags only). It inspects each flag's
@@ -157,7 +158,7 @@ func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 	}
 	for _, a := range fs.Args() {
 		name := strings.TrimLeft(strings.SplitN(a, "=", 2)[0], "-")
-		if strings.HasPrefix(a, "-") && config.SecretKey(strings.Split(name, "-")) || config.EmbedsPassword(a) {
+		if strings.HasPrefix(a, "-") && config.SecretKey(strings.Split(name, "-")) || config.EmbedsSecret(a) {
 			return fmt.Errorf("a positional argument: %w: profile add takes flags only", ErrSecret)
 		}
 	}
@@ -203,8 +204,8 @@ func checkArg(p kit.Product, label, name, val string) error {
 				label, ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
 		}
 	}
-	if config.EmbedsPassword(val) {
-		return fmt.Errorf("%s: %w: the value looks like it embeds a password; give the target without it", label, ErrSecret)
+	if config.EmbedsSecret(val) {
+		return fmt.Errorf("%s: %w: the value looks like it embeds a password or a token; give the target without it", label, ErrSecret)
 	}
 	if strings.IndexFunc(val, config.UnsafeRune) >= 0 {
 		return fmt.Errorf("%s holds a control or formatting character", label)
