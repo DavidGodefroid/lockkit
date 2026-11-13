@@ -3,7 +3,7 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.17.0 (2026-11-13)
 
 - console: `Profile.TicketLimits` (`hubclient.Limits`, set from
   `config.Base.TicketLimits()`) reaches the console's hub client on start
