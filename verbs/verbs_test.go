@@ -232,16 +232,78 @@ func TestParseNeverQuotes(t *testing.T) {
 
 func TestWantsJSON(t *testing.T) {
 	for args, want := range map[string]bool{
-		"--bogus --json":    true,
-		"-json --x":         true,
-		"--json=true":       true,
-		"--json=false":      false,
-		"--user json":       false,
-		"-- --json":         false,
-		"--non-interactive": false,
+		"--bogus --json":         true,
+		"-json --x":              true,
+		"--json=true":            true,
+		"--json=false":           false,
+		"--user json":            false,
+		"-- --json":              false,
+		"--non-interactive":      false,
+		"--json=1":               true,
+		"-json=t":                true,
+		"--json=TRUE":            true,
+		"--json --json=false":    false,
+		"--json=0 -json":         true,
+		"--json=maybe":           false,
+		"--json -- --json=false": true,
 	} {
 		if got := WantsJSON(strings.Fields(args)); got != want {
 			t.Errorf("WantsJSON(%q) = %v", args, got)
+		}
+	}
+}
+
+// setErrValue is a Value whose Set error names another flag.
+type setErrValue struct{}
+
+func (setErrValue) String() string { return "" }
+func (setErrValue) Set(string) error {
+	return errors.New("want a number, like -port 5672 or -name x: y")
+}
+
+func TestParseErrorNamesItsOwnFlag(t *testing.T) {
+	fs := profileFlags()
+	fs.Int("port", 0, "")
+	fs.Var(setErrValue{}, "vhost", "")
+	err := Parse(testProduct, fs, []string{"--vhost", "x"})
+	if err == nil || err.Error() != "--vhost: invalid value" {
+		t.Fatalf("got %v", err)
+	}
+	for msg, want := range map[string]string{
+		"flag provided but not defined: -db-password":                "db-password",
+		"flag needs an argument: -user":                              "user",
+		`invalid value "a\" for flag -port: x" for flag -vhost: y`:   "vhost",
+		`invalid boolean value "x for -port: " for -production: bad`: "production",
+		"bad flag syntax: ---x -port":                                "",
+		"something -port: else":                                      "",
+	} {
+		if got := flagName(msg); got != want {
+			t.Errorf("flagName(%q) = %q, want %q", msg, got, want)
+		}
+	}
+}
+
+func TestRefuseSecretsSwallowedSecretFlag(t *testing.T) {
+	const secret = "s3cr3t-Value"
+	for _, args := range [][]string{
+		{"--user", "--password", secret},
+		{"--user", "-password=" + secret},
+		{"--user", "--db-token"},
+	} {
+		err := Parse(testProduct, profileFlags(), args)
+		if !errors.Is(err, ErrSecret) || !strings.Contains(err.Error(), "--user") || strings.Contains(err.Error(), secret) {
+			t.Errorf("%q: got %v", args, err)
+		}
+	}
+	if err := Parse(testProduct, profileFlags(), []string{"--user", "-x"}); err != nil {
+		t.Fatalf("--user -x: %v", err)
+	}
+}
+
+func TestParseHelp(t *testing.T) {
+	for _, h := range []string{"-h", "-help", "--help"} {
+		if err := Parse(testProduct, profileFlags(), []string{"--json", h}); !errors.Is(err, flag.ErrHelp) {
+			t.Errorf("%s: got %v", h, err)
 		}
 	}
 }

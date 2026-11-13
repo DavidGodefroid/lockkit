@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/DavidGodefroid/lockkit/config"
@@ -52,10 +53,15 @@ var ErrSecret = errors.New("a secret is never given on the command line")
 // argument: a flag package error ("invalid value \"…\" for flag -port")
 // would quote the value, which may be a secret pasted in the wrong place.
 // The error names the flag when fs defines it, and wraps ErrSecret for
-// an unknown flag named like a secret (--password).
+// an unknown flag named like a secret (--password). -h and -help (when fs
+// does not define them) return flag.ErrHelp unchanged: the launcher
+// prints its usage and exits 0.
 func Parse(p kit.Product, fs *flag.FlagSet, args []string) error {
 	fs.SetOutput(io.Discard)
 	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return err
+		}
 		return parseError(p, fs, err)
 	}
 	return RefuseSecrets(p, fs)
@@ -64,13 +70,7 @@ func Parse(p kit.Product, fs *flag.FlagSet, args []string) error {
 // parseError is err of fs.Parse without any argument in it.
 func parseError(p kit.Product, fs *flag.FlagSet, err error) error {
 	msg := err.Error()
-	name := ""
-	if i := strings.LastIndex(msg, " -"); i >= 0 {
-		name = strings.TrimLeft(msg[i+2:], "-")
-		if j := strings.IndexAny(name, ": "); j >= 0 {
-			name = name[:j]
-		}
-	}
+	name := flagName(msg)
 	switch {
 	case strings.HasPrefix(msg, "flag provided but not defined: "):
 		if config.SecretKey(strings.Split(name, "-")) {
@@ -86,17 +86,61 @@ func parseError(p kit.Product, fs *flag.FlagSet, err error) error {
 	return errors.New("bad flag syntax (see the usage)")
 }
 
+// flagName is the flag named by msg, an error of the flag package, read
+// from its fixed shapes only, never from its tail (a Value's Set error may
+// name another flag):
+//
+//	flag provided but not defined: -NAME
+//	flag needs an argument: -NAME
+//	invalid value "…" for flag -NAME: …
+//	invalid boolean value "…" for -NAME: …
+//
+// It is "" for any other message.
+func flagName(msg string) string {
+	for _, prefix := range []string{"flag provided but not defined: -", "flag needs an argument: -"} {
+		if rest, ok := strings.CutPrefix(msg, prefix); ok {
+			return rest
+		}
+	}
+	for _, shape := range []struct{ prefix, sep string }{
+		{"invalid value ", " for flag -"},
+		{"invalid boolean value ", " for -"},
+	} {
+		rest, ok := strings.CutPrefix(msg, shape.prefix)
+		if !ok {
+			continue
+		}
+		// The value is a Go quoted string: skip it whole, whatever it
+		// holds.
+		quoted, err := strconv.QuotedPrefix(rest)
+		if err != nil {
+			return ""
+		}
+		rest, ok = strings.CutPrefix(rest[len(quoted):], shape.sep)
+		if !ok {
+			return ""
+		}
+		name, _, ok := strings.Cut(rest, ": ")
+		if !ok {
+			return ""
+		}
+		return name
+	}
+	return ""
+}
+
 // RefuseSecrets checks fs after fs.Parse, the parsed flags of a
 // non-interactive `profile add` (Parse calls it). It refuses a flag whose
 // name has a part that names a secret (password, passwd, pwd, secret,
 // token: --password, --vault-token, --api-secret), whatever its value; a
 // value that embeds a password or holds a control or formatting
-// character; and any positional argument (the flag package stops at the
-// first one, so a flag after it would go unchecked: `profile add` takes
-// flags only). It inspects each flag's Value.String(), so a repeatable
-// flag's String must render every value. The error names the flag or the
-// argument's position, never its value (it may be the secret), and wraps
-// ErrSecret for a secret.
+// character; a value that is itself a secret flag (in `--user --password
+// X`, --user took --password as its value); and any positional argument
+// (the flag package stops at the first one, so a flag after it would go
+// unchecked: `profile add` takes flags only). It inspects each flag's
+// Value.String(), so a repeatable flag's String must render every value.
+// The error names the flag, never a value (it may be the secret), and
+// wraps ErrSecret for a secret.
 func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 	var err error
 	fs.Visit(func(f *flag.Flag) {
@@ -122,23 +166,42 @@ func RefuseSecrets(p kit.Product, fs *flag.FlagSet) error {
 
 // WantsJSON reports --json among args, as given before parsing: a verb
 // whose arguments do not parse still answers with an Error in JSON.
+// --json=V takes any strconv.ParseBool form, the last occurrence wins, and
+// "--" ends the flags.
 func WantsJSON(args []string) bool {
+	want := false
 	for _, a := range args {
 		if a == "--" {
-			return false
+			break
 		}
 		switch a {
-		case "--json", "-json", "--json=true", "-json=true":
-			return true
+		case "--" + FlagJSON, "-" + FlagJSON:
+			want = true
+			continue
+		}
+		v, ok := strings.CutPrefix(a, "--"+FlagJSON+"=")
+		if !ok {
+			v, ok = strings.CutPrefix(a, "-"+FlagJSON+"=")
+		}
+		if ok {
+			if b, err := strconv.ParseBool(v); err == nil {
+				want = b
+			}
 		}
 	}
-	return false
+	return want
 }
 
 func checkArg(p kit.Product, label, name, val string) error {
 	if name != "" && config.SecretKey(strings.Split(name, "-")) {
 		return fmt.Errorf("%s: %w: %s asks for it at start or reads it from Vault (--%s %s|%s)",
 			label, ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
+	}
+	if v, ok := strings.CutPrefix(val, "-"); ok {
+		if taken, _, _ := strings.Cut(strings.TrimLeft(v, "-"), "="); taken != "" && config.SecretKey(strings.Split(taken, "-")) {
+			return fmt.Errorf("%s: %w: it took a secret flag as its value (a value is missing); %s asks for the secret at start or reads it from Vault (--%s %s|%s)",
+				label, ErrSecret, consoleName(p), FlagCredentials, config.CredentialsAsk, config.CredentialsVault)
+		}
 	}
 	if config.EmbedsPassword(val) {
 		return fmt.Errorf("%s: %w: the value looks like it embeds a password; give the target without it", label, ErrSecret)
