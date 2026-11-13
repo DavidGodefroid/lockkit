@@ -5,6 +5,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- console: a product with its own start-up (`NewServer`, not `Run`) gets
+  the managed configuration's behaviour: `ServerConfig.LoadManaged`
+  (exported, set to `managed.Load`) re-reads the file at every policy
+  poll, and `CheckManaged` / `ManagedLines` refuse a policy beyond the
+  bounds at start (#176).
 - managed: `Load` accepts `managed.toml.verified`, the root-owned stamp
   lox writes with `VerifiedStamp` once it verified the signature on the
   host: a match counts the file signed without cosign (a lock in a
