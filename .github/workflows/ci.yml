@@ -29,6 +29,11 @@ jobs:
         with:
           go-version: "1.26.x"
           check-latest: true
+      # update's TestVerifyKeyRealCosign runs the real cosign (skipped
+      # without it).
+      - name: install cosign
+        if: runner.os == 'Linux'
+        uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
       - name: go vet
         run: go vet ./...
       - name: go test

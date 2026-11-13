@@ -33,7 +33,7 @@ contract between lockkit and the products built on it.
 | `pii` | value detectors, mask modes, name heuristics (`LooksPersonal`, `LooksQuasi`, `LooksPersonNameColumn`), the redacted-reference store |
 | `render` | capped, escaped output for agents: `Value` (any typed JSON result) and `Table` (TSV/JSON) |
 | `sanitize` | error text scrubbing (known secrets + registered patterns) and terminal-safe text |
-| `update` | cosign keyless signature check of a release artifact, checksums |
+| `update` | cosign signature check (keyless or key-pair) of a release artifact, checksums |
 | `console` | the human side: terminal, approvers (typed, desktop, fingerprint), isolation checks, request loop, the generic `Server` and `Run` that host a product `Backend` |
 | `mcpkit` | the agent side's MCP plumbing: server + stdio, profile resolution, progress while the human decides, untrusted framing, "no console" answer, structured refusals, exact integers |
 | `ticket` | the lock ↔ lockhub contract: signed tickets and decisions, closed risk classes and their TTL, ticket kinds (connect, read, write, ddl, action, endpoint, policy) and the deciding rule, RFC 8785 canonical JSON, Ed25519 signatures, X25519 sealed boxes |
@@ -584,6 +584,21 @@ runs `cosign verify-blob`; a missing cosign is `update.ErrCosignMissing`
 Bind the identity to the exact tag you install (anchored, dots escaped),
 never to `v[0-9]`: a tag moved to an older release's signed files would
 verify.
+
+A signer without an OIDC identity (a self-hosted marketplace built on
+internal GitLab, Jenkins or a laptop) signs with a cosign key pair
+(`cosign sign-blob --key`): pass `update.Identity{PublicKey: pem}`, the
+bytes of its PEM `PUBLIC KEY` block, with `CertIdentityRegexp` and
+`OIDCIssuer` empty (both modes, or neither, is an error). Your product
+reads the key file with its own config rules; lockkit takes bytes, never a
+path, writes them to a 0600 temporary file and runs `cosign verify-blob
+--bundle B --key K ARTIFACT`. Only a PKIX key is accepted (ECDSA P-256 or
+P-384, Ed25519, RSA of at least 2048 bits); a certificate, a private key
+or trailing data is refused, and the error never quotes the key. In both
+modes the bundle must carry a Rekor transparency log entry
+(`--insecure-ignore-tlog` is never passed): marketplace operators sign
+with the tlog upload on, a bundle signed with `--tlog-upload=false` is an
+`*update.VerifyError`.
 
 **Deployment.** The products run in Docker only: the separated setup
 (`sysconf`'s `system.toml`, the console account, the clients group, the
