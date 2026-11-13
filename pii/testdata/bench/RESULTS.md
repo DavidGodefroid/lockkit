@@ -18,7 +18,7 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `secret` | fr | 60 | 0.917 | 55 | 1.000 | 0.957 |
 | `secret` | nl | 60 | 0.867 | 52 | 1.000 | 0.929 |
 | `secret` | de | 60 | 0.883 | 53 | 1.000 | 0.938 |
-| `email` | en | 80 | 0.950 | 80 | 1.000 | 0.974 |
+| `email` | en | 80 | 1.000 | 80 | 1.000 | 1.000 |
 | `email` | fr | 80 | 1.000 | 80 | 1.000 | 1.000 |
 | `email` | nl | 80 | 1.000 | 80 | 1.000 | 1.000 |
 | `email` | de | 80 | 1.000 | 80 | 1.000 | 1.000 |
@@ -30,29 +30,38 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `eu_vat` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `eu_vat` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `eu_vat` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_company` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_company` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_company` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_company` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_eid` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_eid` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_eid` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_eid` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `passport` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `passport` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `passport` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `passport` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `fr_nir` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `card` | en | 60 | 1.000 | 62 | 0.968 | 0.984 |
-| `card` | fr | 60 | 1.000 | 82 | 0.732 | 0.845 |
+| `card` | fr | 60 | 1.000 | 69 | 0.870 | 0.930 |
 | `card` | nl | 60 | 1.000 | 61 | 0.984 | 0.992 |
 | `card` | de | 60 | 1.000 | 66 | 0.909 | 0.952 |
 | `be_niss` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_niss` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_niss` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
-| `fr_nir` | fr | 60 | 0.783 | 47 | 1.000 | 0.879 |
 | `nl_bsn` | nl | 60 | 1.000 | 61 | 0.984 | 0.992 |
 | `us_ssn` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `birth_date` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `birth_date` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `birth_date` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `birth_date` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `plate` | en | 60 | 0.933 | 56 | 1.000 | 0.966 |
+| `plate` | fr | 60 | 0.850 | 51 | 1.000 | 0.919 |
+| `plate` | nl | 60 | 0.783 | 47 | 1.000 | 0.879 |
+| `postal_address` | en | 60 | 0.833 | 50 | 1.000 | 0.909 |
+| `postal_address` | fr | 60 | 0.917 | 55 | 1.000 | 0.957 |
+| `postal_address` | nl | 60 | 0.783 | 47 | 1.000 | 0.879 |
 | `person_name` | en | 80 | 0.613 | 49 | 1.000 | 0.760 |
 | `person_name` | fr | 80 | 0.588 | 47 | 1.000 | 0.740 |
 | `person_name` | nl | 80 | 0.600 | 48 | 1.000 | 0.750 |
@@ -64,7 +73,7 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `phone` | en | 80 | 0.988 | 87 | 0.908 | 0.946 |
 | `phone` | fr | 80 | 1.000 | 88 | 0.909 | 0.952 |
 | `phone` | nl | 80 | 1.000 | 83 | 0.964 | 0.982 |
-| `phone` | de | 80 | 0.887 | 79 | 0.899 | 0.893 |
+| `phone` | de | 80 | 1.000 | 88 | 0.909 | 0.952 |
 | `phone_loose` | en | 60 | 1.000 | 87 | 0.690 | 0.816 |
 | `phone_loose` | fr | 60 | 0.400 | 47 | 0.511 | 0.449 |
 | `phone_loose` | nl | 60 | 0.800 | 74 | 0.649 | 0.716 |
@@ -74,11 +83,11 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 
 | Lang | Values | Masked |
 |---|--:|--:|
-| en | 720 | 0.943 |
-| fr | 960 | 0.918 |
-| nl | 960 | 0.946 |
-| de | 900 | 0.933 |
-| all | 3540 | 0.934 |
+| en | 1020 | 0.950 |
+| fr | 1080 | 0.919 |
+| nl | 1080 | 0.928 |
+| de | 900 | 0.943 |
+| all | 4080 | 0.934 |
 
 ## Field heuristics
 
@@ -101,12 +110,14 @@ Every detector and language with a recall below 0.9:
 
 - `secret` / nl: recall 0.867
 - `secret` / de: recall 0.883
-- `fr_nir` / fr: recall 0.783
+- `plate` / fr: recall 0.850
+- `plate` / nl: recall 0.783
+- `postal_address` / en: recall 0.833
+- `postal_address` / nl: recall 0.783
 - `person_name` / en: recall 0.613
 - `person_name` / fr: recall 0.588
 - `person_name` / nl: recall 0.600
 - `person_name` / de: recall 0.650
-- `phone` / de: recall 0.887
 - `phone_loose` / fr: recall 0.400
 - `phone_loose` / nl: recall 0.800
 - `phone_loose` / de: recall 0.733

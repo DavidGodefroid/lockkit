@@ -21,16 +21,18 @@ type Detector interface {
 // configured in: secrets first (a password in a URL is not an e-mail
 // address), emails next (their digits are not phone numbers), the
 // checksummed numbers (a "BE0…" VAT number before the card, NISS and
-// phone detectors that would read its digits), IP addresses (their digits
-// are not phone numbers either), phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"secret", "email", "iban", "eu_vat", "be_company", "be_eid", "passport", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "birth_date", "person_name", "ip", "phone", "phone_loose"}
+// phone detectors that would read its digits; a NIR before the card,
+// since one NIR in ten also passes Luhn), plates and addresses (their
+// digits are no phone numbers), IP addresses (nor are theirs), phone
+// numbers, the loosest pattern, last.
+var detectorOrder = []string{"secret", "email", "iban", "eu_vat", "be_company", "be_eid", "passport", "fr_nir", "card", "be_niss", "nl_bsn", "us_ssn", "birth_date", "plate", "postal_address", "person_name", "ip", "phone", "phone_loose"}
 
 // optInDetectors are left out of AllDetectors: phone_loose and
 // person_name for their false positives; ip and secret so that a product
 // upgrading lockkit masks exactly what it masked before until it names
 // them; so is every detector added since (eu_vat, be_company, be_eid,
-// passport, birth_date).
-var optInDetectors = set("phone_loose", "person_name", "ip", "secret", "eu_vat", "be_company", "be_eid", "passport", "birth_date")
+// passport, birth_date, plate, postal_address).
+var optInDetectors = set("phone_loose", "person_name", "ip", "secret", "eu_vat", "be_company", "be_eid", "passport", "birth_date", "plate", "postal_address")
 
 var detectorFinders = map[string]func(string) []span{
 	"email":       findEmails,
@@ -44,6 +46,10 @@ var detectorFinders = map[string]func(string) []span{
 	"ip":          findIPs,
 	"secret":      findSecrets,
 	"person_name": findPersonNames,
+	"plate":       findPlates,
+	// postal_address: a street, a number, and the postcode and locality
+	// that follow.
+	"postal_address": findAddresses,
 	// phone_loose is opt-in: it adds national numbers written without a
 	// trunk 0 ("(415) 555-2671", "612 345 678"), at a higher false-positive
 	// rate than phone.
@@ -80,8 +86,9 @@ func finderFor(n string) func(string) []gspan {
 // and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses), secret
 // (credentials, tokens and private keys, masked as Redacted), eu_vat (EU
 // VAT numbers: BE, FR, NL, DE, LU), be_company (Belgian company
-// numbers), be_eid (Belgian identity card numbers), and the context-only
-// passport (Belgian passport numbers) and birth_date.
+// numbers), be_eid (Belgian identity card numbers), plate (BE, FR, NL
+// licence plates), postal_address (BE, FR, NL street addresses), and the
+// context-only passport (Belgian passport numbers) and birth_date.
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for i, n := range names {
@@ -107,7 +114,7 @@ func Detectors(names []string) ([]Detector, error) {
 
 // AllDetectors is every detector but the opt-in ones (phone_loose,
 // person_name, ip, secret, eu_vat, be_company, be_eid, passport,
-// birth_date), in their run order: what masking falls back to when it was
+// birth_date, plate, postal_address), in their run order: what masking falls back to when it was
 // given none.
 func AllDetectors() []Detector {
 	var names []string
@@ -136,8 +143,8 @@ type finderDetector struct {
 // all is what the detector finds in s, context-raised candidates included.
 func (d finderDetector) all(s string) []gspan {
 	spans := d.find(s)
-	if d.ctx == nil {
-		return spans
+	if d.ctx == nil || !d.field && !hasContextWord(d.name, s) {
+		return spans // no context anywhere: nothing to raise
 	}
 	up := d.ctx(s, func(i int) bool { return d.field || contextBefore(d.name, s, i) })
 	if len(up) == 0 {
@@ -397,8 +404,10 @@ func mod97(s string) int {
 // emailRe accepts any letter, digit or combining mark in the local part
 // (jöhn, a decomposed rené) and in the domain labels (RFC 6531), so that a
 // non-ASCII character cannot cut the address and leave its prefix in clear.
-// The top-level domain is letters only.
-var emailRe = regexp.MustCompile(`[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(?:\.[\p{L}\p{M}\p{N}\-]+)*\.\p{L}[\p{L}\p{M}]+`)
+// The top-level domain is letters only. An apostrophe may join two parts
+// of the local part (o'hara), never open or close it: a quoted address
+// ('a@b.com') keeps its quotes.
+var emailRe = regexp.MustCompile(`[\p{L}\p{M}\p{N}._%+\-]+(?:['’][\p{L}\p{M}\p{N}._%+\-]+)*@[\p{L}\p{M}\p{N}\-]+(?:\.[\p{L}\p{M}\p{N}\-]+)*\.\p{L}[\p{L}\p{M}]+`)
 
 // findEmails accepts a match only at the start of a word, never the tail of
 // a longer local part, or right where the previous address ended: an
@@ -730,6 +739,10 @@ func phoneValid(d string, plus bool, firstGroup int) bool {
 		return len(d) >= 10 && len(d) <= 17 && d[2] != '0'
 	case d[0] == '0':
 		// National: 0 + area or mobile prefix. "0.123" and "0 12" are not.
+		// A German mobile (015x, 016x, 017x) has 12 digits.
+		if len(d) == 12 && d[1] == '1' && d[2] >= '5' && d[2] <= '7' && firstGroup >= 3 {
+			return true
+		}
 		return len(d) >= 9 && len(d) <= 11 && d[1] != '0' && firstGroup >= 2
 	}
 	return false

@@ -92,7 +92,7 @@ var birthDateRe = regexp.MustCompile(`(?i)[0-9]{1,2}[./-][0-9]{1,2}[./-][0-9]{4}
 // raiseBirthDates: a date after a birth word ("né le", "geboren",
 // "DOB"); never a date alone.
 func raiseBirthDates(s string, near func(int) bool) []gspan {
-	return raised(scan(s, birthDateRe, 0, func(s string, start, end int) (int, bool) {
+	return raised(scan(s, birthDateRe, 48, func(s string, start, end int) (int, bool) {
 		if isAlnum(before(s, start)) || isAlnum(after(s, end)) || !near(start) {
 			return 0, false
 		}

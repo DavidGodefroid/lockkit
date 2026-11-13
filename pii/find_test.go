@@ -41,7 +41,7 @@ func maskWith(s string, ms []Match) string {
 }
 
 func allDetectors(t testing.TB) []Detector {
-	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "secret", "ip", "eu_vat", "be_company", "be_eid", "passport", "birth_date"})
+	ds, err := Detectors([]string{"email", "phone", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone_loose", "secret", "ip", "eu_vat", "be_company", "be_eid", "passport", "birth_date", "plate", "postal_address"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,7 +218,7 @@ func FuzzFindCoversDetect(f *testing.F) {
 		f.Add(s)
 	}
 	f.Add("a***(12) 345 6789 jo\u200bhn@example.com jean%40example.com &#64;")
-	f.Add("TVA BE 0123.456.749, KBO 0123456749, FR40303265045 NL004495445B01 tel 612 345 678 eID 591-2345678-29 passport EH123456 né le 3 mars 1985")
+	f.Add("TVA BE 0123.456.749, KBO 0123456749, FR40303265045 NL004495445B01 tel 612 345 678 eID 591-2345678-29 passport EH123456 né le 3 mars 1985 1-ABC-123 Rue de la Loi 16, 1000 Bruxelles o'hara@example.com")
 	ds := allDetectors(f)
 	f.Fuzz(func(t *testing.T, s string) {
 		if len(s) > 512 {

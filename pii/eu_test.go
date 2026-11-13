@@ -100,7 +100,7 @@ func TestEUVATConfidenceAndNegatives(t *testing.T) {
 }
 
 func TestNewDetectorsOptIn(t *testing.T) {
-	want := []string{"email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "phone"}
+	want := []string{"email", "iban", "fr_nir", "card", "be_niss", "nl_bsn", "us_ssn", "phone"}
 	var got []string
 	for _, d := range AllDetectors() {
 		got = append(got, d.Name())
@@ -108,7 +108,7 @@ func TestNewDetectorsOptIn(t *testing.T) {
 	if !slices.Equal(got, want) {
 		t.Errorf("AllDetectors = %v, want %v (new detectors are opt-in)", got, want)
 	}
-	for _, n := range []string{"eu_vat", "be_company"} {
+	for _, n := range []string{"eu_vat", "be_company", "be_eid", "passport", "birth_date", "plate", "postal_address"} {
 		detector(t, n)
 	}
 }

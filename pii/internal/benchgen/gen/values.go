@@ -39,13 +39,22 @@ var values = map[string]func(r *rand.Rand, lang string) (string, bool){
 	"be_eid":     func(r *rand.Rand, _ string) (string, bool) { return formatEID(beEID(r, true)), false },
 	"passport":   func(r *rand.Rand, _ string) (string, bool) { return passportNumber(r), false },
 	"birth_date": birthDate,
+	"plate": func(r *rand.Rand, lang string) (string, bool) {
+		v := plateNumber(r, pick(r, plateCountries[lang]))
+		if r.IntN(6) == 0 {
+			// Spaces or nothing between the groups: not found.
+			return strings.ReplaceAll(v, "-", pick(r, []string{" ", ""})), true
+		}
+		return v, false
+	},
+	"postal_address": addressValue,
 }
 
 // digitKinds are the kinds whose values have digits a disguise can
 // rewrite.
 var digitKinds = map[string]bool{"iban": true, "card": true, "be_niss": true, "fr_nir": true,
 	"nl_bsn": true, "us_ssn": true, "ip": true, "phone": true, "eu_vat": true, "be_company": true,
-	"be_eid": true, "passport": true}
+	"be_eid": true, "passport": true, "plate": true}
 
 // disguise rewrites one value in five: full-width digits, a zero-width
 // space inside, or no-break spaces between digit groups.
@@ -504,6 +513,116 @@ func birthDate(r *rand.Rand, lang string) (string, bool) {
 		return fmt.Sprintf("%02d/%02d/%04d", m, d, y), false
 	}
 	return fmt.Sprintf("%02d%s%02d%s%04d", d, sep, m, sep, y), false
+}
+
+// --- licence plates and postal addresses
+
+var plateCountries = map[string][]string{"en": {"BE", "FR", "NL"}, "fr": {"BE", "FR"}, "nl": {"BE", "NL"}}
+
+// lettersFrom returns n letters drawn from set.
+func lettersFrom(r *rand.Rand, set string, n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = set[r.IntN(len(set))]
+	}
+	return string(b)
+}
+
+// nlSidecodes are the Dutch sidecodes 4 to 11: 'X' a letter, '9' a digit.
+var nlSidecodes = []string{"XX-99-XX", "XX-XX-99", "99-XX-XX", "99-XXX-9", "9-XXX-99", "XX-999-X", "X-999-XX", "XXX-99-X"}
+
+func plateNumber(r *rand.Rand, cc string) string {
+	switch cc {
+	case "BE":
+		if r.IntN(4) == 0 {
+			return lettersFrom(r, "BCDFGHJKLMNPRSTVWXYZ", 3) + "-" + digits(r, 3) // before 2010
+		}
+		return fmt.Sprint(1+r.IntN(2)) + "-" + letters(r, 3) + "-" + digits(r, 3)
+	case "FR":
+		const siv = "ABCDEFGHJKLMNPQRSTVWXYZ" // no I, O, U
+		return lettersFrom(r, siv, 2) + "-" + digits(r, 3) + "-" + lettersFrom(r, siv, 2)
+	}
+	var b strings.Builder
+	for _, c := range pick(r, nlSidecodes) {
+		switch c {
+		case 'X':
+			b.WriteString(lettersFrom(r, "BDFGHJKLNPRSTVXZ", 1))
+		case '9':
+			b.WriteString(digits(r, 1))
+		default:
+			b.WriteRune(c)
+		}
+	}
+	return b.String()
+}
+
+var (
+	frStreetNames = []string{"de la Loi", "des Tilleuls", "du Moulin", "Victor Hugo", "de la Station", "des Écoles", "Saint-Michel", "du Marché", "Louise", "de Namur"}
+	nlStreetStems = []string{"Kerk", "Molen", "School", "Linden", "Stations", "Beuken", "Dorps", "Hoog", "Berken", "Kastanje"}
+	enStreetNames = []string{"Elm", "Baker", "Mill", "Station", "Church", "High", "Park", "Queen"}
+	localities    = map[string][]string{
+		"BE-fr": {"Namur", "Liège", "Mons", "Ixelles", "Uccle", "Wavre", "Arlon"},
+		"FR":    {"Lyon", "Lille", "Nantes", "Rennes", "Dijon"},
+		"BE-nl": {"Gent", "Leuven", "Brugge", "Hasselt", "Mechelen"},
+		"NL":    {"Utrecht", "Haarlem", "Zwolle", "Leiden"},
+	}
+)
+
+// addressValue is a street address: Belgian (street, number, box, 4-digit
+// postcode), French (number first, 5-digit postcode), Dutch (compound
+// street, 1234 AB postcode) or English (number, name, Street or Road);
+// the postcode and locality three times in four.
+func addressValue(r *rand.Rand, lang string) (string, bool) {
+	style := pick(r, map[string][]string{"en": {"EN", "EN", "BE-fr", "NL"}, "fr": {"BE-fr", "BE-fr", "FR"}, "nl": {"BE-nl", "BE-nl", "NL"}}[lang])
+	num := fmt.Sprint(1 + r.IntN(250))
+	if r.IntN(6) == 0 {
+		num += pick(r, []string{"a", "b", "B"})
+	}
+	tail := r.IntN(4) != 0
+	pc := func(n int) string { return fmt.Sprint(1+r.IntN(9)) + digits(r, n-1) }
+	if r.IntN(6) == 0 {
+		// Known misses: a street in lower case, or one without a type.
+		switch style {
+		case "BE-fr", "FR":
+			return "rue " + strings.ToLower(pick(r, frStreetNames)) + " " + num, true
+		case "BE-nl", "NL":
+			return pick(r, []string{"Damrak", "Meir", "Kouter", "Rokin"}) + " " + num, true
+		}
+		return strings.ToLower(pick(r, enStreetNames)) + " street " + num, true
+	}
+	switch style {
+	case "EN":
+		return num + " " + pick(r, enStreetNames) + " " + pick(r, []string{"Street", "Road", "Lane"}), false
+	case "BE-fr":
+		v := pick(r, []string{"Rue", "Avenue", "Chaussée", "Place", "Boulevard"}) + " " + pick(r, frStreetNames) + " " + num
+		if r.IntN(5) == 0 {
+			v += " bte " + fmt.Sprint(1+r.IntN(20))
+		}
+		if tail {
+			v += ", " + pc(4) + " " + pick(r, localities["BE-fr"])
+		}
+		return v, false
+	case "FR":
+		v := num + " " + pick(r, []string{"rue", "avenue", "boulevard", "place"}) + " " + pick(r, frStreetNames)
+		if tail {
+			v += ", " + pc(5) + " " + pick(r, localities["FR"])
+		}
+		return v, false
+	case "BE-nl":
+		v := pick(r, nlStreetStems) + pick(r, []string{"straat", "laan", "weg", "plein", "dreef"}) + " " + num
+		if r.IntN(5) == 0 {
+			v += " bus " + fmt.Sprint(1+r.IntN(20))
+		}
+		if tail {
+			v += ", " + pc(4) + " " + pick(r, localities["BE-nl"])
+		}
+		return v, false
+	}
+	v := pick(r, nlStreetStems) + pick(r, []string{"straat", "weg", "laan", "singel"}) + " " + num
+	if tail {
+		v += ", " + pc(4) + " " + letters(r, 2) + " " + pick(r, localities["NL"])
+	}
+	return v, false
 }
 
 // --- phones: 'd' is a random digit. The shapes keep to the ranges set

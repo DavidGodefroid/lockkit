@@ -270,7 +270,7 @@ func Normalise(kind, value string) string {
 			return "+" + d[2:]
 		}
 		return d
-	case "iban", "eu_vat", "be_company":
+	case "iban", "eu_vat", "be_company", "plate":
 		return strings.Map(func(r rune) rune {
 			// An IBAN, a VAT or a company number is ASCII letters and
 			// digits: anything else is a separator (and upper-casing
@@ -302,6 +302,11 @@ func Normalise(kind, value string) string {
 		}, v))
 	case "person_name":
 		return strings.ToLower(strings.Join(strings.Fields(v), " "))
+	case "postal_address":
+		// Case, blanks and punctuation between words do not matter.
+		return strings.Join(strings.FieldsFunc(strings.ToLower(v), func(r rune) bool {
+			return r == ' ' || r == ',' || r == ';' || r == '\t' || r == '\n'
+		}), " ")
 	case "ip":
 		t := strings.Trim(strings.TrimSpace(v), "[]")
 		if a, err := netip.ParseAddr(t); err == nil {

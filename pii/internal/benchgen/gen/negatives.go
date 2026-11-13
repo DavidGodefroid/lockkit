@@ -237,6 +237,26 @@ var negValues = map[string]func(r *rand.Rand, lang string) string{
 	"code": func(r *rand.Rand, _ string) string { return passportNumber(r) },
 	// A date that is no birth date.
 	"any_date": func(r *rand.Rand, lang string) string { v, _ := birthDate(r, lang); return v },
+	// References shaped like a plate, with one group too many or too long.
+	"plate_ref": func(r *rand.Rand, _ string) string {
+		switch r.IntN(3) {
+		case 0:
+			return letters(r, 2) + "-" + digits(r, 3) + "-" + letters(r, 2) + "-" + digits(r, 2)
+		case 1:
+			return pick(r, []string{"INV", "REF", "SKU", "CVE", "ISO", "TKT"}) + "-" + digits(r, 3)
+		}
+		return letters(r, 2) + "-" + digits(r, 4) + "-" + letters(r, 2)
+	},
+	// A street named without a number.
+	"street": func(r *rand.Rand, lang string) string {
+		switch lang {
+		case "fr":
+			return pick(r, []string{"rue", "avenue", "place"}) + " " + pick(r, frStreetNames)
+		case "nl":
+			return pick(r, nlStreetStems) + pick(r, []string{"straat", "laan", "plein"})
+		}
+		return pick(r, enStreetNames) + " " + pick(r, []string{"Street", "Road"})
+	},
 }
 
 // laterNegatives are the hard negatives of the kinds written after the
@@ -250,19 +270,32 @@ var laterNegatives = map[string]map[string][]negFrame{
 		"de": {{"bad_vat", "VIES lehnte die USt-IdNr. {v} ab."}, {"bad_vat", "Falsche Prüfziffer: {v}"}},
 	},
 	"be_company": {
+		"en": {{"bad_company", "Company number {v} not found in the KBO."}, {"bad_company", "Parcel {v} handed to the courier."}},
 		"fr": {{"bad_company", "Numéro {v} inconnu à la BCE."}, {"bad_company", "Colis {v} remis au transporteur."}},
 		"nl": {{"bad_company", "Nummer {v} onbekend in de KBO."}, {"bad_company", "Pakket {v} afgegeven aan de koerier."}},
 		"de": {{"bad_company", "Nummer {v} unbekannt in der ZDU."}, {"bad_company", "Paket {v} an den Kurier übergeben."}},
 	},
 	"be_eid": {
+		"en": {{"bad_eid", "Card {v} rejected: wrong check digits."}, {"bad_eid", "Reference {v} unknown."}},
 		"fr": {{"bad_eid", "Carte {v} refusée : chiffres de contrôle faux."}, {"bad_eid", "Référence {v} inconnue."}},
 		"nl": {{"bad_eid", "Kaart {v} geweigerd: controlecijfers fout."}, {"bad_eid", "Referentie {v} onbekend."}},
 		"de": {{"bad_eid", "Karte {v} abgelehnt: Prüfziffern falsch."}, {"bad_eid", "Referenz {v} unbekannt."}},
 	},
 	"passport": {
+		"en": {{"code", "Parcel {v} shipped this morning."}, {"code", "Batch {v} checked."}},
 		"fr": {{"code", "Colis {v} expédié ce matin."}, {"code", "Lot {v} contrôlé."}},
 		"nl": {{"code", "Pakket {v} vanochtend verzonden."}, {"code", "Partij {v} gecontroleerd."}},
 		"de": {{"code", "Paket {v} heute verschickt."}, {"code", "Charge {v} geprüft."}},
+	},
+	"plate": {
+		"en": {{"plate_ref", "Order {v} shipped this morning."}, {"plate_ref", "See ticket {v} for details."}},
+		"fr": {{"plate_ref", "Commande {v} expédiée ce matin."}, {"plate_ref", "Voir le ticket {v}."}},
+		"nl": {{"plate_ref", "Bestelling {v} is verzonden."}, {"plate_ref", "Zie ticket {v}."}},
+	},
+	"postal_address": {
+		"en": {{"street", "{v} is closed for the parade."}, {"street", "The shop on {v} moved."}, {"words", "The meeting will take place in 12 minutes."}},
+		"fr": {{"street", "La {v} est fermée jusqu'à lundi."}, {"street", "Travaux dans la {v} cet été."}, {"words", "La réunion aura lieu dans 12 minutes."}},
+		"nl": {{"street", "De {v} is afgesloten."}, {"street", "Werken in de {v} deze zomer."}, {"words", "De vergadering begint over 12 minuten."}},
 	},
 	"birth_date": {
 		"en": {{"any_date", "Contract signed on {v}."}, {"any_date", "Invoice date: {v}"}, {"any_date", "Warranty until {v}."}},

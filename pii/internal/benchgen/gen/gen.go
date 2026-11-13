@@ -68,7 +68,7 @@ var Langs = []string{"en", "fr", "nl", "de"}
 // negatives in laterNegatives.
 var Kinds = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn",
 	"person_name", "ip", "phone", "phone_loose",
-	"eu_vat", "be_company", "be_eid", "passport", "birth_date"}
+	"eu_vat", "be_company", "be_eid", "passport", "birth_date", "plate", "postal_address"}
 
 // firstKinds is how many of Kinds the first corpus had: they come before
 // the mixed lines and the hard negatives, the later ones after, each with
@@ -78,23 +78,25 @@ const firstKinds = 12
 // Claims lists, per kind, the languages whose texts it is meant to cover:
 // a national number belongs to its country's languages.
 var Claims = map[string][]string{
-	"secret":      Langs,
-	"email":       Langs,
-	"iban":        Langs,
-	"card":        Langs,
-	"be_niss":     {"fr", "nl", "de"},
-	"fr_nir":      {"fr"},
-	"nl_bsn":      {"nl"},
-	"us_ssn":      {"en"},
-	"person_name": Langs,
-	"ip":          Langs,
-	"phone":       Langs,
-	"phone_loose": Langs,
-	"eu_vat":      Langs,
-	"be_company":  {"fr", "nl", "de"},
-	"be_eid":      {"fr", "nl", "de"},
-	"passport":    {"fr", "nl", "de"},
-	"birth_date":  Langs,
+	"secret":         Langs,
+	"email":          Langs,
+	"iban":           Langs,
+	"card":           Langs,
+	"be_niss":        {"fr", "nl", "de"},
+	"fr_nir":         {"fr"},
+	"nl_bsn":         {"nl"},
+	"us_ssn":         {"en"},
+	"person_name":    Langs,
+	"ip":             Langs,
+	"phone":          Langs,
+	"phone_loose":    Langs,
+	"eu_vat":         Langs,
+	"be_company":     Langs,
+	"be_eid":         Langs,
+	"passport":       Langs,
+	"birth_date":     Langs,
+	"plate":          {"en", "fr", "nl"},
+	"postal_address": {"en", "fr", "nl"},
 }
 
 // Sizes of the blocks: comfortably above the bench's minimums (50
