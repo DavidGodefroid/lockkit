@@ -14,6 +14,7 @@
 package plans
 
 import (
+	"crypto/ecdh"
 	"crypto/ed25519"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -177,6 +178,11 @@ type Plan struct {
 	// RenewChecked: a renewal whose binding the lock computed again (its
 	// Inputs and hashes are the lock's current view).
 	RenewChecked bool `json:"renew_checked,omitempty"`
+	// Inputs are the values the human typed for the plan's ticket
+	// (ticket.Subject.Inputs), opened by hubclient.Client.Begin on the
+	// plan it returns: never stored, never written. The product wipes
+	// them once it ran the plan (secrets.Wipe).
+	Inputs map[string][]byte `json:"-"`
 }
 
 // LockTicket decodes the signed ticket of a pending plan, verified under
@@ -209,6 +215,16 @@ type Store struct {
 	mu     sync.Mutex
 	plans  map[string]*Plan
 	nonces map[string]bool
+	// keys are the one-use X25519 keys typed inputs are sealed to, by
+	// plan id, while the plan is pending: in memory only, so a restarted
+	// lock cannot open a box sealed before (KeepInputKey).
+	keys map[string]inputKey
+}
+
+// inputKey is the one-use key of a pending plan's ticket.
+type inputKey struct {
+	ticket string
+	key    *ecdh.PrivateKey
 }
 
 // Option configures Open.
@@ -227,7 +243,7 @@ const (
 // directory, plan or nonce file readable or writable by group or others,
 // and loads every plan.
 func Open(dir string, opts ...Option) (*Store, error) {
-	s := &Store{dir: dir, now: time.Now, plans: map[string]*Plan{}, nonces: map[string]bool{}}
+	s := &Store{dir: dir, now: time.Now, plans: map[string]*Plan{}, nonces: map[string]bool{}, keys: map[string]inputKey{}}
 	for _, o := range opts {
 		o(s)
 	}
@@ -706,6 +722,7 @@ func (s *Store) Begin(id string, c Caller, nonce string) error {
 		return err
 	}
 	s.plans[id] = u
+	delete(s.keys, id)
 	return nil
 }
 
@@ -792,6 +809,7 @@ func (s *Store) ExpireApproval(id string, c Caller, approvedAt time.Time, reason
 		return err
 	}
 	s.plans[id] = u
+	delete(s.keys, id)
 	return nil
 }
 
@@ -949,6 +967,7 @@ func (s *Store) WithdrawAll(reason string) ([]*Plan, error) {
 			return out, err
 		}
 		s.plans[p.ID] = u
+		delete(s.keys, p.ID)
 		out = append(out, clone(u))
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Created.Before(out[j].Created) })
@@ -998,7 +1017,44 @@ func (s *Store) setState(p *Plan, st State, reason string) error {
 		return err
 	}
 	s.plans[p.ID] = u
+	if st != Pending {
+		delete(s.keys, p.ID)
+	}
 	return nil
+}
+
+// KeepInputKey keeps key, the one-use X25519 key whose public half is the
+// Subject.SecretTo of the ticket ticketID that plan id waits on, until
+// the plan leaves Pending: in memory only, never written to the store's
+// files. A plan that is not pending on ticketID is ErrState.
+func (s *Store) KeepInputKey(id, ticketID string, key *ecdh.PrivateKey) error {
+	if key == nil || key.Curve() != ecdh.X25519() {
+		return errors.New("plans: KeepInputKey needs an X25519 key")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, ok := s.plans[id]
+	if !ok {
+		return ErrNoSuchPlan
+	}
+	if p.State != Pending || p.Ticket != ticketID {
+		return fmt.Errorf("%w: plan is %s, on ticket %s", ErrState, p.State, p.Ticket)
+	}
+	s.keys[id] = inputKey{ticket: ticketID, key: key}
+	return nil
+}
+
+// InputKey is the key KeepInputKey kept for plan id pending on ticket
+// ticketID, nil when there is none (a lock restarted since it pushed the
+// ticket, a plan no longer pending).
+func (s *Store) InputKey(id, ticketID string) *ecdh.PrivateKey {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	k, ok := s.keys[id]
+	if p := s.plans[id]; !ok || p == nil || p.State != Pending || p.Ticket != ticketID || k.ticket != ticketID {
+		return nil
+	}
+	return k.key
 }
 
 // Prune expires plans whose time is up and removes final plans older than

@@ -111,6 +111,10 @@ type Base struct {
 	Approver *ticket.Approver `json:"approver,omitempty"`
 	Facade   string           `json:"facade,omitempty"`
 	HubSig   string           `json:"hub_sig,omitempty"`
+	// Inputs names the values the human typed for the request
+	// (ticket.Subject.Inputs; InputNames of plans.Plan.Inputs): the names
+	// only, never a value.
+	Inputs []string `json:"inputs,omitempty"`
 	// Managed is the sha256 of the company's managed file in force
 	// (package managed) when the record was made, so that an action is
 	// tied to the company policy it ran under.
@@ -119,6 +123,19 @@ type Base struct {
 
 // AuditEvent implements Record.
 func (b Base) AuditEvent() string { return b.Event }
+
+// InputNames is the sorted names of typed values (plans.Plan.Inputs), as
+// Base.Inputs records them: never the values.
+func InputNames(values map[string][]byte) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(values))
+	for n := range values {
+		names = append(names, n)
+	}
+	return ticket.SortInputs(names)
+}
 
 // Log appends records to <stateDir>/<product>/audit.log. The file is opened in
 // append mode for each record, so it is never truncated and never held open.

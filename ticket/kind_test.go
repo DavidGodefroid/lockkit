@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ecdh"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -84,7 +85,7 @@ func TestKindTicketRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Kind != KindConnect || *got.Subject != *tk.Subject || got.EffectiveKind() != KindConnect {
+	if got.Kind != KindConnect || !reflect.DeepEqual(*got.Subject, *tk.Subject) || got.EffectiveKind() != KindConnect {
 		t.Fatalf("decoded %+v", got)
 	}
 	if want, _ := ConnectPlanHash(*tk.Subject); got.PlanHash != want {

@@ -33,6 +33,17 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `MaxQuestionLines` or `MaxQuestionBytes` now starts it with
   `… N earlier lines not shown` instead of dropping its oldest lines
   silently.
+- ticket, console, hubclient, plans, audit: a plan's read or action
+  ticket can ask the human for typed values, sealed end to end to the
+  lock (#174). `HubTicket.Inputs` names them (`Subject.Inputs`); the hub
+  client gives the ticket a one-use key (`Subject.SecretTo`, private half
+  in `plans.Store` memory only) and `Flags.NeverAuto`; the decider seals
+  the values with `ticket.SealInputs` (context `lockkit/plan-inputs/v1`)
+  and `Begin` returns them in `Plan.Inputs` (`Decision.OpenInputs`;
+  wipe them after the run). A restarted lock answers `ticket.ErrExpired`
+  and renews. `audit.Base.Inputs` records the names, never a value.
+  `ticket.Subject` holds a slice now: compare it with `reflect.DeepEqual`,
+  not `==`.
 
 ## v0.17.0 (2026-11-13)
 
