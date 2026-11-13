@@ -31,12 +31,12 @@ type hookBackend struct {
 }
 
 func (b *hookBackend) StatusAnswer(c StatusResult, s Session) any {
-	return map[string]any{"profile": c.Profile, "auto_approve": c.AutoApprove, "tier": b.policy.Tier, "connected": s != nil}
+	return map[string]any{"profile": c.Profile, "tier": b.policy.Tier, "connected": s != nil}
 }
 
 func (b *hookBackend) StatusRows(v StatusView) [][2]string {
 	return [][2]string{{"profile", v.Profile.Name + " · tier " + v.Policy.(fakePolicy).Tier},
-		{"mode", StatusModeRow(v, b.Words())}, {"results", StatusResultsRow(v, b.Words())},
+		{"results", StatusResultsRow(v, b.Words())},
 		{"unmask", StatusUnmaskRow(v)}, {"policy change", StatusPendingRow(v)}, {"queued", fmt.Sprint(v.Requests)}}
 }
 
@@ -109,7 +109,7 @@ func newHookHarness(t *testing.T, p fakePolicy, mutate func(*ServerConfig)) (*ha
 func TestHooksStatus(t *testing.T) {
 	h, _ := newHookHarness(t, uat(), nil)
 	r := h.call(t, context.Background(), ipc.MethodStatus, nil)
-	if r.Error != nil || string(r.Result) != `{"auto_approve":false,"connected":true,"profile":"uat","tier":"read"}` {
+	if r.Error != nil || string(r.Result) != `{"connected":true,"profile":"uat","tier":"read"}` {
 		t.Fatalf("flat status: %s %+v", r.Result, r.Error)
 	}
 	h.s.Lost()

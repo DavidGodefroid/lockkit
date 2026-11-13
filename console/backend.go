@@ -141,10 +141,6 @@ type Env interface {
 	// decides (the answer is Pending). The decision is audited before
 	// Approve returns.
 	Approve(ctx context.Context, id int64, s Screen) Approval
-	// Auto is always false: auto mode is gone, lockhub decides.
-	//
-	// Deprecated: it goes in the next minor release.
-	Auto() bool
 	// ShowResults reports the clear results switch (Ctrl-O).
 	ShowResults() bool
 	// UnmaskAllowed reports whether clients may ask for unmasked output
@@ -211,10 +207,6 @@ type Screen struct {
 // Approval is the outcome of Env.Approve.
 type Approval struct {
 	Approved bool
-	// Auto is never set: auto mode is gone.
-	//
-	// Deprecated: it goes in the next minor release.
-	Auto bool
 	// Retype: the human typed Screen.Retype.
 	Retype bool
 	// Refusal is the answer to send when neither Approved nor Retype: the

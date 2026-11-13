@@ -728,7 +728,7 @@ decision as your own audit record type. `env.Session(ctx)` gives the
 live session (reconnecting after `env.Lost()`, a `credentials_ttl` or a
 Vault lease); `env.Level(ctx, start)` levels the response time;
 `env.ShowResults()`, `env.UnmaskAllowed()` are the human's switches
-(`env.Auto()` is deprecated and always false: there is no auto mode);
+(there is no auto mode: lockhub decides every request);
 `env.Sanitizer()` scrubs error text; `env.Safe` escapes text for the
 console.
 
@@ -773,8 +773,8 @@ files.
 **Hub mode.** A console is hub-attached only. `console.HubOptions.Register(fs)`
 adds the flags `lox run` writes: `--hub URL --hub-key-file PATH --instance NAME`,
 all three required (`console.ErrNoHub` otherwise), plus `--hub-plain-http`
-for an http:// hub on its own network. There is no auto mode:
-`Options.Auto` and `ServerConfig.Auto` are deprecated and refused. The hub URL is
+for an http:// hub on its own network. There is no auto mode: lockhub
+decides every request. The hub URL is
 `http(s)://host[:port]` and nothing else: a user, password, path, query
 or fragment is refused (`hubclient.CanonicalURL`), and the hub is printed,
 logged and passed on (`HubOptions.Args`) in that form only. Pass them as `Options.Hub`: `Run`
