@@ -218,7 +218,7 @@ func TestRunRecordsManagedFingerprint(t *testing.T) {
 // is accepted; a loosening within the bounds still waits for the human.
 func TestCheckPolicyRefusesBeyondManagedBounds(t *testing.T) {
 	m := newManaged(t, peekBound)
-	h := newHarness(t, uat(), func(c *ServerConfig) { c.Managed, c.loadManaged = m.f, m.load })
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Managed, c.LoadManaged = m.f, m.load })
 
 	beyond := uat()
 	beyond.MaxRows = 0 // unlimited, beyond limits.max_rows = 50
@@ -279,7 +279,7 @@ func TestManagedChangeWhileRunning(t *testing.T) {
 	m := newManaged(t, peekBound)
 	start := uat()
 	start.Tier = "peek"
-	h := newHarness(t, start, func(c *ServerConfig) { c.Managed, c.loadManaged = m.f, m.load })
+	h := newHarness(t, start, func(c *ServerConfig) { c.Managed, c.LoadManaged = m.f, m.load })
 
 	// The user already tightened the files to tier read: adopted at once.
 	h.b.policy = uat()
@@ -301,7 +301,7 @@ func TestManagedChangeWhileRunning(t *testing.T) {
 	}
 
 	// The files go beyond a stricter file: the session ends.
-	h2 := newHarness(t, start, func(c *ServerConfig) { c.Managed, c.loadManaged = m.f, m.load })
+	h2 := newHarness(t, start, func(c *ServerConfig) { c.Managed, c.LoadManaged = m.f, m.load })
 	m.set(t, readBound)
 	h2.s.CheckPolicy()
 	if reason, ended := h2.s.Ended(); !ended || !strings.Contains(reason, "beyond the managed configuration") {
@@ -312,7 +312,7 @@ func TestManagedChangeWhileRunning(t *testing.T) {
 // A managed file that becomes unreadable while running ends the session.
 func TestManagedUnreadableWhileRunningEnds(t *testing.T) {
 	m := newManaged(t, peekBound)
-	h := newHarness(t, uat(), func(c *ServerConfig) { c.Managed, c.loadManaged = m.f, m.load })
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Managed, c.LoadManaged = m.f, m.load })
 	h.s.CheckPolicy()
 	if _, ended := h.s.Ended(); ended {
 		t.Fatal("ended with a readable file")
@@ -340,4 +340,85 @@ func lastRecordOf(t *testing.T, state string) map[string]any {
 		t.Fatal("no audit record")
 	}
 	return recs[len(recs)-1]
+}
+
+// A product with its own start-up builds its server with NewServer and sets
+// LoadManaged: a stricter file at the next poll is recorded and ends the
+// session when the policy in force is beyond it, as under Run.
+func TestNewServerLoadManagedReloads(t *testing.T) {
+	a := newManaged(t, peekBound)
+	b := newManaged(t, readBound)
+	start := uat()
+	start.Tier = "peek"
+	h := newHarness(t, start, func(c *ServerConfig) { c.Managed, c.LoadManaged = a.f, b.load })
+	h.s.CheckPolicy()
+	recs := h.records(t)
+	if len(recs) == 0 || recs[0]["decision"] != DecisionManagedChanged || recs[0]["managed"] != b.fp() {
+		t.Fatalf("change not recorded: %v", recs)
+	}
+	if reason, ended := h.s.Ended(); !ended || !strings.Contains(reason, "beyond the managed configuration") {
+		t.Fatalf("session not ended: %q\n%s", reason, h.io.plain())
+	}
+}
+
+// LoadManaged nil keeps Managed for the session: no re-read, no record.
+func TestNewServerWithoutLoadManagedKeepsManaged(t *testing.T) {
+	a := newManaged(t, readBound)
+	h := newHarness(t, uat(), func(c *ServerConfig) { c.Managed = a.f })
+	h.s.CheckPolicy()
+	h.s.CheckPolicy()
+	if _, ended := h.s.Ended(); ended {
+		t.Fatal("session ended")
+	}
+	if recs := h.records(t); len(recs) != 0 {
+		t.Fatalf("records %v", recs)
+	}
+	if h.s.managed != a.f {
+		t.Fatal("managed file replaced")
+	}
+}
+
+func TestCheckManaged(t *testing.T) {
+	b := &fakeBackend{policy: uat()}
+	if err := CheckManaged(testProduct, b, uat(), nil); err != nil {
+		t.Fatalf("nil file: %v", err)
+	}
+	read := newManaged(t, readBound).f
+	if err := CheckManaged(testProduct, b, uat(), read); err != nil {
+		t.Fatalf("within the bounds: %v", err)
+	}
+	if ManagedLines(errors.New("other")) != nil {
+		t.Fatal("lines of another error")
+	}
+
+	beyond := uat()
+	beyond.Tier, beyond.MaxRows = "peek", 0
+	bounds, err := b.ManagedBounds(beyond, read)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bounds.Tool, bounds.Profile = testProduct.Name, beyond.Name
+	var want []string
+	for _, v := range managed.Check(beyond, bounds) {
+		want = append(want, v.String())
+	}
+	if len(want) != 2 {
+		t.Fatalf("violations %v", want)
+	}
+	err = CheckManaged(testProduct, b, beyond, read)
+	if !errors.Is(err, ErrManaged) || !strings.Contains(err.Error(), want[0]) {
+		t.Fatalf("beyond the bounds: %v", err)
+	}
+	if got := ManagedLines(err); strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("lines %q, want %q", got, want)
+	}
+
+	// A backend that does not apply the bounds, with a section for it.
+	err = CheckManaged(testProduct, plainBackend{b}, uat(), read)
+	if lines := ManagedLines(err); !errors.Is(err, ErrManaged) || len(lines) != 1 || !strings.Contains(lines[0], "does not apply it") {
+		t.Fatalf("plain backend: %v, %q", err, lines)
+	}
+	if err := CheckManaged(testProduct, plainBackend{b}, uat(), newManaged(t, "version = 1\n[locksql.bounds]\ntier = \"read\"\n").f); err != nil {
+		t.Fatalf("plain backend, no section: %v", err)
+	}
 }

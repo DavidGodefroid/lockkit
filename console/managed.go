@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/DavidGodefroid/lockkit/audit"
@@ -83,6 +84,39 @@ func violationLines(vs []managed.Violation, err error) []string {
 	return out
 }
 
+// CheckManaged checks pol against the bounds of the managed file m, as Run
+// does at start: nil when m is nil or pol is within its bounds, else an
+// error that wraps ErrManaged and cites the first reason; ManagedLines
+// returns every reason, one line each. A product with its own start-up
+// (not Run) calls it before any approval prompt, prints the lines, and
+// audits DecisionRefusedManaged itself.
+func CheckManaged(p kit.Product, b Backend, pol Policy, m *managed.File) error {
+	vs, err := managedViolations(p, b, pol, m)
+	if err == nil && len(vs) == 0 {
+		return nil
+	}
+	return &managedError{lines: violationLines(vs, err)}
+}
+
+// ManagedLines returns the lines of an error from CheckManaged, nil for
+// any other error.
+func ManagedLines(err error) []string {
+	var me *managedError
+	if !errors.As(err, &me) {
+		return nil
+	}
+	return slices.Clone(me.lines)
+}
+
+// managedError is a policy beyond the managed bounds: lines is never empty.
+type managedError struct{ lines []string }
+
+func (e *managedError) Error() string {
+	return ErrManaged.Error() + ": " + sanitize.Terminal(e.lines[0], false)
+}
+
+func (e *managedError) Unwrap() error { return ErrManaged }
+
 // checkManaged re-reads the managed file at a policy poll. It returns
 // false when the poll must stop here: the session ended (the file became
 // unreadable, or the policy in force is beyond a stricter file) or the
@@ -90,10 +124,10 @@ func violationLines(vs []managed.Violation, err error) []string {
 // force beyond it is replaced at once by the files' policy when that one
 // is within the bounds and only tightens, else the session ends.
 func (s *Server) checkManaged() bool {
-	if s.cfg.loadManaged == nil {
+	if s.cfg.LoadManaged == nil {
 		return true
 	}
-	m, err := s.cfg.loadManaged(context.Background())
+	m, err := s.cfg.LoadManaged(context.Background())
 	if err != nil {
 		_ = s.record(context.Background(), audit.Base{Event: audit.EventPolicy, Decision: DecisionRefusedManaged, Error: err.Error()})
 		s.println(red + "the company's managed configuration cannot be read: " + sanitize.Terminal(err.Error(), false) + "; the session ends" + reset)

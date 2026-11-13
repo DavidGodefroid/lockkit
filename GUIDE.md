@@ -269,6 +269,18 @@ The console then:
 A backend that does not implement `ManagedBackend` refuses to start when
 the managed file has a section for it: an old build never runs unbounded.
 
+Products with their own start-up (not `console.Run`), building their
+server with `console.NewServer`, get the same behaviour through two hooks:
+
+- set `ServerConfig.Managed` to the file `managed.Load` returned at start
+  and `ServerConfig.LoadManaged` to `managed.Load`: the file is re-read at
+  every policy poll, as under `Run` (nil keeps `Managed` for the session);
+- call `console.CheckManaged(product, backend, policy, managedFile)` before
+  any approval prompt: nil when the policy is within the bounds (or there
+  is no file), else an error wrapping `ErrManaged` whose
+  `console.ManagedLines(err)` are the lines to print. Refuse the start and
+  audit `console.DecisionRefusedManaged` yourself.
+
 ## 7. IPC, client, tunnel
 
 The wire protocol is newline-delimited JSON-RPC 2.0, one message ≤ 1 MiB

@@ -41,7 +41,7 @@ jobs:
             exit 1
           }
       - name: go test managed (test build)
-        run: go test -tags lockfamily_managed_test ./managed/
+        run: go test -tags lockfamily_managed_test ./managed/ ./console/
       - name: pii throughput floor
         if: runner.os == 'Linux'
         shell: bash
