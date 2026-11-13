@@ -3,9 +3,25 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
-## Unreleased
+## v0.18.0 (2026-11-13)
 
-- **Breaking** (ships in v0.18.0): the auto-mode identifiers, deprecated
+### Breaking changes
+
+- console, verbs: the auto-mode identifiers deprecated since v0.9.0 are
+  removed, and the status answer no longer carries `auto_approve` (#120,
+  details below). Locks to fix when they bump lockkit: lockmq
+  (`cmd/lockmq/console.go`, `internal/mqconsole/handlers.go`), lockfile
+  (`cmd/lockfile/console.go`; `internal/clientcmd/sources.go` reads
+  `auto_approve`, harmless) and lockhttp (`cmd/lockhttp/console.go`).
+  locksql is not affected.
+- ticket: `ticket.Subject` holds a slice (`Inputs`) and is no longer
+  comparable with `==`: compare with `reflect.DeepEqual` (#174). locksql,
+  lockmq, lockfile, locklog, lockhttp and lockhub do not name
+  `ticket.Subject` outside tests today.
+
+### Changes
+
+- **Breaking**: the auto-mode identifiers, deprecated
   since v0.9.0, are removed: `console.Options.Auto`,
   `ServerConfig.Auto`, `Env.Auto()`, `(*Server).Auto()`,
   `Approval.Auto`, `StatusView.Auto`, `StatusResult.AutoApprove` (the
