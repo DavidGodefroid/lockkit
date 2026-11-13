@@ -13,6 +13,13 @@
 // present but invalid is a refusal, and [family] require_signature = true
 // makes it mandatory. A missing file means no managed policy.
 //
+// A lock in a lox container has neither cosign nor the network to verify
+// the signature: lox verifies it on the host and writes, next to the file,
+// managed.toml.verified (VerifiedStamp), root-owned too. A stamp that
+// matches the managed file, its signature and signer.toml stands for the
+// signature check; one that does not is a refusal. It is trusted because
+// whoever can write it can already replace the managed file itself.
+//
 // Each tool has its section, [<tool>.bounds], [<tool>.defaults] and
 // [<tool>.profiles.<name>] for the locks, [lox] and [lea] decoded whole by
 // their owner. The precedence is:
@@ -54,6 +61,9 @@ const (
 	FileName   = "managed.toml"
 	BundleName = FileName + ".sigstore.json"
 	SignerName = "signer.toml"
+	// VerifiedName is the stamp lox writes once it verified the signature
+	// on the host (VerifiedStamp).
+	VerifiedName = FileName + ".verified"
 )
 
 // Version is the only managed file version this package reads.
@@ -118,7 +128,23 @@ type File struct {
 	Signed bool
 	Family Family
 	tools  map[string]any
+	// key is the sha256 over the file, its bundle and signer.toml that
+	// Load read (VerifiedStamp).
+	key [sha256.Size]byte
 }
+
+// VerifiedStamp is the line of managed.toml.verified for f, a file Load
+// read and whose signature it verified: lox writes it, root-owned, next to
+// the managed file it mounts in a lock's container, where the lock cannot
+// run cosign. It is an error when f is not signed.
+func VerifiedStamp(f *File) (string, error) {
+	if f == nil || !f.Signed || f.key == ([sha256.Size]byte{}) {
+		return "", errors.New("managed: only a managed file whose signature was verified has a verified stamp")
+	}
+	return stampPrefix + hex.EncodeToString(f.key[:]), nil
+}
+
+const stampPrefix = "sha256:"
 
 // RequireConfinedAgent reports [family] require_confined_agent; false for
 // a nil File (no managed policy).
@@ -362,6 +388,12 @@ func (s *Source) Load(ctx context.Context) (*File, error) {
 	}
 	var key [sha256.Size]byte
 	copy(key[:], h.Sum(nil))
+	stamped := false
+	if signed {
+		if stamped, err = s.readStamp(filepath.Join(dir, VerifiedName), key); err != nil {
+			return nil, err
+		}
+	}
 	if s.cached != nil && key == s.cacheKey {
 		return s.cached, nil
 	}
@@ -369,15 +401,18 @@ func (s *Source) Load(ctx context.Context) (*File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("managed: %s: %w", s.path, err)
 	}
-	f.Path = s.path
+	f.Path, f.key = s.path, key
 	switch {
 	case signed:
 		id, err := parseSigner(signer)
 		if err != nil {
 			return nil, fmt.Errorf("managed: %s: %w", filepath.Join(dir, SignerName), err)
 		}
-		if err := s.verify(ctx, data, bundle, id); err != nil {
-			return nil, fmt.Errorf("managed: %s: the signature does not verify: %w", s.path, err)
+		// A matching stamp: lox verified these exact bytes on the host.
+		if !stamped {
+			if err := s.verify(ctx, data, bundle, id); err != nil {
+				return nil, fmt.Errorf("managed: %s: the signature does not verify: %w", s.path, err)
+			}
 		}
 		f.Signed = true
 	case f.Family.RequireSignature:
@@ -407,6 +442,20 @@ func (s *Source) read(path string) ([]byte, bool, error) {
 		return nil, false, fmt.Errorf("managed: %w", err)
 	}
 	return b, true, nil
+}
+
+// readStamp reads the root-owned managed.toml.verified at path: true when
+// it matches key, false and no error when there is none, an error when it
+// is badly owned or was written for other bytes.
+func (s *Source) readStamp(path string, key [sha256.Size]byte) (bool, error) {
+	b, found, err := s.read(path)
+	if err != nil || !found {
+		return false, err
+	}
+	if strings.TrimSuffix(string(b), "\n") != stampPrefix+hex.EncodeToString(key[:]) {
+		return false, fmt.Errorf("managed: %s does not match %s, %s and %s: they changed since their signature was verified", path, FileName, BundleName, SignerName)
+	}
+	return true, nil
 }
 
 // readPlain reads a regular file whose content is verified, not trusted

@@ -40,6 +40,8 @@ jobs:
             grep -E -- '--- FAIL|_test\.go:[0-9]+:|^FAIL|panic:' test.log | head -40 | sed 's/^/::error::/'
             exit 1
           }
+      - name: go test managed (test build)
+        run: go test -tags lockfamily_managed_test ./managed/
       - name: pii throughput floor
         if: runner.os == 'Linux'
         shell: bash

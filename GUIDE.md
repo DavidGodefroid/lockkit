@@ -196,6 +196,17 @@ loosen it, and no human can approve beyond it.
   `oidc_issuer`); present and invalid is an error, and `[family]
   require_signature = true` makes it mandatory. The signature is
   re-checked only when the file, the bundle or the identity change.
+- A lock in a `lox run` container has neither cosign nor the network to
+  check the signature: lox loads the file on the host and writes
+  `managed.toml.verified` next to it, root-owned, holding the one line
+  `managed.VerifiedStamp(f)` returns (`sha256:<hex>` over the file, the
+  bundle and `signer.toml`). When the bundle is present and the stamp
+  matches, `Load` counts the file signed without calling cosign; a stamp
+  that does not match, or that is badly owned, is an error (the signature
+  is not checked instead); no stamp changes nothing, and without a bundle
+  the stamp is ignored. It is trusted for the reason the file is: whoever
+  can write it can already replace `managed.toml` and drop
+  `require_signature`. A lock does nothing for it.
 - No env var or flag moves it in a release build. Tests of a product build
   with `-tags lockfamily_managed_test` and call `managed.SetTestPath(path)`
   (no ownership check there).
