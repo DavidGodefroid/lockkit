@@ -26,6 +26,13 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `iban` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `iban` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `iban` | de | 60 | 1.000 | 61 | 0.984 | 0.992 |
+| `eu_vat` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `eu_vat` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `eu_vat` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `eu_vat` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_company` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_company` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_company` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `card` | en | 60 | 1.000 | 62 | 0.968 | 0.984 |
 | `card` | fr | 60 | 1.000 | 82 | 0.732 | 0.845 |
 | `card` | nl | 60 | 1.000 | 61 | 0.984 | 0.992 |
@@ -57,11 +64,11 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 
 | Lang | Values | Masked |
 |---|--:|--:|
-| en | 600 | 0.932 |
-| fr | 660 | 0.880 |
-| nl | 660 | 0.921 |
-| de | 600 | 0.900 |
-| all | 2520 | 0.908 |
+| en | 660 | 0.938 |
+| fr | 780 | 0.899 |
+| nl | 780 | 0.933 |
+| de | 720 | 0.917 |
+| all | 2940 | 0.921 |
 
 ## Field heuristics
 

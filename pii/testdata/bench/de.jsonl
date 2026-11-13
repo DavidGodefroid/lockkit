@@ -798,3 +798,183 @@
 {"id":"de-neg-0238","lang":"de","text":"Konto AT88 7998 8149 2639 0150 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
 {"id":"de-neg-0239","lang":"de","text":"Commit 29793368d8616f9d5983aa4e8985953bd3497ef210c715e014dd236ed4e0cfff auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
 {"id":"de-neg-0240","lang":"de","text":"Ihre Bestellung Nr. 7318723515 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-eu_vat-0001","lang":"de","text":"Bitte unsere USt-IdNr. LU15049686 auf der Rechnung angeben.","spans":[{"start":23,"end":33,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0002","lang":"de","text":"Bitte unsere USt-IdNr. DE 870274107 auf der Rechnung angeben.","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0003","lang":"de","text":"USt-IdNr.: DE 441 910 981","spans":[{"start":11,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0004","lang":"de","text":"USt-IdNr.: DE 798 631 004","spans":[{"start":11,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0005","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"BE0907826067\",\"active\":true}","spans":[{"start":29,"end":41,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0006","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU15360580\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0007","lang":"de","text":"USt-IdNr.: lu22672845","spans":[{"start":11,"end":21,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0008","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"be0576724287\",\"active\":true}","spans":[{"start":29,"end":41,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0009","lang":"de","text":"vat_number: LU93648628","spans":[{"start":12,"end":22,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0010","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU56911549\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0011","lang":"de","text":"level=info msg=\"profile updated\" vat_number=DE690760213","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0012","lang":"de","text":"USt-IdNr.: DE 322026327","spans":[{"start":11,"end":23,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0013","lang":"de","text":"level=info msg=\"profile updated\" vat_number=DE696869530","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0014","lang":"de","text":"Umsatzsteuer-ID DE781400995 (Reverse Charge).","spans":[{"start":16,"end":27,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0015","lang":"de","text":"Umsatzsteuer-ID BE0920067863 (Reverse Charge).","spans":[{"start":16,"end":28,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0016","lang":"de","text":"USt-IdNr.: DE 167 305 335","spans":[{"start":11,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0017","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE４６４６４１９４６\",\"active\":true}","spans":[{"start":29,"end":58,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0018","lang":"de","text":"USt-IdNr.: DE 344 548 780","spans":[{"start":11,"end":28,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0019","lang":"de","text":"Bitte unsere USt-IdNr. DE849677937 auf der Rechnung angeben.","spans":[{"start":23,"end":34,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0020","lang":"de","text":"Umsatzsteuer-ID LU 11491718 (Reverse Charge).","spans":[{"start":16,"end":27,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0021","lang":"de","text":"USt-IdNr.: DE158701288","spans":[{"start":11,"end":22,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0022","lang":"de","text":"Umsatzsteuer-ID DE939​099605 (Reverse Charge).","spans":[{"start":16,"end":30,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0023","lang":"de","text":"vat_number: LU 34783927","spans":[{"start":12,"end":23,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0024","lang":"de","text":"Bitte unsere USt-IdNr. LU 35523536 auf der Rechnung angeben.","spans":[{"start":23,"end":34,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0025","lang":"de","text":"Umsatzsteuer-ID de979606984 (Reverse Charge).","spans":[{"start":16,"end":27,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0026","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE519899479\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0027","lang":"de","text":"vat_number: DE235329959","spans":[{"start":12,"end":23,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0028","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE 556 334 996\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0029","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE １０７ ４５８ ２８１\",\"active\":true}","spans":[{"start":29,"end":61,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0030","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU８５３３４６１４\",\"active\":true}","spans":[{"start":29,"end":55,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0031","lang":"de","text":"USt-IdNr.: DE 452 307 155","spans":[{"start":11,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0032","lang":"de","text":"vat_number: BE ０３１１３５５３５０","spans":[{"start":12,"end":45,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0033","lang":"de","text":"Umsatzsteuer-ID BE0429​803634 (Reverse Charge).","spans":[{"start":16,"end":31,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0034","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU 60331068\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0035","lang":"de","text":"Umsatzsteuer-ID BE0740667254 (Reverse Charge).","spans":[{"start":16,"end":28,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0036","lang":"de","text":"USt-IdNr.: LU908​04365","spans":[{"start":11,"end":24,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0037","lang":"de","text":"level=info msg=\"profile updated\" vat_number=DE309514870","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0038","lang":"de","text":"vat_number: DE 536 510 246","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0039","lang":"de","text":"vat_number: DE 736 463 395","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0040","lang":"de","text":"USt-IdNr.: lu95029340","spans":[{"start":11,"end":21,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0041","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE５７３８２３６６０\",\"active\":true}","spans":[{"start":29,"end":58,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0042","lang":"de","text":"Bitte unsere USt-IdNr. be1206327731 auf der Rechnung angeben.","spans":[{"start":23,"end":35,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0043","lang":"de","text":"USt-IdNr.: LU41562382","spans":[{"start":11,"end":21,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0044","lang":"de","text":"USt-IdNr.: LU 68774441","spans":[{"start":11,"end":22,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0045","lang":"de","text":"level=info msg=\"profile updated\" vat_number=LU 68466880","spans":[{"start":44,"end":57,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0046","lang":"de","text":"Umsatzsteuer-ID LU 37​422266 (Reverse Charge).","spans":[{"start":16,"end":30,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0047","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU 22456417\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0048","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"LU 60​481055\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-eu_vat-0049","lang":"de","text":"vat_number: BE 0367178850","spans":[{"start":12,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0050","lang":"de","text":"USt-IdNr.: DE 942 063 182","spans":[{"start":11,"end":25,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0051","lang":"de","text":"level=info msg=\"profile updated\" vat_number=DE 661 151 375","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0052","lang":"de","text":"vat_number: DE 771593242","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0053","lang":"de","text":"level=info msg=\"profile updated\" vat_number=DE650096241","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0054","lang":"de","text":"{\"type\":\"user\",\"vat_number\":\"DE219916864\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0055","lang":"de","text":"USt-IdNr.: LU 43517251","spans":[{"start":11,"end":22,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0056","lang":"de","text":"USt-IdNr.: DE134252936","spans":[{"start":11,"end":22,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0057","lang":"de","text":"vat_number: DE907128522","spans":[{"start":12,"end":23,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0058","lang":"de","text":"Bitte unsere USt-IdNr. LU67711200 auf der Rechnung angeben.","spans":[{"start":23,"end":33,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0059","lang":"de","text":"Bitte unsere USt-IdNr. DE 283 151 979 auf der Rechnung angeben.","spans":[{"start":23,"end":37,"kind":"eu_vat"}]}
+{"id":"de-eu_vat-0060","lang":"de","text":"USt-IdNr.: DE ４０８１６９５４１","spans":[{"start":11,"end":41,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"de-neg-eu_vat-0001","lang":"de","text":"VIES lehnte die USt-IdNr. de434645145 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0002","lang":"de","text":"Falsche Prüfziffer: DE742691595","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0003","lang":"de","text":"Falsche Prüfziffer: DE220995068","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0004","lang":"de","text":"VIES lehnte die USt-IdNr. be1965564601 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0005","lang":"de","text":"VIES lehnte die USt-IdNr. de512366947 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0006","lang":"de","text":"Falsche Prüfziffer: DE615246838","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0007","lang":"de","text":"Falsche Prüfziffer: be0589741105","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0008","lang":"de","text":"Falsche Prüfziffer: BE0561909930","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0009","lang":"de","text":"VIES lehnte die USt-IdNr. LU29227595 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0010","lang":"de","text":"Falsche Prüfziffer: be0397696080","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0011","lang":"de","text":"Falsche Prüfziffer: DE568737073","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0012","lang":"de","text":"VIES lehnte die USt-IdNr. de596272356 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0013","lang":"de","text":"VIES lehnte die USt-IdNr. DE287392602 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0014","lang":"de","text":"Falsche Prüfziffer: be0625488219","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0015","lang":"de","text":"VIES lehnte die USt-IdNr. LU52506561 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0016","lang":"de","text":"VIES lehnte die USt-IdNr. LU99381344 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0017","lang":"de","text":"VIES lehnte die USt-IdNr. lu40432494 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0018","lang":"de","text":"Falsche Prüfziffer: BE0075255814","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0019","lang":"de","text":"Falsche Prüfziffer: DE867653194","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0020","lang":"de","text":"VIES lehnte die USt-IdNr. BE0458953466 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0021","lang":"de","text":"VIES lehnte die USt-IdNr. LU14044810 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0022","lang":"de","text":"Falsche Prüfziffer: BE0070799813","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0023","lang":"de","text":"VIES lehnte die USt-IdNr. DE954831686 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0024","lang":"de","text":"Falsche Prüfziffer: de962787612","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0025","lang":"de","text":"VIES lehnte die USt-IdNr. DE152957987 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0026","lang":"de","text":"VIES lehnte die USt-IdNr. BE0282843217 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0027","lang":"de","text":"VIES lehnte die USt-IdNr. LU93064463 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0028","lang":"de","text":"VIES lehnte die USt-IdNr. DE884684289 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0029","lang":"de","text":"Falsche Prüfziffer: LU98989643","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-eu_vat-0030","lang":"de","text":"VIES lehnte die USt-IdNr. DE110867528 ab.","spans":[],"tags":["hard_negative"]}
+{"id":"de-be_company-0001","lang":"de","text":"ZDU ０８４６.０７０.９１９","spans":[{"start":4,"end":36,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0002","lang":"de","text":"ZDU 1124.680.851","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0003","lang":"de","text":"Unternehmensnummer: 0182.071.077","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0004","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1746.865.278\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0005","lang":"de","text":"ZDU 1166.021.756","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0006","lang":"de","text":"Unternehmensnummer: 0997.252.545","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0007","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1209.310.282\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0008","lang":"de","text":"Unternehmensnummer: 0698.059.312","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0009","lang":"de","text":"ZDU 0986371818","spans":[{"start":4,"end":14,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0010","lang":"de","text":"ZDU 0734.348.396","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0011","lang":"de","text":"company_number: 0402.877.226","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0012","lang":"de","text":"level=info msg=\"profile updated\" company_number=1280 932 807","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0013","lang":"de","text":"Eingetragen unter der Unternehmensnummer 1225561049.","spans":[{"start":41,"end":51,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0014","lang":"de","text":"Eingetragen unter der Unternehmensnummer 0616.483.203.","spans":[{"start":41,"end":53,"kind":"be_company"}]}
+{"id":"de-be_company-0015","lang":"de","text":"company_number: 0177.713.995","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0016","lang":"de","text":"level=info msg=\"profile updated\" company_number=0946.793.145","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0017","lang":"de","text":"Unternehmensnummer: 0667 131 653","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0018","lang":"de","text":"company_number: 0792 582 149","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0019","lang":"de","text":"company_number: 1449 218 701","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0020","lang":"de","text":"Eingetragen unter der Unternehmensnummer 0392 739 439.","spans":[{"start":41,"end":53,"kind":"be_company"}]}
+{"id":"de-be_company-0021","lang":"de","text":"Eingetragen unter der Unternehmensnummer 0568097722.","spans":[{"start":41,"end":51,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0022","lang":"de","text":"ZDU 0562.680.667","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0023","lang":"de","text":"level=info msg=\"profile updated\" company_number=1549316266","spans":[{"start":48,"end":58,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0024","lang":"de","text":"company_number: ０３６６.８５５.５８２","spans":[{"start":16,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0025","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1943.561.383\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0026","lang":"de","text":"Unternehmensnummer: 1026.470.232","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0027","lang":"de","text":"Unternehmensnummer: 1755.088.108","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0028","lang":"de","text":"level=info msg=\"profile updated\" company_number=0676 996 058","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0029","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1037 509 426\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0030","lang":"de","text":"Unternehmensnummer: 0531 008 583","spans":[{"start":20,"end":34,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0031","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"0971.995.131\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0032","lang":"de","text":"company_number: 0751.826.610","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0033","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"0545.822.859\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0034","lang":"de","text":"Unternehmensnummer: 0618.590.972","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0035","lang":"de","text":"Eingetragen unter der Unternehmensnummer 0811.178.930.","spans":[{"start":41,"end":53,"kind":"be_company"}]}
+{"id":"de-be_company-0036","lang":"de","text":"Eingetragen unter der Unternehmensnummer 1679 507 488.","spans":[{"start":41,"end":53,"kind":"be_company"}]}
+{"id":"de-be_company-0037","lang":"de","text":"company_number: 0803604418","spans":[{"start":16,"end":26,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0038","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1103.986.692\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0039","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"0161 930 711\",\"active\":true}","spans":[{"start":33,"end":49,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0040","lang":"de","text":"ZDU 0937.348.216","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0041","lang":"de","text":"company_number: 0783.543.729","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0042","lang":"de","text":"level=info msg=\"profile updated\" company_number=0736 880 492","spans":[{"start":48,"end":62,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0043","lang":"de","text":"ZDU 0970.283.476","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0044","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"1864.708.006\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0045","lang":"de","text":"company_number: 0754.136.297","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0046","lang":"de","text":"level=info msg=\"profile updated\" company_number=0648.894.564","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0047","lang":"de","text":"ZDU 1806.653.506","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0048","lang":"de","text":"Unternehmensnummer: 1080 836 554","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0049","lang":"de","text":"Unternehmensnummer: 0244 828 988","spans":[{"start":20,"end":32,"kind":"be_company"}]}
+{"id":"de-be_company-0050","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"0565.214.149\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0051","lang":"de","text":"{\"type\":\"user\",\"company_number\":\"0371.490.994\",\"active\":true}","spans":[{"start":33,"end":45,"kind":"be_company"}]}
+{"id":"de-be_company-0052","lang":"de","text":"company_number: 0226020589","spans":[{"start":16,"end":26,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0053","lang":"de","text":"ZDU 0208 942 354","spans":[{"start":4,"end":16,"kind":"be_company"}]}
+{"id":"de-be_company-0054","lang":"de","text":"company_number: 1647.6​73.177","spans":[{"start":16,"end":31,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0055","lang":"de","text":"Eingetragen unter der Unternehmensnummer 0040009134.","spans":[{"start":41,"end":51,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-be_company-0056","lang":"de","text":"company_number: 0427 043 191","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0057","lang":"de","text":"company_number: 0507.655.141","spans":[{"start":16,"end":28,"kind":"be_company"}]}
+{"id":"de-be_company-0058","lang":"de","text":"level=info msg=\"profile updated\" company_number=0644 215 008","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0059","lang":"de","text":"level=info msg=\"profile updated\" company_number=0902.596.876","spans":[{"start":48,"end":60,"kind":"be_company"}]}
+{"id":"de-be_company-0060","lang":"de","text":"company_number: ０６３４ ８２２ ０４２","spans":[{"start":16,"end":48,"kind":"be_company"}],"tags":["hard_positive"]}
+{"id":"de-neg-be_company-0001","lang":"de","text":"Nummer 1986.624.131 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0002","lang":"de","text":"Paket 1685.399.508 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0003","lang":"de","text":"Nummer 1210.457.904 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0004","lang":"de","text":"Nummer 1313.040.004 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0005","lang":"de","text":"Paket 1996.317.049 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0006","lang":"de","text":"Paket 1096.864.147 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0007","lang":"de","text":"Paket 1501.479.103 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0008","lang":"de","text":"Nummer 1467.656.784 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0009","lang":"de","text":"Nummer 1540.102.475 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0010","lang":"de","text":"Paket 1908.266.750 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0011","lang":"de","text":"Paket 1768.784.229 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0012","lang":"de","text":"Paket 1314.098.051 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0013","lang":"de","text":"Nummer 1012.297.952 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0014","lang":"de","text":"Nummer 1971.862.965 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0015","lang":"de","text":"Paket 1598.310.596 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0016","lang":"de","text":"Paket 1061.735.019 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0017","lang":"de","text":"Nummer 1820.864.862 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0018","lang":"de","text":"Nummer 1869.049.087 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0019","lang":"de","text":"Nummer 1886.251.206 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0020","lang":"de","text":"Paket 1262.866.606 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0021","lang":"de","text":"Paket 1493.334.709 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0022","lang":"de","text":"Nummer 1585.102.638 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0023","lang":"de","text":"Paket 1156.807.995 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0024","lang":"de","text":"Paket 1571.080.063 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0025","lang":"de","text":"Nummer 1694.787.245 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0026","lang":"de","text":"Nummer 1047.864.045 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0027","lang":"de","text":"Nummer 1403.533.381 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0028","lang":"de","text":"Nummer 1825.587.325 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0029","lang":"de","text":"Nummer 1232.440.509 unbekannt in der ZDU.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-be_company-0030","lang":"de","text":"Paket 1455.770.764 an den Kurier übergeben.","spans":[],"tags":["hard_negative"]}

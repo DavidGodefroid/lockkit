@@ -20,15 +20,16 @@ type Detector interface {
 // detectorOrder is the order detectors run in, whatever the order they are
 // configured in: secrets first (a password in a URL is not an e-mail
 // address), emails next (their digits are not phone numbers), the
-// checksummed numbers, IP addresses (their digits are not phone numbers
-// either), phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "ip", "phone", "phone_loose"}
+// checksummed numbers (a "BE0…" VAT number before the card, NISS and
+// phone detectors that would read its digits), IP addresses (their digits
+// are not phone numbers either), phone numbers, the loosest pattern, last.
+var detectorOrder = []string{"secret", "email", "iban", "eu_vat", "be_company", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "ip", "phone", "phone_loose"}
 
 // optInDetectors are left out of AllDetectors: phone_loose and
 // person_name for their false positives; ip and secret so that a product
 // upgrading lockkit masks exactly what it masked before until it names
-// them.
-var optInDetectors = set("phone_loose", "person_name", "ip", "secret")
+// them; so is every detector added since (eu_vat, be_company).
+var optInDetectors = set("phone_loose", "person_name", "ip", "secret", "eu_vat", "be_company")
 
 var detectorFinders = map[string]func(string) []span{
 	"email":       findEmails,
@@ -48,14 +49,37 @@ var detectorFinders = map[string]func(string) []span{
 	"phone_loose": findLoosePhones,
 }
 
+// gradedFinders are the finders that grade each match themselves.
+var gradedFinders = map[string]func(string) []gspan{
+	"eu_vat":     findEUVAT,
+	"be_company": findBECompany,
+}
+
+// knownDetector reports a detector name Detectors accepts.
+func knownDetector(n string) bool {
+	_, ok := detectorFinders[n]
+	_, graded := gradedFinders[n]
+	return ok || graded
+}
+
+// finderFor returns the graded finder of a detector.
+func finderFor(n string) func(string) []gspan {
+	if f, ok := gradedFinders[n]; ok {
+		return f
+	}
+	return graded(detectorFinders[n], detectorConfidence[n])
+}
+
 // Detectors returns the named detectors, de-duplicated, in their fixed run
 // order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn,
-// and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses) and
-// secret (credentials, tokens and private keys, masked as Redacted).
+// and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses), secret
+// (credentials, tokens and private keys, masked as Redacted), eu_vat (EU
+// VAT numbers: BE, FR, NL, DE, LU) and be_company (Belgian company
+// numbers).
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for i, n := range names {
-		if _, ok := detectorFinders[n]; !ok {
+		if !knownDetector(n) {
 			// The name is not echoed: a value pasted in the wrong key
 			// may be a secret.
 			return nil, fmt.Errorf("pii: unknown detector (entry %d; known: %s)", i+1, strings.Join(detectorOrder, ", "))
@@ -65,14 +89,18 @@ func Detectors(names []string) ([]Detector, error) {
 	var out []Detector
 	for _, n := range detectorOrder {
 		if want[n] {
-			out = append(out, finderDetector{name: n, find: detectorFinders[n]})
+			d := finderDetector{name: n, find: finderFor(n), ctx: contextFinders[n]}
+			if n == "phone" && want["phone_loose"] {
+				d.ctx = nil // phone_loose finds them, under its own kind
+			}
+			out = append(out, d)
 		}
 	}
 	return out, nil
 }
 
-// AllDetectors is every detector but the opt-in ones (phone_loose, ip,
-// secret), in their run order: what masking falls back to when it was
+// AllDetectors is every detector but the opt-in ones (phone_loose,
+// person_name, ip, secret, eu_vat, be_company), in their run order: what masking falls back to when it was
 // given none.
 func AllDetectors() []Detector {
 	var names []string
@@ -91,23 +119,40 @@ func AllDetectors() []Detector {
 
 type finderDetector struct {
 	name string
-	find func(string) []span
+	find func(string) []gspan
+	// ctx finds the candidates a context raises (contextFinders), nil
+	// for none; field: the field name is a context (FindField).
+	ctx   func(s string, near func(int) bool) []gspan
+	field bool
+}
+
+// all is what the detector finds in s, context-raised candidates included.
+func (d finderDetector) all(s string) []gspan {
+	spans := d.find(s)
+	if d.ctx == nil {
+		return spans
+	}
+	up := d.ctx(s, func(i int) bool { return d.field || contextBefore(d.name, s, i) })
+	if len(up) == 0 {
+		return spans
+	}
+	return mergeGSpans(append(spans, up...))
 }
 
 func (d finderDetector) Name() string { return d.name }
 
 // spans returns the values the detector recognises in s, sorted and
-// merged.
-func (d finderDetector) spans(s string) []span {
-	spans := d.find(s)
+// merged, each with its confidence.
+func (d finderDetector) spans(s string) []gspan {
+	spans := d.all(s)
 	// Folding can also hide a value (a full-width digit glued to a number
 	// makes it longer), so the values found in the folded text are added to
 	// those found in s, never substituted: folding only masks more.
 	if t, offs := fold(s); offs != nil {
-		for _, sp := range d.find(t) {
-			spans = append(spans, span{offs[sp.start], offs[sp.end]})
+		for _, sp := range d.all(t) {
+			spans = append(spans, gspan{span{offs[sp.start], offs[sp.end]}, sp.conf})
 		}
-		spans = mergeSpans(spans)
+		spans = mergeGSpans(spans)
 	}
 	return spans
 }

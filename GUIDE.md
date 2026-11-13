@@ -334,7 +334,8 @@ itself (lockssh runs its commands there).
 ## 8. Personal data
 
 - `pii.Detectors([]string{"email", "phone", "iban", "card"})` (also `be_niss`,
-  `fr_nir`, `nl_bsn`, `us_ssn`, and the opt-in `phone_loose`);
+  `fr_nir`, `nl_bsn`, `us_ssn`, and the opt-in `phone_loose`, `eu_vat`,
+  `be_company`);
   `pii.Detect(v, ds)` masks what they find in a text or integer value, or an
   integral float (`|f| < 1e19`), scanning at most `DetectLimit` bytes.
   - `email`: Unicode letters, digits and marks in the local part and the
@@ -348,7 +349,40 @@ itself (lockssh runs its commands there).
     (`(415) 555-2671`, `612 345 678`): 9 to 11 digits in at least two
     groups, the first of 2 to 4 digits; it also masks some grouped amounts
     (`123 456 789`), hence opt-in.
+- Context words: a word that announces a kind, case-insensitive, at the
+  start of a word (compounds count: `rijksregisternummer`; `_` and `-`
+  read as spaces) and at most 32 bytes before a candidate on the same
+  line, raises a candidate too weak on its own to a match. Context only
+  adds matches, never removes one. `phone` (when `phone_loose` is not
+  enabled; `tel`, `tél`, `gsm`, `mobile`, `phone`, `telefoon`, `handy`,
+  ...) raises the numbers `phone_loose` would find (`tel 612 345 678`);
+  `be_niss` (`NISS`, `INSZ`, `rijksregister`, `numéro national`, ...) a
+  checksummed national number with other separators (`85-07-30-033-28`);
+  `be_company` (`KBO`, `BCE`, `ondernemingsnummer`, `n° d'entreprise`,
+  `company number`, `TVA`, `BTW`, ...) ten bare digits (`0123456749`).
+  `pii.FindField(field, s, ds)` is `FindInViews` with the field name as
+  the context of every candidate of `s` (`phone`, `kbo_nr`,
+  `companyNumber`).
+- `Match.Confidence`: `pii.ConfidenceHigh` (a checksum verified: `iban`,
+  `card`, `be_niss`, `fr_nir`, `nl_bsn`, `eu_vat`, `be_company`),
+  `ConfidenceMedium` (a pattern: `phone`, `phone_loose`, `email`, `ip`,
+  `secret`, `us_ssn`, a French VAT number with a letter in its key, a
+  `Detector` of your own) or `ConfidenceLow` (`person_name`, a candidate
+  raised by a context, the `CutKind` rest). It never changes what is
+  masked; keep it out of anything an agent sees, or it tells which masks
+  hide a verified number.
 - Opt-in, never in `AllDetectors` (name them):
+  - `eu_vat`: EU VAT numbers, prefix in either case and an optional
+    space after it: `BE` + a company number (`BE0123.456.749`,
+    `BE 0123456749`), `FR` + a 2-character key + a 9-digit SIREN (the key
+    checked when numeric), `NL` + 9 digits + `B` + 2 digits (the 11-proof
+    or the mod 97 rule), `DE` + 9 digits (ISO 7064 MOD 11,10), `LU` + 8
+    digits (mod 89), the FR and DE digits also in groups of 3. An invalid
+    check is never a match.
+  - `be_company`: a Belgian company number (KBO/BCE), `0xxx.xxx.xxx` or
+    `0xxx xxx xxx` (first digit 0 or 1, mod 97); ten bare digits only
+    after a context word. A Belgian mobile (`0475 12 34 56`) stays a
+    `phone`.
   - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
     IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
     link-local, multicast, unspecified, broadcast and reserved addresses
@@ -458,7 +492,7 @@ itself (lockssh runs its commands there).
   that is a whole value of the kind), then lower-case email (the local
   part too), phone digits with `+` for international numbers (`00`, `+00`
   → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
-  digits of an IBAN, upper case, a person name in lower case with single
+  digits of an IBAN, a VAT or a company number, upper case, a person name in lower case with single
   spaces, digits of
   cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
   with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)

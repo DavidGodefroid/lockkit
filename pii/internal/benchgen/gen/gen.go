@@ -64,9 +64,16 @@ var Langs = []string{"en", "fr", "nl", "de"}
 
 // Kinds are the detector kinds with corpus entries, in file order. A new
 // detector appends its kind here, its value generator in values.go, its
-// frames in frames.go and its languages in Claims.
+// frames in frames.go, its languages in Claims and, optionally, its hard
+// negatives in laterNegatives.
 var Kinds = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn",
-	"person_name", "ip", "phone", "phone_loose"}
+	"person_name", "ip", "phone", "phone_loose",
+	"eu_vat", "be_company"}
+
+// firstKinds is how many of Kinds the first corpus had: they come before
+// the mixed lines and the hard negatives, the later ones after, each with
+// its own hard negatives, so that a new kind only appends lines.
+const firstKinds = 12
 
 // Claims lists, per kind, the languages whose texts it is meant to cover:
 // a national number belongs to its country's languages.
@@ -83,6 +90,8 @@ var Claims = map[string][]string{
 	"ip":          Langs,
 	"phone":       Langs,
 	"phone_loose": Langs,
+	"eu_vat":      Langs,
+	"be_company":  {"fr", "nl", "de"},
 }
 
 // Sizes of the blocks: comfortably above the bench's minimums (50
@@ -91,6 +100,8 @@ const (
 	positivesPerBlock = 60
 	negativesPerLang  = 240
 	mixedPerLang      = 20
+	// Hard negatives of each kind written after the first corpus.
+	laterNegativesPerBlock = 30
 )
 
 // seed is the fixed seed every block's source is derived from.
@@ -105,14 +116,17 @@ func rng(block string) *rand.Rand {
 // Texts returns the text cases of lang.
 func Texts(lang string) []TextCase {
 	var out []TextCase
-	for _, kind := range Kinds {
+	positives := func(kind string) {
 		if !claims(kind, lang) {
-			continue
+			return
 		}
 		r := rng(lang + "/" + kind)
 		for i := range positivesPerBlock {
 			out = append(out, positive(r, lang, kind, fmt.Sprintf("%s-%s-%04d", lang, kind, i+1)))
 		}
+	}
+	for _, kind := range Kinds[:firstKinds] {
+		positives(kind)
 	}
 	r := rng(lang + "/mixed")
 	for i := range mixedPerLang {
@@ -121,6 +135,20 @@ func Texts(lang string) []TextCase {
 	r = rng(lang + "/negative")
 	for i := range negativesPerLang {
 		out = append(out, negative(r, lang, fmt.Sprintf("%s-neg-%04d", lang, i+1)))
+	}
+	for _, kind := range Kinds[firstKinds:] {
+		positives(kind)
+		frames := laterNegatives[kind][lang]
+		if len(frames) == 0 {
+			continue
+		}
+		r := rng(lang + "/negative/" + kind)
+		for i := range laterNegativesPerBlock {
+			f := frames[r.IntN(len(frames))]
+			text := strings.Replace(f.frame, "{v}", negValues[f.kind](r, lang), 1)
+			out = append(out, TextCase{ID: fmt.Sprintf("%s-neg-%s-%04d", lang, kind, i+1), Lang: lang, Text: text,
+				Spans: []Span{}, Tags: []string{HardNegative}})
+		}
 	}
 	return out
 }

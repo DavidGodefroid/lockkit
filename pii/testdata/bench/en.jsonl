@@ -798,3 +798,93 @@
 {"id":"en-neg-0238","lang":"en","text":"Invoice INV-2025-393053 was paid in full.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-0239","lang":"en","text":"Test number 4000 0033 2348 6019 failed validation.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-0240","lang":"en","text":"Test number 3782 8244 0051 292 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-eu_vat-0001","lang":"en","text":"Please add our VAT ID FR 60534725902 to the invoice.","spans":[{"start":22,"end":36,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0002","lang":"en","text":"level=info msg=\"profile updated\" vat_number=FR 25214885042","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0003","lang":"en","text":"VAT number: be0905077603","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0004","lang":"en","text":"Supplier VAT be0025952646 (reverse charge).","spans":[{"start":13,"end":25,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0005","lang":"en","text":"Please add our VAT ID FR7521​2727132 to the invoice.","spans":[{"start":22,"end":38,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0006","lang":"en","text":"level=info msg=\"profile updated\" vat_number=NL916620608B11","spans":[{"start":44,"end":58,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0007","lang":"en","text":"vat_number: BE0402.788.342","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0008","lang":"en","text":"level=info msg=\"profile updated\" vat_number=LU 35061544","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0009","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"BE1378​781952\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0010","lang":"en","text":"vat_number: FR72823795703","spans":[{"start":12,"end":25,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0011","lang":"en","text":"Supplier VAT BE0933361120 (reverse charge).","spans":[{"start":13,"end":25,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0012","lang":"en","text":"VAT number: lu59936640","spans":[{"start":12,"end":22,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0013","lang":"en","text":"Supplier VAT FR 95809852672 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0014","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"NL 832778333B12\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0015","lang":"en","text":"Supplier VAT BE0801​986991 (reverse charge).","spans":[{"start":13,"end":28,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0016","lang":"en","text":"Supplier VAT FR08369123055 (reverse charge).","spans":[{"start":13,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0017","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"FR 66546860410\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0018","lang":"en","text":"vat_number: BE0229987493","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0019","lang":"en","text":"Supplier VAT DE 815 544 173 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0020","lang":"en","text":"Supplier VAT DE 646907526 (reverse charge).","spans":[{"start":13,"end":25,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0021","lang":"en","text":"Supplier VAT BE1913814156 (reverse charge).","spans":[{"start":13,"end":25,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0022","lang":"en","text":"level=info msg=\"profile updated\" vat_number=NL 273848239B06","spans":[{"start":44,"end":59,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0023","lang":"en","text":"vat_number: NL715331802B19","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0024","lang":"en","text":"VAT number: LU５５２８０２２３","spans":[{"start":12,"end":38,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0025","lang":"en","text":"Please add our VAT ID DE 881 663 101 to the invoice.","spans":[{"start":22,"end":36,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0026","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"NL177809644B12\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0027","lang":"en","text":"Supplier VAT NL 512970798B03 (reverse charge).","spans":[{"start":13,"end":28,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0028","lang":"en","text":"Supplier VAT DE 758 216 577 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0029","lang":"en","text":"Please add our VAT ID DE 713 689 037 to the invoice.","spans":[{"start":22,"end":36,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0030","lang":"en","text":"level=info msg=\"profile updated\" vat_number=nl47288​4499b07","spans":[{"start":44,"end":61,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0031","lang":"en","text":"level=info msg=\"profile updated\" vat_number=DE494​045253","spans":[{"start":44,"end":58,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0032","lang":"en","text":"VAT number: FR 01819402905","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0033","lang":"en","text":"vat_number: DE268692700","spans":[{"start":12,"end":23,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0034","lang":"en","text":"vat_number: BE1142422943","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0035","lang":"en","text":"vat_number: LU48714548","spans":[{"start":12,"end":22,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0036","lang":"en","text":"vat_number: DE 219211355","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0037","lang":"en","text":"VAT number: NL 340199611B10","spans":[{"start":12,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0038","lang":"en","text":"level=info msg=\"profile updated\" vat_number=NL 515876331B16","spans":[{"start":44,"end":59,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0039","lang":"en","text":"Supplier VAT DE 703 127 145 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0040","lang":"en","text":"Please add our VAT ID NL427307296B14 to the invoice.","spans":[{"start":22,"end":36,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0041","lang":"en","text":"vat_number: FR 26948710477","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0042","lang":"en","text":"Supplier VAT BE1412.089.277 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0043","lang":"en","text":"level=info msg=\"profile updated\" vat_number=DE393234984","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0044","lang":"en","text":"vat_number: FR 13 323 059 147","spans":[{"start":12,"end":29,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0045","lang":"en","text":"Please add our VAT ID NL 904578562B12 to the invoice.","spans":[{"start":22,"end":37,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0046","lang":"en","text":"Supplier VAT NL ９９４１５５８０３B１４ (reverse charge).","spans":[{"start":13,"end":50,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0047","lang":"en","text":"level=info msg=\"profile updated\" vat_number=LU１３９４５７８３","spans":[{"start":44,"end":70,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0048","lang":"en","text":"vat_number: de１３４１６４２４０","spans":[{"start":12,"end":41,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0049","lang":"en","text":"VAT number: NL292146747B16","spans":[{"start":12,"end":26,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0050","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"FR70681912315\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0051","lang":"en","text":"Supplier VAT DE 359​660696 (reverse charge).","spans":[{"start":13,"end":28,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0052","lang":"en","text":"VAT number: LU98959605","spans":[{"start":12,"end":22,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0053","lang":"en","text":"Supplier VAT BE0672.072.319 (reverse charge).","spans":[{"start":13,"end":27,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0054","lang":"en","text":"VAT number: BE0541869615","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0055","lang":"en","text":"VAT number: be0341466526","spans":[{"start":12,"end":24,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0056","lang":"en","text":"vat_number: LU95899823","spans":[{"start":12,"end":22,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0057","lang":"en","text":"{\"type\":\"user\",\"vat_number\":\"BE 1100751644\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0058","lang":"en","text":"vat_number: LU 45​072327","spans":[{"start":12,"end":26,"kind":"eu_vat"}],"tags":["hard_positive"]}
+{"id":"en-eu_vat-0059","lang":"en","text":"Please add our VAT ID BE 0196.454.593 to the invoice.","spans":[{"start":22,"end":37,"kind":"eu_vat"}]}
+{"id":"en-eu_vat-0060","lang":"en","text":"level=info msg=\"profile updated\" vat_number=de948261443","spans":[{"start":44,"end":55,"kind":"eu_vat"}]}
+{"id":"en-neg-eu_vat-0001","lang":"en","text":"VIES rejected the VAT number BE0315657855.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0002","lang":"en","text":"Wrong check digits: FR60628991890","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0003","lang":"en","text":"Wrong check digits: nl128387794b08","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0004","lang":"en","text":"VIES rejected the VAT number NL165085771B10.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0005","lang":"en","text":"Wrong check digits: DE280018296","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0006","lang":"en","text":"VIES rejected the VAT number be0407470640.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0007","lang":"en","text":"Wrong check digits: LU92224733","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0008","lang":"en","text":"Wrong check digits: be1155682593","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0009","lang":"en","text":"Wrong check digits: DE295697795","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0010","lang":"en","text":"Wrong check digits: nl856797146b16","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0011","lang":"en","text":"Wrong check digits: nl143848052b13","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0012","lang":"en","text":"VIES rejected the VAT number de763826033.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0013","lang":"en","text":"Wrong check digits: FR11867897603","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0014","lang":"en","text":"Wrong check digits: LU68379308","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0015","lang":"en","text":"VIES rejected the VAT number NL347311491B18.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0016","lang":"en","text":"Wrong check digits: DE572457398","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0017","lang":"en","text":"Wrong check digits: FR24295807580","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0018","lang":"en","text":"VIES rejected the VAT number NL853475185B17.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0019","lang":"en","text":"Wrong check digits: BE0862981435","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0020","lang":"en","text":"Wrong check digits: FR03506889177","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0021","lang":"en","text":"Wrong check digits: LU60413911","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0022","lang":"en","text":"VIES rejected the VAT number nl431952627b04.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0023","lang":"en","text":"Wrong check digits: BE1917731752","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0024","lang":"en","text":"Wrong check digits: FR24886169661","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0025","lang":"en","text":"VIES rejected the VAT number DE545798303.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0026","lang":"en","text":"Wrong check digits: LU24085627","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0027","lang":"en","text":"VIES rejected the VAT number LU71435239.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0028","lang":"en","text":"VIES rejected the VAT number LU78561419.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0029","lang":"en","text":"VIES rejected the VAT number BE0799035260.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-eu_vat-0030","lang":"en","text":"Wrong check digits: LU63002888","spans":[],"tags":["hard_negative"]}
