@@ -68,7 +68,7 @@ var Langs = []string{"en", "fr", "nl", "de"}
 // negatives in laterNegatives.
 var Kinds = []string{"secret", "email", "iban", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn",
 	"person_name", "ip", "phone", "phone_loose",
-	"eu_vat", "be_company"}
+	"eu_vat", "be_company", "be_eid", "passport", "birth_date"}
 
 // firstKinds is how many of Kinds the first corpus had: they come before
 // the mixed lines and the hard negatives, the later ones after, each with
@@ -92,6 +92,9 @@ var Claims = map[string][]string{
 	"phone_loose": Langs,
 	"eu_vat":      Langs,
 	"be_company":  {"fr", "nl", "de"},
+	"be_eid":      {"fr", "nl", "de"},
+	"passport":    {"fr", "nl", "de"},
+	"birth_date":  Langs,
 }
 
 // Sizes of the blocks: comfortably above the bench's minimums (50

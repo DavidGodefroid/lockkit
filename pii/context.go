@@ -30,7 +30,7 @@ var contextWords = map[string][]string{
 	"be_niss": {
 		"national number", "national register", "niss", "insz", "rrn", // en, abbreviations
 		"numéro national", "numero national", "registre national", "n° national", // fr
-		"rijksregister", // nl
+		"rijksregister",                      // nl
 		"nationalregister", "nationalnummer", // de
 	},
 	"be_company": {
@@ -38,6 +38,18 @@ var contextWords = map[string][]string{
 		"numéro d'entreprise", "numero d'entreprise", "n° d'entreprise", "n° entreprise", "tva", "entreprise", // fr
 		"ondernemingsnummer", "onderneming", "btw", // nl
 		"unternehmensnummer", "zdu", "ust", "mwst", // de
+	},
+	"passport": {
+		"passport", "travel document", // en
+		"passeport",           // fr
+		"paspoort", "reispas", // nl
+		"reisepass", "pass nr", "passnummer", // de
+	},
+	"birth_date": {
+		"date of birth", "birth", "born", "dob", "d o b", // en ("D.O.B.": dots read as spaces)
+		"date de naissance", "naissance", "né le", "née le", "né(e) le", // fr
+		"geboortedatum", "geboorte", "geboren", // nl
+		"geburtsdatum", "geburt", "geb", // de
 	},
 }
 
@@ -47,6 +59,8 @@ var contextFinders = map[string]func(s string, near func(int) bool) []gspan{
 	"phone":      raisePhones,
 	"be_niss":    raiseNISS,
 	"be_company": raiseBECompany,
+	"passport":   raisePassport,
+	"birth_date": raiseBirthDates,
 }
 
 // contextBefore reports a context word of kind in the contextWindow bytes

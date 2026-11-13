@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/netip"
 	"strings"
 	"sync"
@@ -282,8 +283,16 @@ func Normalise(kind, value string) string {
 			}
 			return -1
 		}, v)
-	case "card", "be_niss", "nl_bsn", "us_ssn":
+	case "card", "be_niss", "nl_bsn", "us_ssn", "be_eid":
 		return digitsOf(v)
+	case "passport":
+		return strings.ToUpper(strings.TrimSpace(v))
+	case "birth_date":
+		// One date however it is written: YYYY-MM-DD.
+		if y, m, d, ok := parseDate(strings.TrimSpace(v)); ok {
+			return fmt.Sprintf("%04d-%02d-%02d", y, m, d)
+		}
+		return strings.ToLower(strings.TrimSpace(v))
 	case "fr_nir":
 		return strings.ToUpper(strings.Map(func(r rune) rune {
 			if isDigit(byte(r)) && r < 0x80 || r == 'a' || r == 'b' || r == 'A' || r == 'B' {

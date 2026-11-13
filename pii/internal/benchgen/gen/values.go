@@ -36,12 +36,16 @@ var values = map[string]func(r *rand.Rand, lang string) (string, bool){
 		return formatVAT(r, vatNumber(r, pick(r, vatCountries[lang]), true)), false
 	},
 	"be_company": companyValue,
+	"be_eid":     func(r *rand.Rand, _ string) (string, bool) { return formatEID(beEID(r, true)), false },
+	"passport":   func(r *rand.Rand, _ string) (string, bool) { return passportNumber(r), false },
+	"birth_date": birthDate,
 }
 
 // digitKinds are the kinds whose values have digits a disguise can
 // rewrite.
 var digitKinds = map[string]bool{"iban": true, "card": true, "be_niss": true, "fr_nir": true,
-	"nl_bsn": true, "us_ssn": true, "ip": true, "phone": true, "eu_vat": true, "be_company": true}
+	"nl_bsn": true, "us_ssn": true, "ip": true, "phone": true, "eu_vat": true, "be_company": true,
+	"be_eid": true, "passport": true}
 
 // disguise rewrites one value in five: full-width digits, a zero-width
 // space inside, or no-break spaces between digit groups.
@@ -427,6 +431,79 @@ func formatVAT(r *rand.Rand, v string) string {
 		return cc + " " + n
 	}
 	return strings.ToLower(v)
+}
+
+// --- identity documents and birth dates
+
+// EIDValid checks the 12 digits of a Belgian identity card number: the
+// last 2 are the first 10 mod 97 (97 for 0).
+func EIDValid(d string) bool {
+	c := Mod97(d[:10])
+	if c == 0 {
+		c = 97
+	}
+	return c == int(d[10]-'0')*10+int(d[11]-'0')
+}
+
+func beEID(r *rand.Rand, valid bool) string {
+	for {
+		body := fmt.Sprintf("59%d", r.IntN(10)) + digits(r, 7)
+		c := Mod97(body)
+		if c == 0 {
+			c = 97
+		}
+		if !valid {
+			c = (c + 1 + r.IntN(90)) % 100
+		}
+		if d := fmt.Sprintf("%s%02d", body, c); EIDValid(d) == valid {
+			return d
+		}
+	}
+}
+
+func formatEID(d string) string { return d[:3] + "-" + d[3:10] + "-" + d[10:] }
+
+func passportNumber(r *rand.Rand) string {
+	return pick(r, []string{"EH", "EJ", "EK", "EL", "EM", "EN", "EP"}) + digits(r, 6)
+}
+
+var monthsByLang = map[string][]string{
+	"en": {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+	"fr": {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"},
+	"nl": {"januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"},
+	"de": {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"},
+}
+
+// birthDate writes a date between 1930 and 2009 as people of lang write
+// it: numeric (day first, but month first in en one time in three), ISO,
+// or with the month name.
+func birthDate(r *rand.Rand, lang string) (string, bool) {
+	d, m, y := 1+r.IntN(28), 1+r.IntN(12), 1930+r.IntN(80)
+	month := monthsByLang[lang][m-1]
+	switch r.IntN(4) {
+	case 0:
+		return fmt.Sprintf("%04d-%02d-%02d", y, m, d), false
+	case 1:
+		switch lang {
+		case "en":
+			if r.IntN(3) == 0 {
+				return fmt.Sprintf("%s %d, %d", month, d, y), false
+			}
+			return fmt.Sprintf("%d %s %d", d, month, y), false
+		case "fr":
+			if d == 1 {
+				return fmt.Sprintf("1er %s %d", month, y), false
+			}
+		case "de":
+			return fmt.Sprintf("%d. %s %d", d, month, y), false
+		}
+		return fmt.Sprintf("%d %s %d", d, month, y), false
+	}
+	sep := map[string]string{"en": "/", "fr": "/", "nl": "-", "de": "."}[lang]
+	if lang == "en" && r.IntN(3) == 0 {
+		return fmt.Sprintf("%02d/%02d/%04d", m, d, y), false
+	}
+	return fmt.Sprintf("%02d%s%02d%s%04d", d, sep, m, sep, y), false
 }
 
 // --- phones: 'd' is a random digit. The shapes keep to the ranges set

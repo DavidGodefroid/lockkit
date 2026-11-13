@@ -21,6 +21,7 @@ var prose = map[string]map[string][]string{
 		"ip":          {"Login from {v} at dawn.", "Request blocked: client {v}.", "Connection from {v} refused."},
 		"phone":       {"Call me on {v} after six.", "Phone: {v}", "Mobile {v} (evenings only)."},
 		"phone_loose": {"Call me on {v} after six.", "Phone: {v}", "Reach the front desk at {v}."},
+		"birth_date":  {"Date of birth: {v}", "DOB {v}", "Born on {v} in Leeds."},
 		"eu_vat":      {"VAT number: {v}", "Please add our VAT ID {v} to the invoice.", "Supplier VAT {v} (reverse charge)."},
 	},
 	"fr": {
@@ -37,6 +38,9 @@ var prose = map[string]map[string][]string{
 		"ip":          {"Connexion depuis {v} ce matin.", "Requête bloquée : client {v}.", "Accès refusé pour {v}."},
 		"phone":       {"Appelez-moi au {v} après dix-huit heures.", "Tél. : {v}", "Portable {v} (le soir uniquement)."},
 		"phone_loose": {"Appelez-moi au {v} après dix-huit heures.", "Tél. : {v}", "Joignable au {v} en semaine."},
+		"be_eid":      {"Carte d'identité n° {v}", "Numéro de carte eID : {v}", "eID {v} expirée."},
+		"passport":    {"Numéro de passeport : {v}", "Passeport {v} délivré à Bruxelles.", "Passeport n° {v}"},
+		"birth_date":  {"Date de naissance : {v}", "Né le {v} à Namur.", "Née le {v}"},
 		"eu_vat":      {"N° TVA : {v}", "Merci d'indiquer notre numéro de TVA {v} sur la facture.", "TVA intracommunautaire {v} (autoliquidation)."},
 		"be_company":  {"Numéro d'entreprise : {v}", "BCE {v}", "Inscrite à la BCE sous le numéro {v}."},
 	},
@@ -54,6 +58,9 @@ var prose = map[string]map[string][]string{
 		"ip":          {"Aanmelding vanaf {v} vanochtend.", "Verzoek geblokkeerd: client {v}.", "Toegang geweigerd voor {v}."},
 		"phone":       {"Bel me op {v} na zes uur.", "Tel.: {v}", "Gsm {v} (enkel 's avonds)."},
 		"phone_loose": {"Bel me op {v} na zes uur.", "Tel.: {v}", "Bereikbaar op {v} tijdens de week."},
+		"be_eid":      {"Identiteitskaartnummer: {v}", "eID-kaart {v}", "Kaartnummer eID {v} vervallen."},
+		"passport":    {"Paspoortnummer: {v}", "Paspoort {v} geldig tot 2030.", "Paspoort nr. {v}"},
+		"birth_date":  {"Geboortedatum: {v}", "Geboren op {v} in Gent.", "geboren {v}"},
 		"eu_vat":      {"Btw-nummer: {v}", "Gelieve ons btw-nummer {v} op de factuur te vermelden.", "Btw {v} (verlegd)."},
 		"be_company":  {"Ondernemingsnummer: {v}", "KBO {v}", "Ingeschreven in de KBO onder nummer {v}."},
 	},
@@ -69,6 +76,9 @@ var prose = map[string]map[string][]string{
 		"ip":          {"Anmeldung von {v} heute früh.", "Anfrage blockiert: Client {v}.", "Zugriff verweigert für {v}."},
 		"phone":       {"Rufen Sie mich unter {v} nach achtzehn Uhr an.", "Tel.: {v}", "Handy {v} (nur abends)."},
 		"phone_loose": {"Rufen Sie mich unter {v} nach achtzehn Uhr an.", "Tel.: {v}", "Erreichbar unter {v} werktags."},
+		"be_eid":      {"Personalausweisnummer: {v}", "eID-Karte {v}", "Kartennummer eID {v} abgelaufen."},
+		"passport":    {"Reisepassnummer: {v}", "Reisepass {v} gültig bis 2030.", "Pass Nr. {v}"},
+		"birth_date":  {"Geburtsdatum: {v}", "Geboren am {v} in Eupen.", "geb. {v}"},
 		"eu_vat":      {"USt-IdNr.: {v}", "Bitte unsere USt-IdNr. {v} auf der Rechnung angeben.", "Umsatzsteuer-ID {v} (Reverse Charge)."},
 		"be_company":  {"Unternehmensnummer: {v}", "ZDU {v}", "Eingetragen unter der Unternehmensnummer {v}."},
 	},
@@ -79,6 +89,7 @@ var structuredKeys = map[string]string{
 	"email": "email", "iban": "iban", "card": "card_number", "be_niss": "niss", "fr_nir": "nir",
 	"nl_bsn": "bsn", "us_ssn": "ssn", "person_name": "customer", "ip": "client_ip", "phone": "phone",
 	"phone_loose": "phone", "eu_vat": "vat_number", "be_company": "company_number",
+	"be_eid": "id_card_number", "passport": "passport_number", "birth_date": "birth_date",
 }
 
 var structuredFrames = []string{
