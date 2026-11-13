@@ -18,6 +18,11 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `User:`, host key, secrets) reach the question file; one that cannot
   be made prints one warning and keeps them on the terminal. New
   `ipc.PrivateDir`, which `Listen` uses (#180).
+- console: a product with its own start-up (`NewServer`, not `Run`) gets
+  the managed configuration's behaviour: `ServerConfig.LoadManaged`
+  (exported, set to `managed.Load`) re-reads the file at every policy
+  poll, and `CheckManaged` / `ManagedLines` refuse a policy beyond the
+  bounds at start (#176).
 - managed: `Load` accepts `managed.toml.verified`, the root-owned stamp
   lox writes with `VerifiedStamp` once it verified the signature on the
   host: a match counts the file signed without cosign (a lock in a
@@ -34,6 +39,17 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `MaxQuestionLines` or `MaxQuestionBytes` now starts it with
   `… N earlier lines not shown` instead of dropping its oldest lines
   silently.
+- ticket, console, hubclient, plans, audit: a plan's read or action
+  ticket can ask the human for typed values, sealed end to end to the
+  lock (#174). `HubTicket.Inputs` names them (`Subject.Inputs`); the hub
+  client gives the ticket a one-use key (`Subject.SecretTo`, private half
+  in `plans.Store` memory only) and `Flags.NeverAuto`; the decider seals
+  the values with `ticket.SealInputs` (context `lockkit/plan-inputs/v1`)
+  and `Begin` returns them in `Plan.Inputs` (`Decision.OpenInputs`;
+  wipe them after the run). A restarted lock answers `ticket.ErrExpired`
+  and renews. `audit.Base.Inputs` records the names, never a value.
+  `ticket.Subject` holds a slice now: compare it with `reflect.DeepEqual`,
+  not `==`.
 
 ## v0.17.0 (2026-11-13)
 

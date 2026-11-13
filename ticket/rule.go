@@ -107,7 +107,7 @@ func SealSecret(t *Ticket, secret []byte) (*Sealed, error) {
 // box that does not open is ErrOpen. The caller wipes the secret after
 // use (secrets.Wipe).
 func (d *Decision) OpenSecret(t *Ticket, priv *ecdh.PrivateKey) ([]byte, error) {
-	asked := t.Subject != nil && t.Subject.SecretTo != ""
+	asked := t.Kind == KindConnect && t.Subject != nil && t.Subject.SecretTo != ""
 	switch {
 	case d.Secret == nil && asked:
 		return nil, fmt.Errorf("%w: ticket %s asked for one", ErrNoSecret, t.ID)

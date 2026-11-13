@@ -98,9 +98,10 @@ type ServerConfig struct {
 	// Managed is the company's managed file in force at start (nil: none).
 	Managed *managed.File
 
-	// loadManaged re-reads the managed file at every policy poll (Run sets
-	// it to managed.Load); nil keeps Managed for the session.
-	loadManaged func(context.Context) (*managed.File, error)
+	// LoadManaged re-reads the managed file at every policy poll: Run sets
+	// it to managed.Load, and a product that does not use Run sets it to
+	// managed.Load too. nil keeps Managed for the whole session.
+	LoadManaged func(context.Context) (*managed.File, error)
 }
 
 // Server serves client requests one at a time against one session. It is

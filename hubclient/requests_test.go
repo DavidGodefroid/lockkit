@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -662,7 +663,7 @@ func TestRenewKeepsKind(t *testing.T) {
 	}
 	rt, err := ticket.VerifyTicket(e.lockPub, e.hub.Ticket(n))
 	if err != nil || rt.V != ticket.VersionKinds || rt.Kind != ticket.KindAction || rt.Subject == nil ||
-		*rt.Subject != *tk.Subject || rt.Renews == nil {
+		!reflect.DeepEqual(*rt.Subject, *tk.Subject) || rt.Renews == nil {
 		t.Fatalf("renewal %+v %v", rt, err)
 	}
 }

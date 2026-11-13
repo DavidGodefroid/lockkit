@@ -17,7 +17,9 @@ package hubclient
 import (
 	"bytes"
 	"context"
+	"crypto/ecdh"
 	"crypto/ed25519"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,6 +39,7 @@ import (
 
 	"github.com/DavidGodefroid/lockkit/plans"
 	"github.com/DavidGodefroid/lockkit/render"
+	"github.com/DavidGodefroid/lockkit/secrets"
 	"github.com/DavidGodefroid/lockkit/ticket"
 )
 
@@ -575,11 +578,30 @@ func (c *Client) submit(ctx context.Context, st *plans.Store, planID string, cal
 	t.Source.Instance, t.Source.KeyID = c.cfg.Instance, ticket.KeyID(c.pub)
 	t.Screen, t.PII.Touched = masked, touched
 	t.PII.SealedFor = boxes
+	// A ticket asking for typed values gets its one-use key here, for
+	// each new ticket (a renewal's too): the private half stays in st's
+	// memory, and only a human may answer it.
+	var inKey *ecdh.PrivateKey
+	if t.AsksInputs() {
+		if inKey, err = ecdh.X25519().GenerateKey(rand.Reader); err != nil {
+			return "", err
+		}
+		subj := *t.Subject
+		subj.Inputs = append([]string(nil), subj.Inputs...)
+		subj.SecretTo = ticket.EncodeX25519(inKey.PublicKey())
+		t.Subject = &subj
+		t.Flags.NeverAuto = true
+	}
 	if err := t.Sign(c.cfg.Key); err != nil {
 		return "", err
 	}
 	if err := st.MarkPendingClear(planID, caller, t, clear); err != nil {
 		return "", err
+	}
+	if inKey != nil {
+		if err := st.KeepInputKey(planID, t.ID, inKey); err != nil {
+			return "", err
+		}
 	}
 	if p, err = st.Get(planID, caller); err != nil {
 		return "", err
@@ -863,6 +885,14 @@ type Recheck func(p *plans.Plan) (policyFP, planHash string, err error)
 // denial only one gets it, the others ErrUsed. A decision too old or past
 // the ticket ends it Expired. An expired ticket is ticket.ErrExpired: the
 // product renews it (Renew) and answers pending with the new ticket.
+//
+// A ticket that asked the human for typed values (ticket.Subject.Inputs)
+// runs with them: the plan Begin returns carries them in Plan.Inputs,
+// opened with the one-use key the store kept in memory (dropped once the
+// plan runs), and the product wipes them when done (secrets.Wipe). An
+// approval without them, or whose box does not open, ends the plan Denied
+// (ErrBadDecision); a lock restarted since it signed the ticket lost the
+// key, and the run is ticket.ErrExpired, renewed as above.
 func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, recheck Recheck) (*plans.Plan, *ticket.Decision, error) {
 	p, err := st.ByTicket(ticketID, caller)
 	if errors.Is(err, plans.ErrNoSuchPlan) {
@@ -946,25 +976,71 @@ func (c *Client) Begin(st *plans.Store, ticketID string, caller plans.Caller, re
 		c.drop(ticketID)
 		return nil, d, err
 	}
-	fp, hash, err := recheck(p)
+	inputs, err := c.openInputs(st, p, caller, own, d)
 	if err != nil {
 		return nil, d, err
 	}
+	wipe := func() {
+		for _, v := range inputs {
+			secrets.Wipe(v)
+		}
+	}
+	fp, hash, err := recheck(p)
+	if err != nil {
+		wipe()
+		return nil, d, err
+	}
 	if err := st.Check(p.ID, caller, fp, hash); err != nil {
+		wipe()
 		if errors.Is(err, plans.ErrStale) {
 			c.drop(ticketID)
 		}
 		return nil, d, err
 	}
 	if err := st.Begin(p.ID, caller, d.Nonce); err != nil {
+		wipe()
 		return nil, d, err
 	}
 	c.drop(ticketID)
 	p, err = st.Get(p.ID, caller)
 	if err != nil {
+		wipe()
 		return nil, d, err
 	}
+	p.Inputs = inputs
 	return p, d, nil
+}
+
+// openInputs opens the values the human typed for the lock's own ticket
+// own of pending plan p, approved by d (nil when own asks for none), with
+// the one-use key st kept when the ticket was signed. A lock restarted
+// since then has lost the key: the plan ends Expired and the run is
+// ticket.ErrExpired, which the product renews (Renew), the renewal
+// getting a key of its own. An approval without the values, or whose
+// values do not open, ends the plan Denied and is ErrBadDecision.
+func (c *Client) openInputs(st *plans.Store, p *plans.Plan, caller plans.Caller, own *ticket.Ticket, d *ticket.Decision) (map[string][]byte, error) {
+	if !own.AsksInputs() {
+		return nil, nil
+	}
+	key := st.InputKey(p.ID, own.ID)
+	if key == nil {
+		const reason = "the typed values were sealed to a key this lock no longer holds (it restarted)"
+		if err := st.End(p.ID, caller, plans.Expired, reason); err != nil {
+			return nil, err
+		}
+		c.drop(own.ID)
+		return nil, fmt.Errorf("%w: ticket %s: %s", ticket.ErrExpired, own.ID, reason)
+	}
+	inputs, err := d.OpenInputs(own, key)
+	if err != nil {
+		reason := "the approval's typed values do not open: " + err.Error()
+		if eerr := st.End(p.ID, caller, plans.Denied, reason); eerr != nil {
+			return nil, eerr
+		}
+		c.drop(own.ID)
+		return nil, fmt.Errorf("%w: %w", ErrBadDecision, err)
+	}
+	return inputs, nil
 }
 
 // beforeDenialEnd, when set (tests), runs in Begin between its read of

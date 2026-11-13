@@ -390,7 +390,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		IO: o.IO, Approver: serverAppr, Hub: hub, Level: iso.Level(), Boundary: iso.Boundary(), Now: o.Now,
 		AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		ReconnectPolicy: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
-		RefuseProduction: refuseProduction, Managed: mf, loadManaged: loadManaged,
+		RefuseProduction: refuseProduction, Managed: mf, LoadManaged: loadManaged,
 	})
 	if err != nil {
 		ln.Close()
@@ -492,16 +492,16 @@ func (st *starter) startPolicy(ctx context.Context, stateDir, key string, cur Po
 // refuseManaged refuses p when it goes beyond the managed file's bounds,
 // printing and auditing (refused-managed) every violation.
 func (st *starter) refuseManaged(p Policy) error {
-	vs, err := managedViolations(st.p, st.b, p, st.managed)
-	if err == nil && len(vs) == 0 {
+	err := CheckManaged(st.p, st.b, p, st.managed)
+	if err == nil {
 		return nil
 	}
-	lines := violationLines(vs, err)
+	lines := ManagedLines(err)
 	for _, line := range lines {
 		st.io.Println(Paint.Fail(sanitize.Terminal(line, false)))
 	}
 	st.audit(audit.Base{Event: audit.EventPolicy, Decision: DecisionRefusedManaged, Error: strings.Join(lines, "; ")})
-	return fmt.Errorf("%w: %s", ErrManaged, sanitize.Terminal(lines[0], false))
+	return err
 }
 
 // reviewPolicy compares the current policy with the approved one and asks
