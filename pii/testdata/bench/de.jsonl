@@ -1,0 +1,800 @@
+{"id":"de-secret-0001","lang":"de","text":"mysql -u app -pwSPwXCNFzhbKD7*Da6_tL laden","spans":[{"start":15,"end":36,"kind":"secret"}]}
+{"id":"de-secret-0002","lang":"de","text":"Das neue Passwort lautet eyJhbGciOiJIUzI1NiJ9.AfKyEXAuPzhKURFw4qKUt9SADN_Gmj.nkb1Ca8zPEpOu8Yo2OZ-vV6XxTSVHymNKbwIA_l_Y-T, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":120,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0003","lang":"de","text":"--password ujrtM6Z2xRJK-Vs","spans":[{"start":11,"end":26,"kind":"secret"}]}
+{"id":"de-secret-0004","lang":"de","text":"password=TrvT6Nk!5dytAYC","spans":[{"start":9,"end":24,"kind":"secret"}]}
+{"id":"de-secret-0005","lang":"de","text":"--password RLVjFDrQPArVWP","spans":[{"start":11,"end":25,"kind":"secret"}]}
+{"id":"de-secret-0006","lang":"de","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.PgVmrFtLX4jQovxmQ3dXDmX2taB9O0.HSxNUPEf7bNkvH5u-n9evrviTmtf7c2ksavbGb3NnVN@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"de-secret-0007","lang":"de","text":"--password wXwS2gP8rEnzUpnCCRcNJSkrWFy","spans":[{"start":11,"end":38,"kind":"secret"}]}
+{"id":"de-secret-0008","lang":"de","text":"export DB_PASSWORD=A64rcaEvmQ4_HtVVSsnF*8nXUY","spans":[{"start":19,"end":45,"kind":"secret"}]}
+{"id":"de-secret-0009","lang":"de","text":"password=Z4_-PYc_in!!wBp","spans":[{"start":9,"end":24,"kind":"secret"}]}
+{"id":"de-secret-0010","lang":"de","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.tghpBudk6rG-lu6HNUA3C0M5Kd5JxE.yNjN7VYmqX65i04ewN3pJZ6LVBb5CZoj0ZgWduA1vkw laden","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"de-secret-0011","lang":"de","text":"Das neue Passwort lautet -LA-X4Nvs3!X9FLH, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":41,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0012","lang":"de","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.o_20NdCboDHW82FrM1VN5Oa1UvX_s2.YMo4vsCSWVdh5_HS6wL-Lmg7RFvgjeVq_OQlL7mvWFO","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"de-secret-0013","lang":"de","text":"export DB_PASSWORD=srmMAdgzB*FPcx5f-LD","spans":[{"start":19,"end":38,"kind":"secret"}]}
+{"id":"de-secret-0014","lang":"de","text":"Authorization: Bearer zLN3JUtAiLZcVK4c*ijNZf7a","spans":[{"start":22,"end":46,"kind":"secret"}]}
+{"id":"de-secret-0015","lang":"de","text":"password=!pfxGeaahhDY6rmAk","spans":[{"start":9,"end":26,"kind":"secret"}]}
+{"id":"de-secret-0016","lang":"de","text":"https://deploy:NphZekR8JRVHpDeGUrm9S@git.example.com/app.git","spans":[{"start":15,"end":36,"kind":"secret"}]}
+{"id":"de-secret-0017","lang":"de","text":"https://deploy:EYKB539A_m_HBmLWjrSsEF@git.example.com/app.git","spans":[{"start":15,"end":37,"kind":"secret"}]}
+{"id":"de-secret-0018","lang":"de","text":"export DB_PASSWORD=7ckM_HxiM_p_Qqq","spans":[{"start":19,"end":34,"kind":"secret"}]}
+{"id":"de-secret-0019","lang":"de","text":"mysql -u app -pRZcreFfDmU7mydw2QD5Hr laden","spans":[{"start":15,"end":36,"kind":"secret"}]}
+{"id":"de-secret-0020","lang":"de","text":"Das neue Passwort lautet pL*DaGmLYnfvbF, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":39,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0021","lang":"de","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.bVzrfs5OdeIjeXRigW5aCZl3WIQp_N.KwwBdFDrGEKPrneB4bOsyqpWaKBrfb9HGmf8a4matjR","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"de-secret-0022","lang":"de","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.MAGhVVDFucQLPnnu2HJqiJB19iX8e4.gbLpPZkL6vbzbzppFo5M71ZxNPA2NGNDWYCE36d1cDs@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"de-secret-0023","lang":"de","text":"mysql -u app -ptUKGAHn!BKAVZEi laden","spans":[{"start":15,"end":30,"kind":"secret"}]}
+{"id":"de-secret-0024","lang":"de","text":"mysql -u app -p_V2zzQFmS4MnyfUcnTsybn laden","spans":[{"start":15,"end":37,"kind":"secret"}]}
+{"id":"de-secret-0025","lang":"de","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.R5kIp2faVuACp2VV3MuOdYgaWPaV3Z.kPuUW2haZJla4j2CPAVbJ-ALuhjS-Z2BhZE8hJ04m_f laden","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"de-secret-0026","lang":"de","text":"--password piEPcCTAw9jtDdXirdpXoSJVyB","spans":[{"start":11,"end":37,"kind":"secret"}]}
+{"id":"de-secret-0027","lang":"de","text":"password=Jm-9bU_ECSrBNaBBebr","spans":[{"start":9,"end":28,"kind":"secret"}]}
+{"id":"de-secret-0028","lang":"de","text":"password=eCQs_ndGom*GZJrS9bP","spans":[{"start":9,"end":28,"kind":"secret"}]}
+{"id":"de-secret-0029","lang":"de","text":"Authorization: Bearer YCZ37-7cpmNs2rT","spans":[{"start":22,"end":37,"kind":"secret"}]}
+{"id":"de-secret-0030","lang":"de","text":"Das neue Passwort lautet LQJL!cLbvuTuCT-Y543eVSPqjGf, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":52,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0031","lang":"de","text":"https://deploy:XtdDEa6vPxVeeEMAq@git.example.com/app.git","spans":[{"start":15,"end":32,"kind":"secret"}]}
+{"id":"de-secret-0032","lang":"de","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.A6l9eWoKchwBnKhm_4MrvjdISSh0BQ.hInowJBH7_Oxg5Ql20hMR3FgZQ1OQyhENg-i1sqgdP1","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"de-secret-0033","lang":"de","text":"export DB_PASSWORD=68q2vt4bXtSb6Y3F6TTKnSkC","spans":[{"start":19,"end":43,"kind":"secret"}]}
+{"id":"de-secret-0034","lang":"de","text":"Authorization: Bearer VT8n5DgWAYh8cbeAyf*QBqj","spans":[{"start":22,"end":45,"kind":"secret"}]}
+{"id":"de-secret-0035","lang":"de","text":"https://deploy:sdcYt-ytt5mJ*M2m!R-jbVCMoD@git.example.com/app.git","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"de-secret-0036","lang":"de","text":"Das neue Passwort lautet pZ2Yag*aziVER_Z, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":40,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0037","lang":"de","text":"Das neue Passwort lautet eyJhbGciOiJIUzI1NiJ9.VNC1IEo00hxLmGJq9Xi4HFmmx-DdPv.B8hhtEH4kcqAup0Gpc_qgEicexG60nNLtC0LvG1B1XY, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":120,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0038","lang":"de","text":"Das neue Passwort lautet Y63!qtK!eAuQVjM2s, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":42,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0039","lang":"de","text":"https://deploy:WzEi-M-_xJfzJ_n_Ws@git.example.com/app.git","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"de-secret-0040","lang":"de","text":"Das neue Passwort lautet eyJhbGciOiJIUzI1NiJ9.CvNDIZhnlUIKm2KEYE861oYLfE8rth.oDhN26-7srjKgZMBEpXTSyfEBzqpdUuRal8ZtHZQWy8, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":120,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0041","lang":"de","text":"Das neue Passwort lautet ATZbXbWCU89-F-zi, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":41,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0042","lang":"de","text":"export DB_PASSWORD=DJXRDhhJzx_zCPcGEde2hPCSE!","spans":[{"start":19,"end":45,"kind":"secret"}]}
+{"id":"de-secret-0043","lang":"de","text":"password=Pq-BvcnyjvHFTGprXSqV","spans":[{"start":9,"end":29,"kind":"secret"}]}
+{"id":"de-secret-0044","lang":"de","text":"password=eyJhbGciOiJIUzI1NiJ9.t-rJ_ezizRPcAOOaCIfIWKunhkOtXC.Xs-Q8_BK5MMX--pDEHV0Imx95byU3a2bXxojQSlxV0p","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"de-secret-0045","lang":"de","text":"password=5r7JAsq92_B4x_","spans":[{"start":9,"end":23,"kind":"secret"}]}
+{"id":"de-secret-0046","lang":"de","text":"https://deploy:D-VMPZ-ED9hSMS@git.example.com/app.git","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"de-secret-0047","lang":"de","text":"mysql -u app -pko6VpjTrrJXPww laden","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"de-secret-0048","lang":"de","text":"--password zEDNnWTJyQmhY*q7KV","spans":[{"start":11,"end":29,"kind":"secret"}]}
+{"id":"de-secret-0049","lang":"de","text":"password=NivMZ_pA!s*RQ6j3fdseKEBXN8","spans":[{"start":9,"end":35,"kind":"secret"}]}
+{"id":"de-secret-0050","lang":"de","text":"export DB_PASSWORD=V3kTb35tAX8HCB3q2KqhNpxXi","spans":[{"start":19,"end":44,"kind":"secret"}]}
+{"id":"de-secret-0051","lang":"de","text":"https://deploy:Np8SS_fGa8h*S_v@git.example.com/app.git","spans":[{"start":15,"end":30,"kind":"secret"}]}
+{"id":"de-secret-0052","lang":"de","text":"mysql -u app -pBHMJrAuWUHbUzS laden","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"de-secret-0053","lang":"de","text":"password=Y8ggSrHR5jkX9c9qhBxVN","spans":[{"start":9,"end":30,"kind":"secret"}]}
+{"id":"de-secret-0054","lang":"de","text":"Authorization: Bearer 6Zeh6RBeQ4QfurVLqdF9t4Rs","spans":[{"start":22,"end":46,"kind":"secret"}]}
+{"id":"de-secret-0055","lang":"de","text":"password=Vu2*TvyAaewrVsppzgkrg3V","spans":[{"start":9,"end":32,"kind":"secret"}]}
+{"id":"de-secret-0056","lang":"de","text":"password=eyJhbGciOiJIUzI1NiJ9.CSX5j8SwTVKK_glCZnQLXkvLd-EGdJ.2igYeqCH3AKJr0vHb3Zr5XbiFD389B6oF_q346gz9xQ","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"de-secret-0057","lang":"de","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.XSTf00hOGMP1EiYEeEbWRELP1qdPad.2mc4DIQs66vn_JfY8AouaygkppWWXZM56CqiNe0Hljd@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"de-secret-0058","lang":"de","text":"mysql -u app -p3RgBPASkZ4K3*L_ikCmrw6s!WF laden","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"de-secret-0059","lang":"de","text":"Das neue Passwort lautet XXFcskw*fS!oWMZW8LEXH, bitte nach der Anmeldung ändern.","spans":[{"start":25,"end":46,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"de-secret-0060","lang":"de","text":"mysql -u app -pUh2HAWU9tBFLnJ_km laden","spans":[{"start":15,"end":32,"kind":"secret"}]}
+{"id":"de-email-0001","lang":"de","text":"email: schneider_petr​a@example.co.uk","spans":[{"start":7,"end":39,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0002","lang":"de","text":"Schreiben Sie uns an birgit.bauer@example.org.","spans":[{"start":21,"end":45,"kind":"email"}]}
+{"id":"de-email-0003","lang":"de","text":"Bitte bis Freitag an schulz_stefan@example.net antworten.","spans":[{"start":21,"end":46,"kind":"email"}]}
+{"id":"de-email-0004","lang":"de","text":"email: lukas.baumann@example.co.uk","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"de-email-0005","lang":"de","text":"Rechnung heute früh an stefan.fischer​66@example.net gesendet.","spans":[{"start":24,"end":55,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0006","lang":"de","text":"email: jens.hoffmann@shop.example.org","spans":[{"start":7,"end":37,"kind":"email"}]}
+{"id":"de-email-0007","lang":"de","text":"Rechnung heute früh an sabine.berger@s​hop.example.org gesendet.","spans":[{"start":24,"end":57,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0008","lang":"de","text":"Bitte bis Freitag an petra.berger​@example.org antworten.","spans":[{"start":21,"end":48,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0009","lang":"de","text":"email: klaus+news@example.com","spans":[{"start":7,"end":29,"kind":"email"}]}
+{"id":"de-email-0010","lang":"de","text":"Bitte bis Freitag an wolfgang.fischer@shop.example.org antworten.","spans":[{"start":21,"end":54,"kind":"email"}]}
+{"id":"de-email-0011","lang":"de","text":"level=info msg=\"profile updated\" email=wolfgang.schneider@example.co.uk","spans":[{"start":39,"end":71,"kind":"email"}]}
+{"id":"de-email-0012","lang":"de","text":"Rechnung heute früh an schulz_stefa​n@example.net gesendet.","spans":[{"start":24,"end":52,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0013","lang":"de","text":"Schreiben Sie uns an Jürgen.müller@example.co.uk.","spans":[{"start":21,"end":50,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0014","lang":"de","text":"Kontakt: käthe.schäfer@mail.example.com","spans":[{"start":9,"end":41,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0015","lang":"de","text":"email: sabine.hoffmann@example.co.uk","spans":[{"start":7,"end":36,"kind":"email"}]}
+{"id":"de-email-0016","lang":"de","text":"Bitte bis Freitag an skoch@shop.example.org antworten.","spans":[{"start":21,"end":43,"kind":"email"}]}
+{"id":"de-email-0017","lang":"de","text":"Bitte bis Freitag an katharina.hoffmann@example.org antworten.","spans":[{"start":21,"end":51,"kind":"email"}]}
+{"id":"de-email-0018","lang":"de","text":"Kontakt: katharina.baumann@example.org","spans":[{"start":9,"end":38,"kind":"email"}]}
+{"id":"de-email-0019","lang":"de","text":"Schreiben Sie uns an uweber@example.co.uk.","spans":[{"start":21,"end":41,"kind":"email"}]}
+{"id":"de-email-0020","lang":"de","text":"Kontakt: wolfgang.schulz03@mail.example.com","spans":[{"start":9,"end":43,"kind":"email"}]}
+{"id":"de-email-0021","lang":"de","text":"email: sberger@shop​.example.org","spans":[{"start":7,"end":34,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0022","lang":"de","text":"Kontakt: ulrike.fischer​64@example.net","spans":[{"start":9,"end":40,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0023","lang":"de","text":"level=info msg=\"profile updated\" email=stefan+billing@shop.example.org","spans":[{"start":39,"end":70,"kind":"email"}]}
+{"id":"de-email-0024","lang":"de","text":"Bitte bis Freitag an monika.bauer@mail.example.com antworten.","spans":[{"start":21,"end":50,"kind":"email"}]}
+{"id":"de-email-0025","lang":"de","text":"{\"type\":\"user\",\"email\":\"petra+shop@example.co.uk\",\"active\":true}","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"de-email-0026","lang":"de","text":"level=info msg=\"profile updated\" email=Lukas+billing@example.com","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"de-email-0027","lang":"de","text":"Schreiben Sie uns an weber_dieter@example.org.","spans":[{"start":21,"end":45,"kind":"email"}]}
+{"id":"de-email-0028","lang":"de","text":"Rechnung heute früh an jürgen.müller@shop.example.org gesendet.","spans":[{"start":24,"end":56,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0029","lang":"de","text":"Schreiben Sie uns an klaus+news@shop.example.org.","spans":[{"start":21,"end":48,"kind":"email"}]}
+{"id":"de-email-0030","lang":"de","text":"Kontakt: katharina.bauer@shop.example.org","spans":[{"start":9,"end":41,"kind":"email"}]}
+{"id":"de-email-0031","lang":"de","text":"Kontakt: birgit+billing@shop.example.org","spans":[{"start":9,"end":40,"kind":"email"}]}
+{"id":"de-email-0032","lang":"de","text":"{\"type\":\"user\",\"email\":\"birgit.schulz@example.org\",\"active\":true}","spans":[{"start":24,"end":49,"kind":"email"}]}
+{"id":"de-email-0033","lang":"de","text":"Rechnung heute früh an sabine.bauer@example.org gesendet.","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"de-email-0034","lang":"de","text":"level=info msg=\"profile updated\" email=jens+news@shop.example.org","spans":[{"start":39,"end":65,"kind":"email"}]}
+{"id":"de-email-0035","lang":"de","text":"Kontakt: käthe.schäfer@example.org","spans":[{"start":9,"end":36,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0036","lang":"de","text":"Schreiben Sie uns an baumann_dieter@example.com.","spans":[{"start":21,"end":47,"kind":"email"}]}
+{"id":"de-email-0037","lang":"de","text":"email: heike.berger@example.co.uk","spans":[{"start":7,"end":33,"kind":"email"}]}
+{"id":"de-email-0038","lang":"de","text":"Rechnung heute früh an tfischer@example.net gesendet.","spans":[{"start":24,"end":44,"kind":"email"}]}
+{"id":"de-email-0039","lang":"de","text":"Schreiben Sie uns an heike.schneider@example.net.","spans":[{"start":21,"end":48,"kind":"email"}]}
+{"id":"de-email-0040","lang":"de","text":"Bitte bis Freitag an hoffmann_petra@example.org antworten.","spans":[{"start":21,"end":47,"kind":"email"}]}
+{"id":"de-email-0041","lang":"de","text":"Schreiben Sie uns an jens.weber@example.net.","spans":[{"start":21,"end":43,"kind":"email"}]}
+{"id":"de-email-0042","lang":"de","text":"Kontakt: katharina.baumann82@mail.example.com","spans":[{"start":9,"end":45,"kind":"email"}]}
+{"id":"de-email-0043","lang":"de","text":"email: petra.berger@m​ail.example.com","spans":[{"start":7,"end":39,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0044","lang":"de","text":"Rechnung heute früh an jürgen.müller@example.net gesendet.","spans":[{"start":24,"end":51,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0045","lang":"de","text":"Rechnung heute früh an birgit+billing@example.co.uk gesendet.","spans":[{"start":24,"end":52,"kind":"email"}]}
+{"id":"de-email-0046","lang":"de","text":"Rechnung heute früh an klaus.schulz@example.com gesendet.","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"de-email-0047","lang":"de","text":"level=info msg=\"profile updated\" email=sfischer@mail.example.com","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"de-email-0048","lang":"de","text":"email: heike.weber@ma​il.example.com","spans":[{"start":7,"end":38,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0049","lang":"de","text":"level=info msg=\"profile updated\" email=Hschneider@example.com","spans":[{"start":39,"end":61,"kind":"email"}]}
+{"id":"de-email-0050","lang":"de","text":"{\"type\":\"user\",\"email\":\"sbecker@e​xample.com\",\"active\":true}","spans":[{"start":24,"end":46,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0051","lang":"de","text":"email: birgit.hoffmann87@example.org","spans":[{"start":7,"end":36,"kind":"email"}]}
+{"id":"de-email-0052","lang":"de","text":"level=info msg=\"profile updated\" email=bauer_birgit@example.org","spans":[{"start":39,"end":63,"kind":"email"}]}
+{"id":"de-email-0053","lang":"de","text":"Bitte bis Freitag an heike+shop@mail.example.com antworten.","spans":[{"start":21,"end":48,"kind":"email"}]}
+{"id":"de-email-0054","lang":"de","text":"Rechnung heute früh an lukas.baumann55@example.co.uk gesendet.","spans":[{"start":24,"end":53,"kind":"email"}]}
+{"id":"de-email-0055","lang":"de","text":"Bitte bis Freitag an lukas.berger44@mail.example.com antworten.","spans":[{"start":21,"end":52,"kind":"email"}]}
+{"id":"de-email-0056","lang":"de","text":"Bitte bis Freitag an ulrike.bauer​@example.com antworten.","spans":[{"start":21,"end":48,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"de-email-0057","lang":"de","text":"Rechnung heute früh an weber_klaus@example.net gesendet.","spans":[{"start":24,"end":47,"kind":"email"}]}
+{"id":"de-email-0058","lang":"de","text":"Schreiben Sie uns an heike+billing@example.com.","spans":[{"start":21,"end":46,"kind":"email"}]}
+{"id":"de-email-0059","lang":"de","text":"Schreiben Sie uns an petra.becker@mail.example.com.","spans":[{"start":21,"end":50,"kind":"email"}]}
+{"id":"de-email-0060","lang":"de","text":"Bitte bis Freitag an Berger_petra@mail.example.com antworten.","spans":[{"start":21,"end":50,"kind":"email"}]}
+{"id":"de-iban-0001","lang":"de","text":"level=info msg=\"profile updated\" iban=AT０８７２４５０３４７６４８３８３４６","spans":[{"start":38,"end":94,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0002","lang":"de","text":"Bitte die Erstattung bis Montag auf AT09 0681 4887 3027 2511 überweisen.","spans":[{"start":36,"end":64,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0003","lang":"de","text":"Bankverbindung: AT646922722165162128","spans":[{"start":16,"end":36,"kind":"iban"}]}
+{"id":"de-iban-0004","lang":"de","text":"Bitte die Erstattung bis Montag auf AT85 8440 9175 3237 3406 überweisen.","spans":[{"start":36,"end":60,"kind":"iban"}]}
+{"id":"de-iban-0005","lang":"de","text":"IBAN DE63124398463191063521 (Girokonto)","spans":[{"start":5,"end":27,"kind":"iban"}]}
+{"id":"de-iban-0006","lang":"de","text":"Bankverbindung: AT39 2315 0657 2406 5911","spans":[{"start":16,"end":40,"kind":"iban"}]}
+{"id":"de-iban-0007","lang":"de","text":"iban: DE５８６４５６８８５１１３１８７２９６７５","spans":[{"start":6,"end":68,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0008","lang":"de","text":"iban: DE２６ ８０５４ ０４６８ ３２８８ ６０３５ ９１","spans":[{"start":6,"end":73,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0009","lang":"de","text":"Bitte die Erstattung bis Montag auf AT037218102469943118 überweisen.","spans":[{"start":36,"end":56,"kind":"iban"}]}
+{"id":"de-iban-0010","lang":"de","text":"{\"type\":\"user\",\"iban\":\"DE68 5353 7011 4517 1508 62\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"de-iban-0011","lang":"de","text":"iban: AT73 0668 6806 1928 3707","spans":[{"start":6,"end":30,"kind":"iban"}]}
+{"id":"de-iban-0012","lang":"de","text":"iban: AT672834443643755031","spans":[{"start":6,"end":26,"kind":"iban"}]}
+{"id":"de-iban-0013","lang":"de","text":"level=info msg=\"profile updated\" iban=DE30107555486955643713","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"de-iban-0014","lang":"de","text":"{\"type\":\"user\",\"iban\":\"AT21 2363 9250 3293 7434\",\"active\":true}","spans":[{"start":23,"end":47,"kind":"iban"}]}
+{"id":"de-iban-0015","lang":"de","text":"iban: AT59 2747 0725 6873 3909","spans":[{"start":6,"end":30,"kind":"iban"}]}
+{"id":"de-iban-0016","lang":"de","text":"IBAN AT865240875595233288 (Girokonto)","spans":[{"start":5,"end":25,"kind":"iban"}]}
+{"id":"de-iban-0017","lang":"de","text":"IBAN DE19483568096745378521 (Girokonto)","spans":[{"start":5,"end":27,"kind":"iban"}]}
+{"id":"de-iban-0018","lang":"de","text":"Bitte die Erstattung bis Montag auf DE80 0933 7032 2894 7693 32 überweisen.","spans":[{"start":36,"end":63,"kind":"iban"}]}
+{"id":"de-iban-0019","lang":"de","text":"level=info msg=\"profile updated\" iban=AT04 9467 6491 1323 5881","spans":[{"start":38,"end":62,"kind":"iban"}]}
+{"id":"de-iban-0020","lang":"de","text":"Bitte die Erstattung bis Montag auf DE42078610168320866046 überweisen.","spans":[{"start":36,"end":58,"kind":"iban"}]}
+{"id":"de-iban-0021","lang":"de","text":"level=info msg=\"profile updated\" iban=de14812640284337864477","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"de-iban-0022","lang":"de","text":"{\"type\":\"user\",\"iban\":\"DE17 5567 6562 5712 8440 94\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"de-iban-0023","lang":"de","text":"Bitte die Erstattung bis Montag auf AT341960644294091874 überweisen.","spans":[{"start":36,"end":56,"kind":"iban"}]}
+{"id":"de-iban-0024","lang":"de","text":"{\"type\":\"user\",\"iban\":\"AT86 8783 4741 0424 5019\",\"active\":true}","spans":[{"start":23,"end":47,"kind":"iban"}]}
+{"id":"de-iban-0025","lang":"de","text":"Bitte die Erstattung bis Montag auf DE16 9993 9338 1861 6669 21 überweisen.","spans":[{"start":36,"end":63,"kind":"iban"}]}
+{"id":"de-iban-0026","lang":"de","text":"{\"type\":\"user\",\"iban\":\"DE３７ ９５７５ ６１１３ ４８３８ ４９１７ ３６\",\"active\":true}","spans":[{"start":23,"end":90,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0027","lang":"de","text":"iban: DE20 6419 1110 3776 8352 58","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"de-iban-0028","lang":"de","text":"iban: DE37817485986782656546","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"de-iban-0029","lang":"de","text":"Bankverbindung: de74003204045453006648","spans":[{"start":16,"end":38,"kind":"iban"}]}
+{"id":"de-iban-0030","lang":"de","text":"{\"type\":\"user\",\"iban\":\"DE63 1774 3600 5227 9976 64\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"de-iban-0031","lang":"de","text":"IBAN DE93 8085 9710 5237 0912 84 (Girokonto)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"de-iban-0032","lang":"de","text":"IBAN AT93 9622 1996 0094 1533 (Girokonto)","spans":[{"start":5,"end":29,"kind":"iban"}]}
+{"id":"de-iban-0033","lang":"de","text":"Bankverbindung: AT865586104498764256","spans":[{"start":16,"end":36,"kind":"iban"}]}
+{"id":"de-iban-0034","lang":"de","text":"{\"type\":\"user\",\"iban\":\"DE92604535999437683930\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"de-iban-0035","lang":"de","text":"iban: AT61 5694 6002 6885 1763","spans":[{"start":6,"end":30,"kind":"iban"}]}
+{"id":"de-iban-0036","lang":"de","text":"Bankverbindung: DE34 8279 3346 1554 4960 57","spans":[{"start":16,"end":43,"kind":"iban"}]}
+{"id":"de-iban-0037","lang":"de","text":"Bankverbindung: DE59 4857 8413 3222 7192 74","spans":[{"start":16,"end":43,"kind":"iban"}]}
+{"id":"de-iban-0038","lang":"de","text":"Bankverbindung: AT43 0289 0437 6231 3719","spans":[{"start":16,"end":40,"kind":"iban"}]}
+{"id":"de-iban-0039","lang":"de","text":"IBAN AT64 3492 3117 8268 8485 (Girokonto)","spans":[{"start":5,"end":29,"kind":"iban"}]}
+{"id":"de-iban-0040","lang":"de","text":"Bankverbindung: AT07 2940 2940 9061 2019","spans":[{"start":16,"end":40,"kind":"iban"}]}
+{"id":"de-iban-0041","lang":"de","text":"iban: AT23 5357 0046 6307 4475","spans":[{"start":6,"end":30,"kind":"iban"}]}
+{"id":"de-iban-0042","lang":"de","text":"level=info msg=\"profile updated\" iban=AT059226110458319877","spans":[{"start":38,"end":58,"kind":"iban"}]}
+{"id":"de-iban-0043","lang":"de","text":"level=info msg=\"profile updated\" iban=DE21 7193 1764 2563 4600 79","spans":[{"start":38,"end":75,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0044","lang":"de","text":"IBAN AT２８１１７８８１０７９６８３６３７７ (Girokonto)","spans":[{"start":5,"end":61,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0045","lang":"de","text":"IBAN AT43 0320 6597 9145 5633 (Girokonto)","spans":[{"start":5,"end":29,"kind":"iban"}]}
+{"id":"de-iban-0046","lang":"de","text":"Bitte die Erstattung bis Montag auf DE32 8137 4517 0004 8497 06 überweisen.","spans":[{"start":36,"end":63,"kind":"iban"}]}
+{"id":"de-iban-0047","lang":"de","text":"iban: DE631225302​40614207014","spans":[{"start":6,"end":31,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0048","lang":"de","text":"level=info msg=\"profile updated\" iban=AT34 9730 51​23 6848 3998","spans":[{"start":38,"end":65,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0049","lang":"de","text":"iban: DE71 2893 5072 8028 2990 56","spans":[{"start":6,"end":43,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0050","lang":"de","text":"iban: DE47 7261 4292 3952 3347 90","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"de-iban-0051","lang":"de","text":"Bitte die Erstattung bis Montag auf AT91 6570 9767 0551 2986 überweisen.","spans":[{"start":36,"end":60,"kind":"iban"}]}
+{"id":"de-iban-0052","lang":"de","text":"IBAN AT60 2049 28​18 2534 0459 (Girokonto)","spans":[{"start":5,"end":32,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"de-iban-0053","lang":"de","text":"{\"type\":\"user\",\"iban\":\"AT49 1303 8320 2016 0768\",\"active\":true}","spans":[{"start":23,"end":47,"kind":"iban"}]}
+{"id":"de-iban-0054","lang":"de","text":"IBAN AT50 4159 3111 0151 3530 (Girokonto)","spans":[{"start":5,"end":29,"kind":"iban"}]}
+{"id":"de-iban-0055","lang":"de","text":"iban: DE14 6731 0243 2676 3061 03","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"de-iban-0056","lang":"de","text":"IBAN AT71 0968 2584 8296 0358 (Girokonto)","spans":[{"start":5,"end":29,"kind":"iban"}]}
+{"id":"de-iban-0057","lang":"de","text":"Bitte die Erstattung bis Montag auf DE98 5642 4119 6423 9085 19 überweisen.","spans":[{"start":36,"end":63,"kind":"iban"}]}
+{"id":"de-iban-0058","lang":"de","text":"iban: AT04 6625 3605 3414 0633","spans":[{"start":6,"end":30,"kind":"iban"}]}
+{"id":"de-iban-0059","lang":"de","text":"level=info msg=\"profile updated\" iban=AT92 5808 7998 8164 9528","spans":[{"start":38,"end":62,"kind":"iban"}]}
+{"id":"de-iban-0060","lang":"de","text":"Bankverbindung: DE48 4815 2156 7208 8479 19","spans":[{"start":16,"end":43,"kind":"iban"}]}
+{"id":"de-card-0001","lang":"de","text":"Verwendete Karte: 4000-0013-8159-2682, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0002","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"3782-823505-23393\",\"active\":true}","spans":[{"start":30,"end":47,"kind":"card"}]}
+{"id":"de-card-0003","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"5555-5528-5977-9744\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0004","lang":"de","text":"card_number: 4242 4206 1797 4001","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0005","lang":"de","text":"card_number: 5555 5567 0771 0199","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-card-0006","lang":"de","text":"Karte 2223 0021 2274 1849 abgelehnt","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"de-card-0007","lang":"de","text":"card_number: ５５５５ ５５１３ ２０７４ ０２６９","spans":[{"start":13,"end":64,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0008","lang":"de","text":"Karte 4000 0036 4395 5533 abgelehnt","spans":[{"start":6,"end":28,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0009","lang":"de","text":"level=info msg=\"profile updated\" card_number=4242 4268 3499 1819","spans":[{"start":45,"end":67,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0010","lang":"de","text":"Verwendete Karte: 3782 821749 37290, läuft nächstes Jahr ab.","spans":[{"start":18,"end":35,"kind":"card"}]}
+{"id":"de-card-0011","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"5555 5502 6435 3659\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0012","lang":"de","text":"Verwendete Karte: 2223 0003 0117 4790, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0013","lang":"de","text":"Verwendete Karte: 5555555788169242, läuft nächstes Jahr ab.","spans":[{"start":18,"end":34,"kind":"card"}]}
+{"id":"de-card-0014","lang":"de","text":"level=info msg=\"profile updated\" card_number=2223-0060-6685-4260","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"de-card-0015","lang":"de","text":"card_number: 4242429177803484","spans":[{"start":13,"end":29,"kind":"card"}]}
+{"id":"de-card-0016","lang":"de","text":"level=info msg=\"profile updated\" card_number=4242423786367452","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"de-card-0017","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4242-4279-9044-9337\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0018","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4242424198606735\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"de-card-0019","lang":"de","text":"card_number: 4242 4258 7112 7485","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-card-0020","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"４０００００１４４３１００３９１\",\"active\":true}","spans":[{"start":30,"end":78,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0021","lang":"de","text":"level=info msg=\"profile updated\" card_number=4242 4281 9597 7023","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"de-card-0022","lang":"de","text":"Karte ３７８２８２８６３３８０１６６ abgelehnt","spans":[{"start":6,"end":51,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0023","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4000-0049-7231-8616\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0024","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"４２４２ ４２０６ ５３７８ ８９９２\",\"active\":true}","spans":[{"start":30,"end":81,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0025","lang":"de","text":"Karte 3782 829775 21655 abgelehnt","spans":[{"start":6,"end":23,"kind":"card"}]}
+{"id":"de-card-0026","lang":"de","text":"level=info msg=\"profile updated\" card_number=4000003733143594","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"de-card-0027","lang":"de","text":"Karte 5555559089734696 abgelehnt","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"de-card-0028","lang":"de","text":"Verwendete Karte: 4111-1151-0465-3955, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0029","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"３７８２８２９０１７６４３８９\",\"active\":true}","spans":[{"start":30,"end":75,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0030","lang":"de","text":"card_number: 4111-1171-2728-1764","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-card-0031","lang":"de","text":"Karte 4111 1193 0247 6813 abgelehnt","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"de-card-0032","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4000003672083181\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"de-card-0033","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"5555550358184564\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"de-card-0034","lang":"de","text":"Karte 2223-0053-7478-5125 abgelehnt","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"de-card-0035","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"5555-5543-4650-0840\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0036","lang":"de","text":"card_number: 5555 5518 9163 8199","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-card-0037","lang":"de","text":"Verwendete Karte: 4242-4277-1656-1795, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0038","lang":"de","text":"Verwendete Karte: 2223 0082 5238 4193, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0039","lang":"de","text":"card_number: 4242 4278 6067 4592","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-card-0040","lang":"de","text":"level=info msg=\"profile updated\" card_number=3782 822​160 88144","spans":[{"start":45,"end":65,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0041","lang":"de","text":"Verwendete Karte: 4111 1139 8056 2952, läuft nächstes Jahr ab.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"de-card-0042","lang":"de","text":"card_number: 4111118473354114","spans":[{"start":13,"end":29,"kind":"card"}]}
+{"id":"de-card-0043","lang":"de","text":"Der Kunde zahlte mit 4000 0096 6314 5046.","spans":[{"start":21,"end":40,"kind":"card"}]}
+{"id":"de-card-0044","lang":"de","text":"card_number: 41111182​61944746","spans":[{"start":13,"end":32,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0045","lang":"de","text":"Der Kunde zahlte mit 2223-0078-7745-1031.","spans":[{"start":21,"end":40,"kind":"card"}]}
+{"id":"de-card-0046","lang":"de","text":"card_number: 4242 4228 5739 1904","spans":[{"start":13,"end":38,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0047","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4000 0086 5757 4906\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0048","lang":"de","text":"level=info msg=\"profile updated\" card_number=4242 4209 3657 4011","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"de-card-0049","lang":"de","text":"card_number: 4242 4268 6324 9030","spans":[{"start":13,"end":38,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0050","lang":"de","text":"Der Kunde zahlte mit ４１１１-１１９３-０２２８-７７０７.","spans":[{"start":21,"end":72,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0051","lang":"de","text":"Verwendete Karte: ４２４２ ４２４７ ０２６０ ５３５５, läuft nächstes Jahr ab.","spans":[{"start":18,"end":69,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0052","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"3782826​23780226\",\"active\":true}","spans":[{"start":30,"end":48,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0053","lang":"de","text":"Karte 4242420319978037 abgelehnt","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"de-card-0054","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"4111 1102 0331 0359\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"de-card-0055","lang":"de","text":"level=info msg=\"profile updated\" card_number=4111 1189 3981 7720","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"de-card-0056","lang":"de","text":"card_number: 378282687565141","spans":[{"start":13,"end":28,"kind":"card"}]}
+{"id":"de-card-0057","lang":"de","text":"{\"type\":\"user\",\"card_number\":\"3782 829440 81932\",\"active\":true}","spans":[{"start":30,"end":47,"kind":"card"}]}
+{"id":"de-card-0058","lang":"de","text":"Der Kunde zahlte mit 5555555964515176.","spans":[{"start":21,"end":37,"kind":"card"}]}
+{"id":"de-card-0059","lang":"de","text":"level=info msg=\"profile updated\" card_number=3782825​34058126","spans":[{"start":45,"end":63,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"de-card-0060","lang":"de","text":"card_number: 5555 5556 5425 1223","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"de-be_niss-0001","lang":"de","text":"Die Nationalnummer 00110882808 ist erfasst.","spans":[{"start":19,"end":30,"kind":"be_niss"}]}
+{"id":"de-be_niss-0002","lang":"de","text":"{\"type\":\"user\",\"niss\":\"300708 882 42\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"de-be_niss-0003","lang":"de","text":"Nationalregisternummer: 97062774242","spans":[{"start":24,"end":35,"kind":"be_niss"}]}
+{"id":"de-be_niss-0004","lang":"de","text":"Die Nationalnummer 360809 357 88 ist erfasst.","spans":[{"start":19,"end":32,"kind":"be_niss"}]}
+{"id":"de-be_niss-0005","lang":"de","text":"Nationalregisternummer: 75.02.16-454.73","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"de-be_niss-0006","lang":"de","text":"Die Nationalnummer 97.10.18-401.02 ist erfasst.","spans":[{"start":19,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0007","lang":"de","text":"{\"type\":\"user\",\"niss\":\"020927 429 59\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"de-be_niss-0008","lang":"de","text":"INSZ 25.08.20-376.90 des Patienten.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"de-be_niss-0009","lang":"de","text":"Nationalregisternummer: 83.01.05-109.36","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"de-be_niss-0010","lang":"de","text":"Nationalregisternummer: 08.06.18-153.31","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"de-be_niss-0011","lang":"de","text":"{\"type\":\"user\",\"niss\":\"660102 708 43\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"de-be_niss-0012","lang":"de","text":"Die Nationalnummer 45.12.23-022.26 ist erfasst.","spans":[{"start":19,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0013","lang":"de","text":"INSZ 88082882149 des Patienten.","spans":[{"start":5,"end":16,"kind":"be_niss"}]}
+{"id":"de-be_niss-0014","lang":"de","text":"level=info msg=\"profile updated\" niss=54.12.24-121.86","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0015","lang":"de","text":"{\"type\":\"user\",\"niss\":\"14.09.0​5-159.77\",\"active\":true}","spans":[{"start":23,"end":41,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0016","lang":"de","text":"Nationalregisternummer: 57030324708","spans":[{"start":24,"end":35,"kind":"be_niss"}]}
+{"id":"de-be_niss-0017","lang":"de","text":"level=info msg=\"profile updated\" niss=32.08.12-653.06","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0018","lang":"de","text":"niss: 190513 113 57","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"de-be_niss-0019","lang":"de","text":"niss: 81.09.04-490.87","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"de-be_niss-0020","lang":"de","text":"Die Nationalnummer 32.12.01-853.67 ist erfasst.","spans":[{"start":19,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0021","lang":"de","text":"level=info msg=\"profile updated\" niss=45.10.04-161.55","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0022","lang":"de","text":"niss: 29.05.22-686.74","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"de-be_niss-0023","lang":"de","text":"INSZ ０８０４０８ ３１９ ５４ des Patienten.","spans":[{"start":5,"end":40,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0024","lang":"de","text":"Die Nationalnummer 58.07.14-046.25 ist erfasst.","spans":[{"start":19,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0025","lang":"de","text":"level=info msg=\"profile updated\" niss=49.02.19-803.58","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0026","lang":"de","text":"level=info msg=\"profile updated\" niss=05.02.27-620.76","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0027","lang":"de","text":"niss: 451117 347 68","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"de-be_niss-0028","lang":"de","text":"Die Nationalnummer ３６０９１３７７９３８ ist erfasst.","spans":[{"start":19,"end":52,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0029","lang":"de","text":"INSZ 630320 879 59 des Patienten.","spans":[{"start":5,"end":18,"kind":"be_niss"}]}
+{"id":"de-be_niss-0030","lang":"de","text":"niss: 72032403896","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"de-be_niss-0031","lang":"de","text":"Nationalregisternummer: 540301 769 65","spans":[{"start":24,"end":41,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0032","lang":"de","text":"Die Nationalnummer 62.10.16-767.28 ist erfasst.","spans":[{"start":19,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0033","lang":"de","text":"{\"type\":\"user\",\"niss\":\"761112 014 38\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"de-be_niss-0034","lang":"de","text":"level=info msg=\"profile updated\" niss=000924​ 363 76","spans":[{"start":38,"end":54,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0035","lang":"de","text":"niss: 76.06.15-806.91","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"de-be_niss-0036","lang":"de","text":"niss: ８４１１２１ １７３ ６８","spans":[{"start":6,"end":41,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0037","lang":"de","text":"{\"type\":\"user\",\"niss\":\"64.09.17-454.55\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"de-be_niss-0038","lang":"de","text":"Nationalregisternummer: 100115 025 62","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"de-be_niss-0039","lang":"de","text":"INSZ 59.03.27-925.10 des Patienten.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"de-be_niss-0040","lang":"de","text":"INSZ 87.09.13-728.93 des Patienten.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"de-be_niss-0041","lang":"de","text":"INSZ 32.06.14-532.53 des Patienten.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"de-be_niss-0042","lang":"de","text":"level=info msg=\"profile updated\" niss=180725 731 42","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"de-be_niss-0043","lang":"de","text":"level=info msg=\"profile updated\" niss=491210 675 41","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"de-be_niss-0044","lang":"de","text":"Nationalregisternummer: 240802 755 36","spans":[{"start":24,"end":37,"kind":"be_niss"}]}
+{"id":"de-be_niss-0045","lang":"de","text":"INSZ ９４.０９.１６-８８６.８９ des Patienten.","spans":[{"start":5,"end":42,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0046","lang":"de","text":"niss: 38090154889","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"de-be_niss-0047","lang":"de","text":"{\"type\":\"user\",\"niss\":\"95041505761\",\"active\":true}","spans":[{"start":23,"end":34,"kind":"be_niss"}]}
+{"id":"de-be_niss-0048","lang":"de","text":"level=info msg=\"profile updated\" niss=360404 114 65","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"de-be_niss-0049","lang":"de","text":"Nationalregisternummer: 58.09.10-974.07","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"de-be_niss-0050","lang":"de","text":"Die Nationalnummer 860612 846 60 ist erfasst.","spans":[{"start":19,"end":32,"kind":"be_niss"}]}
+{"id":"de-be_niss-0051","lang":"de","text":"INSZ ５６０６０４ ８９９ ０５ des Patienten.","spans":[{"start":5,"end":40,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0052","lang":"de","text":"niss: 680807 397 04","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"de-be_niss-0053","lang":"de","text":"level=info msg=\"profile updated\" niss=94.06.21-551.59","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0054","lang":"de","text":"{\"type\":\"user\",\"niss\":\"１８１２１４ ０９６ ７２\",\"active\":true}","spans":[{"start":23,"end":58,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"de-be_niss-0055","lang":"de","text":"Nationalregisternummer: 93.09.02-747.45","spans":[{"start":24,"end":39,"kind":"be_niss"}]}
+{"id":"de-be_niss-0056","lang":"de","text":"niss: 28.02.10-931.50","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"de-be_niss-0057","lang":"de","text":"level=info msg=\"profile updated\" niss=58.08.13-734.53","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0058","lang":"de","text":"level=info msg=\"profile updated\" niss=28.03.24-800.59","spans":[{"start":38,"end":53,"kind":"be_niss"}]}
+{"id":"de-be_niss-0059","lang":"de","text":"niss: 56.12.19-147.58","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"de-be_niss-0060","lang":"de","text":"{\"type\":\"user\",\"niss\":\"97.07.13-593.36\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"de-person_name-0001","lang":"de","text":"Bitte Serimir Fischer wegen der Lieferung anrufen.","spans":[{"start":6,"end":21,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0002","lang":"de","text":"level=info msg=\"profile updated\" customer=Dr. Lisa​inger","spans":[{"start":46,"end":58,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0003","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Tobias Fischer\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}]}
+{"id":"de-person_name-0004","lang":"de","text":"Bitte Venovia Berger wegen der Lieferung anrufen.","spans":[{"start":6,"end":20,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0005","lang":"de","text":"Unterschrieben von Baumann, Heike, Filialleiterin.","spans":[{"start":19,"end":33,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0006","lang":"de","text":"Bitte Jens Koch wegen der Lieferung anrufen.","spans":[{"start":6,"end":15,"kind":"person_name"}]}
+{"id":"de-person_name-0007","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Klaus G.​ Hoffmann\",\"active\":true}","spans":[{"start":27,"end":47,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0008","lang":"de","text":"level=info msg=\"profile updated\" customer=TOBIAS SCHULZ","spans":[{"start":42,"end":55,"kind":"person_name"}]}
+{"id":"de-person_name-0009","lang":"de","text":"Bitte Ulrike E​lyvimann wegen der Lieferung anrufen.","spans":[{"start":6,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0010","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Dieter P. Berger\",\"active\":true}","spans":[{"start":27,"end":43,"kind":"person_name"}]}
+{"id":"de-person_name-0011","lang":"de","text":"Vorgang bearbeitet von Becker, Petra.","spans":[{"start":23,"end":36,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0012","lang":"de","text":"Vorgang bearbeitet von Kanoth Arstedt.","spans":[{"start":23,"end":37,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0013","lang":"de","text":"customer: Sesadel Schulz","spans":[{"start":10,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0014","lang":"de","text":"Termin mit Velemir Livistedt morgen früh.","spans":[{"start":11,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0015","lang":"de","text":"Vorgang bearbeitet von SABINE FISCHER.","spans":[{"start":23,"end":37,"kind":"person_name"}]}
+{"id":"de-person_name-0016","lang":"de","text":"level=info msg=\"profile updated\" customer=Tays Schneider","spans":[{"start":42,"end":56,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0017","lang":"de","text":"Vorgang bearbeitet von Katharina Quisainger.","spans":[{"start":23,"end":43,"kind":"person_name"}]}
+{"id":"de-person_name-0018","lang":"de","text":"level=info msg=\"profile updated\" customer=Lukas Weber","spans":[{"start":42,"end":53,"kind":"person_name"}]}
+{"id":"de-person_name-0019","lang":"de","text":"Termin mit Kaledel Berger morgen früh.","spans":[{"start":11,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0020","lang":"de","text":"Bitte Herr Ber​ger wegen der Lieferung anrufen.","spans":[{"start":11,"end":20,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0021","lang":"de","text":"Bitte Katharina​ Nisaberg wegen der Lieferung anrufen.","spans":[{"start":6,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0022","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Quisaric Koch\",\"active\":true}","spans":[{"start":27,"end":40,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0023","lang":"de","text":"Bitte HEIKE HOFFMANN wegen der Lieferung anrufen.","spans":[{"start":6,"end":20,"kind":"person_name"}]}
+{"id":"de-person_name-0024","lang":"de","text":"Unterschrieben von Jens Schulz, Filialleiterin.","spans":[{"start":19,"end":30,"kind":"person_name"}]}
+{"id":"de-person_name-0025","lang":"de","text":"customer: Prof. Berger","spans":[{"start":16,"end":22,"kind":"person_name"}]}
+{"id":"de-person_name-0026","lang":"de","text":"Unterschrieben von Herr Nirihauser, Filialleiterin.","spans":[{"start":24,"end":34,"kind":"person_name"}]}
+{"id":"de-person_name-0027","lang":"de","text":"customer: Mosan Schulz","spans":[{"start":10,"end":22,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0028","lang":"de","text":"Unterschrieben von Fasan Schneider, Filialleiterin.","spans":[{"start":19,"end":34,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0029","lang":"de","text":"Termin mit Romir Becker morgen früh.","spans":[{"start":11,"end":23,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0030","lang":"de","text":"Bitte Elysalo Hoffmann wegen der Lieferung anrufen.","spans":[{"start":6,"end":22,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0031","lang":"de","text":"Bitte Ulrike Z​olestedt wegen der Lieferung anrufen.","spans":[{"start":6,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0032","lang":"de","text":"Termin mit Quirith Zolestedt morgen früh.","spans":[{"start":11,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0033","lang":"de","text":"Termin mit Rosaric Schneider morgen früh.","spans":[{"start":11,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0034","lang":"de","text":"customer: Wolfgan​g Bauer","spans":[{"start":10,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0035","lang":"de","text":"level=info msg=\"profile updated\" customer=Faleane Bauer","spans":[{"start":42,"end":55,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0036","lang":"de","text":"customer: Zovilo Zoleinger","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0037","lang":"de","text":"Vorgang bearbeitet von Stefan Ninoinger.","spans":[{"start":23,"end":39,"kind":"person_name"}]}
+{"id":"de-person_name-0038","lang":"de","text":"Termin mit Herr Zorimann morgen früh.","spans":[{"start":16,"end":24,"kind":"person_name"}]}
+{"id":"de-person_name-0039","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Morith Weber\",\"active\":true}","spans":[{"start":27,"end":39,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0040","lang":"de","text":"Bitte sabine baumann wegen der Lieferung anrufen.","spans":[{"start":6,"end":20,"kind":"person_name"}]}
+{"id":"de-person_name-0041","lang":"de","text":"Bitte Quiriane Kainger wegen der Lieferung anrufen.","spans":[{"start":6,"end":22,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0042","lang":"de","text":"Unterschrieben von monika s​chneider, Filialleiterin.","spans":[{"start":19,"end":38,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0043","lang":"de","text":"customer: klaus becker","spans":[{"start":10,"end":22,"kind":"person_name"}]}
+{"id":"de-person_name-0044","lang":"de","text":"Unterschrieben von Lilemir Bauer, Filialleiterin.","spans":[{"start":19,"end":32,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0045","lang":"de","text":"Bitte Herr Weber wegen der Lieferung anrufen.","spans":[{"start":11,"end":16,"kind":"person_name"}]}
+{"id":"de-person_name-0046","lang":"de","text":"Unterschrieben von Heike Berger, Filialleiterin.","spans":[{"start":19,"end":31,"kind":"person_name"}]}
+{"id":"de-person_name-0047","lang":"de","text":"Termin mit Becker, Stefan morgen früh.","spans":[{"start":11,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0048","lang":"de","text":"Unterschrieben von ULRIKE BECKER, Filialleiterin.","spans":[{"start":19,"end":32,"kind":"person_name"}]}
+{"id":"de-person_name-0049","lang":"de","text":"level=info msg=\"profile updated\" customer=Wolfgang Bauer","spans":[{"start":42,"end":56,"kind":"person_name"}]}
+{"id":"de-person_name-0050","lang":"de","text":"Unterschrieben von Ninoth Elysainger, Filialleiterin.","spans":[{"start":19,"end":36,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0051","lang":"de","text":"Bitte tobias ​baumann wegen der Lieferung anrufen.","spans":[{"start":6,"end":23,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0052","lang":"de","text":"customer: stefan hoffmann","spans":[{"start":10,"end":25,"kind":"person_name"}]}
+{"id":"de-person_name-0053","lang":"de","text":"Termin mit Arridel Schneider morgen früh.","spans":[{"start":11,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0054","lang":"de","text":"level=info msg=\"profile updated\" customer=Dun Dulemann","spans":[{"start":42,"end":54,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0055","lang":"de","text":"level=info msg=\"profile updated\" customer=HEIKE BAUMANN","spans":[{"start":42,"end":55,"kind":"person_name"}]}
+{"id":"de-person_name-0056","lang":"de","text":"Termin mit Sabine N. Baumann morgen früh.","spans":[{"start":11,"end":28,"kind":"person_name"}]}
+{"id":"de-person_name-0057","lang":"de","text":"{\"type\":\"user\",\"customer\":\"Frau Bauer\",\"active\":true}","spans":[{"start":32,"end":37,"kind":"person_name"}]}
+{"id":"de-person_name-0058","lang":"de","text":"Termin mit Liraric Weber morgen früh.","spans":[{"start":11,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0059","lang":"de","text":"Termin mit Kalevia Romann morgen früh.","spans":[{"start":11,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-person_name-0060","lang":"de","text":"Unterschrieben von Moriys Elylemann, Filialleiterin.","spans":[{"start":19,"end":35,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"de-ip-0001","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.33\",\"active\":true}","spans":[{"start":28,"end":47,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0002","lang":"de","text":"Anmeldung von 203.0.113.61 heute früh.","spans":[{"start":14,"end":26,"kind":"ip"}]}
+{"id":"de-ip-0003","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.167\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0004","lang":"de","text":"Anmeldung von 2001:4860:4860::8888 heute früh.","spans":[{"start":14,"end":34,"kind":"ip"}]}
+{"id":"de-ip-0005","lang":"de","text":"client_ip: 2620:fe::fe","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"de-ip-0006","lang":"de","text":"client_ip: 8.8.4.4","spans":[{"start":11,"end":18,"kind":"ip"}]}
+{"id":"de-ip-0007","lang":"de","text":"Zugriff verweigert für 2001:db8:dee6::fee.","spans":[{"start":24,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0008","lang":"de","text":"level=info msg=\"profile updated\" client_ip=203.0.113.21","spans":[{"start":43,"end":55,"kind":"ip"}]}
+{"id":"de-ip-0009","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"203.0.​113.251\",\"active\":true}","spans":[{"start":28,"end":44,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0010","lang":"de","text":"Anfrage blockiert: Client 192.0​.2.186.","spans":[{"start":26,"end":40,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0011","lang":"de","text":"Anfrage blockiert: Client 2001:db8:fbd9::2e5.","spans":[{"start":26,"end":44,"kind":"ip"}]}
+{"id":"de-ip-0012","lang":"de","text":"client_ip: 2001:db8:75bc::341","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"de-ip-0013","lang":"de","text":"client_ip: 2001:db8:​6741::c0c","spans":[{"start":11,"end":32,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0014","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"192.0​.2.116\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0015","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"2001:4860:4860::8888\",\"active\":true}","spans":[{"start":28,"end":48,"kind":"ip"}]}
+{"id":"de-ip-0016","lang":"de","text":"client_ip: 203.0.113.1","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"de-ip-0017","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.157\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0018","lang":"de","text":"client_ip: 198.51.100.47","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"de-ip-0019","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.195\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0020","lang":"de","text":"Zugriff verweigert für 192.0.2.198.","spans":[{"start":24,"end":35,"kind":"ip"}]}
+{"id":"de-ip-0021","lang":"de","text":"client_ip: 2606:4700:4700::1111","spans":[{"start":11,"end":31,"kind":"ip"}]}
+{"id":"de-ip-0022","lang":"de","text":"Zugriff verweigert für 198.51.100.115.","spans":[{"start":24,"end":38,"kind":"ip"}]}
+{"id":"de-ip-0023","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.81\",\"active\":true}","spans":[{"start":28,"end":38,"kind":"ip"}]}
+{"id":"de-ip-0024","lang":"de","text":"Anfrage blockiert: Client 192.0.2.34.","spans":[{"start":26,"end":36,"kind":"ip"}]}
+{"id":"de-ip-0025","lang":"de","text":"level=info msg=\"profile updated\" client_ip=2620:fe::fe","spans":[{"start":43,"end":54,"kind":"ip"}]}
+{"id":"de-ip-0026","lang":"de","text":"Anfrage blockiert: Client 203.0.113.18.","spans":[{"start":26,"end":38,"kind":"ip"}]}
+{"id":"de-ip-0027","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.131\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"de-ip-0028","lang":"de","text":"Anmeldung von 2606:4700:4700::1111 heute früh.","spans":[{"start":14,"end":34,"kind":"ip"}]}
+{"id":"de-ip-0029","lang":"de","text":"Anfrage blockiert: Client 203.0.113.64.","spans":[{"start":26,"end":38,"kind":"ip"}]}
+{"id":"de-ip-0030","lang":"de","text":"level=info msg=\"profile updated\" client_ip=8.8.4.4","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"de-ip-0031","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.165\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"de-ip-0032","lang":"de","text":"level=info msg=\"profile updated\" client_ip=2001:db8:c7b9::213","spans":[{"start":43,"end":61,"kind":"ip"}]}
+{"id":"de-ip-0033","lang":"de","text":"Anfrage blockiert: Client 192.0.2.209.","spans":[{"start":26,"end":37,"kind":"ip"}]}
+{"id":"de-ip-0034","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.216\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"de-ip-0035","lang":"de","text":"Zugriff verweigert für 2001:db8:1077::5f6.","spans":[{"start":24,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0036","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:64f2::b72\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"de-ip-0037","lang":"de","text":"client_ip: 203.0.113.112","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"de-ip-0038","lang":"de","text":"Anmeldung von 198.51.100.73 heute früh.","spans":[{"start":14,"end":27,"kind":"ip"}]}
+{"id":"de-ip-0039","lang":"de","text":"level=info msg=\"profile updated\" client_ip=203.0.113.239","spans":[{"start":43,"end":56,"kind":"ip"}]}
+{"id":"de-ip-0040","lang":"de","text":"level=info msg=\"profile updated\" client_ip=198.51.100.157","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"de-ip-0041","lang":"de","text":"Zugriff verweigert für 203.0.​113.107.","spans":[{"start":24,"end":40,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0042","lang":"de","text":"Anfrage blockiert: Client 2001:db8:5058::c95.","spans":[{"start":26,"end":44,"kind":"ip"}]}
+{"id":"de-ip-0043","lang":"de","text":"Zugriff verweigert für ::ffff:203.0.113.182.","spans":[{"start":24,"end":44,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0044","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"8.8.4.4\",\"active\":true}","spans":[{"start":28,"end":35,"kind":"ip"}]}
+{"id":"de-ip-0045","lang":"de","text":"Anmeldung von 2001:db8:d82::4a5 heute früh.","spans":[{"start":14,"end":31,"kind":"ip"}]}
+{"id":"de-ip-0046","lang":"de","text":"client_ip: 192.0.2.108","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"de-ip-0047","lang":"de","text":"client_ip: ::ffff:203.0.113.135","spans":[{"start":11,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0048","lang":"de","text":"Zugriff verweigert für ::ffff:203.0.113.88.","spans":[{"start":24,"end":43,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0049","lang":"de","text":"Anmeldung von 198.51.100.242 heute früh.","spans":[{"start":14,"end":28,"kind":"ip"}]}
+{"id":"de-ip-0050","lang":"de","text":"client_ip: 192.0.2.100","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"de-ip-0051","lang":"de","text":"Zugriff verweigert für 8.8.4.4.","spans":[{"start":24,"end":31,"kind":"ip"}]}
+{"id":"de-ip-0052","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.247\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"de-ip-0053","lang":"de","text":"level=info msg=\"profile updated\" client_ip=8.8.4.4","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"de-ip-0054","lang":"de","text":"Anfrage blockiert: Client 2001:db8:8533::3b2.","spans":[{"start":26,"end":44,"kind":"ip"}]}
+{"id":"de-ip-0055","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.107\",\"active\":true}","spans":[{"start":28,"end":39,"kind":"ip"}]}
+{"id":"de-ip-0056","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:9643::3bf\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"de-ip-0057","lang":"de","text":"Zugriff verweigert für １９８.５１.１００.２２８.","spans":[{"start":24,"end":60,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"de-ip-0058","lang":"de","text":"client_ip: 198.51.100.22","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"de-ip-0059","lang":"de","text":"level=info msg=\"profile updated\" client_ip=2620:fe::fe","spans":[{"start":43,"end":54,"kind":"ip"}]}
+{"id":"de-ip-0060","lang":"de","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:bcf2::455\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"de-phone-0001","lang":"de","text":"phone: (030) 7321 402","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"de-phone-0002","lang":"de","text":"phone: 0049 89 393769","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"de-phone-0003","lang":"de","text":"Handy (030) 7039 633 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0004","lang":"de","text":"phone: 030 6812783","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"de-phone-0005","lang":"de","text":"{\"type\":\"user\",\"phone\":\"089/776999\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone"}]}
+{"id":"de-phone-0006","lang":"de","text":"Tel.: 0049 89 266347","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0007","lang":"de","text":"{\"type\":\"user\",\"phone\":\"(030) 0266 483\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"de-phone-0008","lang":"de","text":"Rufen Sie mich unter (030) 8224 346 nach achtzehn Uhr an.","spans":[{"start":21,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0009","lang":"de","text":"Handy ０１５１ ５１７７７３９０ (nur abends).","spans":[{"start":6,"end":43,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0010","lang":"de","text":"{\"type\":\"user\",\"phone\":\"089/306763\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone"}]}
+{"id":"de-phone-0011","lang":"de","text":"Handy +49 30 0202035 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0012","lang":"de","text":"Rufen Sie mich unter 0049 89 990635 nach achtzehn Uhr an.","spans":[{"start":21,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0013","lang":"de","text":"{\"type\":\"user\",\"phone\":\"0151 79406199\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"de-phone-0014","lang":"de","text":"phone: 030 8921681","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"de-phone-0015","lang":"de","text":"level=info msg=\"profile updated\" phone=089/102292","spans":[{"start":39,"end":49,"kind":"phone"}]}
+{"id":"de-phone-0016","lang":"de","text":"Rufen Sie mich unter 0049 89 337783 nach achtzehn Uhr an.","spans":[{"start":21,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0017","lang":"de","text":"Tel.: 089/959899","spans":[{"start":6,"end":16,"kind":"phone"}]}
+{"id":"de-phone-0018","lang":"de","text":"level=info msg=\"profile updated\" phone=030 1142515","spans":[{"start":39,"end":50,"kind":"phone"}]}
+{"id":"de-phone-0019","lang":"de","text":"Handy 030 0034507 (nur abends).","spans":[{"start":6,"end":17,"kind":"phone"}]}
+{"id":"de-phone-0020","lang":"de","text":"Rufen Sie mich unter 030 2476578 nach achtzehn Uhr an.","spans":[{"start":21,"end":32,"kind":"phone"}]}
+{"id":"de-phone-0021","lang":"de","text":"Rufen Sie mich unter 089/469929 nach achtzehn Uhr an.","spans":[{"start":21,"end":31,"kind":"phone"}]}
+{"id":"de-phone-0022","lang":"de","text":"Tel.: 0049 89 817451","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0023","lang":"de","text":"Tel.: +49 30 2274234","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0024","lang":"de","text":"phone: +49 151 ​67128165","spans":[{"start":7,"end":26,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0025","lang":"de","text":"{\"type\":\"user\",\"phone\":\"089/5​45362\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0026","lang":"de","text":"level=info msg=\"profile updated\" phone=+49 151 52622347","spans":[{"start":39,"end":55,"kind":"phone"}]}
+{"id":"de-phone-0027","lang":"de","text":"Tel.: 089/227822","spans":[{"start":6,"end":16,"kind":"phone"}]}
+{"id":"de-phone-0028","lang":"de","text":"Handy 0049 89 310048 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0029","lang":"de","text":"Rufen Sie mich unter ０３０ ７６１８１５１ nach achtzehn Uhr an.","spans":[{"start":21,"end":52,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0030","lang":"de","text":"Handy +49 30 9942985 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0031","lang":"de","text":"level=info msg=\"profile updated\" phone=089/771475","spans":[{"start":39,"end":49,"kind":"phone"}]}
+{"id":"de-phone-0032","lang":"de","text":"Rufen Sie mich unter 089/150813 nach achtzehn Uhr an.","spans":[{"start":21,"end":31,"kind":"phone"}]}
+{"id":"de-phone-0033","lang":"de","text":"Handy +49 30 2956363 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0034","lang":"de","text":"{\"type\":\"user\",\"phone\":\"030 8556701\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0035","lang":"de","text":"level=info msg=\"profile updated\" phone=030 0709816","spans":[{"start":39,"end":50,"kind":"phone"}]}
+{"id":"de-phone-0036","lang":"de","text":"Rufen Sie mich unter 0049 89 938077 nach achtzehn Uhr an.","spans":[{"start":21,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0037","lang":"de","text":"{\"type\":\"user\",\"phone\":\"0151 59089362\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"de-phone-0038","lang":"de","text":"{\"type\":\"user\",\"phone\":\"089/857231\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone"}]}
+{"id":"de-phone-0039","lang":"de","text":"phone: 030 1749646","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"de-phone-0040","lang":"de","text":"Handy 0049 89 559117 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0041","lang":"de","text":"{\"type\":\"user\",\"phone\":\"+49 30 1641600\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"de-phone-0042","lang":"de","text":"level=info msg=\"profile updated\" phone=0049 89 629642","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"de-phone-0043","lang":"de","text":"Rufen Sie mich unter +49 30 8569159 nach achtzehn Uhr an.","spans":[{"start":21,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0044","lang":"de","text":"Handy (030) 1438 181 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0045","lang":"de","text":"phone: 089/160552","spans":[{"start":7,"end":17,"kind":"phone"}]}
+{"id":"de-phone-0046","lang":"de","text":"Tel.: +49 30 6738794","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0047","lang":"de","text":"Tel.: 0049 89 105460","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0048","lang":"de","text":"{\"type\":\"user\",\"phone\":\"089/154517\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone"}]}
+{"id":"de-phone-0049","lang":"de","text":"{\"type\":\"user\",\"phone\":\"030 2384923\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone"}]}
+{"id":"de-phone-0050","lang":"de","text":"{\"type\":\"user\",\"phone\":\"0049 89 157471\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"de-phone-0051","lang":"de","text":"Rufen Sie mich unter 0151 35020962 nach achtzehn Uhr an.","spans":[{"start":21,"end":34,"kind":"phone"}]}
+{"id":"de-phone-0052","lang":"de","text":"Rufen Sie mich unter 0151 4​3041577 nach achtzehn Uhr an.","spans":[{"start":21,"end":37,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0053","lang":"de","text":"{\"type\":\"user\",\"phone\":\"+49 30 5799858\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"de-phone-0054","lang":"de","text":"Handy 0049 89 925951 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0055","lang":"de","text":"phone: 030 9074019","spans":[{"start":7,"end":18,"kind":"phone"}]}
+{"id":"de-phone-0056","lang":"de","text":"level=info msg=\"profile updated\" phone=0049 89 264381","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"de-phone-0057","lang":"de","text":"Rufen Sie mich unter +４９ １５１ ７５５８３８５４ nach achtzehn Uhr an.","spans":[{"start":21,"end":63,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0058","lang":"de","text":"level=info msg=\"profile updated\" phone=+49 151 11206743","spans":[{"start":39,"end":59,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"de-phone-0059","lang":"de","text":"Handy (030) 6625 416 (nur abends).","spans":[{"start":6,"end":20,"kind":"phone"}]}
+{"id":"de-phone-0060","lang":"de","text":"Tel.: +49 151 26177867","spans":[{"start":6,"end":22,"kind":"phone"}]}
+{"id":"de-phone_loose-0001","lang":"de","text":"Tel.: 171 2564558","spans":[{"start":6,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0002","lang":"de","text":"phone: 30 2221918","spans":[{"start":7,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0003","lang":"de","text":"Erreichbar unter 49 30 4155596 werktags.","spans":[{"start":17,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0004","lang":"de","text":"{\"type\":\"user\",\"phone\":\"171 8204686\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0005","lang":"de","text":"Rufen Sie mich unter 49 30 5913252 nach achtzehn Uhr an.","spans":[{"start":21,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0006","lang":"de","text":"Rufen Sie mich unter 89 904292 nach achtzehn Uhr an.","spans":[{"start":21,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0007","lang":"de","text":"Tel.: 30 6689466","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0008","lang":"de","text":"phone: 89 063330","spans":[{"start":7,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0009","lang":"de","text":"{\"type\":\"user\",\"phone\":\"89 518414\",\"active\":true}","spans":[{"start":24,"end":33,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0010","lang":"de","text":"Rufen Sie mich unter 171 6760289 nach achtzehn Uhr an.","spans":[{"start":21,"end":32,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0011","lang":"de","text":"Tel.: 30 5702383","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0012","lang":"de","text":"Erreichbar unter 89 404077 werktags.","spans":[{"start":17,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0013","lang":"de","text":"Rufen Sie mich unter 151 30650370 nach achtzehn Uhr an.","spans":[{"start":21,"end":33,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0014","lang":"de","text":"Erreichbar unter 89 457952 werktags.","spans":[{"start":17,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0015","lang":"de","text":"Tel.: 30 5120729","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0016","lang":"de","text":"phone: 151 32280458","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0017","lang":"de","text":"Erreichbar unter 30 5050801 werktags.","spans":[{"start":17,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0018","lang":"de","text":"Rufen Sie mich unter 89 728481 nach achtzehn Uhr an.","spans":[{"start":21,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0019","lang":"de","text":"Tel.: 89 085509","spans":[{"start":6,"end":15,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0020","lang":"de","text":"level=info msg=\"profile updated\" phone=30 6401488","spans":[{"start":39,"end":49,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0021","lang":"de","text":"Rufen Sie mich unter 151 73943164 nach achtzehn Uhr an.","spans":[{"start":21,"end":33,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0022","lang":"de","text":"level=info msg=\"profile updated\" phone=151 72760675","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0023","lang":"de","text":"phone: 30 9168174","spans":[{"start":7,"end":17,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0024","lang":"de","text":"Rufen Sie mich unter 49 30 4694852 nach achtzehn Uhr an.","spans":[{"start":21,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0025","lang":"de","text":"{\"type\":\"user\",\"phone\":\"171 8757595\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0026","lang":"de","text":"Rufen Sie mich unter 30 4839684 nach achtzehn Uhr an.","spans":[{"start":21,"end":31,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0027","lang":"de","text":"Tel.: 49 30 9800358","spans":[{"start":6,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0028","lang":"de","text":"Rufen Sie mich unter 89 892906 nach achtzehn Uhr an.","spans":[{"start":21,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0029","lang":"de","text":"level=info msg=\"profile updated\" phone=49 30 8345735","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0030","lang":"de","text":"Rufen Sie mich unter 171 2261661 nach achtzehn Uhr an.","spans":[{"start":21,"end":32,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0031","lang":"de","text":"Erreichbar unter 49 30 3301972 werktags.","spans":[{"start":17,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0032","lang":"de","text":"Rufen Sie mich unter 151 80227230 nach achtzehn Uhr an.","spans":[{"start":21,"end":33,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0033","lang":"de","text":"Tel.: 89 616417","spans":[{"start":6,"end":15,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0034","lang":"de","text":"Rufen Sie mich unter 171 3869786 nach achtzehn Uhr an.","spans":[{"start":21,"end":32,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0035","lang":"de","text":"Rufen Sie mich unter 89 778747 nach achtzehn Uhr an.","spans":[{"start":21,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0036","lang":"de","text":"Erreichbar unter 49 30 2150949 werktags.","spans":[{"start":17,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0037","lang":"de","text":"level=info msg=\"profile updated\" phone=171 4654713","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0038","lang":"de","text":"phone: 89 428062","spans":[{"start":7,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0039","lang":"de","text":"Erreichbar unter 89 831514 werktags.","spans":[{"start":17,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0040","lang":"de","text":"Tel.: 89 501122","spans":[{"start":6,"end":15,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0041","lang":"de","text":"{\"type\":\"user\",\"phone\":\"151 95698359\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0042","lang":"de","text":"{\"type\":\"user\",\"phone\":\"49 30 3373931\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0043","lang":"de","text":"level=info msg=\"profile updated\" phone=171 5301899","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0044","lang":"de","text":"Erreichbar unter 49 30 5498685 werktags.","spans":[{"start":17,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0045","lang":"de","text":"Erreichbar unter 49 30 1558277 werktags.","spans":[{"start":17,"end":30,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0046","lang":"de","text":"Rufen Sie mich unter 171 1033836 nach achtzehn Uhr an.","spans":[{"start":21,"end":32,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0047","lang":"de","text":"Rufen Sie mich unter 30 6915842 nach achtzehn Uhr an.","spans":[{"start":21,"end":31,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0048","lang":"de","text":"Tel.: 30 2186606","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0049","lang":"de","text":"Tel.: 89 521534","spans":[{"start":6,"end":15,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0050","lang":"de","text":"level=info msg=\"profile updated\" phone=30 0448605","spans":[{"start":39,"end":49,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0051","lang":"de","text":"level=info msg=\"profile updated\" phone=151 64015737","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0052","lang":"de","text":"{\"type\":\"user\",\"phone\":\"30 5265533\",\"active\":true}","spans":[{"start":24,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0053","lang":"de","text":"Erreichbar unter 30 6249527 werktags.","spans":[{"start":17,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0054","lang":"de","text":"level=info msg=\"profile updated\" phone=171 2653571","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0055","lang":"de","text":"{\"type\":\"user\",\"phone\":\"171 0379793\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0056","lang":"de","text":"Tel.: 30 5019653","spans":[{"start":6,"end":16,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0057","lang":"de","text":"{\"type\":\"user\",\"phone\":\"89 458982\",\"active\":true}","spans":[{"start":24,"end":33,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0058","lang":"de","text":"Tel.: 89 482204","spans":[{"start":6,"end":15,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0059","lang":"de","text":"Rufen Sie mich unter 49 30 6998208 nach achtzehn Uhr an.","spans":[{"start":21,"end":34,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-phone_loose-0060","lang":"de","text":"Tel.: 151 25979651","spans":[{"start":6,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"de-mixed-0001","lang":"de","text":"{\"name\":\"Sabine Becker\",\"email\":\"ulrike+shop@example.com\",\"telefon\":\"+49 151 80322004\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":56,"kind":"email"},{"start":69,"end":85,"kind":"phone"}]}
+{"id":"de-mixed-0002","lang":"de","text":"Kontakt: Tobias Fischer unter 0151 27884930 oder stefan.baumann@example.com.","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":30,"end":43,"kind":"phone"},{"start":49,"end":75,"kind":"email"}]}
+{"id":"de-mixed-0003","lang":"de","text":"{\"name\":\"Monika Fischer\",\"email\":\"birgit.fischer@example.co.uk\",\"telefon\":\"0049 89 011450\"}","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":34,"end":62,"kind":"email"},{"start":75,"end":89,"kind":"phone"}]}
+{"id":"de-mixed-0004","lang":"de","text":"{\"name\":\"Ulrike Hoffmann\",\"email\":\"kbecker@example.org\",\"telefon\":\"089/814181\"}","spans":[{"start":9,"end":24,"kind":"person_name"},{"start":35,"end":54,"kind":"email"},{"start":67,"end":77,"kind":"phone"}]}
+{"id":"de-mixed-0005","lang":"de","text":"Kontakt: Birgit Schulz unter 030 4830533 oder Hhoffmann@shop.example.org.","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":29,"end":40,"kind":"phone"},{"start":46,"end":72,"kind":"email"}]}
+{"id":"de-mixed-0006","lang":"de","text":"Kontakt: Klaus Hoffmann unter 030 9033179 oder lbauer@example.net.","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":30,"end":41,"kind":"phone"},{"start":47,"end":65,"kind":"email"}]}
+{"id":"de-mixed-0007","lang":"de","text":"Kontakt: Lukas Schulz unter 0049 89 406596 oder katharina.koch@mail.example.com.","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":28,"end":42,"kind":"phone"},{"start":48,"end":79,"kind":"email"}]}
+{"id":"de-mixed-0008","lang":"de","text":"{\"name\":\"Birgit Hoffmann\",\"email\":\"sabine.weber@example.co.uk\",\"telefon\":\"+49 151 76819375\"}","spans":[{"start":9,"end":24,"kind":"person_name"},{"start":35,"end":61,"kind":"email"},{"start":74,"end":90,"kind":"phone"}]}
+{"id":"de-mixed-0009","lang":"de","text":"{\"name\":\"Jens Berger\",\"email\":\"wolfgang.baumann@example.net\",\"telefon\":\"(030) 0972 122\"}","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":31,"end":59,"kind":"email"},{"start":72,"end":86,"kind":"phone"}]}
+{"id":"de-mixed-0010","lang":"de","text":"Kontakt: Heike Koch unter (030) 5877 165 oder schulz_stefan@mail.example.com.","spans":[{"start":9,"end":19,"kind":"person_name"},{"start":26,"end":40,"kind":"phone"},{"start":46,"end":76,"kind":"email"}]}
+{"id":"de-mixed-0011","lang":"de","text":"{\"name\":\"Jens Berger\",\"email\":\"wolfgang.weber@example.com\",\"telefon\":\"(030) 9751 857\"}","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":31,"end":57,"kind":"email"},{"start":70,"end":84,"kind":"phone"}]}
+{"id":"de-mixed-0012","lang":"de","text":"Kontakt: Lukas Bauer unter 0151 06678779 oder jens.fischer54@example.com.","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":27,"end":40,"kind":"phone"},{"start":46,"end":72,"kind":"email"}]}
+{"id":"de-mixed-0013","lang":"de","text":"Kontakt: Petra Hoffmann unter 089/412045 oder käthe.schäfer@example.org.","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":30,"end":40,"kind":"phone"},{"start":46,"end":73,"kind":"email"}]}
+{"id":"de-mixed-0014","lang":"de","text":"Sabine Becker <weber_heike@shop.example.org>, Handy +49 30 8938067","spans":[{"start":0,"end":13,"kind":"person_name"},{"start":15,"end":43,"kind":"email"},{"start":52,"end":66,"kind":"phone"}]}
+{"id":"de-mixed-0015","lang":"de","text":"Stefan Schulz <björn.groß@shop.example.org>, Handy +49 30 6166062","spans":[{"start":0,"end":13,"kind":"person_name"},{"start":15,"end":44,"kind":"email"},{"start":53,"end":67,"kind":"phone"}]}
+{"id":"de-mixed-0016","lang":"de","text":"Stefan Koch <Fischer_stefan@shop.example.org>, Handy 0151 92878285","spans":[{"start":0,"end":11,"kind":"person_name"},{"start":13,"end":44,"kind":"email"},{"start":53,"end":66,"kind":"phone"}]}
+{"id":"de-mixed-0017","lang":"de","text":"Kontakt: Jens Schneider unter +49 151 24747933 oder birgit.becker@example.org.","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":30,"end":46,"kind":"phone"},{"start":52,"end":77,"kind":"email"}]}
+{"id":"de-mixed-0018","lang":"de","text":"{\"name\":\"Monika Schulz\",\"email\":\"wolfgang.berger74@mail.example.com\",\"telefon\":\"0049 89 700563\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":67,"kind":"email"},{"start":80,"end":94,"kind":"phone"}]}
+{"id":"de-mixed-0019","lang":"de","text":"Klaus Becker <Wolfgang.berger@example.com>, Handy 089/525820","spans":[{"start":0,"end":12,"kind":"person_name"},{"start":14,"end":41,"kind":"email"},{"start":50,"end":60,"kind":"phone"}]}
+{"id":"de-mixed-0020","lang":"de","text":"{\"name\":\"Klaus Baumann\",\"email\":\"jürgen.müller@example.org\",\"telefon\":\"0151 03001722\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":60,"kind":"email"},{"start":73,"end":86,"kind":"phone"}]}
+{"id":"de-neg-0001","lang":"de","text":"Bestand: 14 545 962 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0002","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0003","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0004","lang":"de","text":"Lieferung voraussichtlich am 2022-06-21.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0005","lang":"de","text":"Bestellung 645081 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0006","lang":"de","text":"Agent auf version 7.9.0.267 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0007","lang":"de","text":"Rechnung FAC/2024/3419 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0008","lang":"de","text":"Konto DE77 8923 5445 7887 0176 52 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0009","lang":"de","text":"Agent auf version 3.1.8.249 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0010","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0011","lang":"de","text":"Barcode 5448371438254 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0012","lang":"de","text":"Barcode 5484880321755 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0013","lang":"de","text":"Ihre Bestellung Nr. 7465575733 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0014","lang":"de","text":"Barcode 5454974290144 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0015","lang":"de","text":"Health-Check von 192.168.226.249 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0016","lang":"de","text":"Ihre Bestellung Nr. 252072746 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0017","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0018","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0019","lang":"de","text":"Zu zahlen: 77.391,89 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0020","lang":"de","text":"Auftrag beendet um 1705633390.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0021","lang":"de","text":"Bestellung 783633 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0022","lang":"de","text":"Rechnung INV-2021-014541 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0023","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0024","lang":"de","text":"Bestand: 40 070 136 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0025","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0026","lang":"de","text":"Artikel REF 06-648-002 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0027","lang":"de","text":"Bestand: 928 760 749 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0028","lang":"de","text":"Auftrag beendet um 1758823871.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0029","lang":"de","text":"Testnummer 2223 0079 5389 5522 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0030","lang":"de","text":"Zu zahlen: 7.698,59 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0031","lang":"de","text":"Ihre Bestellung Nr. 680120 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0032","lang":"de","text":"Rechnung INV-2020-114218 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0033","lang":"de","text":"Health-Check von fd00::a61 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0034","lang":"de","text":"Bestand: 192 806 079 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0035","lang":"de","text":"Ihre Bestellung Nr. 21415726 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0036","lang":"de","text":"Nummer 43.05.05-187.42 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0037","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0038","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0039","lang":"de","text":"Bestellung 3646241 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0040","lang":"de","text":"Commit 79c7445044ea522ebdc4e82e71261cc870c8c7b1 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0041","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0042","lang":"de","text":"Health-Check von fd00::67b erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0043","lang":"de","text":"Lieferung voraussichtlich am 2025-02-20.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0044","lang":"de","text":"Zu zahlen: 83.506,81 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0045","lang":"de","text":"Lieferung voraussichtlich am 01.04.2020.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0046","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0047","lang":"de","text":"Lieferung voraussichtlich am 02-06-2025.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0048","lang":"de","text":"Ihre Bestellung Nr. 24612384 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0049","lang":"de","text":"Commit 71c5cc4 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0050","lang":"de","text":"Barcode 5428729877843 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0051","lang":"de","text":"Bestellung 972413010 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0052","lang":"de","text":"Commit 7d232e22e50fc737fa21daba6c13e8a0f325f20fc80e824dd28ae0dfc078e035 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0053","lang":"de","text":"Barcode 5407085818172 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0054","lang":"de","text":"Nummer 10.04.21-663.98 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0055","lang":"de","text":"Nummer 44.02.25-802.06 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0056","lang":"de","text":"Lieferung voraussichtlich am 2025-09-09.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0057","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0058","lang":"de","text":"Commit a165491ad99b89602f9a31e1991e15cdfdd029466b8dd944e2fbba87e0ad181c auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0059","lang":"de","text":"Artikel JWN46838 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0060","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0061","lang":"de","text":"Zu zahlen: 74.463,52 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0062","lang":"de","text":"Konto AT55 8437 6398 9663 4841 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0063","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0064","lang":"de","text":"Testnummer 2223 0023 8346 4122 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0065","lang":"de","text":"Barcode 5491934186864 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0066","lang":"de","text":"Agent auf build 10.0.19176.4376 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0067","lang":"de","text":"Auftrag beendet um 1736510805.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0068","lang":"de","text":"Rechnung INV-2020-704913 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0069","lang":"de","text":"Agent auf v6.5.3 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0070","lang":"de","text":"Ihre Bestellung Nr. 279920790 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0071","lang":"de","text":"Lieferung voraussichtlich am 10-03-2020.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0072","lang":"de","text":"Lieferung voraussichtlich am 23-06-2022.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0073","lang":"de","text":"Barcode 5497008036899 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0074","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0075","lang":"de","text":"Auftrag beendet um 2026-08-25T05:11:21Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0076","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0077","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0078","lang":"de","text":"Zu zahlen: 23.326,33 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0079","lang":"de","text":"Agent auf build 10.0.19179.2180 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0080","lang":"de","text":"Bestellung 11806982 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0081","lang":"de","text":"Testnummer 4111 1115 6721 1848 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0082","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0083","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0084","lang":"de","text":"Auftrag beendet um 1736105936.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0085","lang":"de","text":"Auftrag beendet um 2026-02-16T08:17:44Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0086","lang":"de","text":"Commit a12d6e4b2288bf4bcea67abd089f019b961f4c75 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0087","lang":"de","text":"Auftrag beendet um 1738536054.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0088","lang":"de","text":"Bestellung 43259192 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0089","lang":"de","text":"Konto AT71 2771 8309 7566 6149 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0090","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0091","lang":"de","text":"Barcode 5496677277831 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0092","lang":"de","text":"Barcode 5488462951880 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0093","lang":"de","text":"Konto DE91 8573 8454 7007 3994 00 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0094","lang":"de","text":"Artikel SKU-0735-XL ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0095","lang":"de","text":"Barcode 5438891608763 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0096","lang":"de","text":"Bestellung 691907049 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0097","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0098","lang":"de","text":"Barcode 5432473347156 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0099","lang":"de","text":"Artikel SKU-3241-XL ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0100","lang":"de","text":"Artikel OMK90092 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0101","lang":"de","text":"Zu zahlen: 92.463,72 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0102","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0103","lang":"de","text":"Agent auf version 2.0.9.55 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0104","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0105","lang":"de","text":"Barcode 5445562543001 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0106","lang":"de","text":"Barcode 5450409118724 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0107","lang":"de","text":"Auftrag beendet um 1725173903.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0108","lang":"de","text":"Bestellung 1293513 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0109","lang":"de","text":"Barcode 5498324112403 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0110","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0111","lang":"de","text":"Barcode 5414673425094 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0112","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0113","lang":"de","text":"Artikel REF 69-069-443 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0114","lang":"de","text":"Lieferung voraussichtlich am 2023-10-11.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0115","lang":"de","text":"Agent auf Chrome/100.0.5920.97 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0116","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0117","lang":"de","text":"Commit eeb7de8df13deaac07704d1639795408ab5d23a79cf93b531340396c59f4ca6f auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0118","lang":"de","text":"Nummer 17050488641 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0119","lang":"de","text":"Zu zahlen: 14.339,35 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0120","lang":"de","text":"Nummer 980222 488 21 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0121","lang":"de","text":"Barcode 5485139839960 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0122","lang":"de","text":"Konto DE24 6575 5630 8666 4112 35 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0123","lang":"de","text":"Bestand: 825 204 912 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0124","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0125","lang":"de","text":"Zu zahlen: 7.098,61 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0126","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0127","lang":"de","text":"Konto DE07 8754 6875 5255 3730 24 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0128","lang":"de","text":"Ihre Bestellung Nr. 806900 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0129","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0130","lang":"de","text":"Commit fb1bdf0270f5955bcd2299583e5196399f797c0b75765b35ae9e2e5ab6dab766 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0131","lang":"de","text":"Konto AT67 1327 0352 6341 6266 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0132","lang":"de","text":"Zu zahlen: 46.513,95 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0133","lang":"de","text":"Nummer 04.09.26-742.32 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0134","lang":"de","text":"Testnummer 2223 0031 3381 9940 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0135","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0136","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0137","lang":"de","text":"Bestellung 90832514 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0138","lang":"de","text":"Bestand: 971 568 041 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0139","lang":"de","text":"Artikel SKU-3935-XL ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0140","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0141","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0142","lang":"de","text":"Lieferung voraussichtlich am 20.11.2027.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0143","lang":"de","text":"Bestand: 739 258 949 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0144","lang":"de","text":"Artikel VZF19450 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0145","lang":"de","text":"Barcode 5429881096912 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0146","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0147","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0148","lang":"de","text":"Agent auf v6.15.11 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0149","lang":"de","text":"Lieferung voraussichtlich am 2025-11-23.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0150","lang":"de","text":"Lieferung voraussichtlich am 10-06-2027.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0151","lang":"de","text":"Agent auf v0.8.10 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0152","lang":"de","text":"Auftrag beendet um 2026-04-14 17:51:42.932.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0153","lang":"de","text":"Bestellung 4888454402 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0154","lang":"de","text":"Bestellung 18642679 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0155","lang":"de","text":"Ihre Bestellung Nr. 617601 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0156","lang":"de","text":"Nummer 85.02.12-434.19 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0157","lang":"de","text":"Testnummer 2223 0085 9348 3967 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0158","lang":"de","text":"Bestellung 3038163927 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0159","lang":"de","text":"Rechnung FAC/2020/8465 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0160","lang":"de","text":"Testnummer 4000 0073 9830 3389 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0161","lang":"de","text":"Konto AT41 4263 0082 3983 2849 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0162","lang":"de","text":"Ihre Bestellung Nr. 25735720 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0163","lang":"de","text":"Zu zahlen: 69.774,97 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0164","lang":"de","text":"Bestellung 7913403 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0165","lang":"de","text":"Barcode 5415422847280 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0166","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0167","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0168","lang":"de","text":"Konto DE22 1328 9979 1055 5513 83 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0169","lang":"de","text":"Barcode 5440972260784 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0170","lang":"de","text":"Ihre Bestellung Nr. 758985522 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0171","lang":"de","text":"Auftrag beendet um 2026-07-07 00:16:34.389.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0172","lang":"de","text":"Auftrag beendet um 2026-04-22T23:39:35Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0173","lang":"de","text":"Health-Check von 172.29.146.193 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0174","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0175","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0176","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0177","lang":"de","text":"Auftrag beendet um 2026-07-17T18:45:00Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0178","lang":"de","text":"Health-Check von 127.0.0.1 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0179","lang":"de","text":"Lieferung voraussichtlich am 2024-05-20.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0180","lang":"de","text":"Konto DE67 6890 2350 5949 2850 41 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0181","lang":"de","text":"Zu zahlen: 54.351,57 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0182","lang":"de","text":"Bestand: 121 407 942 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0183","lang":"de","text":"Zu zahlen: 73.755,90 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0184","lang":"de","text":"Health-Check von 172.31.223.68 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0185","lang":"de","text":"Bestellung 74104323 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0186","lang":"de","text":"Bestellung 647082 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0187","lang":"de","text":"Barcode 5401295734147 an Kasse drei gescannt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0188","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0189","lang":"de","text":"Lieferung voraussichtlich am 10.10.2026.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0190","lang":"de","text":"Health-Check von fd00::6f1 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0191","lang":"de","text":"Lieferung voraussichtlich am 2027-06-05.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0192","lang":"de","text":"Auftrag beendet um 2026-10-07 00:38:27.102.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0193","lang":"de","text":"Nummer 26.12.11-231.83 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0194","lang":"de","text":"Testnummer 4242 4253 1123 0016 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0195","lang":"de","text":"Artikel UWJ41978 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0196","lang":"de","text":"Konto DE64 6963 8785 7648 8969 22 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0197","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0198","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0199","lang":"de","text":"Health-Check von 10.32.5.250 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0200","lang":"de","text":"Bestand: 835 961 002 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0201","lang":"de","text":"Bestand: 310 914 638 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0202","lang":"de","text":"Testnummer 4111 1103 9170 7056 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0203","lang":"de","text":"Kundendienst Berlin Wegen Inventur Geschlossen.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0204","lang":"de","text":"Auftrag beendet um 1777084845.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0205","lang":"de","text":"Commit 31befecc900daf5522bc9b45f5ff1ee413d1e30fbfcc21c72c11c790ee6582c8 auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0206","lang":"de","text":"Bestand: 260 187 202 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0207","lang":"de","text":"Nummer 50.07.09-641.47 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0208","lang":"de","text":"Zu zahlen: 14.561,72 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0209","lang":"de","text":"Zu zahlen: 3.764,67 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0210","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0211","lang":"de","text":"Ihre Bestellung Nr. 328321 liegt bereit.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0212","lang":"de","text":"Nummer 06112067120 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0213","lang":"de","text":"Auftrag beendet um 2026-03-05T12:57:33Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0214","lang":"de","text":"Rechnung INV-2023-711306 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0215","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0216","lang":"de","text":"Agent auf version 4.4.0.60 aktualisiert.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0217","lang":"de","text":"Nummer 241221 526 54 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0218","lang":"de","text":"Bestellung 4279410 wurde heute verschickt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0219","lang":"de","text":"Bestellschein Freigegeben durch Geschäftsleitung.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0220","lang":"de","text":"Bestand: 444 889 044 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0221","lang":"de","text":"Bestand: 714 497 979 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0222","lang":"de","text":"Rechnung INV-2024-056979 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0223","lang":"de","text":"Artikel REF 24-205-387 ist wieder verfügbar.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0224","lang":"de","text":"Bestand: 288 355 409 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0225","lang":"de","text":"Auftrag beendet um 2026-10-06T01:16:22Z.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0226","lang":"de","text":"Commit 56d83ff7b5fbf044369275f0e3cfcb5d9c03b9fb auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0227","lang":"de","text":"Bestand: 79 263 894 Stück.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0228","lang":"de","text":"Nummer 37082854157 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0229","lang":"de","text":"Health-Check von fd00::b06 erfolgreich.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0230","lang":"de","text":"Neue Kollektion Herbst Winter.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0231","lang":"de","text":"Nummer 55.07.11-241.76 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0232","lang":"de","text":"Konto AT31 6568 8280 4245 6584 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0233","lang":"de","text":"Rechnung INV-2023-069531 ist bezahlt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0234","lang":"de","text":"Lieferung voraussichtlich am 2022-09-03.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0235","lang":"de","text":"Zu zahlen: 26.602,37 EUR.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0236","lang":"de","text":"Nummer 470811 450 60 vom Register abgelehnt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0237","lang":"de","text":"Testnummer 5555 5519 9501 1645 ist ungültig.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0238","lang":"de","text":"Konto AT88 7998 8149 2639 0150 abgelehnt: Prüfziffer falsch.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0239","lang":"de","text":"Commit 29793368d8616f9d5983aa4e8985953bd3497ef210c715e014dd236ed4e0cfff auf Staging ausgerollt.","spans":[],"tags":["hard_negative"]}
+{"id":"de-neg-0240","lang":"de","text":"Ihre Bestellung Nr. 7318723515 liegt bereit.","spans":[],"tags":["hard_negative"]}

@@ -1,0 +1,860 @@
+{"id":"fr-secret-0001","lang":"fr","text":"https://deploy:wWdJcMQLfEzUtNZj@git.example.com/app.git","spans":[{"start":15,"end":31,"kind":"secret"}]}
+{"id":"fr-secret-0002","lang":"fr","text":"Le mot de passe du compte est j58TebXWfF4PGCXdqsC*Pz*hi, à changer à la première connexion.","spans":[{"start":30,"end":55,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0003","lang":"fr","text":"mysql -u app -pzvM!Co9i4UWWg3iup boutique","spans":[{"start":15,"end":32,"kind":"secret"}]}
+{"id":"fr-secret-0004","lang":"fr","text":"https://deploy:iaUVwoUcfPpvvYkRym3fPJ@git.example.com/app.git","spans":[{"start":15,"end":37,"kind":"secret"}]}
+{"id":"fr-secret-0005","lang":"fr","text":"password=eyJhbGciOiJIUzI1NiJ9.f4eYmVejedCcPM43ePpX4bpW6I3xDs.qEXJ4c-t87oDbcsRgp29Tg000H864zAdhRDOkmLfFJJ","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"fr-secret-0006","lang":"fr","text":"Authorization: Bearer UGaBrtXZmKEiVc","spans":[{"start":22,"end":36,"kind":"secret"}]}
+{"id":"fr-secret-0007","lang":"fr","text":"Authorization: Bearer SPCSq22ebkiPTb","spans":[{"start":22,"end":36,"kind":"secret"}]}
+{"id":"fr-secret-0008","lang":"fr","text":"password=eyJhbGciOiJIUzI1NiJ9.eEh7O-7fKAZP2myx_9pO1k6fovxhQH.3sOH_sZDkb3rWCT55VsChx8OiB5nRh9OTW_Ra_JOp-u","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"fr-secret-0009","lang":"fr","text":"password=Lsx3-5QinFp8cHoE","spans":[{"start":9,"end":25,"kind":"secret"}]}
+{"id":"fr-secret-0010","lang":"fr","text":"password=eyJhbGciOiJIUzI1NiJ9.cx61bwxXQGchacOY2d1NfDKUPZPRJH.9OIe8CvzVuEEtKLeMRjkB5jjrj24leXlsjBPvV7q7Vp","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"fr-secret-0011","lang":"fr","text":"Le mot de passe du compte est DemD5qtodwtjTd*4_R, à changer à la première connexion.","spans":[{"start":30,"end":48,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0012","lang":"fr","text":"Authorization: Bearer nKPoq*qvFTyzoEd3X9qR3CCin","spans":[{"start":22,"end":47,"kind":"secret"}]}
+{"id":"fr-secret-0013","lang":"fr","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9._UKlzQ3YqfBhfSeZ1f5046JPu6-_fr.DeZMIYqVstusyejriG4MB_D9xlKuA7V3bVkz7LkXEHQ","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"fr-secret-0014","lang":"fr","text":"https://deploy:*rStQ39uTJANZomj6qABTTs4nEv@git.example.com/app.git","spans":[{"start":15,"end":42,"kind":"secret"}]}
+{"id":"fr-secret-0015","lang":"fr","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.mBUxW-Y2NLOGHPm-avr6gTDO6IAl4i.ODPbnnLMSzRNAC8FULKcxoBXuKrxTIvEie4-AB4Ypvv","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"fr-secret-0016","lang":"fr","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.DZvKNJRDa0Mvn1PiAoDH4hcCyJROhB.7h9-3W-p8t_fESBIejZ6cJfxlutL3QkszH-BekNCSf9 boutique","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0017","lang":"fr","text":"password=937fgveV-pNfQnyd","spans":[{"start":9,"end":25,"kind":"secret"}]}
+{"id":"fr-secret-0018","lang":"fr","text":"mysql -u app -p!uEm*S6HH2exxQzhUko7xDgi- boutique","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"fr-secret-0019","lang":"fr","text":"Authorization: Bearer veW8sd8SiDKvdaBHB2h","spans":[{"start":22,"end":41,"kind":"secret"}]}
+{"id":"fr-secret-0020","lang":"fr","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.hPUvbIX-KPRlCaOJhKYQigHy_pjyjm.kNwgnsZzAxgOXlfBPPhpd4PSu8XvyrxR9kpAJSCd7M-@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0021","lang":"fr","text":"Authorization: Bearer EydXss7YHzqq_mX2po!eWAfyQ","spans":[{"start":22,"end":47,"kind":"secret"}]}
+{"id":"fr-secret-0022","lang":"fr","text":"mysql -u app -pjosYxtM8purNBjqXHhqKWWF3z boutique","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"fr-secret-0023","lang":"fr","text":"https://deploy:!UZiZeVybr-VL-AFw-NHq5q6z@git.example.com/app.git","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"fr-secret-0024","lang":"fr","text":"--password CJGmnwnTyM5wgz","spans":[{"start":11,"end":25,"kind":"secret"}]}
+{"id":"fr-secret-0025","lang":"fr","text":"mysql -u app -pjZYDCjTVz3*GTo76Jh-KCNy4n boutique","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"fr-secret-0026","lang":"fr","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.eG8lsXT6mh8EO_PJKcfH8URezTl60m.3z6n0Lg5bmBuJnkhp6cSTAHluOxVxx23u737grjPC6d boutique","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0027","lang":"fr","text":"Le mot de passe du compte est ZCLJgoc7fqCTJMg!7, à changer à la première connexion.","spans":[{"start":30,"end":47,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0028","lang":"fr","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.5IBlCfKVHNQQcr5K8JcQGr069CXZiD.rLGilKA9TXDJBhZ6DwiGK0-V62ST0zHd7qnj4kWhjqq boutique","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0029","lang":"fr","text":"Le mot de passe du compte est ogr5QrXsrfjiMZRFCx5*4z, à changer à la première connexion.","spans":[{"start":30,"end":52,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0030","lang":"fr","text":"mysql -u app -pQFHaANt5yQc_ze boutique","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"fr-secret-0031","lang":"fr","text":"export DB_PASSWORD=Ub-ntm7nxXRF!PXaP!Fo85","spans":[{"start":19,"end":41,"kind":"secret"}]}
+{"id":"fr-secret-0032","lang":"fr","text":"Le mot de passe du compte est vXCb!iTMyZogvT, à changer à la première connexion.","spans":[{"start":30,"end":44,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0033","lang":"fr","text":"password=fGE9!w4Q7vFi6_kYUjX6Gk4*T5A","spans":[{"start":9,"end":36,"kind":"secret"}]}
+{"id":"fr-secret-0034","lang":"fr","text":"--password 8ySDXfZuz*MqqNqD6kCnEZbTvEy","spans":[{"start":11,"end":38,"kind":"secret"}]}
+{"id":"fr-secret-0035","lang":"fr","text":"password=fG4bS5rQqXor-QdR!gMdkuet*","spans":[{"start":9,"end":34,"kind":"secret"}]}
+{"id":"fr-secret-0036","lang":"fr","text":"mysql -u app -pwZedRA7Kr*ETxzEmxNstNdoUKX boutique","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"fr-secret-0037","lang":"fr","text":"mysql -u app -pQSDKRWpY7gNrgRUsvC boutique","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"fr-secret-0038","lang":"fr","text":"https://deploy:8udzuv4bafYWY3@git.example.com/app.git","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"fr-secret-0039","lang":"fr","text":"https://deploy:vYHHGvSBaCLm8HSCt@git.example.com/app.git","spans":[{"start":15,"end":32,"kind":"secret"}]}
+{"id":"fr-secret-0040","lang":"fr","text":"export DB_PASSWORD=R9FQvQaWhSW72w2TXxdY2LkiM-","spans":[{"start":19,"end":45,"kind":"secret"}]}
+{"id":"fr-secret-0041","lang":"fr","text":"password=PDJKwXRERYLV2X3PjooYTie3w","spans":[{"start":9,"end":34,"kind":"secret"}]}
+{"id":"fr-secret-0042","lang":"fr","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.Hj1kDOgD0GfUBekTQH3MyNaIoJvrpA.fAXFh2agHLrHaKECe6gnjQ4i4g8s66FqipzMSqHVNyC","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"fr-secret-0043","lang":"fr","text":"Authorization: Bearer BzjWCnc*aFUHHVBw","spans":[{"start":22,"end":38,"kind":"secret"}]}
+{"id":"fr-secret-0044","lang":"fr","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.cFJVB3HQyhaHkMHqML-SiHWSPc-yvq.8yRiXeTa0Ton1J22a0Rg5x51yoJCr82GmLzB9ZSfqJR@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0045","lang":"fr","text":"export DB_PASSWORD=QCnhhvqpg8!qJXb5_TkSdBaU","spans":[{"start":19,"end":43,"kind":"secret"}]}
+{"id":"fr-secret-0046","lang":"fr","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.pUR3S7BjzDlERJPynepoNYek2pm8zO.caYyse9Xx1_cuTeb5yPlywBtSwUyjgSlzylGe798UdO","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"fr-secret-0047","lang":"fr","text":"--password m**FW8BvxxRxqk","spans":[{"start":11,"end":25,"kind":"secret"}]}
+{"id":"fr-secret-0048","lang":"fr","text":"Authorization: Bearer VJ6Hoz!YomFFqmaiPEcS","spans":[{"start":22,"end":42,"kind":"secret"}]}
+{"id":"fr-secret-0049","lang":"fr","text":"mysql -u app -prjoAABQGBbPjES boutique","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"fr-secret-0050","lang":"fr","text":"https://deploy:QAXq_eNAWz5ZDhZbQbDo9_ub2C@git.example.com/app.git","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"fr-secret-0051","lang":"fr","text":"export DB_PASSWORD=-GeDRf!Jw_V73du","spans":[{"start":19,"end":34,"kind":"secret"}]}
+{"id":"fr-secret-0052","lang":"fr","text":"Le mot de passe du compte est eyJhbGciOiJIUzI1NiJ9.OZcHZ0VcX_rAcot9fbpxU25Y52SXKo.ug_gpvJSVoEULpyNUcXs0-VwF7ihJQ3t5tRKMHx7wO9, à changer à la première connexion.","spans":[{"start":30,"end":125,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"fr-secret-0053","lang":"fr","text":"password=TJ8kh8bJMJXYiEtiCdP4d_g","spans":[{"start":9,"end":32,"kind":"secret"}]}
+{"id":"fr-secret-0054","lang":"fr","text":"--password 6gPRWnYLrMxi5Hj","spans":[{"start":11,"end":26,"kind":"secret"}]}
+{"id":"fr-secret-0055","lang":"fr","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.GJH_Gj77RauDLaG25rPV3izcBIJau6.fIuii6m40jKn6t9_8DnUcJkEPGYJWM6LokMWu_7jdma","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"fr-secret-0056","lang":"fr","text":"https://deploy:k9HJP7sufGcmXyeQ@git.example.com/app.git","spans":[{"start":15,"end":31,"kind":"secret"}]}
+{"id":"fr-secret-0057","lang":"fr","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.xyzQKwxKW2dN0c-OSPXm4wNCVzd1BF.uo5Nnh0SeHF0oD1k6sFBWDIhkpPACAx_vCgy4D3vaeX","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"fr-secret-0058","lang":"fr","text":"--password eyJhbGciOiJIUzI1NiJ9.2pUpF-JpUbDTEvYIHWNCp8_ve69vdW.ZPu5lMiYGC-joufp9GzsWYbu0JZDNHktmgDkfaWPdVs","spans":[{"start":11,"end":106,"kind":"secret"}]}
+{"id":"fr-secret-0059","lang":"fr","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.o_vU2d9atw1AvblFBt8li4xy079UKJ.RwLkUNXDSJ2esPlupt1gGWBl8AW56eNM8BMuJMVX6qZ@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"fr-secret-0060","lang":"fr","text":"password=gSQc-GA55L9wGYW","spans":[{"start":9,"end":24,"kind":"secret"}]}
+{"id":"fr-email-0001","lang":"fr","text":"level=info msg=\"profile updated\" email=clambert@shop.example.org","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"fr-email-0002","lang":"fr","text":"{\"type\":\"user\",\"email\":\"isabelle.dubois33@example.org\",\"active\":true}","spans":[{"start":24,"end":53,"kind":"email"}]}
+{"id":"fr-email-0003","lang":"fr","text":"{\"type\":\"user\",\"email\":\"nbrunet@example.net\",\"active\":true}","spans":[{"start":24,"end":43,"kind":"email"}]}
+{"id":"fr-email-0004","lang":"fr","text":"{\"type\":\"user\",\"email\":\"lambert_marie@example.net\",\"active\":true}","spans":[{"start":24,"end":49,"kind":"email"}]}
+{"id":"fr-email-0005","lang":"fr","text":"email: sophie.bertrand@example.co.uk","spans":[{"start":7,"end":36,"kind":"email"}]}
+{"id":"fr-email-0006","lang":"fr","text":"Facture envoyée à plambert@example.co.uk ce matin.","spans":[{"start":20,"end":42,"kind":"email"}]}
+{"id":"fr-email-0007","lang":"fr","text":"{\"type\":\"user\",\"email\":\"mdubois@mail.example.com\",\"active\":true}","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"fr-email-0008","lang":"fr","text":"level=info msg=\"profile updated\" email=julien.lefebvre@​shop.example.org","spans":[{"start":39,"end":74,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0009","lang":"fr","text":"{\"type\":\"user\",\"email\":\"Blanc_marie​@example.org\",\"active\":true}","spans":[{"start":24,"end":50,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0010","lang":"fr","text":"level=info msg=\"profile updated\" email=isabelle+shop@example.co.uk","spans":[{"start":39,"end":66,"kind":"email"}]}
+{"id":"fr-email-0011","lang":"fr","text":"Facture envoyée à laurent+news@shop.example.org ce matin.","spans":[{"start":20,"end":49,"kind":"email"}]}
+{"id":"fr-email-0012","lang":"fr","text":"level=info msg=\"profile updated\" email=laurent.lambert@example.org","spans":[{"start":39,"end":66,"kind":"email"}]}
+{"id":"fr-email-0013","lang":"fr","text":"Merci de répondre à marie.lambert@m​ail.example.com avant vendredi.","spans":[{"start":22,"end":55,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0014","lang":"fr","text":"Merci de répondre à mathieu.lefebvre61@example.org avant vendredi.","spans":[{"start":22,"end":52,"kind":"email"}]}
+{"id":"fr-email-0015","lang":"fr","text":"{\"type\":\"user\",\"email\":\"benoit_pascale@shop.example.org\",\"active\":true}","spans":[{"start":24,"end":55,"kind":"email"}]}
+{"id":"fr-email-0016","lang":"fr","text":"Merci de répondre à bertrand_nicol​as@example.org avant vendredi.","spans":[{"start":22,"end":53,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0017","lang":"fr","text":"Écrivez-nous à julien.bernard@mail.example.com.","spans":[{"start":17,"end":48,"kind":"email"}]}
+{"id":"fr-email-0018","lang":"fr","text":"Écrivez-nous à camille+billing@example.org.","spans":[{"start":17,"end":44,"kind":"email"}]}
+{"id":"fr-email-0019","lang":"fr","text":"level=info msg=\"profile updated\" email=camille+billi​ng@example.org","spans":[{"start":39,"end":69,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0020","lang":"fr","text":"Merci de répondre à lbernard@e​xample.com avant vendredi.","spans":[{"start":22,"end":45,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0021","lang":"fr","text":"Contact : camille.bernar​d89@example.com","spans":[{"start":10,"end":42,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0022","lang":"fr","text":"Écrivez-nous à clefebvre@example.net.","spans":[{"start":17,"end":38,"kind":"email"}]}
+{"id":"fr-email-0023","lang":"fr","text":"Contact : camille.bertrand@example.net","spans":[{"start":10,"end":38,"kind":"email"}]}
+{"id":"fr-email-0024","lang":"fr","text":"level=info msg=\"profile updated\" email=bertrand_chlo​e@example.net","spans":[{"start":39,"end":68,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0025","lang":"fr","text":"{\"type\":\"user\",\"email\":\"Mathieu.lefebvre21@shop.example.org\",\"active\":true}","spans":[{"start":24,"end":59,"kind":"email"}]}
+{"id":"fr-email-0026","lang":"fr","text":"{\"type\":\"user\",\"email\":\"Camille+news@example.com\",\"active\":true}","spans":[{"start":24,"end":48,"kind":"email"}]}
+{"id":"fr-email-0027","lang":"fr","text":"Contact : marie+shop@example.net","spans":[{"start":10,"end":32,"kind":"email"}]}
+{"id":"fr-email-0028","lang":"fr","text":"email: pascale+shop@mail.example.com","spans":[{"start":7,"end":36,"kind":"email"}]}
+{"id":"fr-email-0029","lang":"fr","text":"Contact : cbrunet@shop.example.org","spans":[{"start":10,"end":34,"kind":"email"}]}
+{"id":"fr-email-0030","lang":"fr","text":"Contact : marie.lambert@mail.example.com","spans":[{"start":10,"end":40,"kind":"email"}]}
+{"id":"fr-email-0031","lang":"fr","text":"Contact : bonnet_laurent@example.com","spans":[{"start":10,"end":36,"kind":"email"}]}
+{"id":"fr-email-0032","lang":"fr","text":"email: nbrunet@example.co.uk","spans":[{"start":7,"end":28,"kind":"email"}]}
+{"id":"fr-email-0033","lang":"fr","text":"Merci de répondre à cbonnet@shop.example.org avant vendredi.","spans":[{"start":22,"end":46,"kind":"email"}]}
+{"id":"fr-email-0034","lang":"fr","text":"Écrivez-nous à Camille.lambert@example.net.","spans":[{"start":17,"end":44,"kind":"email"}]}
+{"id":"fr-email-0035","lang":"fr","text":"level=info msg=\"profile updated\" email=laurent.boyer@example.net","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"fr-email-0036","lang":"fr","text":"{\"type\":\"user\",\"email\":\"rené.lefèvre@example.net\",\"active\":true}","spans":[{"start":24,"end":50,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0037","lang":"fr","text":"Merci de répondre à Isabelle.bonnet@mail.example.com avant vendredi.","spans":[{"start":22,"end":54,"kind":"email"}]}
+{"id":"fr-email-0038","lang":"fr","text":"{\"type\":\"user\",\"email\":\"isabelle+billing@example.co.uk\",\"active\":true}","spans":[{"start":24,"end":54,"kind":"email"}]}
+{"id":"fr-email-0039","lang":"fr","text":"Facture envoyée à éloïse.béranger@example.co.uk ce matin.","spans":[{"start":20,"end":52,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0040","lang":"fr","text":"email: isabelle.lambert@example.net","spans":[{"start":7,"end":35,"kind":"email"}]}
+{"id":"fr-email-0041","lang":"fr","text":"{\"type\":\"user\",\"email\":\"nathalie.benoit@example.co.uk\",\"active\":true}","spans":[{"start":24,"end":53,"kind":"email"}]}
+{"id":"fr-email-0042","lang":"fr","text":"email: blanc_laurent@shop.example.org","spans":[{"start":7,"end":37,"kind":"email"}]}
+{"id":"fr-email-0043","lang":"fr","text":"Écrivez-nous à nicolas+shop@shop.example.org.","spans":[{"start":17,"end":46,"kind":"email"}]}
+{"id":"fr-email-0044","lang":"fr","text":"Merci de répondre à nicolas.benoit67@example.org avant vendredi.","spans":[{"start":22,"end":50,"kind":"email"}]}
+{"id":"fr-email-0045","lang":"fr","text":"Merci de répondre à dubois_nathalie@example.org avant vendredi.","spans":[{"start":22,"end":49,"kind":"email"}]}
+{"id":"fr-email-0046","lang":"fr","text":"level=info msg=\"profile updated\" email=jean.bertrand28@shop.example.org","spans":[{"start":39,"end":71,"kind":"email"}]}
+{"id":"fr-email-0047","lang":"fr","text":"Écrivez-nous à blanc_julien​@example.com.","spans":[{"start":17,"end":44,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0048","lang":"fr","text":"Facture envoyée à bonnet_celine@example.net ce matin.","spans":[{"start":20,"end":45,"kind":"email"}]}
+{"id":"fr-email-0049","lang":"fr","text":"Contact : celine+news@example.net","spans":[{"start":10,"end":33,"kind":"email"}]}
+{"id":"fr-email-0050","lang":"fr","text":"Facture envoyée à lambert_sophie@example.org ce matin.","spans":[{"start":20,"end":46,"kind":"email"}]}
+{"id":"fr-email-0051","lang":"fr","text":"Écrivez-nous à Lambert_sophie@example.net.","spans":[{"start":17,"end":43,"kind":"email"}]}
+{"id":"fr-email-0052","lang":"fr","text":"Contact : cboyer@example.net","spans":[{"start":10,"end":28,"kind":"email"}]}
+{"id":"fr-email-0053","lang":"fr","text":"{\"type\":\"user\",\"email\":\"bonnet_celine@example.org\",\"active\":true}","spans":[{"start":24,"end":49,"kind":"email"}]}
+{"id":"fr-email-0054","lang":"fr","text":"level=info msg=\"profile updated\" email=blanc_chloe@mail.example.com","spans":[{"start":39,"end":67,"kind":"email"}]}
+{"id":"fr-email-0055","lang":"fr","text":"Facture envoyée à Pascale.duboi​s@example.net ce matin.","spans":[{"start":20,"end":49,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"fr-email-0056","lang":"fr","text":"level=info msg=\"profile updated\" email=bertrand_isabelle@example.net","spans":[{"start":39,"end":68,"kind":"email"}]}
+{"id":"fr-email-0057","lang":"fr","text":"email: laurent.lambert@shop.example.org","spans":[{"start":7,"end":39,"kind":"email"}]}
+{"id":"fr-email-0058","lang":"fr","text":"Facture envoyée à pascale.benoit51@example.net ce matin.","spans":[{"start":20,"end":48,"kind":"email"}]}
+{"id":"fr-email-0059","lang":"fr","text":"Écrivez-nous à camille.blanc@example.co.uk.","spans":[{"start":17,"end":44,"kind":"email"}]}
+{"id":"fr-email-0060","lang":"fr","text":"Contact : bonnet_sophie@shop.example.org","spans":[{"start":10,"end":40,"kind":"email"}]}
+{"id":"fr-iban-0001","lang":"fr","text":"Merci de rembourser sur le compte BE22876147137737 avant lundi.","spans":[{"start":34,"end":50,"kind":"iban"}]}
+{"id":"fr-iban-0002","lang":"fr","text":"Merci de rembourser sur le compte BE19 0344 4931 0555 avant lundi.","spans":[{"start":34,"end":53,"kind":"iban"}]}
+{"id":"fr-iban-0003","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"FR４９ ８９３５ ２１３４ ４７８８ ５１７２ ７９２３ １５３\",\"active\":true}","spans":[{"start":23,"end":106,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0004","lang":"fr","text":"iban: BE17 8708 7127 9018","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"fr-iban-0005","lang":"fr","text":"iban: BE22 6000 6216 4451","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"fr-iban-0006","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE62 3972 7146 2101\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0007","lang":"fr","text":"Merci de rembourser sur le compte BE17 0443 9732 9212 avant lundi.","spans":[{"start":34,"end":53,"kind":"iban"}]}
+{"id":"fr-iban-0008","lang":"fr","text":"IBAN BE21 4985 2625 1439 (compte courant)","spans":[{"start":5,"end":27,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0009","lang":"fr","text":"iban: BE325553​98188060","spans":[{"start":6,"end":25,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0010","lang":"fr","text":"IBAN FR78 9642 7816 0103 6776 9409 240 (compte courant)","spans":[{"start":5,"end":38,"kind":"iban"}]}
+{"id":"fr-iban-0011","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE13 0300 4253 1211\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0012","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"FR81 4421 6255 2888 2921 8697 696\",\"active\":true}","spans":[{"start":23,"end":56,"kind":"iban"}]}
+{"id":"fr-iban-0013","lang":"fr","text":"Merci de rembourser sur le compte FR10 5963 1329 5841 3325 7828 909 avant lundi.","spans":[{"start":34,"end":67,"kind":"iban"}]}
+{"id":"fr-iban-0014","lang":"fr","text":"Compte bancaire : BE22 9296​ 3008 4482","spans":[{"start":18,"end":40,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0015","lang":"fr","text":"IBAN BE13 7002 1081 9630 (compte courant)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"fr-iban-0016","lang":"fr","text":"level=info msg=\"profile updated\" iban=BE22 3472 7406 2181","spans":[{"start":38,"end":57,"kind":"iban"}]}
+{"id":"fr-iban-0017","lang":"fr","text":"Merci de rembourser sur le compte FR1022411083786860716511013 avant lundi.","spans":[{"start":34,"end":61,"kind":"iban"}]}
+{"id":"fr-iban-0018","lang":"fr","text":"Compte bancaire : FR49 2288 2833 6639 9580 0938 722","spans":[{"start":18,"end":51,"kind":"iban"}]}
+{"id":"fr-iban-0019","lang":"fr","text":"level=info msg=\"profile updated\" iban=BE47563471091748","spans":[{"start":38,"end":54,"kind":"iban"}]}
+{"id":"fr-iban-0020","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE56 8345 5530 2719\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0021","lang":"fr","text":"iban: FR47 7962 4987 9482 7637 5922 241","spans":[{"start":6,"end":39,"kind":"iban"}]}
+{"id":"fr-iban-0022","lang":"fr","text":"iban: FR84 2484 7241 9845 9551 1884 052","spans":[{"start":6,"end":39,"kind":"iban"}]}
+{"id":"fr-iban-0023","lang":"fr","text":"Merci de rembourser sur le compte BE50 5305​ 2606 8536 avant lundi.","spans":[{"start":34,"end":56,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0024","lang":"fr","text":"level=info msg=\"profile updated\" iban=FR53 1046 4113 0417 5291 8267 294","spans":[{"start":38,"end":71,"kind":"iban"}]}
+{"id":"fr-iban-0025","lang":"fr","text":"Compte bancaire : BE79696648449986","spans":[{"start":18,"end":34,"kind":"iban"}]}
+{"id":"fr-iban-0026","lang":"fr","text":"Compte bancaire : FR94 3663 3231 8448 0094 2202 643","spans":[{"start":18,"end":51,"kind":"iban"}]}
+{"id":"fr-iban-0027","lang":"fr","text":"Merci de rembourser sur le compte FR45 4721 7810 7625 7465 2831 261 avant lundi.","spans":[{"start":34,"end":67,"kind":"iban"}]}
+{"id":"fr-iban-0028","lang":"fr","text":"Compte bancaire : FR44 9693 9456 9383 1571 6284 418","spans":[{"start":18,"end":51,"kind":"iban"}]}
+{"id":"fr-iban-0029","lang":"fr","text":"iban: FR41 6219 5791 1665 6504 7512 192","spans":[{"start":6,"end":39,"kind":"iban"}]}
+{"id":"fr-iban-0030","lang":"fr","text":"level=info msg=\"profile updated\" iban=FR83 2810 5847 2800 7222 2739 367","spans":[{"start":38,"end":71,"kind":"iban"}]}
+{"id":"fr-iban-0031","lang":"fr","text":"level=info msg=\"profile updated\" iban=FR8752102640559961436164296","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"fr-iban-0032","lang":"fr","text":"iban: FR１９９７６４７１４３３３４７９７０３７８０６６３０","spans":[{"start":6,"end":83,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0033","lang":"fr","text":"IBAN BE43 1710 1775 3144 (compte courant)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"fr-iban-0034","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"FR48 5959 1962 8354 6411 4097 470\",\"active\":true}","spans":[{"start":23,"end":56,"kind":"iban"}]}
+{"id":"fr-iban-0035","lang":"fr","text":"IBAN BE13139014723134 (compte courant)","spans":[{"start":5,"end":21,"kind":"iban"}]}
+{"id":"fr-iban-0036","lang":"fr","text":"level=info msg=\"profile updated\" iban=FR59 6600 0477 5023 7459 3315 662","spans":[{"start":38,"end":71,"kind":"iban"}]}
+{"id":"fr-iban-0037","lang":"fr","text":"level=info msg=\"profile updated\" iban=BE41473526265606","spans":[{"start":38,"end":54,"kind":"iban"}]}
+{"id":"fr-iban-0038","lang":"fr","text":"level=info msg=\"profile updated\" iban=BE64 3006 0763 1667","spans":[{"start":38,"end":57,"kind":"iban"}]}
+{"id":"fr-iban-0039","lang":"fr","text":"iban: FR68 1159 3771 4578 5545 6420 179","spans":[{"start":6,"end":39,"kind":"iban"}]}
+{"id":"fr-iban-0040","lang":"fr","text":"IBAN FR5321216679339197766613916 (compte courant)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"fr-iban-0041","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE11 1835 0652 4381\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0042","lang":"fr","text":"Merci de rembourser sur le compte FR27 6441 8032 8557 6997 6361 532 avant lundi.","spans":[{"start":34,"end":67,"kind":"iban"}]}
+{"id":"fr-iban-0043","lang":"fr","text":"iban: BE04 3440 4421 7518","spans":[{"start":6,"end":25,"kind":"iban"}]}
+{"id":"fr-iban-0044","lang":"fr","text":"Merci de rembourser sur le compte BE41 3066 6727 1939 avant lundi.","spans":[{"start":34,"end":53,"kind":"iban"}]}
+{"id":"fr-iban-0045","lang":"fr","text":"Merci de rembourser sur le compte BE95 2171 9297 8428 avant lundi.","spans":[{"start":34,"end":53,"kind":"iban"}]}
+{"id":"fr-iban-0046","lang":"fr","text":"level=info msg=\"profile updated\" iban=BE０８９０８８２１８０９８２８","spans":[{"start":38,"end":82,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0047","lang":"fr","text":"Compte bancaire : BE78 9424​ 2830 5863","spans":[{"start":18,"end":40,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0048","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE676799​16160401\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-iban-0049","lang":"fr","text":"Merci de rembourser sur le compte FR82 2170 9058 5840 8144 9052 575 avant lundi.","spans":[{"start":34,"end":67,"kind":"iban"}]}
+{"id":"fr-iban-0050","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE57 5130 5408 7164\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0051","lang":"fr","text":"IBAN BE16457546535914 (compte courant)","spans":[{"start":5,"end":21,"kind":"iban"}]}
+{"id":"fr-iban-0052","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE22 2480 4863 0660\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0053","lang":"fr","text":"Compte bancaire : BE16 2447 5576 2262","spans":[{"start":18,"end":37,"kind":"iban"}]}
+{"id":"fr-iban-0054","lang":"fr","text":"Compte bancaire : BE78 5624 4869 0141","spans":[{"start":18,"end":37,"kind":"iban"}]}
+{"id":"fr-iban-0055","lang":"fr","text":"{\"type\":\"user\",\"iban\":\"BE76 8017 1035 3810\",\"active\":true}","spans":[{"start":23,"end":42,"kind":"iban"}]}
+{"id":"fr-iban-0056","lang":"fr","text":"Compte bancaire : BE66 3721 8346 5546","spans":[{"start":18,"end":37,"kind":"iban"}]}
+{"id":"fr-iban-0057","lang":"fr","text":"Merci de rembourser sur le compte FR5832479895101975568906067 avant lundi.","spans":[{"start":34,"end":61,"kind":"iban"}]}
+{"id":"fr-iban-0058","lang":"fr","text":"IBAN BE40 0727 6363 6900 (compte courant)","spans":[{"start":5,"end":24,"kind":"iban"}]}
+{"id":"fr-iban-0059","lang":"fr","text":"Merci de rembourser sur le compte BE25 4597 3035 9996 avant lundi.","spans":[{"start":34,"end":53,"kind":"iban"}]}
+{"id":"fr-iban-0060","lang":"fr","text":"iban: FR26 1712 5526 5424 9250 9523 132","spans":[{"start":6,"end":45,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"fr-card-0001","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"2223-0013-5863-6319\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0002","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4242-4285-7513-8790\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0003","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4000 0056 2627 5078\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0004","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4000009114894747\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"fr-card-0005","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"2223 0025 5639 3398\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0006","lang":"fr","text":"Carte utilisée : ３７８２８２３５７８５５６９９, expire l'an prochain.","spans":[{"start":18,"end":63,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0007","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"5555 5559 4805 7261\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0008","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4242 4259 4308 3179\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0009","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"2223006722491671\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"fr-card-0010","lang":"fr","text":"carte 4000 0045 8393 6046 refusée","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"fr-card-0011","lang":"fr","text":"Le client a payé avec la carte 378282176963401.","spans":[{"start":32,"end":47,"kind":"card"}]}
+{"id":"fr-card-0012","lang":"fr","text":"level=info msg=\"profile updated\" card_number=2223 0055 1848 8727","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0013","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4242 4239 3981 8500\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0014","lang":"fr","text":"card_number: 5555 5552 1876 9702","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"fr-card-0015","lang":"fr","text":"Le client a payé avec la carte 42424265​21564911.","spans":[{"start":32,"end":51,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0016","lang":"fr","text":"carte 3782 821420 98662 refusée","spans":[{"start":6,"end":23,"kind":"card"}]}
+{"id":"fr-card-0017","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4111111799541126\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"fr-card-0018","lang":"fr","text":"Le client a payé avec la carte 42424216​56017934.","spans":[{"start":32,"end":51,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0019","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4111 1132 9231 1916\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0020","lang":"fr","text":"Le client a payé avec la carte 5555 5500 5545 2009.","spans":[{"start":32,"end":51,"kind":"card"}]}
+{"id":"fr-card-0021","lang":"fr","text":"level=info msg=\"profile updated\" card_number=5555 5549 4282 5534","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0022","lang":"fr","text":"Carte utilisée : 2223 0081 3423 9680, expire l'an prochain.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"fr-card-0023","lang":"fr","text":"carte 4242-4269-2404-0279 refusée","spans":[{"start":6,"end":25,"kind":"card"}]}
+{"id":"fr-card-0024","lang":"fr","text":"card_number: 4111 1175 7989 8198","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"fr-card-0025","lang":"fr","text":"Le client a payé avec la carte 5555 5599​ 6750 5499.","spans":[{"start":32,"end":54,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0026","lang":"fr","text":"Le client a payé avec la carte 3782-826857-03207.","spans":[{"start":32,"end":49,"kind":"card"}]}
+{"id":"fr-card-0027","lang":"fr","text":"level=info msg=\"profile updated\" card_number=2223 0099 3392 5024","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0028","lang":"fr","text":"carte ４０００ ００３５ ５７９４ ６１０６ refusée","spans":[{"start":6,"end":57,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0029","lang":"fr","text":"card_number: 2223-0042​-7583-0106","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0030","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4242 4268 7875 7894\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0031","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4242 4273 0620 0135\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0032","lang":"fr","text":"Le client a payé avec la carte 4111114760042819.","spans":[{"start":32,"end":48,"kind":"card"}]}
+{"id":"fr-card-0033","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"4111 1116 1080 3861\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0034","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4242 4227 0422 9877","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0035","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4000-0001-2293-3320","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0036","lang":"fr","text":"level=info msg=\"profile updated\" card_number=3782-822738-16569","spans":[{"start":45,"end":62,"kind":"card"}]}
+{"id":"fr-card-0037","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"2223-0080-9062-6888\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"fr-card-0038","lang":"fr","text":"carte 4111115179287846 refusée","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"fr-card-0039","lang":"fr","text":"level=info msg=\"profile updated\" card_number=3782-825064-98086","spans":[{"start":45,"end":62,"kind":"card"}]}
+{"id":"fr-card-0040","lang":"fr","text":"{\"type\":\"user\",\"card_number\":\"3782 827932 47584\",\"active\":true}","spans":[{"start":30,"end":47,"kind":"card"}]}
+{"id":"fr-card-0041","lang":"fr","text":"level=info msg=\"profile updated\" card_number=5555-5537-5716-8220","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0042","lang":"fr","text":"card_number: 2223-0035​-5150-6307","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0043","lang":"fr","text":"Carte utilisée : 2223003457365709, expire l'an prochain.","spans":[{"start":18,"end":34,"kind":"card"}]}
+{"id":"fr-card-0044","lang":"fr","text":"level=info msg=\"profile updated\" card_number=４０００-００８０-５４６９-０９４１","spans":[{"start":45,"end":96,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0045","lang":"fr","text":"Le client a payé avec la carte ５５５５-５５７０-４４０６-１３５３.","spans":[{"start":32,"end":83,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0046","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4242 4292 0547 0447","spans":[{"start":45,"end":67,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0047","lang":"fr","text":"carte 4000009132194674 refusée","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"fr-card-0048","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4242426304375113","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"fr-card-0049","lang":"fr","text":"level=info msg=\"profile updated\" card_number=55555540​90424338","spans":[{"start":45,"end":64,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0050","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4111 1133 1268 2809","spans":[{"start":45,"end":70,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0051","lang":"fr","text":"Carte utilisée : 4000-0086-0106-5803, expire l'an prochain.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"fr-card-0052","lang":"fr","text":"card_number: ２２２３００７７３９０９５４８９","spans":[{"start":13,"end":61,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0053","lang":"fr","text":"level=info msg=\"profile updated\" card_number=4000 0069 2421 4173","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-card-0054","lang":"fr","text":"carte 4242425518685713 refusée","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"fr-card-0055","lang":"fr","text":"card_number: 4111-1148-2844-1342","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"fr-card-0056","lang":"fr","text":"Le client a payé avec la carte 5555 5552​ 5752 4745.","spans":[{"start":32,"end":54,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"fr-card-0057","lang":"fr","text":"Carte utilisée : 3782 826201 03646, expire l'an prochain.","spans":[{"start":18,"end":35,"kind":"card"}]}
+{"id":"fr-card-0058","lang":"fr","text":"Carte utilisée : 4111 1171 1545 5545, expire l'an prochain.","spans":[{"start":18,"end":37,"kind":"card"}]}
+{"id":"fr-card-0059","lang":"fr","text":"carte 5555552938228804 refusée","spans":[{"start":6,"end":22,"kind":"card"}]}
+{"id":"fr-card-0060","lang":"fr","text":"level=info msg=\"profile updated\" card_number=5555 5539 3994 0249","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"fr-be_niss-0001","lang":"fr","text":"Numéro de registre national : 21.07.05-507.27","spans":[{"start":31,"end":46,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0002","lang":"fr","text":"Numéro de registre national : 76.05.2​5-175.27","spans":[{"start":31,"end":49,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0003","lang":"fr","text":"niss: 75.11.10-640.33","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0004","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"９４０９０３ ４８０ １２\",\"active\":true}","spans":[{"start":23,"end":58,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0005","lang":"fr","text":"Numéro de registre national : 04031709316","spans":[{"start":31,"end":42,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0006","lang":"fr","text":"NISS 08.06.18-021.66 du patient.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0007","lang":"fr","text":"level=info msg=\"profile updated\" niss=290214 255 45","spans":[{"start":38,"end":53,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0008","lang":"fr","text":"niss: ６２０１１１８４０４２","spans":[{"start":6,"end":39,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0009","lang":"fr","text":"niss: 850110 912 95","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0010","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"520726 139 28\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0011","lang":"fr","text":"NISS 11012802878 du patient.","spans":[{"start":5,"end":16,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0012","lang":"fr","text":"niss: 04041316373","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0013","lang":"fr","text":"Numéro de registre national : 37.01.1​2-996.10","spans":[{"start":31,"end":49,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0014","lang":"fr","text":"NISS 37080709741 du patient.","spans":[{"start":5,"end":16,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0015","lang":"fr","text":"Numéro de registre national : 35031599290","spans":[{"start":31,"end":42,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0016","lang":"fr","text":"NISS 63091984766 du patient.","spans":[{"start":5,"end":16,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0017","lang":"fr","text":"Le numéro national 96062108582 est enregistré.","spans":[{"start":20,"end":31,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0018","lang":"fr","text":"Numéro de registre national : 69.09.06-131.37","spans":[{"start":31,"end":46,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0019","lang":"fr","text":"Numéro de registre national : 360717 468 21","spans":[{"start":31,"end":44,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0020","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"80080998001\",\"active\":true}","spans":[{"start":23,"end":34,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0021","lang":"fr","text":"Numéro de registre national : 96.07.06-816.02","spans":[{"start":31,"end":46,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0022","lang":"fr","text":"Le numéro national 64052657326 est enregistré.","spans":[{"start":20,"end":31,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0023","lang":"fr","text":"NISS 46.10.01-651.64 du patient.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0024","lang":"fr","text":"niss: 69012419259","spans":[{"start":6,"end":17,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0025","lang":"fr","text":"niss: 33090​136471","spans":[{"start":6,"end":20,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0026","lang":"fr","text":"niss: 29.09.01-142.15","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0027","lang":"fr","text":"niss: 411025 430 42","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0028","lang":"fr","text":"level=info msg=\"profile updated\" niss=021102 098 87","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0029","lang":"fr","text":"Le numéro national 42.10.22-724.53 est enregistré.","spans":[{"start":20,"end":35,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0030","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"29060743605\",\"active\":true}","spans":[{"start":23,"end":34,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0031","lang":"fr","text":"NISS 21.07.07-073.13 du patient.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0032","lang":"fr","text":"niss: 98.04.23-256.73","spans":[{"start":6,"end":21,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0033","lang":"fr","text":"Numéro de registre national : 82.07.10-261.46","spans":[{"start":31,"end":46,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0034","lang":"fr","text":"niss: 870212 900 96","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0035","lang":"fr","text":"Le numéro national 57.06.1​7-114.33 est enregistré.","spans":[{"start":20,"end":38,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0036","lang":"fr","text":"NISS 21.08.28-885.33 du patient.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0037","lang":"fr","text":"Numéro de registre national : 211003 267 57","spans":[{"start":31,"end":44,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0038","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"51.05.23-003.25\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0039","lang":"fr","text":"NISS 31.10.20-162.56 du patient.","spans":[{"start":5,"end":20,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0040","lang":"fr","text":"Le numéro national 97.02.05-212.40 est enregistré.","spans":[{"start":20,"end":35,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0041","lang":"fr","text":"Numéro de registre national : 920323 200 93","spans":[{"start":31,"end":44,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0042","lang":"fr","text":"Numéro de registre national : 38.05.26-150.97","spans":[{"start":31,"end":46,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0043","lang":"fr","text":"Le numéro national 96.06.18-594.51 est enregistré.","spans":[{"start":20,"end":35,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0044","lang":"fr","text":"Le numéro national 71.10.05-691.41 est enregistré.","spans":[{"start":20,"end":35,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0045","lang":"fr","text":"Le numéro national 241021 819 95 est enregistré.","spans":[{"start":20,"end":33,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0046","lang":"fr","text":"NISS 74091​345692 du patient.","spans":[{"start":5,"end":19,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0047","lang":"fr","text":"niss: 44.05.0​5-022.11","spans":[{"start":6,"end":24,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0048","lang":"fr","text":"NISS 65.11.2​8-419.86 du patient.","spans":[{"start":5,"end":23,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0049","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"78.09.2​8-445.28\",\"active\":true}","spans":[{"start":23,"end":41,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0050","lang":"fr","text":"Le numéro national 55031269722 est enregistré.","spans":[{"start":20,"end":31,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0051","lang":"fr","text":"Numéro de registre national : 93062​032107","spans":[{"start":31,"end":45,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0052","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"１４.０４.１７-１６３.６６\",\"active\":true}","spans":[{"start":23,"end":60,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0053","lang":"fr","text":"niss: 270802 622 38","spans":[{"start":6,"end":19,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0054","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"510924 748 54\",\"active\":true}","spans":[{"start":23,"end":36,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0055","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"780206​ 981 06\",\"active\":true}","spans":[{"start":23,"end":39,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0056","lang":"fr","text":"level=info msg=\"profile updated\" niss=301213 714 95","spans":[{"start":38,"end":51,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0057","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"381109 649 53\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}],"tags":["hard_positive"]}
+{"id":"fr-be_niss-0058","lang":"fr","text":"Le numéro national 78120857930 est enregistré.","spans":[{"start":20,"end":31,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0059","lang":"fr","text":"{\"type\":\"user\",\"niss\":\"66.08.11-814.07\",\"active\":true}","spans":[{"start":23,"end":38,"kind":"be_niss"}]}
+{"id":"fr-be_niss-0060","lang":"fr","text":"NISS 35110669237 du patient.","spans":[{"start":5,"end":16,"kind":"be_niss"}]}
+{"id":"fr-fr_nir-0001","lang":"fr","text":"Numéro de sécurité sociale : 2 66 10 27 152 344 20","spans":[{"start":32,"end":59,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0002","lang":"fr","text":"Numéro de sécurité sociale : 2 48 01 28 290 903 09","spans":[{"start":32,"end":59,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0003","lang":"fr","text":"nir: 2480952​49622697","spans":[{"start":5,"end":23,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0004","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"1 27 05 56 855 562 83\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0005","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"2 91 10 38 659 999 93\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0006","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"１ ０８ １１ ０５ ９３２ ７２７ １２\",\"active\":true}","spans":[{"start":22,"end":73,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0007","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"2 94 03 16 098 369 40\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0008","lang":"fr","text":"level=info msg=\"profile updated\" nir=2 65 03 28​ 039 786 65","spans":[{"start":37,"end":61,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0009","lang":"fr","text":"level=info msg=\"profile updated\" nir=1 13 06 10 276 966 78","spans":[{"start":37,"end":58,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0010","lang":"fr","text":"Numéro de sécurité sociale : 1 18 03 26 239 377 82","spans":[{"start":32,"end":65,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0011","lang":"fr","text":"Numéro de sécurité sociale : ２４７０５６３３１４１６８６５","spans":[{"start":32,"end":77,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0012","lang":"fr","text":"Le salarié a fourni le numéro 1 10 10 13 718 937 72.","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0013","lang":"fr","text":"level=info msg=\"profile updated\" nir=2 91 07 78 563 717 90","spans":[{"start":37,"end":58,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0014","lang":"fr","text":"Carte Vitale n° 1 99 11 65 501 841 56","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0015","lang":"fr","text":"level=info msg=\"profile updated\" nir=2 93 04 21 283 366 49","spans":[{"start":37,"end":58,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0016","lang":"fr","text":"Carte Vitale n° 2 75 01 11 770 449 40","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0017","lang":"fr","text":"nir: 248089180284395","spans":[{"start":5,"end":20,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0018","lang":"fr","text":"Numéro de sécurité sociale : １ ３３ ０７ ５９ １８０ ６５７ １０","spans":[{"start":32,"end":83,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0019","lang":"fr","text":"NIR 220110964453745 de l'assuré.","spans":[{"start":4,"end":19,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0020","lang":"fr","text":"nir: 1 73 02 41 157 328 57","spans":[{"start":5,"end":26,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0021","lang":"fr","text":"level=info msg=\"profile updated\" nir=2 63 03 70 314 364 28","spans":[{"start":37,"end":58,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0022","lang":"fr","text":"Numéro de sécurité sociale : 2 06 04 24 351 759 52","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0023","lang":"fr","text":"Carte Vitale n° 2 38 07 07 565 737 62","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0024","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"223018877027997\",\"active\":true}","spans":[{"start":22,"end":37,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0025","lang":"fr","text":"nir: 186070228768183","spans":[{"start":5,"end":20,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0026","lang":"fr","text":"Carte Vitale n° 1590459​58903538","spans":[{"start":17,"end":35,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0027","lang":"fr","text":"Le salarié a fourni le numéro 2041276​08964855.","spans":[{"start":32,"end":50,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0028","lang":"fr","text":"NIR 1 69 02 17 821 766 40 de l'assuré.","spans":[{"start":4,"end":25,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0029","lang":"fr","text":"Carte Vitale n° 1 99 11 45 022 230 57","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0030","lang":"fr","text":"Le salarié a fourni le numéro 2 87 06 74 037 272 16.","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0031","lang":"fr","text":"level=info msg=\"profile updated\" nir=154083841526089","spans":[{"start":37,"end":52,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0032","lang":"fr","text":"nir: 2 74 05 06 169 141 02","spans":[{"start":5,"end":26,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0033","lang":"fr","text":"Carte Vitale n° 1 24 02 66 047 276 91","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0034","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"243055649764017\",\"active\":true}","spans":[{"start":22,"end":37,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0035","lang":"fr","text":"Numéro de sécurité sociale : 2 37 12 02 353 601 32","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0036","lang":"fr","text":"Carte Vitale n° 100027890722229","spans":[{"start":17,"end":32,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0037","lang":"fr","text":"Le salarié a fourni le numéro 1 61 10 91 931 993 79.","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0038","lang":"fr","text":"Numéro de sécurité sociale : 1 52 02 78 777 605 28","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0039","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"１４６０１９２２３９７６００５\",\"active\":true}","spans":[{"start":22,"end":67,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0040","lang":"fr","text":"NIR １ ０６ ０８ ２１ ９７２ ２７７ ４４ de l'assuré.","spans":[{"start":4,"end":55,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0041","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"2 99 06 34 037 221 74\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0042","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"1 51 06 87 491 702 39\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0043","lang":"fr","text":"Numéro de sécurité sociale : 2 68 11 47 753 128 14","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0044","lang":"fr","text":"Le salarié a fourni le numéro 2 00 07 22 206 303 16.","spans":[{"start":32,"end":59,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0045","lang":"fr","text":"Le salarié a fourni le numéro 2 15 06 54 699 143 67.","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0046","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"2 89 07 60 902 939 79\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0047","lang":"fr","text":"Le salarié a fourni le numéro 272126294838911.","spans":[{"start":32,"end":47,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0048","lang":"fr","text":"Le salarié a fourni le numéro 276046270197512.","spans":[{"start":32,"end":47,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0049","lang":"fr","text":"Le salarié a fourni le numéro 2730632​73975086.","spans":[{"start":32,"end":50,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0050","lang":"fr","text":"Numéro de sécurité sociale : 2 84 02 73 090 876 66","spans":[{"start":32,"end":53,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0051","lang":"fr","text":"nir: 173128557378263","spans":[{"start":5,"end":20,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0052","lang":"fr","text":"Numéro de sécurité sociale : 174091933635372","spans":[{"start":32,"end":47,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0053","lang":"fr","text":"nir: 2 05 03 49 675 522 15","spans":[{"start":5,"end":38,"kind":"fr_nir"}],"tags":["hard_positive"]}
+{"id":"fr-fr_nir-0054","lang":"fr","text":"NIR 260088702588885 de l'assuré.","spans":[{"start":4,"end":19,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0055","lang":"fr","text":"Carte Vitale n° 1 92 04 92 327 310 71","spans":[{"start":17,"end":38,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0056","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"2 31 01 08 759 863 59\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0057","lang":"fr","text":"NIR 251067662928456 de l'assuré.","spans":[{"start":4,"end":19,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0058","lang":"fr","text":"nir: 251075038691561","spans":[{"start":5,"end":20,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0059","lang":"fr","text":"{\"type\":\"user\",\"nir\":\"1 62 11 15 789 529 32\",\"active\":true}","spans":[{"start":22,"end":43,"kind":"fr_nir"}]}
+{"id":"fr-fr_nir-0060","lang":"fr","text":"Numéro de sécurité sociale : 124042181170211","spans":[{"start":32,"end":47,"kind":"fr_nir"}]}
+{"id":"fr-person_name-0001","lang":"fr","text":"Merci d'appeler Marie Lambert pour la livraison.","spans":[{"start":16,"end":29,"kind":"person_name"}]}
+{"id":"fr-person_name-0002","lang":"fr","text":"Dossier suivi par Fasamir Boyer.","spans":[{"start":18,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0003","lang":"fr","text":"Signé par Niledel Bernard, directrice d'agence.","spans":[{"start":11,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0004","lang":"fr","text":"Dossier suivi par Senolo Dubois.","spans":[{"start":18,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0005","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Tasath Roricourt\",\"active\":true}","spans":[{"start":27,"end":43,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0006","lang":"fr","text":"Merci d'appeler Seriys Lefebvre pour la livraison.","spans":[{"start":16,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0007","lang":"fr","text":"Rendez-vous avec Nith Dubois demain matin.","spans":[{"start":17,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0008","lang":"fr","text":"Merci d'appeler M. Bonnet pour la livraison.","spans":[{"start":19,"end":25,"kind":"person_name"}]}
+{"id":"fr-person_name-0009","lang":"fr","text":"Merci d'appeler Dubois, Thierry pour la livraison.","spans":[{"start":16,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0010","lang":"fr","text":"Dossier suivi par camille dubois.","spans":[{"start":18,"end":32,"kind":"person_name"}]}
+{"id":"fr-person_name-0011","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"céline brunet\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}]}
+{"id":"fr-person_name-0012","lang":"fr","text":"customer: Bernard, Nicolas","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0013","lang":"fr","text":"Dossier suivi par Dr Bo​yer.","spans":[{"start":21,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0014","lang":"fr","text":"level=info msg=\"profile updated\" customer=Jean Vericourt","spans":[{"start":42,"end":56,"kind":"person_name"}]}
+{"id":"fr-person_name-0015","lang":"fr","text":"customer: Falelo Boyer","spans":[{"start":10,"end":22,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0016","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Kasays Kacourt\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0017","lang":"fr","text":"Rendez-vous avec Sophie Duramont demain matin.","spans":[{"start":17,"end":32,"kind":"person_name"}]}
+{"id":"fr-person_name-0018","lang":"fr","text":"level=info msg=\"profile updated\" customer=Kaledel Bonnet","spans":[{"start":42,"end":56,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0019","lang":"fr","text":"Merci d'appeler Kalo Lefebvre pour la livraison.","spans":[{"start":16,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0020","lang":"fr","text":"customer: Julien Bonnet","spans":[{"start":10,"end":23,"kind":"person_name"}]}
+{"id":"fr-person_name-0021","lang":"fr","text":"customer: Isabelle ​G. Bonnet","spans":[{"start":10,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0022","lang":"fr","text":"customer: Tasavia Sesaac","spans":[{"start":10,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0023","lang":"fr","text":"Merci d'appeler Mme Dubois pour la livraison.","spans":[{"start":20,"end":26,"kind":"person_name"}]}
+{"id":"fr-person_name-0024","lang":"fr","text":"customer: Kalevia Bertrand","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0025","lang":"fr","text":"Dossier suivi par Brunet, Laurent.","spans":[{"start":18,"end":33,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0026","lang":"fr","text":"Rendez-vous avec MATHIEU​ BRUNET demain matin.","spans":[{"start":17,"end":34,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0027","lang":"fr","text":"Merci d'appeler Brunet, Marie pour la livraison.","spans":[{"start":16,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0028","lang":"fr","text":"Dossier suivi par sophie lefebvre.","spans":[{"start":18,"end":33,"kind":"person_name"}]}
+{"id":"fr-person_name-0029","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Moriric Dubois\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0030","lang":"fr","text":"customer: Quinolo Arnomont","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0031","lang":"fr","text":"customer: Chloé Bonnet","spans":[{"start":10,"end":23,"kind":"person_name"}]}
+{"id":"fr-person_name-0032","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Quiridel Lefebvre\",\"active\":true}","spans":[{"start":27,"end":44,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0033","lang":"fr","text":"Signé par Liradel Limont, directrice d'agence.","spans":[{"start":11,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0034","lang":"fr","text":"customer: Céline Bertrand","spans":[{"start":10,"end":26,"kind":"person_name"}]}
+{"id":"fr-person_name-0035","lang":"fr","text":"Rendez-vous avec Kariane Blanc demain matin.","spans":[{"start":17,"end":30,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0036","lang":"fr","text":"Rendez-vous avec Veralo Bertrand demain matin.","spans":[{"start":17,"end":32,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0037","lang":"fr","text":"customer: Julien Rolecourt","spans":[{"start":10,"end":26,"kind":"person_name"}]}
+{"id":"fr-person_name-0038","lang":"fr","text":"Dossier suivi par Mlle Bonnet.","spans":[{"start":23,"end":29,"kind":"person_name"}]}
+{"id":"fr-person_name-0039","lang":"fr","text":"Dossier suivi par Liradel Boyer.","spans":[{"start":18,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0040","lang":"fr","text":"Dossier suivi par CAMILLE LEFEBVRE.","spans":[{"start":18,"end":34,"kind":"person_name"}]}
+{"id":"fr-person_name-0041","lang":"fr","text":"Dossier suivi par Falo Lefebvre.","spans":[{"start":18,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0042","lang":"fr","text":"Rendez-vous avec pascale bonnet demain matin.","spans":[{"start":17,"end":31,"kind":"person_name"}]}
+{"id":"fr-person_name-0043","lang":"fr","text":"customer: Sevilo Lambert","spans":[{"start":10,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0044","lang":"fr","text":"customer: Céline Bertrand","spans":[{"start":10,"end":26,"kind":"person_name"}]}
+{"id":"fr-person_name-0045","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Vevin Brunet\",\"active\":true}","spans":[{"start":27,"end":39,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0046","lang":"fr","text":"customer: Rosan Selecourt","spans":[{"start":10,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0047","lang":"fr","text":"Signé par Lefebvre, Mathieu, directrice d'agence.","spans":[{"start":11,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0048","lang":"fr","text":"{\"type\":\"user\",\"customer\":\"Veviane Moière\",\"active\":true}","spans":[{"start":27,"end":42,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0049","lang":"fr","text":"Rendez-vous avec M. Lambert demain matin.","spans":[{"start":20,"end":27,"kind":"person_name"}]}
+{"id":"fr-person_name-0050","lang":"fr","text":"level=info msg=\"profile updated\" customer=Quileane Dubois","spans":[{"start":42,"end":57,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0051","lang":"fr","text":"Rendez-vous avec Marie T. Benoit demain matin.","spans":[{"start":17,"end":32,"kind":"person_name"}]}
+{"id":"fr-person_name-0052","lang":"fr","text":"level=info msg=\"profile updated\" customer=JULIEN LAMBERT","spans":[{"start":42,"end":56,"kind":"person_name"}]}
+{"id":"fr-person_name-0053","lang":"fr","text":"Rendez-vous avec Chloé W.​ Lefebvre demain matin.","spans":[{"start":17,"end":38,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0054","lang":"fr","text":"Dossier suivi par Veys Benoit.","spans":[{"start":18,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0055","lang":"fr","text":"Merci d'appeler Mme Sera​ville pour la livraison.","spans":[{"start":20,"end":32,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0056","lang":"fr","text":"Merci d'appeler Mme Elyleville pour la livraison.","spans":[{"start":20,"end":30,"kind":"person_name"}]}
+{"id":"fr-person_name-0057","lang":"fr","text":"Merci d'appeler Arsaane Moviière pour la livraison.","spans":[{"start":16,"end":33,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-person_name-0058","lang":"fr","text":"customer: Jean Bertrand","spans":[{"start":10,"end":23,"kind":"person_name"}]}
+{"id":"fr-person_name-0059","lang":"fr","text":"customer: camille dubois","spans":[{"start":10,"end":24,"kind":"person_name"}]}
+{"id":"fr-person_name-0060","lang":"fr","text":"Dossier suivi par Quiys Blanc.","spans":[{"start":18,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0001","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"::ffff:203.0.113.114\",\"active\":true}","spans":[{"start":28,"end":48,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0002","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"203.0.​113.179\",\"active\":true}","spans":[{"start":28,"end":44,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0003","lang":"fr","text":"Requête bloquée : client 2001:db8:8747::147.","spans":[{"start":27,"end":45,"kind":"ip"}]}
+{"id":"fr-ip-0004","lang":"fr","text":"Requête bloquée : client 192.0.2.170.","spans":[{"start":27,"end":38,"kind":"ip"}]}
+{"id":"fr-ip-0005","lang":"fr","text":"client_ip: 2606:4700:4700::1111","spans":[{"start":11,"end":31,"kind":"ip"}]}
+{"id":"fr-ip-0006","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=::ffff:203.0.113.21","spans":[{"start":43,"end":62,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0007","lang":"fr","text":"Connexion depuis ２６２０:fe::fe ce matin.","spans":[{"start":17,"end":36,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0008","lang":"fr","text":"Requête bloquée : client 198.51.100.190.","spans":[{"start":27,"end":41,"kind":"ip"}]}
+{"id":"fr-ip-0009","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=192.0.2.133","spans":[{"start":43,"end":54,"kind":"ip"}]}
+{"id":"fr-ip-0010","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.52\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"fr-ip-0011","lang":"fr","text":"Requête bloquée : client 198.51.100.13.","spans":[{"start":27,"end":40,"kind":"ip"}]}
+{"id":"fr-ip-0012","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"2001:4860:​4860::8888\",\"active\":true}","spans":[{"start":28,"end":51,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0013","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.3\",\"active\":true}","spans":[{"start":28,"end":40,"kind":"ip"}]}
+{"id":"fr-ip-0014","lang":"fr","text":"Requête bloquée : client ２６０６:４７００:４７００::１１１１.","spans":[{"start":27,"end":79,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0015","lang":"fr","text":"Accès refusé pour 192.0.2.38.","spans":[{"start":20,"end":30,"kind":"ip"}]}
+{"id":"fr-ip-0016","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=2001:db8:58a1::75","spans":[{"start":43,"end":60,"kind":"ip"}]}
+{"id":"fr-ip-0017","lang":"fr","text":"client_ip: ::ffff:203.0.113.204","spans":[{"start":11,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0018","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"1.1​.1.1\",\"active\":true}","spans":[{"start":28,"end":38,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0019","lang":"fr","text":"client_ip: ::ffff:203.0.113.167","spans":[{"start":11,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0020","lang":"fr","text":"Requête bloquée : client 2001:db8:6fd3::68.","spans":[{"start":27,"end":44,"kind":"ip"}]}
+{"id":"fr-ip-0021","lang":"fr","text":"Accès refusé pour 198.51​.100.53.","spans":[{"start":20,"end":36,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0022","lang":"fr","text":"client_ip: 2001:db8:2c51::593","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"fr-ip-0023","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.67\",\"active\":true}","spans":[{"start":28,"end":40,"kind":"ip"}]}
+{"id":"fr-ip-0024","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=192.0.2.75","spans":[{"start":43,"end":53,"kind":"ip"}]}
+{"id":"fr-ip-0025","lang":"fr","text":"Accès refusé pour ２０３.０.１１３.１２４.","spans":[{"start":20,"end":53,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0026","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=198.51.100.154","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"fr-ip-0027","lang":"fr","text":"Accès refusé pour 2620:fe::fe.","spans":[{"start":20,"end":31,"kind":"ip"}]}
+{"id":"fr-ip-0028","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=198.51.100.4","spans":[{"start":43,"end":55,"kind":"ip"}]}
+{"id":"fr-ip-0029","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=198.51.100.174","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"fr-ip-0030","lang":"fr","text":"Requête bloquée : client ::ffff:203.0.113.208.","spans":[{"start":27,"end":47,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0031","lang":"fr","text":"client_ip: 2001:db8:e3e3::de8","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"fr-ip-0032","lang":"fr","text":"Requête bloquée : client 2001:4860:4860::8888.","spans":[{"start":27,"end":47,"kind":"ip"}]}
+{"id":"fr-ip-0033","lang":"fr","text":"client_ip: 2001:db8:b5b2::16b","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"fr-ip-0034","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=203.0.​113.65","spans":[{"start":43,"end":58,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0035","lang":"fr","text":"Requête bloquée : client １９８.５１.１００.６３.","spans":[{"start":27,"end":60,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0036","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.248\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"fr-ip-0037","lang":"fr","text":"client_ip: ::ffff:203.0.113.88","spans":[{"start":11,"end":30,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0038","lang":"fr","text":"Accès refusé pour ::ffff:203.0.113.42.","spans":[{"start":20,"end":39,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0039","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.172\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"fr-ip-0040","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"２００１:db８:c６９５::d５９\",\"active\":true}","spans":[{"start":28,"end":66,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0041","lang":"fr","text":"client_ip: 203.0.113.73","spans":[{"start":11,"end":23,"kind":"ip"}]}
+{"id":"fr-ip-0042","lang":"fr","text":"Connexion depuis 2001:db8:dd16::5b ce matin.","spans":[{"start":17,"end":34,"kind":"ip"}]}
+{"id":"fr-ip-0043","lang":"fr","text":"Connexion depuis 2001:db8:103f::174 ce matin.","spans":[{"start":17,"end":35,"kind":"ip"}]}
+{"id":"fr-ip-0044","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"2620:​fe::fe\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0045","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=203.0.113.95","spans":[{"start":43,"end":55,"kind":"ip"}]}
+{"id":"fr-ip-0046","lang":"fr","text":"Requête bloquée : client ::ffff:203.0.113.228.","spans":[{"start":27,"end":47,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0047","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=2001:db8:8333::e48","spans":[{"start":43,"end":61,"kind":"ip"}]}
+{"id":"fr-ip-0048","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.90\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}]}
+{"id":"fr-ip-0049","lang":"fr","text":"Requête bloquée : client 2001:db8:e0fe::af5.","spans":[{"start":27,"end":45,"kind":"ip"}]}
+{"id":"fr-ip-0050","lang":"fr","text":"Accès refusé pour ２００１:４８６０:４８６０::８８８８.","spans":[{"start":20,"end":72,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0051","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=203.0.113.132","spans":[{"start":43,"end":56,"kind":"ip"}]}
+{"id":"fr-ip-0052","lang":"fr","text":"Accès refusé pour 192.0.2.104.","spans":[{"start":20,"end":31,"kind":"ip"}]}
+{"id":"fr-ip-0053","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"2606:4700:4700::1111\",\"active\":true}","spans":[{"start":28,"end":48,"kind":"ip"}]}
+{"id":"fr-ip-0054","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"２０３.０.１１３.２２７\",\"active\":true}","spans":[{"start":28,"end":61,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0055","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"２０３.０.１１３.２３\",\"active\":true}","spans":[{"start":28,"end":58,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0056","lang":"fr","text":"level=info msg=\"profile updated\" client_ip=2001:db8:a7d2::2f","spans":[{"start":43,"end":60,"kind":"ip"}]}
+{"id":"fr-ip-0057","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"203.0.113.79\",\"active\":true}","spans":[{"start":28,"end":40,"kind":"ip"}]}
+{"id":"fr-ip-0058","lang":"fr","text":"{\"type\":\"user\",\"client_ip\":\"198.51​.100.62\",\"active\":true}","spans":[{"start":28,"end":44,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"fr-ip-0059","lang":"fr","text":"client_ip: 2001:db8:88b7::713","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"fr-ip-0060","lang":"fr","text":"Accès refusé pour 2001:db8:c2c9::aa9.","spans":[{"start":20,"end":38,"kind":"ip"}]}
+{"id":"fr-phone-0001","lang":"fr","text":"level=info msg=\"profile updated\" phone=06 39 98 24 02","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"fr-phone-0002","lang":"fr","text":"Portable +33 1 99​ 00 31 82 (le soir uniquement).","spans":[{"start":9,"end":29,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0003","lang":"fr","text":"level=info msg=\"profile updated\" phone=06.39.98.27.46","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"fr-phone-0004","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"+33 1 99​ 00 86 09\",\"active\":true}","spans":[{"start":24,"end":44,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0005","lang":"fr","text":"Portable +33 1 99 00 58 09 (le soir uniquement).","spans":[{"start":9,"end":26,"kind":"phone"}]}
+{"id":"fr-phone-0006","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"06.39.98.79.75\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"fr-phone-0007","lang":"fr","text":"Appelez-moi au 06.39.98.59.10 après dix-huit heures.","spans":[{"start":15,"end":29,"kind":"phone"}]}
+{"id":"fr-phone-0008","lang":"fr","text":"Portable 06.39.98.28.17 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0009","lang":"fr","text":"level=info msg=\"profile updated\" phone=+32 2 733 54 00","spans":[{"start":39,"end":54,"kind":"phone"}]}
+{"id":"fr-phone-0010","lang":"fr","text":"Appelez-moi au 01 99 00 02 65 après dix-huit heures.","spans":[{"start":15,"end":29,"kind":"phone"}]}
+{"id":"fr-phone-0011","lang":"fr","text":"Appelez-moi au 06.39.98.20.84 après dix-huit heures.","spans":[{"start":15,"end":29,"kind":"phone"}]}
+{"id":"fr-phone-0012","lang":"fr","text":"Tél. : +32 2 683 45 38","spans":[{"start":8,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0013","lang":"fr","text":"Portable 01 99 00 18 42 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0014","lang":"fr","text":"Portable 06.39.98.63.88 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0015","lang":"fr","text":"level=info msg=\"profile updated\" phone=０６ ３９ ９８ ０９ ９２","spans":[{"start":39,"end":73,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0016","lang":"fr","text":"Tél. : 06 39 98 83 96","spans":[{"start":8,"end":22,"kind":"phone"}]}
+{"id":"fr-phone-0017","lang":"fr","text":"Appelez-moi au ０６.３９.９８.９８.６０ après dix-huit heures.","spans":[{"start":15,"end":49,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0018","lang":"fr","text":"Portable +32 2 380 57 88 (le soir uniquement).","spans":[{"start":9,"end":24,"kind":"phone"}]}
+{"id":"fr-phone-0019","lang":"fr","text":"level=info msg=\"profile updated\" phone=06 39 98 29 49","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"fr-phone-0020","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"0475 35 72 67\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone"}]}
+{"id":"fr-phone-0021","lang":"fr","text":"level=info msg=\"profile updated\" phone=06.39.98.59.18","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"fr-phone-0022","lang":"fr","text":"Portable 01 99 00 17 06 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0023","lang":"fr","text":"level=info msg=\"profile updated\" phone=06.39.98.31.32","spans":[{"start":39,"end":53,"kind":"phone"}]}
+{"id":"fr-phone-0024","lang":"fr","text":"phone: 02 548 70 23","spans":[{"start":7,"end":19,"kind":"phone"}]}
+{"id":"fr-phone-0025","lang":"fr","text":"phone: 06 39 98 08 09","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"fr-phone-0026","lang":"fr","text":"Tél. : +33 1 99 00 08 17","spans":[{"start":8,"end":35,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0027","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"+32 2 351 68 00\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}]}
+{"id":"fr-phone-0028","lang":"fr","text":"level=info msg=\"profile updated\" phone=+33 1 99 00 32 76","spans":[{"start":39,"end":56,"kind":"phone"}]}
+{"id":"fr-phone-0029","lang":"fr","text":"Tél. : +32 2 694 02 16","spans":[{"start":8,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0030","lang":"fr","text":"level=info msg=\"profile updated\" phone=+33 1 99 00 36 30","spans":[{"start":39,"end":56,"kind":"phone"}]}
+{"id":"fr-phone-0031","lang":"fr","text":"phone: 0475 99 23 40","spans":[{"start":7,"end":20,"kind":"phone"}]}
+{"id":"fr-phone-0032","lang":"fr","text":"Portable 06 39 98 90 51 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0033","lang":"fr","text":"phone: +32 2 675 16 83","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"fr-phone-0034","lang":"fr","text":"Appelez-moi au +32 2 107 27 41 après dix-huit heures.","spans":[{"start":15,"end":30,"kind":"phone"}]}
+{"id":"fr-phone-0035","lang":"fr","text":"Appelez-moi au 02 621 32 68 après dix-huit heures.","spans":[{"start":15,"end":27,"kind":"phone"}]}
+{"id":"fr-phone-0036","lang":"fr","text":"level=info msg=\"profile updated\" phone=02 260 26 30","spans":[{"start":39,"end":57,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0037","lang":"fr","text":"Appelez-moi au ０４７５ ４９ ３１ ７５ après dix-huit heures.","spans":[{"start":15,"end":48,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0038","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"0033 6 39 98 54 68\",\"active\":true}","spans":[{"start":24,"end":42,"kind":"phone"}]}
+{"id":"fr-phone-0039","lang":"fr","text":"level=info msg=\"profile updated\" phone=+32 2 243 48 75","spans":[{"start":39,"end":54,"kind":"phone"}]}
+{"id":"fr-phone-0040","lang":"fr","text":"Portable 02 361 82 13 (le soir uniquement).","spans":[{"start":9,"end":21,"kind":"phone"}]}
+{"id":"fr-phone-0041","lang":"fr","text":"Appelez-moi au 06 39 98 25 87 après dix-huit heures.","spans":[{"start":15,"end":29,"kind":"phone"}]}
+{"id":"fr-phone-0042","lang":"fr","text":"Appelez-moi au 0033 6 39 98 58 58 après dix-huit heures.","spans":[{"start":15,"end":33,"kind":"phone"}]}
+{"id":"fr-phone-0043","lang":"fr","text":"phone: 06 39 9​8 94 53","spans":[{"start":7,"end":24,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"fr-phone-0044","lang":"fr","text":"Tél. : +33 1 99 00 04 78","spans":[{"start":8,"end":25,"kind":"phone"}]}
+{"id":"fr-phone-0045","lang":"fr","text":"Portable 0033 6 39 98 35 15 (le soir uniquement).","spans":[{"start":9,"end":27,"kind":"phone"}]}
+{"id":"fr-phone-0046","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"+32 2 929 44 45\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}]}
+{"id":"fr-phone-0047","lang":"fr","text":"phone: 02 999 84 88","spans":[{"start":7,"end":19,"kind":"phone"}]}
+{"id":"fr-phone-0048","lang":"fr","text":"Portable 06 39 98 19 32 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0049","lang":"fr","text":"level=info msg=\"profile updated\" phone=+33 1 99 00 14 74","spans":[{"start":39,"end":56,"kind":"phone"}]}
+{"id":"fr-phone-0050","lang":"fr","text":"level=info msg=\"profile updated\" phone=+32 2 856 86 02","spans":[{"start":39,"end":54,"kind":"phone"}]}
+{"id":"fr-phone-0051","lang":"fr","text":"Tél. : 0475 38 28 28","spans":[{"start":8,"end":21,"kind":"phone"}]}
+{"id":"fr-phone-0052","lang":"fr","text":"level=info msg=\"profile updated\" phone=0475 38 00 16","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"fr-phone-0053","lang":"fr","text":"phone: 06.39.98.52.28","spans":[{"start":7,"end":21,"kind":"phone"}]}
+{"id":"fr-phone-0054","lang":"fr","text":"Portable 0475 32 81 18 (le soir uniquement).","spans":[{"start":9,"end":22,"kind":"phone"}]}
+{"id":"fr-phone-0055","lang":"fr","text":"Portable 06.39.98.70.57 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone-0056","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"06.39.98.62.24\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"fr-phone-0057","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"06 39 98 45 93\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone"}]}
+{"id":"fr-phone-0058","lang":"fr","text":"Appelez-moi au +33 1 99 00 46 88 après dix-huit heures.","spans":[{"start":15,"end":32,"kind":"phone"}]}
+{"id":"fr-phone-0059","lang":"fr","text":"Tél. : 06 39 98 03 82","spans":[{"start":8,"end":22,"kind":"phone"}]}
+{"id":"fr-phone-0060","lang":"fr","text":"Portable 06 39 98 84 00 (le soir uniquement).","spans":[{"start":9,"end":23,"kind":"phone"}]}
+{"id":"fr-phone_loose-0001","lang":"fr","text":"level=info msg=\"profile updated\" phone=6 39 98 41 84","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0002","lang":"fr","text":"level=info msg=\"profile updated\" phone=2 986 90 09","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0003","lang":"fr","text":"Joignable au 1 99 00 23 58 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0004","lang":"fr","text":"phone: 475 73 88 54","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0005","lang":"fr","text":"level=info msg=\"profile updated\" phone=2 060 87 68","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0006","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"6 39 98 60 66\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0007","lang":"fr","text":"Joignable au 2 950 25 10 en semaine.","spans":[{"start":13,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0008","lang":"fr","text":"phone: 2 423 42 41","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0009","lang":"fr","text":"level=info msg=\"profile updated\" phone=33 6 39 98 84 57","spans":[{"start":39,"end":55,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0010","lang":"fr","text":"Tél. : 6 39 98 35 20","spans":[{"start":8,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0011","lang":"fr","text":"Tél. : 33 6 39 98 11 69","spans":[{"start":8,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0012","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"33 6 39 98 98 07\",\"active\":true}","spans":[{"start":24,"end":40,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0013","lang":"fr","text":"Tél. : 475 61 13 68","spans":[{"start":8,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0014","lang":"fr","text":"Tél. : 33 6 39 98 47 18","spans":[{"start":8,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0015","lang":"fr","text":"Tél. : 1 99 00 75 30","spans":[{"start":8,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0016","lang":"fr","text":"Joignable au 475 87 05 80 en semaine.","spans":[{"start":13,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0017","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"1 99 00 80 08\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0018","lang":"fr","text":"Joignable au 6 39 98 57 32 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0019","lang":"fr","text":"level=info msg=\"profile updated\" phone=2 863 83 75","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0020","lang":"fr","text":"phone: 6 39 98 69 09","spans":[{"start":7,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0021","lang":"fr","text":"Appelez-moi au 33 6 39 98 51 07 après dix-huit heures.","spans":[{"start":15,"end":31,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0022","lang":"fr","text":"phone: 2 578 73 97","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0023","lang":"fr","text":"Tél. : 33 6 39 98 78 79","spans":[{"start":8,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0024","lang":"fr","text":"Joignable au 475 44 95 43 en semaine.","spans":[{"start":13,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0025","lang":"fr","text":"level=info msg=\"profile updated\" phone=475 48 40 07","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0026","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"475 24 50 97\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0027","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"2 863 66 94\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0028","lang":"fr","text":"level=info msg=\"profile updated\" phone=6 39 98 29 21","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0029","lang":"fr","text":"Joignable au 1 99 00 00 04 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0030","lang":"fr","text":"Tél. : 2 995 83 37","spans":[{"start":8,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0031","lang":"fr","text":"Joignable au 6 39 98 23 25 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0032","lang":"fr","text":"level=info msg=\"profile updated\" phone=6 39 98 56 31","spans":[{"start":39,"end":52,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0033","lang":"fr","text":"Appelez-moi au 475 03 62 36 après dix-huit heures.","spans":[{"start":15,"end":27,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0034","lang":"fr","text":"level=info msg=\"profile updated\" phone=475 86 13 32","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0035","lang":"fr","text":"Tél. : 2 321 59 53","spans":[{"start":8,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0036","lang":"fr","text":"Joignable au 6 39 98 84 06 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0037","lang":"fr","text":"Joignable au 33 6 39 98 70 68 en semaine.","spans":[{"start":13,"end":29,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0038","lang":"fr","text":"Tél. : 2 207 12 17","spans":[{"start":8,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0039","lang":"fr","text":"Joignable au 1 99 00 78 69 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0040","lang":"fr","text":"Tél. : 6 39 98 20 38","spans":[{"start":8,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0041","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"475 79 07 45\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0042","lang":"fr","text":"level=info msg=\"profile updated\" phone=475 35 68 48","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0043","lang":"fr","text":"Tél. : 2 639 06 02","spans":[{"start":8,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0044","lang":"fr","text":"Joignable au 6 39 98 83 46 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0045","lang":"fr","text":"Joignable au 6 39 98 29 70 en semaine.","spans":[{"start":13,"end":26,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0046","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"1 99 00 16 35\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0047","lang":"fr","text":"Appelez-moi au 6 39 98 04 20 après dix-huit heures.","spans":[{"start":15,"end":28,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0048","lang":"fr","text":"Tél. : 6 39 98 68 06","spans":[{"start":8,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0049","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"33 6 39 98 19 21\",\"active\":true}","spans":[{"start":24,"end":40,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0050","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"475 91 71 21\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0051","lang":"fr","text":"level=info msg=\"profile updated\" phone=475 35 88 38","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0052","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"1 99 00 07 08\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0053","lang":"fr","text":"level=info msg=\"profile updated\" phone=2 796 46 44","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0054","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"6 39 98 53 95\",\"active\":true}","spans":[{"start":24,"end":37,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0055","lang":"fr","text":"{\"type\":\"user\",\"phone\":\"2 207 03 03\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0056","lang":"fr","text":"phone: 33 6 39 98 69 57","spans":[{"start":7,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0057","lang":"fr","text":"Tél. : 475 78 40 14","spans":[{"start":8,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0058","lang":"fr","text":"phone: 1 99 00 67 73","spans":[{"start":7,"end":20,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0059","lang":"fr","text":"level=info msg=\"profile updated\" phone=475 55 15 38","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-phone_loose-0060","lang":"fr","text":"Tél. : 33 6 39 98 64 56","spans":[{"start":8,"end":24,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"fr-mixed-0001","lang":"fr","text":"{\"nom\":\"Camille Bernard\",\"courriel\":\"cboyer@example.net\",\"tel\":\"0475 48 89 20\"}","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":37,"end":55,"kind":"email"},{"start":64,"end":77,"kind":"phone"}]}
+{"id":"fr-mixed-0002","lang":"fr","text":"Contacter Julien Bernard au +32 2 922 97 36 ou à nbernard@example.com.","spans":[{"start":10,"end":24,"kind":"person_name"},{"start":28,"end":43,"kind":"phone"},{"start":50,"end":70,"kind":"email"}]}
+{"id":"fr-mixed-0003","lang":"fr","text":"Contacter Camille Bertrand au 02 844 26 66 ou à nathalie.boyer@example.org.","spans":[{"start":10,"end":26,"kind":"person_name"},{"start":30,"end":42,"kind":"phone"},{"start":49,"end":75,"kind":"email"}]}
+{"id":"fr-mixed-0004","lang":"fr","text":"{\"nom\":\"Céline Lambert\",\"courriel\":\"chloe.lambert@example.net\",\"tel\":\"01 99 00 32 30\"}","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":37,"end":62,"kind":"email"},{"start":71,"end":85,"kind":"phone"}]}
+{"id":"fr-mixed-0005","lang":"fr","text":"Contacter Laurent Lefebvre au +32 2 098 23 65 ou à éloïse.béranger@example.com.","spans":[{"start":10,"end":26,"kind":"person_name"},{"start":30,"end":45,"kind":"phone"},{"start":52,"end":82,"kind":"email"}]}
+{"id":"fr-mixed-0006","lang":"fr","text":"Thierry Brunet <thierry.bernard@example.net>, portable 02 257 28 10","spans":[{"start":0,"end":14,"kind":"person_name"},{"start":16,"end":43,"kind":"email"},{"start":55,"end":67,"kind":"phone"}]}
+{"id":"fr-mixed-0007","lang":"fr","text":"Laurent Bonnet <tbenoit@example.net>, portable 0475 67 09 15","spans":[{"start":0,"end":14,"kind":"person_name"},{"start":16,"end":35,"kind":"email"},{"start":47,"end":60,"kind":"phone"}]}
+{"id":"fr-mixed-0008","lang":"fr","text":"Contacter Céline Bonnet au 01 99 00 10 16 ou à jbertrand@example.com.","spans":[{"start":10,"end":24,"kind":"person_name"},{"start":28,"end":42,"kind":"phone"},{"start":49,"end":70,"kind":"email"}]}
+{"id":"fr-mixed-0009","lang":"fr","text":"{\"nom\":\"Nathalie Bonnet\",\"courriel\":\"pascale.bertrand@example.org\",\"tel\":\"06.39.98.79.92\"}","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":37,"end":65,"kind":"email"},{"start":74,"end":88,"kind":"phone"}]}
+{"id":"fr-mixed-0010","lang":"fr","text":"Nicolas Benoit <sophie+shop@mail.example.com>, portable +33 1 99 00 46 18","spans":[{"start":0,"end":14,"kind":"person_name"},{"start":16,"end":44,"kind":"email"},{"start":56,"end":73,"kind":"phone"}]}
+{"id":"fr-mixed-0011","lang":"fr","text":"{\"nom\":\"Nathalie Bernard\",\"courriel\":\"tlefebvre@shop.example.org\",\"tel\":\"0475 64 30 58\"}","spans":[{"start":8,"end":24,"kind":"person_name"},{"start":38,"end":64,"kind":"email"},{"start":73,"end":86,"kind":"phone"}]}
+{"id":"fr-mixed-0012","lang":"fr","text":"{\"nom\":\"Thierry Bertrand\",\"courriel\":\"chloe.bertrand38@shop.example.org\",\"tel\":\"06.39.98.72.12\"}","spans":[{"start":8,"end":24,"kind":"person_name"},{"start":38,"end":71,"kind":"email"},{"start":80,"end":94,"kind":"phone"}]}
+{"id":"fr-mixed-0013","lang":"fr","text":"{\"nom\":\"Isabelle Bertrand\",\"courriel\":\"camille+shop@mail.example.com\",\"tel\":\"02 107 37 21\"}","spans":[{"start":8,"end":25,"kind":"person_name"},{"start":39,"end":68,"kind":"email"},{"start":77,"end":89,"kind":"phone"}]}
+{"id":"fr-mixed-0014","lang":"fr","text":"Contacter Pascale Bonnet au +33 1 99 00 89 32 ou à pascale+news@example.org.","spans":[{"start":10,"end":24,"kind":"person_name"},{"start":28,"end":45,"kind":"phone"},{"start":52,"end":76,"kind":"email"}]}
+{"id":"fr-mixed-0015","lang":"fr","text":"{\"nom\":\"Chloé Bernard\",\"courriel\":\"camille.bonnet@mail.example.com\",\"tel\":\"0475 67 26 75\"}","spans":[{"start":8,"end":22,"kind":"person_name"},{"start":36,"end":67,"kind":"email"},{"start":76,"end":89,"kind":"phone"}]}
+{"id":"fr-mixed-0016","lang":"fr","text":"{\"nom\":\"Chloé Bonnet\",\"courriel\":\"pascale+billing@mail.example.com\",\"tel\":\"01 99 00 41 78\"}","spans":[{"start":8,"end":21,"kind":"person_name"},{"start":35,"end":67,"kind":"email"},{"start":76,"end":90,"kind":"phone"}]}
+{"id":"fr-mixed-0017","lang":"fr","text":"{\"nom\":\"Nathalie Dubois\",\"courriel\":\"camille.dubois02@shop.example.org\",\"tel\":\"02 808 55 07\"}","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":37,"end":70,"kind":"email"},{"start":79,"end":91,"kind":"phone"}]}
+{"id":"fr-mixed-0018","lang":"fr","text":"Pascale Brunet <thierry+billing@example.net>, portable +32 2 931 80 74","spans":[{"start":0,"end":14,"kind":"person_name"},{"start":16,"end":43,"kind":"email"},{"start":55,"end":70,"kind":"phone"}]}
+{"id":"fr-mixed-0019","lang":"fr","text":"Contacter Jean Blanc au 0033 6 39 98 77 65 ou à jbernard@shop.example.org.","spans":[{"start":10,"end":20,"kind":"person_name"},{"start":24,"end":42,"kind":"phone"},{"start":49,"end":74,"kind":"email"}]}
+{"id":"fr-mixed-0020","lang":"fr","text":"{\"nom\":\"Nathalie Dubois\",\"courriel\":\"sophie+news@example.co.uk\",\"tel\":\"02 110 80 54\"}","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":37,"end":62,"kind":"email"},{"start":71,"end":83,"kind":"phone"}]}
+{"id":"fr-neg-0001","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0002","lang":"fr","text":"Le numéro de test 5555 5539 7031 6822 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0003","lang":"fr","text":"Sonde depuis 127.0.0.1 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0004","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0005","lang":"fr","text":"Livraison prévue le 14/04/2024.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0006","lang":"fr","text":"Montant dû : 89 868,99 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0007","lang":"fr","text":"Stock : 493 752 475 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0008","lang":"fr","text":"Sonde depuis fd00::302 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0009","lang":"fr","text":"L'article REF 25-356-576 est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0010","lang":"fr","text":"Commit fb573bb déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0011","lang":"fr","text":"Commande 826703908 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0012","lang":"fr","text":"Numéro 41.10.26-799.04 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0013","lang":"fr","text":"Code-barres 5483196925770 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0014","lang":"fr","text":"La facture INV-2020-656306 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0015","lang":"fr","text":"L'article MJF65953 est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0016","lang":"fr","text":"Le numéro de test 5555 5528 7846 4931 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0017","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0018","lang":"fr","text":"Montant dû : 65 929,23 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0019","lang":"fr","text":"Code-barres 5451097925762 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0020","lang":"fr","text":"Numéro 48102132953 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0021","lang":"fr","text":"Tâche terminée à 2026-08-12T23:49:38Z.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0022","lang":"fr","text":"Agent mis à jour en version 8.6.9.197.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0023","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0024","lang":"fr","text":"La facture F2026-09104 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0025","lang":"fr","text":"Le numéro de test 5555 5514 0957 0247 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0026","lang":"fr","text":"Compte FR39 2723 9107 1895 1753 8734 226 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0027","lang":"fr","text":"Stock : 349 862 334 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0028","lang":"fr","text":"Commit d7e8b8d déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0029","lang":"fr","text":"La facture F2026-83017 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0030","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0031","lang":"fr","text":"La facture FAC/2023/6544 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0032","lang":"fr","text":"Commit 3ff045a33ca40a77d2a33757cac5e6aa2184935e déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0033","lang":"fr","text":"Commit 473a3ea déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0034","lang":"fr","text":"Le numéro de test 4000 0090 5934 7366 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0035","lang":"fr","text":"Le numéro de test 3782 8213 5917 730 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0036","lang":"fr","text":"La facture F2022-46084 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0037","lang":"fr","text":"Compte BE36 1748 6839 1074 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0038","lang":"fr","text":"Montant dû : 38 264,48 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0039","lang":"fr","text":"Code-barres 5479158230952 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0040","lang":"fr","text":"Votre commande n° 1507578 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0041","lang":"fr","text":"Votre commande n° 9043141 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0042","lang":"fr","text":"Compte FR55 1589 3938 2389 4878 3639 289 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0043","lang":"fr","text":"Compte BE20 4478 6733 4879 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0044","lang":"fr","text":"Tâche terminée à 1741186948.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0045","lang":"fr","text":"Votre commande n° 60824859 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0046","lang":"fr","text":"Livraison prévue le 2023-12-25.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0047","lang":"fr","text":"Le NIR 189034559193027 a une clé erronée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0048","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0049","lang":"fr","text":"Le numéro de test 4242 4251 7985 7543 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0050","lang":"fr","text":"Le NIR 2 53 04 40 803 209 55 a une clé erronée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0051","lang":"fr","text":"Tâche terminée à 2026-12-11 19:36:52.566.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0052","lang":"fr","text":"Le numéro de test 3782 8282 4226 186 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0053","lang":"fr","text":"Le NIR 1 87 08 71 795 901 12 a une clé erronée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0054","lang":"fr","text":"Le numéro de test 2223 0069 4236 5187 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0055","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0056","lang":"fr","text":"Code-barres 5498357596355 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0057","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0058","lang":"fr","text":"Compte BE42 8767 8083 6637 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0059","lang":"fr","text":"Sonde depuis 10.10.95.97 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0060","lang":"fr","text":"Montant dû : 36 600,45 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0061","lang":"fr","text":"Sonde depuis 10.88.182.105 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0062","lang":"fr","text":"Code-barres 5486436816357 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0063","lang":"fr","text":"Numéro 040227 675 06 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0064","lang":"fr","text":"Sonde depuis fd00::ca8 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0065","lang":"fr","text":"L'article HOJ64208 est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0066","lang":"fr","text":"Le NIR 1 64 05 67 122 908 26 a une clé erronée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0067","lang":"fr","text":"Compte BE37 7811 3560 7003 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0068","lang":"fr","text":"Votre commande n° 3036424091 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0069","lang":"fr","text":"Commande 212868753 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0070","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0071","lang":"fr","text":"Stock : 675 923 229 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0072","lang":"fr","text":"Sonde depuis fd00::8b5 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0073","lang":"fr","text":"Votre commande n° 37782207 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0074","lang":"fr","text":"Le numéro de test 4242 4251 0489 7302 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0075","lang":"fr","text":"Commit 5ff836082988edfb0dd2ba760367419b388c714606755146710f6c80db5f73e2 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0076","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0077","lang":"fr","text":"Code-barres 5401047531468 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0078","lang":"fr","text":"Le numéro de test 3782 8276 0000 973 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0079","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0080","lang":"fr","text":"Le numéro de test 5555 5550 9463 6606 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0081","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0082","lang":"fr","text":"Code-barres 5429698129865 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0083","lang":"fr","text":"Le numéro de test 3782 8260 1184 156 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0084","lang":"fr","text":"Commit ea79c8e déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0085","lang":"fr","text":"Tâche terminée à 1718346909.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0086","lang":"fr","text":"Code-barres 5411787193475 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0087","lang":"fr","text":"Montant dû : 74 394,34 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0088","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0089","lang":"fr","text":"L'article SKU-6071-XS est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0090","lang":"fr","text":"Commande 667967 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0091","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0092","lang":"fr","text":"Tâche terminée à 2026-10-28T13:41:13Z.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0093","lang":"fr","text":"Code-barres 5497202916768 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0094","lang":"fr","text":"Livraison prévue le 12-09-2024.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0095","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0096","lang":"fr","text":"Code-barres 5411033005354 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0097","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0098","lang":"fr","text":"Commande 776243898 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0099","lang":"fr","text":"Agent mis à jour en Chrome/136.0.5295.199.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0100","lang":"fr","text":"Commande 795331672 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0101","lang":"fr","text":"Code-barres 5415677763861 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0102","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0103","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0104","lang":"fr","text":"Le NIR 1 16 08 84 169 747 35 a une clé erronée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0105","lang":"fr","text":"Montant dû : 39 644,20 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0106","lang":"fr","text":"Numéro 36081129728 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0107","lang":"fr","text":"Livraison prévue le 2023-10-18.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0108","lang":"fr","text":"Votre commande n° 125534 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0109","lang":"fr","text":"Le numéro de test 5555 5563 5692 1511 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0110","lang":"fr","text":"Votre commande n° 679147 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0111","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0112","lang":"fr","text":"La facture FAC/2026/9569 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0113","lang":"fr","text":"Tâche terminée à 2026-07-17T21:09:53Z.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0114","lang":"fr","text":"Commit a743e794409c010ae5c90d0f8abc8f3548d604806addc29cf626867612fb7c82 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0115","lang":"fr","text":"Stock : 630 375 435 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0116","lang":"fr","text":"Numéro 120315 842 75 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0117","lang":"fr","text":"Montant dû : 80 438,17 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0118","lang":"fr","text":"Sonde depuis fd00::dc0 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0119","lang":"fr","text":"Livraison prévue le 11-04-2022.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0120","lang":"fr","text":"Commit 58435fb40f6f5c08b1963590770b2f9e94fc9d84 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0121","lang":"fr","text":"Compte BE63 0245 6116 0418 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0122","lang":"fr","text":"Code-barres 5416271947060 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0123","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0124","lang":"fr","text":"Tâche terminée à 2026-11-18 03:29:13.739.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0125","lang":"fr","text":"Code-barres 5419339386139 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0126","lang":"fr","text":"Stock : 967 594 070 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0127","lang":"fr","text":"Commande 3033358279 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0128","lang":"fr","text":"L'article SKU-9924-M est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0129","lang":"fr","text":"Compte FR52 1169 5609 9621 0139 8725 505 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0130","lang":"fr","text":"Votre commande n° 857949192 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0131","lang":"fr","text":"Compte FR61 7256 1579 3738 6309 6038 816 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0132","lang":"fr","text":"Votre commande n° 3521936932 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0133","lang":"fr","text":"Commit 2a4074db075d86f0b57f2c7f26342845424d3d0e déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0134","lang":"fr","text":"La facture F2025-20571 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0135","lang":"fr","text":"Commit 6b87c6a53686e49b017a85dce35b828a809fa584 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0136","lang":"fr","text":"Agent mis à jour en version 2.0.7.241.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0137","lang":"fr","text":"Commit 0bcf7bc680fad95d00555053bc21f9ad0af977d9 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0138","lang":"fr","text":"Tâche terminée à 2026-07-11 22:48:28.428.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0139","lang":"fr","text":"Votre commande n° 2469071 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0140","lang":"fr","text":"Le numéro de test 3782 8298 9083 905 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0141","lang":"fr","text":"Stock : 467 262 775 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0142","lang":"fr","text":"Stock : 504 992 171 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0143","lang":"fr","text":"Montant dû : 34 880,54 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0144","lang":"fr","text":"Compte FR27 4445 5627 0858 0905 3571 479 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0145","lang":"fr","text":"Code-barres 5443759461336 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0146","lang":"fr","text":"Livraison prévue le 19/05/2025.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0147","lang":"fr","text":"La facture INV-2024-285950 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0148","lang":"fr","text":"Stock : 928 739 259 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0149","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0150","lang":"fr","text":"Agent mis à jour en Chrome/106.0.6781.140.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0151","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0152","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0153","lang":"fr","text":"Stock : 767 514 706 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0154","lang":"fr","text":"Montant dû : 57 102,59 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0155","lang":"fr","text":"La facture FAC/2020/9133 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0156","lang":"fr","text":"Livraison prévue le 2021-10-12.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0157","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0158","lang":"fr","text":"Tâche terminée à 2026-10-16 05:57:38.938.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0159","lang":"fr","text":"Commit 14af8ef7d54d9709889a4171338c73c9818a3dc5 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0160","lang":"fr","text":"Compte BE77 6170 0142 2554 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0161","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0162","lang":"fr","text":"Code-barres 5444186187691 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0163","lang":"fr","text":"Code-barres 5462581211926 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0164","lang":"fr","text":"Numéro 39.02.06-751.88 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0165","lang":"fr","text":"Montant dû : 66 036,40 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0166","lang":"fr","text":"Numéro 40.03.07-821.67 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0167","lang":"fr","text":"Commit 6610aa0 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0168","lang":"fr","text":"Agent mis à jour en version 6.7.8.231.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0169","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0170","lang":"fr","text":"L'article MFM60879 est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0171","lang":"fr","text":"Montant dû : 88 645,38 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0172","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0173","lang":"fr","text":"Stock : 753 163 077 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0174","lang":"fr","text":"Code-barres 5420760409656 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0175","lang":"fr","text":"Livraison prévue le 2025-06-10.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0176","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0177","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0178","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0179","lang":"fr","text":"Numéro 800801 715 63 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0180","lang":"fr","text":"Sonde depuis 192.168.190.34 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0181","lang":"fr","text":"Stock : 592 930 537 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0182","lang":"fr","text":"Commit c403749 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0183","lang":"fr","text":"Stock : 183 214 128 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0184","lang":"fr","text":"Commande 2204670 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0185","lang":"fr","text":"Commit 7f23e4d57def44b2326fff97f36983b0d5a086f45fd611f59625b142a913812c déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0186","lang":"fr","text":"Numéro 220307 693 92 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0187","lang":"fr","text":"Sonde depuis 10.215.155.147 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0188","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0189","lang":"fr","text":"Le numéro de test 4242 4287 3524 4312 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0190","lang":"fr","text":"Code-barres 5405214319194 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0191","lang":"fr","text":"Stock : 866 393 347 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0192","lang":"fr","text":"Compte BE11 3290 2161 4577 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0193","lang":"fr","text":"Commit 2481d8b déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0194","lang":"fr","text":"Tâche terminée à 2026-07-17T10:43:26Z.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0195","lang":"fr","text":"Agent mis à jour en build 10.0.19206.1805.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0196","lang":"fr","text":"Numéro 20.03.07-417.75 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0197","lang":"fr","text":"Stock : 946 195 588 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0198","lang":"fr","text":"Code-barres 5457223228059 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0199","lang":"fr","text":"Commande 4489848 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0200","lang":"fr","text":"Le numéro de test 2223 0086 5999 9459 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0201","lang":"fr","text":"Agent mis à jour en Chrome/111.0.6199.44.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0202","lang":"fr","text":"Le numéro de test 4111 1112 6334 2686 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0203","lang":"fr","text":"L'article REF 14-547-988 est de nouveau disponible.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0204","lang":"fr","text":"Tâche terminée à 2026-01-15 17:39:12.831.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0205","lang":"fr","text":"Tâche terminée à 1764603622.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0206","lang":"fr","text":"Tâche terminée à 1702282467.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0207","lang":"fr","text":"Agent mis à jour en build 10.0.19613.1702.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0208","lang":"fr","text":"Code-barres 5487483890482 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0209","lang":"fr","text":"Sonde depuis 127.0.0.1 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0210","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0211","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0212","lang":"fr","text":"Agent mis à jour en build 10.0.19365.391.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0213","lang":"fr","text":"Stock : 568 409 537 unités.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0214","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0215","lang":"fr","text":"Tâche terminée à 2026-03-11 14:15:46.349.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0216","lang":"fr","text":"Compte BE64 6387 6827 2737 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0217","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0218","lang":"fr","text":"Montant dû : 3 430,43 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0219","lang":"fr","text":"Le numéro de test 4000 0007 0331 5135 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0220","lang":"fr","text":"Mise à Jour Grande Braderie Annuelle.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0221","lang":"fr","text":"Commit 19848836002a3f1894b288234daa4517e6dfb8b4 déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0222","lang":"fr","text":"Numéro 55.12.25-968.64 refusé par le registre.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0223","lang":"fr","text":"La facture INV-2025-307861 est réglée.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0224","lang":"fr","text":"Sonde depuis 127.0.0.1 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0225","lang":"fr","text":"Code-barres 5485451618779 scanné en caisse.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0226","lang":"fr","text":"Commande 6930598545 expédiée ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0227","lang":"fr","text":"Bon de Commande Validé par la Direction.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0228","lang":"fr","text":"Agent mis à jour en version 4.2.4.242.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0229","lang":"fr","text":"Commit 05c3f5b déployé en recette.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0230","lang":"fr","text":"Tâche terminée à 1786770092.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0231","lang":"fr","text":"Agent mis à jour en version 7.7.3.309.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0232","lang":"fr","text":"Votre commande n° 67747789 est prête.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0233","lang":"fr","text":"Le numéro de test 4242 4217 4875 7808 est invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0234","lang":"fr","text":"Livraison prévue le 24/06/2022.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0235","lang":"fr","text":"Sonde depuis 192.168.142.203 : OK.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0236","lang":"fr","text":"Compte FR72 1291 3975 5904 1990 3191 976 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0237","lang":"fr","text":"Montant dû : 60 630,64 €.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0238","lang":"fr","text":"Compte FR20 2818 8323 1392 1171 3784 466 refusé : clé invalide.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0239","lang":"fr","text":"Livraison prévue le 02-02-2024.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-0240","lang":"fr","text":"Service Client Belgique : ouverture lundi.","spans":[],"tags":["hard_negative"]}

@@ -521,6 +521,17 @@ itself (lockssh runs its commands there).
   `pii.RedactedRef(ref)`; resolve with `Get` in the console only. Values
   never leave the console's memory.
 
+- The detection bench (`TestBench`, `pii/bench_test.go`) scores every
+  detector per language with `FindInViews` on the synthetic corpus of
+  `pii/testdata/bench` (written by `go run ./pii/internal/benchgen -out
+  pii/testdata/bench`), and `LooksPersonal` / `LooksQuasi` on its field
+  names; the figures are in `pii/testdata/bench/RESULTS.md`. A metric
+  below `baseline.json` fails `go test`: a detector change that lowers one
+  needs an explicit baseline commit
+  (`LOCKKIT_PII_BENCH_UPDATE=1 go test -run '^TestBench$' ./pii/`). A new
+  detector adds its corpus entries in benchgen (at least 50 positives per
+  language it claims) and its baseline lines.
+
 Which field is personal (columns, JSON paths, headers) is your product's
 decision; never send an unmasked value to a client unless the human
 unmasked it in the console.

@@ -1,0 +1,800 @@
+{"id":"en-secret-0001","lang":"en","text":"Authorization: Bearer eGxCmaKWnYVHNN3gVwv2c-ShcZ3","spans":[{"start":22,"end":49,"kind":"secret"}]}
+{"id":"en-secret-0002","lang":"en","text":"mysql -u app -pRjBhta7nS_QH7- shop","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"en-secret-0003","lang":"en","text":"Authorization: Bearer b8H3ZZw_3b3huTnud","spans":[{"start":22,"end":39,"kind":"secret"}]}
+{"id":"en-secret-0004","lang":"en","text":"The new password is eyJhbGciOiJIUzI1NiJ9.Cq-1okR6XZcmTfalJqpOiHSrRyRJl1.68hKSsmYwSu_RjTZfH1e1QXZJgFbhsL_eciMrBWlpjt, please change it after login.","spans":[{"start":20,"end":115,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0005","lang":"en","text":"Authorization: Bearer i73w-nxcY9Gjh73bW6ZErvi_","spans":[{"start":22,"end":46,"kind":"secret"}]}
+{"id":"en-secret-0006","lang":"en","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.sZza-jCxoCFroZTPkiaPUF3TxOjUX6.Oox5a5VxaBqrrfZJDmOAnkqeBcT7YVhIIzEW9BEjK2c@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"en-secret-0007","lang":"en","text":"The new password is LeVefXmgfLE*SQ, please change it after login.","spans":[{"start":20,"end":34,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0008","lang":"en","text":"export DB_PASSWORD=zu5-4s-r2!vy6xTacT_HcAu","spans":[{"start":19,"end":42,"kind":"secret"}]}
+{"id":"en-secret-0009","lang":"en","text":"--password _i9KRCb9CUVVdz","spans":[{"start":11,"end":25,"kind":"secret"}]}
+{"id":"en-secret-0010","lang":"en","text":"mysql -u app -pZniLkzYMjd!U62YKXK!iY2_ shop","spans":[{"start":15,"end":38,"kind":"secret"}]}
+{"id":"en-secret-0011","lang":"en","text":"https://deploy:9cH_G37kHVxJWgFrzsNr@git.example.com/app.git","spans":[{"start":15,"end":35,"kind":"secret"}]}
+{"id":"en-secret-0012","lang":"en","text":"password=eyJhbGciOiJIUzI1NiJ9.0Xt-CXdZa78mwUNOv3Fx3nbktbQLat.flEOr31WCrZ_djGA0Hr51-Sf4ls16Zv6zhv-jXwtwB9","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"en-secret-0013","lang":"en","text":"The new password is 5WcFCjSTaDTUDgA, please change it after login.","spans":[{"start":20,"end":35,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0014","lang":"en","text":"The new password is eyJhbGciOiJIUzI1NiJ9.iGGiqIw9P74Y_8c3TRByBuECfDUaZj.41n2SW247jV_oJ_Bwq9NlGyO-djMp3deDdks48evCla, please change it after login.","spans":[{"start":20,"end":115,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0015","lang":"en","text":"password=eyJhbGciOiJIUzI1NiJ9.VAicm9V7j5yHlFevy3g6IzPCf90-c1.yCHHvCRiJsgUGuluxBJNocqd2B938CLrdpq7IjLUyNQ","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"en-secret-0016","lang":"en","text":"--password sTmEzP7VH8JSSzshp85zd","spans":[{"start":11,"end":32,"kind":"secret"}]}
+{"id":"en-secret-0017","lang":"en","text":"https://deploy:Wwyjbi-NYUHdMseEmjmV-WV6P@git.example.com/app.git","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"en-secret-0018","lang":"en","text":"Authorization: Bearer Ur85!X*SYaEuZv","spans":[{"start":22,"end":36,"kind":"secret"}]}
+{"id":"en-secret-0019","lang":"en","text":"The new password is zLH-VBFFGxegVV3RjPz, please change it after login.","spans":[{"start":20,"end":39,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0020","lang":"en","text":"The new password is _W*gi7ayFuyaToVDUC4REXHR, please change it after login.","spans":[{"start":20,"end":44,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0021","lang":"en","text":"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.QVksT8RtDcrNi_TWGQMk4To7Bgkfep.PsaRo5pxVaI6yV3-pgLjgoikOtDx1x2Jb9TRI_iE2-9","spans":[{"start":22,"end":117,"kind":"secret"}]}
+{"id":"en-secret-0022","lang":"en","text":"https://deploy:vhpW6woyJCh3cis@git.example.com/app.git","spans":[{"start":15,"end":30,"kind":"secret"}]}
+{"id":"en-secret-0023","lang":"en","text":"export DB_PASSWORD=HtJSShWDvRJdqRiruvYC","spans":[{"start":19,"end":39,"kind":"secret"}]}
+{"id":"en-secret-0024","lang":"en","text":"password=eyJhbGciOiJIUzI1NiJ9.XfEa4aHacz2xa6lD5L0T0SmD4c_b7e.AT9Z3yB8oDb6AZL9ESMMPo8wwdQWfXuwo9BmLgzxRvg","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"en-secret-0025","lang":"en","text":"Authorization: Bearer m-uEkxsxQ-RY4EJZ_di4S","spans":[{"start":22,"end":43,"kind":"secret"}]}
+{"id":"en-secret-0026","lang":"en","text":"mysql -u app -p8*fMQ*DghiGaSzCvnh shop","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"en-secret-0027","lang":"en","text":"mysql -u app -p2kAR3axv3DSEZw shop","spans":[{"start":15,"end":29,"kind":"secret"}]}
+{"id":"en-secret-0028","lang":"en","text":"mysql -u app -p-hJ9nuxZSh2PdW2E shop","spans":[{"start":15,"end":31,"kind":"secret"}]}
+{"id":"en-secret-0029","lang":"en","text":"mysql -u app -p38RLhVhQiPt!ZJp4Xv shop","spans":[{"start":15,"end":33,"kind":"secret"}]}
+{"id":"en-secret-0030","lang":"en","text":"The new password is AiGAyy*vFcD-j9ZkDfxECWG2_x, please change it after login.","spans":[{"start":20,"end":46,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0031","lang":"en","text":"Authorization: Bearer 4x*DGUs9MYw5bcEWdeNdnD","spans":[{"start":22,"end":44,"kind":"secret"}]}
+{"id":"en-secret-0032","lang":"en","text":"The new password is eyJhbGciOiJIUzI1NiJ9.Ndvb2t6HrcYPol0XYK3j9ISRtr0DMl.OdX84G3ItZA65zFrW7pUfO3g548IF83Xj0CbzUWRAma, please change it after login.","spans":[{"start":20,"end":115,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0033","lang":"en","text":"export DB_PASSWORD=i2*CEwbp-QMc!6Agf4bc4HbsX","spans":[{"start":19,"end":44,"kind":"secret"}]}
+{"id":"en-secret-0034","lang":"en","text":"--password ruFMNNv7x*MdTqPCbnYbF","spans":[{"start":11,"end":32,"kind":"secret"}]}
+{"id":"en-secret-0035","lang":"en","text":"mysql -u app -pvjWL9eYp9w45VhJfJu!EuG5! shop","spans":[{"start":15,"end":39,"kind":"secret"}]}
+{"id":"en-secret-0036","lang":"en","text":"https://deploy:fe6TiUN-vmcUrBHYEkHmXR@git.example.com/app.git","spans":[{"start":15,"end":37,"kind":"secret"}]}
+{"id":"en-secret-0037","lang":"en","text":"Authorization: Bearer JciCpvd!AufYPdVKDp-r","spans":[{"start":22,"end":42,"kind":"secret"}]}
+{"id":"en-secret-0038","lang":"en","text":"--password _xs3rZ5RY!_6Q3uYnwNfN3i","spans":[{"start":11,"end":34,"kind":"secret"}]}
+{"id":"en-secret-0039","lang":"en","text":"--password wb48m_dUL6-8K7EgMfhCu","spans":[{"start":11,"end":32,"kind":"secret"}]}
+{"id":"en-secret-0040","lang":"en","text":"Authorization: Bearer Pa!dtQ!oFfHYhXG","spans":[{"start":22,"end":37,"kind":"secret"}]}
+{"id":"en-secret-0041","lang":"en","text":"export DB_PASSWORD=vT8ijk7-anVusc","spans":[{"start":19,"end":33,"kind":"secret"}]}
+{"id":"en-secret-0042","lang":"en","text":"https://deploy:Mq7RQu8BoRu5ycd33RFD@git.example.com/app.git","spans":[{"start":15,"end":35,"kind":"secret"}]}
+{"id":"en-secret-0043","lang":"en","text":"https://deploy:yro!bEgeNFTqPZU7PEW!T4AJ4L@git.example.com/app.git","spans":[{"start":15,"end":41,"kind":"secret"}]}
+{"id":"en-secret-0044","lang":"en","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.jPA6ZOhj0BgtGd9-PXXlCkieFksh9e.HukWd186UElNHimIQ9AQXbaxIX21hKXNmFOdgP_kliD shop","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"en-secret-0045","lang":"en","text":"Authorization: Bearer Y2qvLyw4Zf2M*BkRtvMrLzWxy!k","spans":[{"start":22,"end":49,"kind":"secret"}]}
+{"id":"en-secret-0046","lang":"en","text":"password=eyJhbGciOiJIUzI1NiJ9.CPH0fTycauN8RHJ2pPt2uSCNGeHL06.Qm6u5fYlGu0j7aKyhmeoByiPa-XK_CZmOCB9-h3d6EK","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"en-secret-0047","lang":"en","text":"https://deploy:apM5PK6P-ga6EUH3_wogkD@git.example.com/app.git","spans":[{"start":15,"end":37,"kind":"secret"}]}
+{"id":"en-secret-0048","lang":"en","text":"password=eyJhbGciOiJIUzI1NiJ9.jBy9f0gUjEp3gR05tiXpmmYrgOMzYN.nV6dne_hCk0CbOUUOsmFSqdm2eHXg1iJWhRoJEwLhKN","spans":[{"start":9,"end":104,"kind":"secret"}]}
+{"id":"en-secret-0049","lang":"en","text":"https://deploy:eyJhbGciOiJIUzI1NiJ9.1UZyRUslGEPgajjGUKbMc3NVN32tUg._w7ihC-SJNF6arv1C5uL5g2V9byrfJdLa4OfnYQnMx1@git.example.com/app.git","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"en-secret-0050","lang":"en","text":"The new password is eyJhbGciOiJIUzI1NiJ9.E_1-oZRibni3dvNHsJZ00WMExqyvB5.i7w5cgFHooRuUlE7h46KHkjwF4dm3dYavJj0warhRTd, please change it after login.","spans":[{"start":20,"end":115,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0051","lang":"en","text":"https://deploy:tBsgPFsW--Hoo_VPanksy*t6u@git.example.com/app.git","spans":[{"start":15,"end":40,"kind":"secret"}]}
+{"id":"en-secret-0052","lang":"en","text":"The new password is 6Zs99uzZH2rGFYLjreo-v, please change it after login.","spans":[{"start":20,"end":41,"kind":"secret"}],"tags":["hard_positive"]}
+{"id":"en-secret-0053","lang":"en","text":"export DB_PASSWORD=eyJhbGciOiJIUzI1NiJ9.ZrSw1CidkeWqLe6PnRZcCU_T0dn-SA.c76ujYvxF0c_TqYSMPdreKmBbJ885SGFe8GxCgv0dV1","spans":[{"start":19,"end":114,"kind":"secret"}]}
+{"id":"en-secret-0054","lang":"en","text":"mysql -u app -ptayyNF4Dvn9V4T47L7i shop","spans":[{"start":15,"end":34,"kind":"secret"}]}
+{"id":"en-secret-0055","lang":"en","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.1lmRxXmubVz12JMpV0_T6NhWqVa7xc.7SUC5BTNxnroruU0DjnkR2kREvU3qFGriMZE5MMSU_T shop","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"en-secret-0056","lang":"en","text":"password=NhbwTEVAFqRFqryYvoPJ","spans":[{"start":9,"end":29,"kind":"secret"}]}
+{"id":"en-secret-0057","lang":"en","text":"export DB_PASSWORD=LdERg-3hPWLn46*","spans":[{"start":19,"end":34,"kind":"secret"}]}
+{"id":"en-secret-0058","lang":"en","text":"mysql -u app -peyJhbGciOiJIUzI1NiJ9.Chnp8v6GWCyBuikd2KxJo8JpDyD49v.bw5lakgUWz8BOusGbhAMNQXZNu3_DnzAeHoxMytRze9 shop","spans":[{"start":15,"end":110,"kind":"secret"}]}
+{"id":"en-secret-0059","lang":"en","text":"--password eyJhbGciOiJIUzI1NiJ9.XVtc_SA3a2WpmsRMnt8GsdC_1Qnx8S.5QwVfTlPnacun-Q8vO3_vLNHQt_OyB_VO0m9UPJN0zp","spans":[{"start":11,"end":106,"kind":"secret"}]}
+{"id":"en-secret-0060","lang":"en","text":"--password DkWB!BW-ovXwmVpR","spans":[{"start":11,"end":27,"kind":"secret"}]}
+{"id":"en-email-0001","lang":"en","text":"email: emma.armstrong@example.net","spans":[{"start":7,"end":33,"kind":"email"}]}
+{"id":"en-email-0002","lang":"en","text":"Please reply to Renée.o'hara@mail.example.com before Friday.","spans":[{"start":16,"end":46,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0003","lang":"en","text":"<james+shop@​example.net> wrote:","spans":[{"start":1,"end":26,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0004","lang":"en","text":"Contact: anderson_alice​@example.co.uk","spans":[{"start":9,"end":40,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0005","lang":"en","text":"Invoice sent to peter.barker@example.co.uk this morning.","spans":[{"start":16,"end":42,"kind":"email"}]}
+{"id":"en-email-0006","lang":"en","text":"<renée.o'hara@shop.example.org> wrote:","spans":[{"start":1,"end":31,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0007","lang":"en","text":"{\"type\":\"user\",\"email\":\"anderson_olivia@example.com\",\"active\":true}","spans":[{"start":24,"end":51,"kind":"email"}]}
+{"id":"en-email-0008","lang":"en","text":"{\"type\":\"user\",\"email\":\"emma.campbell57@example.org\",\"active\":true}","spans":[{"start":24,"end":51,"kind":"email"}]}
+{"id":"en-email-0009","lang":"en","text":"Please reply to james.bailey58@shop.example.org before Friday.","spans":[{"start":16,"end":47,"kind":"email"}]}
+{"id":"en-email-0010","lang":"en","text":"Please reply to emma.campbell@example.co.uk before Friday.","spans":[{"start":16,"end":43,"kind":"email"}]}
+{"id":"en-email-0011","lang":"en","text":"Please reply to sarah.anderson92@example.co.uk before Friday.","spans":[{"start":16,"end":46,"kind":"email"}]}
+{"id":"en-email-0012","lang":"en","text":"{\"type\":\"user\",\"email\":\"chloë.ashby@mail.example.com\",\"active\":true}","spans":[{"start":24,"end":53,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0013","lang":"en","text":"Contact: sarah.anderson85@mail.example.com","spans":[{"start":9,"end":42,"kind":"email"}]}
+{"id":"en-email-0014","lang":"en","text":"Contact: chloë.ashby@example.net","spans":[{"start":9,"end":33,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0015","lang":"en","text":"Invoice sent to hcarpenter@example.net this morning.","spans":[{"start":16,"end":38,"kind":"email"}]}
+{"id":"en-email-0016","lang":"en","text":"Contact: ocampbell@example.com","spans":[{"start":9,"end":30,"kind":"email"}]}
+{"id":"en-email-0017","lang":"en","text":"email: rachel.bennett56@example.co.uk","spans":[{"start":7,"end":37,"kind":"email"}]}
+{"id":"en-email-0018","lang":"en","text":"level=info msg=\"profile updated\" email=Rachel+billing@example.com","spans":[{"start":39,"end":65,"kind":"email"}]}
+{"id":"en-email-0019","lang":"en","text":"{\"type\":\"user\",\"email\":\"michael+billing@example.org\",\"active\":true}","spans":[{"start":24,"end":51,"kind":"email"}]}
+{"id":"en-email-0020","lang":"en","text":"email: bailey_olivia@shop.example.org","spans":[{"start":7,"end":37,"kind":"email"}]}
+{"id":"en-email-0021","lang":"en","text":"Invoice sent to olivia.bailey@example.org this morning.","spans":[{"start":16,"end":41,"kind":"email"}]}
+{"id":"en-email-0022","lang":"en","text":"Please reply to eburke@mail.example.com before Friday.","spans":[{"start":16,"end":39,"kind":"email"}]}
+{"id":"en-email-0023","lang":"en","text":"Contact: alice.campbell@example.com","spans":[{"start":9,"end":35,"kind":"email"}]}
+{"id":"en-email-0024","lang":"en","text":"email: george.barker28@example.org","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"en-email-0025","lang":"en","text":"Contact: oliver.anderson@shop.example.org","spans":[{"start":9,"end":41,"kind":"email"}]}
+{"id":"en-email-0026","lang":"en","text":"{\"type\":\"user\",\"email\":\"george.armstrong@mail.example.com\",\"active\":true}","spans":[{"start":24,"end":57,"kind":"email"}]}
+{"id":"en-email-0027","lang":"en","text":"{\"type\":\"user\",\"email\":\"olivia.bailey@example.net\",\"active\":true}","spans":[{"start":24,"end":49,"kind":"email"}]}
+{"id":"en-email-0028","lang":"en","text":"Please reply to chloë.ashby@example.org before Friday.","spans":[{"start":16,"end":40,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0029","lang":"en","text":"Contact: oliver.armstrong73@shop.example.org","spans":[{"start":9,"end":44,"kind":"email"}]}
+{"id":"en-email-0030","lang":"en","text":"Contact: burke_george@example.org","spans":[{"start":9,"end":33,"kind":"email"}]}
+{"id":"en-email-0031","lang":"en","text":"Please reply to burke_laura@example.com before Friday.","spans":[{"start":16,"end":39,"kind":"email"}]}
+{"id":"en-email-0032","lang":"en","text":"<hannah+shop​@example.com> wrote:","spans":[{"start":1,"end":27,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0033","lang":"en","text":"Please reply to George.bailey72@mail.example.com before Friday.","spans":[{"start":16,"end":48,"kind":"email"}]}
+{"id":"en-email-0034","lang":"en","text":"Invoice sent to anderson_thomas@mail.example.com this morning.","spans":[{"start":16,"end":48,"kind":"email"}]}
+{"id":"en-email-0035","lang":"en","text":"Invoice sent to michael+billing@example.com this morning.","spans":[{"start":16,"end":43,"kind":"email"}]}
+{"id":"en-email-0036","lang":"en","text":"email: sbailey@shop.example.org","spans":[{"start":7,"end":31,"kind":"email"}]}
+{"id":"en-email-0037","lang":"en","text":"Invoice sent to burke_george@shop.example.org this morning.","spans":[{"start":16,"end":45,"kind":"email"}]}
+{"id":"en-email-0038","lang":"en","text":"level=info msg=\"profile updated\" email=emma.barker36@example.org","spans":[{"start":39,"end":64,"kind":"email"}]}
+{"id":"en-email-0039","lang":"en","text":"email: george.bishop@mail.example.com","spans":[{"start":7,"end":37,"kind":"email"}]}
+{"id":"en-email-0040","lang":"en","text":"Invoice sent to chloë.ashby@example.co.uk this morning.","spans":[{"start":16,"end":42,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0041","lang":"en","text":"email: john+shop@example.net","spans":[{"start":7,"end":28,"kind":"email"}]}
+{"id":"en-email-0042","lang":"en","text":"Invoice sent to pbutler@ex​ample.co.uk this morning.","spans":[{"start":16,"end":40,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0043","lang":"en","text":"email: thomas.campbell@example.net","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"en-email-0044","lang":"en","text":"Please reply to emma.bailey3​6@example.net before Friday.","spans":[{"start":16,"end":44,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0045","lang":"en","text":"email: alice.bennett@example.com","spans":[{"start":7,"end":32,"kind":"email"}]}
+{"id":"en-email-0046","lang":"en","text":"Please reply to bennett_laur​a@example.com before Friday.","spans":[{"start":16,"end":44,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0047","lang":"en","text":"{\"type\":\"user\",\"email\":\"john+news@example.org\",\"active\":true}","spans":[{"start":24,"end":45,"kind":"email"}]}
+{"id":"en-email-0048","lang":"en","text":"Invoice sent to laura+billing@m​ail.example.com this morning.","spans":[{"start":16,"end":49,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0049","lang":"en","text":"email: Thomas.anderson@example.org","spans":[{"start":7,"end":34,"kind":"email"}]}
+{"id":"en-email-0050","lang":"en","text":"{\"type\":\"user\",\"email\":\"renée.o'hara@example.org\",\"active\":true}","spans":[{"start":24,"end":49,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0051","lang":"en","text":"<rachel.barker@example.com> wrote:","spans":[{"start":1,"end":26,"kind":"email"}]}
+{"id":"en-email-0052","lang":"en","text":"<hannah.anders​on@example.net> wrote:","spans":[{"start":1,"end":31,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0053","lang":"en","text":"Contact: emma.campbell​50@example.net","spans":[{"start":9,"end":39,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0054","lang":"en","text":"Contact: harmstrong@shop.example.org","spans":[{"start":9,"end":36,"kind":"email"}]}
+{"id":"en-email-0055","lang":"en","text":"email: thomas.bennett80@mail.example.com","spans":[{"start":7,"end":40,"kind":"email"}]}
+{"id":"en-email-0056","lang":"en","text":"Please reply to obennett@e​xample.com before Friday.","spans":[{"start":16,"end":39,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0057","lang":"en","text":"Please reply to olivia.campbe​ll@example.com before Friday.","spans":[{"start":16,"end":46,"kind":"email"}],"tags":["hard_positive"]}
+{"id":"en-email-0058","lang":"en","text":"Contact: olivia+shop@example.com","spans":[{"start":9,"end":32,"kind":"email"}]}
+{"id":"en-email-0059","lang":"en","text":"<oliver.campbell@shop.example.org> wrote:","spans":[{"start":1,"end":33,"kind":"email"}]}
+{"id":"en-email-0060","lang":"en","text":"Invoice sent to peter.bennett72@example.co.uk this morning.","spans":[{"start":16,"end":45,"kind":"email"}]}
+{"id":"en-iban-0001","lang":"en","text":"Please transfer the refund to IE02 VOLN 7392 4937 8375 27 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0002","lang":"en","text":"level=info msg=\"profile updated\" iban=IE71 XFLI 2388 5478 1404 74","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0003","lang":"en","text":"Bank account: GB20 UCVV 592​3 9416 2171 16","spans":[{"start":14,"end":44,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0004","lang":"en","text":"iban: IE９８ EZZV ６７１８ ８４１７ ４４４６ １７","spans":[{"start":6,"end":65,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0005","lang":"en","text":"{\"type\":\"user\",\"iban\":\"gb94astt12699928486047\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"en-iban-0006","lang":"en","text":"{\"type\":\"user\",\"iban\":\"GB37 EPTZ 1713 3598 8139 76\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-iban-0007","lang":"en","text":"Please transfer the refund to IE47 DLQF 2874 5533 2834 16 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0008","lang":"en","text":"IBAN GB08 TNCG 0794 5876 1320 01 (current account)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"en-iban-0009","lang":"en","text":"Bank account: GB21 OWLI 772​3 7131 6853 57","spans":[{"start":14,"end":44,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0010","lang":"en","text":"level=info msg=\"profile updated\" iban=GB86 HXIU 4423 6392 5227 23","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0011","lang":"en","text":"iban: IE17DXHC82529290916968","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"en-iban-0012","lang":"en","text":"Bank account: IE９６EGRS５６６１２０７６４４９４２１","spans":[{"start":14,"end":68,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0013","lang":"en","text":"IBAN GB16 UHGN 8330 3329 0682 72 (current account)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"en-iban-0014","lang":"en","text":"iban: GB80CYIH03585252388265","spans":[{"start":6,"end":28,"kind":"iban"}]}
+{"id":"en-iban-0015","lang":"en","text":"iban: IE60 RNSV 6192 1798 6562 58","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0016","lang":"en","text":"Please transfer the refund to GB56 SMGW 6722 2903 4868 70 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0017","lang":"en","text":"iban: GB38 NIEF 5405 4400 6458 47","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0018","lang":"en","text":"level=info msg=\"profile updated\" iban=GB75 FIIM 4710 4210 7247 80","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0019","lang":"en","text":"Please transfer the refund to GB６８ KIRP ６８０７ ９４５８ ３８８０ ９８ by Monday.","spans":[{"start":30,"end":89,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0020","lang":"en","text":"Bank account: GB42ZVCM34309418328431","spans":[{"start":14,"end":36,"kind":"iban"}]}
+{"id":"en-iban-0021","lang":"en","text":"level=info msg=\"profile updated\" iban=GB46ZCQT33367549290663","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"en-iban-0022","lang":"en","text":"Bank account: IE71 MKBJ 6532 0732 4993 96","spans":[{"start":14,"end":41,"kind":"iban"}]}
+{"id":"en-iban-0023","lang":"en","text":"iban: GB46 HWMZ 0184 9656 1188 99","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0024","lang":"en","text":"Bank account: IE41 HSEL 3505 1190 8437 07","spans":[{"start":14,"end":41,"kind":"iban"}]}
+{"id":"en-iban-0025","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE48 ZNGJ 3026 5565 1300 53\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-iban-0026","lang":"en","text":"Please transfer the refund to IE17 BVTB 0123 1279 6067 12 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0027","lang":"en","text":"level=info msg=\"profile updated\" iban=IE66 XPZP 7479 3289 6918 75","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0028","lang":"en","text":"Please transfer the refund to IE71 QQAZ 5472 8201 5837 71 by Monday.","spans":[{"start":30,"end":62,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0029","lang":"en","text":"Please transfer the refund to GB28 FHDB 2658 9646 4244 98 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0030","lang":"en","text":"level=info msg=\"profile updated\" iban=IE56XIYV91671824041560","spans":[{"start":38,"end":60,"kind":"iban"}]}
+{"id":"en-iban-0031","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE36MLRY22007718931912\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"en-iban-0032","lang":"en","text":"Bank account: GB25 SMNK 0629 2054 4706 77","spans":[{"start":14,"end":41,"kind":"iban"}]}
+{"id":"en-iban-0033","lang":"en","text":"iban: GB37 BLAE 5262 6661 3929 15","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0034","lang":"en","text":"iban: IE50 FZYS 8001 1062 5792 13","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0035","lang":"en","text":"IBAN IE17 QQNE 2428 8010 5990 04 (current account)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"en-iban-0036","lang":"en","text":"Please transfer the refund to IE96 EJDW 2542 7711 9648 87 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0037","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE78 YPZF 8654 2818 4676 14\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-iban-0038","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE58IXFO11312173292732\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"en-iban-0039","lang":"en","text":"level=info msg=\"profile updated\" iban=GB20 VOZD 1867 9165 2485 72","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0040","lang":"en","text":"Please transfer the refund to IE82 MZNO 4173 8259 2585 75 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0041","lang":"en","text":"level=info msg=\"profile updated\" iban=GB44 ASJQ 3689 3983 1475 78","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0042","lang":"en","text":"Please transfer the refund to GB06 OMGD 7182 6614 8572 49 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0043","lang":"en","text":"Please transfer the refund to IE42COCL06966262273998 by Monday.","spans":[{"start":30,"end":52,"kind":"iban"}]}
+{"id":"en-iban-0044","lang":"en","text":"Please transfer the refund to GB90 RTVD 9123 4488 7071 33 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0045","lang":"en","text":"level=info msg=\"profile updated\" iban=IE03 EAFN 4397 8812 3154 36","spans":[{"start":38,"end":65,"kind":"iban"}]}
+{"id":"en-iban-0046","lang":"en","text":"Please transfer the refund to IE57 OFLN 906​9 5499 6352 57 by Monday.","spans":[{"start":30,"end":60,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0047","lang":"en","text":"iban: IE71 JBRO 3030 5635 5538 96","spans":[{"start":6,"end":33,"kind":"iban"}]}
+{"id":"en-iban-0048","lang":"en","text":"{\"type\":\"user\",\"iban\":\"GB28OJYQ59877752110442\",\"active\":true}","spans":[{"start":23,"end":45,"kind":"iban"}]}
+{"id":"en-iban-0049","lang":"en","text":"Bank account: IE20 SODZ 3099 7864 5943 84","spans":[{"start":14,"end":41,"kind":"iban"}]}
+{"id":"en-iban-0050","lang":"en","text":"Bank account: IE63DUSL20962278494610","spans":[{"start":14,"end":36,"kind":"iban"}]}
+{"id":"en-iban-0051","lang":"en","text":"Please transfer the refund to IE91 ODZY 6912 4718 1801 89 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0052","lang":"en","text":"Please transfer the refund to GB１６ UWHL ４８６２ ０７２０ ４６０１ ３１ by Monday.","spans":[{"start":30,"end":89,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0053","lang":"en","text":"Bank account: GB91 RHJE 7586 6970 7195 98","spans":[{"start":14,"end":41,"kind":"iban"}]}
+{"id":"en-iban-0054","lang":"en","text":"Please transfer the refund to GB30 PIOL 4335 2050 0339 66 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0055","lang":"en","text":"IBAN IE19 THTS 3700 7855 6159 53 (current account)","spans":[{"start":5,"end":32,"kind":"iban"}]}
+{"id":"en-iban-0056","lang":"en","text":"Please transfer the refund to GB03 XCKI 8023 1640 3347 44 by Monday.","spans":[{"start":30,"end":57,"kind":"iban"}]}
+{"id":"en-iban-0057","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE39 ILFX 5382 2755 9104 48\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-iban-0058","lang":"en","text":"Bank account: IE９２ QLAW ０６５０ ３５３０ ２０３９ ５４","spans":[{"start":14,"end":73,"kind":"iban"}],"tags":["hard_positive"]}
+{"id":"en-iban-0059","lang":"en","text":"{\"type\":\"user\",\"iban\":\"GB96 FCYE 9340 7367 8264 49\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-iban-0060","lang":"en","text":"{\"type\":\"user\",\"iban\":\"IE80 EZRX 5275 2326 5981 42\",\"active\":true}","spans":[{"start":23,"end":50,"kind":"iban"}]}
+{"id":"en-card-0001","lang":"en","text":"level=info msg=\"profile updated\" card_number=2223007598656686","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"en-card-0002","lang":"en","text":"level=info msg=\"profile updated\" card_number=2223 0046 2771 8157","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"en-card-0003","lang":"en","text":"Card used: 5555 5541 7261 9268, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0004","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4242424504608276\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"en-card-0005","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4000-0008-2156-2818\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"en-card-0006","lang":"en","text":"card 2223 0035 9547 1179 declined","spans":[{"start":5,"end":24,"kind":"card"}]}
+{"id":"en-card-0007","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4242 4232 7074 6971\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"en-card-0008","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4000 0098 9841 9596\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"en-card-0009","lang":"en","text":"level=info msg=\"profile updated\" card_number=４０００００７８６３１９５４４９","spans":[{"start":45,"end":93,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0010","lang":"en","text":"Card used: 3782 829139 88976, expires next year.","spans":[{"start":11,"end":28,"kind":"card"}]}
+{"id":"en-card-0011","lang":"en","text":"level=info msg=\"profile updated\" card_number=4000-0092​-0467-3308","spans":[{"start":45,"end":67,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0012","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"３７８２ ８２８３１８ ４４８３０\",\"active\":true}","spans":[{"start":30,"end":77,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0013","lang":"en","text":"The customer paid with 3782-829685-52321.","spans":[{"start":23,"end":40,"kind":"card"}]}
+{"id":"en-card-0014","lang":"en","text":"Card used: 4242 4201 5667 0374, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0015","lang":"en","text":"The customer paid with 4000 0025 6177 0163.","spans":[{"start":23,"end":42,"kind":"card"}]}
+{"id":"en-card-0016","lang":"en","text":"level=info msg=\"profile updated\" card_number=５５５５-５５０９-４２３５-０２７５","spans":[{"start":45,"end":96,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0017","lang":"en","text":"level=info msg=\"profile updated\" card_number=４２４２ ４２２３ １４６０ ８４２９","spans":[{"start":45,"end":96,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0018","lang":"en","text":"card_number: ２２２３-００４０-０８７４-４６４０","spans":[{"start":13,"end":64,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0019","lang":"en","text":"level=info msg=\"profile updated\" card_number=2223-0033-9130-4533","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"en-card-0020","lang":"en","text":"level=info msg=\"profile updated\" card_number=2223 0051 7300 0684","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"en-card-0021","lang":"en","text":"The customer paid with 4242426765364358.","spans":[{"start":23,"end":39,"kind":"card"}]}
+{"id":"en-card-0022","lang":"en","text":"card 4242421998021198 declined","spans":[{"start":5,"end":21,"kind":"card"}]}
+{"id":"en-card-0023","lang":"en","text":"card_number: 3782 829375 89214","spans":[{"start":13,"end":30,"kind":"card"}]}
+{"id":"en-card-0024","lang":"en","text":"card 2223 0015 6360 7386 declined","spans":[{"start":5,"end":24,"kind":"card"}]}
+{"id":"en-card-0025","lang":"en","text":"level=info msg=\"profile updated\" card_number=4000 0047 0565 8643","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"en-card-0026","lang":"en","text":"Card used: 3782 826820 44258, expires next year.","spans":[{"start":11,"end":28,"kind":"card"}]}
+{"id":"en-card-0027","lang":"en","text":"Card used: 4242 4213 3665 1581, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0028","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"2223 0014 8592 8886\",\"active\":true}","spans":[{"start":30,"end":49,"kind":"card"}]}
+{"id":"en-card-0029","lang":"en","text":"The customer paid with 4242-4203-2603-4212.","spans":[{"start":23,"end":42,"kind":"card"}]}
+{"id":"en-card-0030","lang":"en","text":"Card used: 2223003016137557, expires next year.","spans":[{"start":11,"end":27,"kind":"card"}]}
+{"id":"en-card-0031","lang":"en","text":"card_number: 5555550293593770","spans":[{"start":13,"end":29,"kind":"card"}]}
+{"id":"en-card-0032","lang":"en","text":"level=info msg=\"profile updated\" card_number=4000-0048-6973-2374","spans":[{"start":45,"end":64,"kind":"card"}]}
+{"id":"en-card-0033","lang":"en","text":"Card used: 4000 0019 3162 6410, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0034","lang":"en","text":"card_number: 4000 0088 1284 4533","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"en-card-0035","lang":"en","text":"card_number: 4000-0045-9632-3836","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"en-card-0036","lang":"en","text":"Card used: 4111113451341589, expires next year.","spans":[{"start":11,"end":27,"kind":"card"}]}
+{"id":"en-card-0037","lang":"en","text":"card 4111-1155​-0081-6040 declined","spans":[{"start":5,"end":27,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0038","lang":"en","text":"card 5555 5583 2934 3011 declined","spans":[{"start":5,"end":24,"kind":"card"}]}
+{"id":"en-card-0039","lang":"en","text":"Card used: 2223 0056 3809 7895, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0040","lang":"en","text":"card_number: 4242-4248-0387-6376","spans":[{"start":13,"end":32,"kind":"card"}]}
+{"id":"en-card-0041","lang":"en","text":"card_number: ３７８２-８２３４４３-７３１４５","spans":[{"start":13,"end":60,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0042","lang":"en","text":"Card used: 4000 0009 4996 8327, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0043","lang":"en","text":"card 5555-5518-7577-9563 declined","spans":[{"start":5,"end":24,"kind":"card"}]}
+{"id":"en-card-0044","lang":"en","text":"level=info msg=\"profile updated\" card_number=2223-0004​-0082-6183","spans":[{"start":45,"end":67,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0045","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"5555556422784784\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"en-card-0046","lang":"en","text":"card 4242 4284 3338 0782 declined","spans":[{"start":5,"end":24,"kind":"card"}]}
+{"id":"en-card-0047","lang":"en","text":"level=info msg=\"profile updated\" card_number=3782 825258 18256","spans":[{"start":45,"end":62,"kind":"card"}]}
+{"id":"en-card-0048","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4242 4250 1849 1687\",\"active\":true}","spans":[{"start":30,"end":55,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0049","lang":"en","text":"The customer paid with ４０００ ００１６ ５９８９ ９１５７.","spans":[{"start":23,"end":74,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0050","lang":"en","text":"card_number: 2223 0091​ 7508 1635","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0051","lang":"en","text":"The customer paid with 3782-826747-56562.","spans":[{"start":23,"end":40,"kind":"card"}]}
+{"id":"en-card-0052","lang":"en","text":"card 4000004455368377 declined","spans":[{"start":5,"end":21,"kind":"card"}]}
+{"id":"en-card-0053","lang":"en","text":"Card used: 2223 0013​ 8495 7283, expires next year.","spans":[{"start":11,"end":33,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0054","lang":"en","text":"{\"type\":\"user\",\"card_number\":\"4111113989082515\",\"active\":true}","spans":[{"start":30,"end":46,"kind":"card"}]}
+{"id":"en-card-0055","lang":"en","text":"level=info msg=\"profile updated\" card_number=4111116644665533","spans":[{"start":45,"end":61,"kind":"card"}]}
+{"id":"en-card-0056","lang":"en","text":"card_number: 5555 5504​ 4959 1538","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0057","lang":"en","text":"level=info msg=\"profile updated\" card_number=378282391175849","spans":[{"start":45,"end":60,"kind":"card"}]}
+{"id":"en-card-0058","lang":"en","text":"card_number: 5555 5569​ 2952 0137","spans":[{"start":13,"end":35,"kind":"card"}],"tags":["hard_positive"]}
+{"id":"en-card-0059","lang":"en","text":"Card used: 2223 0099 1116 6021, expires next year.","spans":[{"start":11,"end":30,"kind":"card"}]}
+{"id":"en-card-0060","lang":"en","text":"The customer paid with 4000004458851916.","spans":[{"start":23,"end":39,"kind":"card"}]}
+{"id":"en-us_ssn-0001","lang":"en","text":"SSN: 066-17-3205","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0002","lang":"en","text":"Social Security number 607 35 3494 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0003","lang":"en","text":"Her SSN is ８０２-６０-４３７７.","spans":[{"start":11,"end":40,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0004","lang":"en","text":"Social Security number ５２２-２６-３６７１ on file.","spans":[{"start":23,"end":52,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0005","lang":"en","text":"Form W-4 lists 129-42-4493 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0006","lang":"en","text":"level=info msg=\"profile updated\" ssn=574-80-2858","spans":[{"start":37,"end":48,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0007","lang":"en","text":"Form W-4 lists 066-42-6158 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0008","lang":"en","text":"Social Security number ７６０ ０３ ５７０３ on file.","spans":[{"start":23,"end":52,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0009","lang":"en","text":"Form W-4 lists 562-48-6131 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0010","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"553 86 7818\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0011","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"274-03-2972\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0012","lang":"en","text":"Social Security number 214 27 5584 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0013","lang":"en","text":"SSN: 873-08-7733","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0014","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"113-81-9092\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0015","lang":"en","text":"Social Security number 498-96-7573 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0016","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"６９８-４８-３１３６\",\"active\":true}","spans":[{"start":22,"end":51,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0017","lang":"en","text":"Her SSN is 200-26-4672.","spans":[{"start":11,"end":22,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0018","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"243-08-1413\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0019","lang":"en","text":"Social Security number 512 36 1897 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0020","lang":"en","text":"Form W-4 lists 303-62-8546 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0021","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"836-4​8-6955\",\"active\":true}","spans":[{"start":22,"end":36,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0022","lang":"en","text":"Her SSN is ７７３ ９９ ５５７５.","spans":[{"start":11,"end":40,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0023","lang":"en","text":"Form W-4 lists 850-64-1050 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0024","lang":"en","text":"level=info msg=\"profile updated\" ssn=360-84-5969","spans":[{"start":37,"end":48,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0025","lang":"en","text":"Form W-4 lists 478-43-4983 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0026","lang":"en","text":"Her SSN is 232 78 3425.","spans":[{"start":11,"end":22,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0027","lang":"en","text":"Social Security number 229-8​5-1682 on file.","spans":[{"start":23,"end":37,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0028","lang":"en","text":"Her SSN is 480-93-4046.","spans":[{"start":11,"end":22,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0029","lang":"en","text":"Form W-4 lists 737 16 2432 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0030","lang":"en","text":"ssn: 541-95-6307","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0031","lang":"en","text":"{\"type\":\"user\",\"ssn\":\"352-47-8687\",\"active\":true}","spans":[{"start":22,"end":33,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0032","lang":"en","text":"Social Security number 393-11-7179 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0033","lang":"en","text":"Her SSN is 829-7​4-8221.","spans":[{"start":11,"end":25,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0034","lang":"en","text":"Social Security number 770-58-3144 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0035","lang":"en","text":"SSN: 200 24 7586","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0036","lang":"en","text":"Social Security number 127-08-3760 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0037","lang":"en","text":"ssn: 060-21-3536","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0038","lang":"en","text":"ssn: 316-39-4275","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0039","lang":"en","text":"level=info msg=\"profile updated\" ssn=234-61-2231","spans":[{"start":37,"end":48,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0040","lang":"en","text":"Form W-4 lists 157-93-7376 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0041","lang":"en","text":"Form W-4 lists 352-47-6286 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0042","lang":"en","text":"Form W-4 lists 471 21 9759 as the employee's number.","spans":[{"start":15,"end":26,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0043","lang":"en","text":"Her SSN is 809-85-8441.","spans":[{"start":11,"end":22,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0044","lang":"en","text":"Social Security number 546-34-3322 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0045","lang":"en","text":"ssn: 101-68-1822","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0046","lang":"en","text":"Social Security number 266-12-5863 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0047","lang":"en","text":"ssn: 048-27-1370","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0048","lang":"en","text":"Form W-4 lists 284-9​3-7185 as the employee's number.","spans":[{"start":15,"end":29,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0049","lang":"en","text":"Social Security number 774-04-6888 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0050","lang":"en","text":"level=info msg=\"profile updated\" ssn=204 98 1295","spans":[{"start":37,"end":48,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0051","lang":"en","text":"SSN: 160-93-4459","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0052","lang":"en","text":"ssn: 050-87-1240","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0053","lang":"en","text":"ssn: 008-52-1689","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0054","lang":"en","text":"ssn: １３３-３２-１２３６","spans":[{"start":5,"end":34,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0055","lang":"en","text":"Her SSN is 115 23 3683.","spans":[{"start":11,"end":22,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0056","lang":"en","text":"ssn: 370-42-6196","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0057","lang":"en","text":"Social Security number 006 51 5519 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0058","lang":"en","text":"Her SSN is １３５ ９５ ８４２６.","spans":[{"start":11,"end":40,"kind":"us_ssn"}],"tags":["hard_positive"]}
+{"id":"en-us_ssn-0059","lang":"en","text":"ssn: 478 79 9281","spans":[{"start":5,"end":16,"kind":"us_ssn"}]}
+{"id":"en-us_ssn-0060","lang":"en","text":"Social Security number 332-71-1989 on file.","spans":[{"start":23,"end":34,"kind":"us_ssn"}]}
+{"id":"en-person_name-0001","lang":"en","text":"{\"type\":\"user\",\"customer\":\"Zorin Tanohurst\",\"active\":true}","spans":[{"start":27,"end":42,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0002","lang":"en","text":"customer: THOMAS ​BENNETT","spans":[{"start":10,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0003","lang":"en","text":"level=info msg=\"profile updated\" customer=Ms Zoraley","spans":[{"start":45,"end":52,"kind":"person_name"}]}
+{"id":"en-person_name-0004","lang":"en","text":"{\"type\":\"user\",\"customer\":\"Armir Anderson\",\"active\":true}","spans":[{"start":27,"end":41,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0005","lang":"en","text":"level=info msg=\"profile updated\" customer=Venon Burke","spans":[{"start":42,"end":53,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0006","lang":"en","text":"Please call Campbell, George about the delivery.","spans":[{"start":12,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0007","lang":"en","text":"Please call Ms Bishop about the delivery.","spans":[{"start":15,"end":21,"kind":"person_name"}]}
+{"id":"en-person_name-0008","lang":"en","text":"Meeting with Moriane Butler tomorrow morning.","spans":[{"start":13,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0009","lang":"en","text":"Meeting with Tasamir Campbell tomorrow morning.","spans":[{"start":13,"end":29,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0010","lang":"en","text":"Please call Elyvimir Bennett about the delivery.","spans":[{"start":12,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0011","lang":"en","text":"Signed by John Bailey, branch manager.","spans":[{"start":10,"end":21,"kind":"person_name"}]}
+{"id":"en-person_name-0012","lang":"en","text":"level=info msg=\"profile updated\" customer=EMMA BENNETT","spans":[{"start":42,"end":54,"kind":"person_name"}]}
+{"id":"en-person_name-0013","lang":"en","text":"Ticket assigned to michael barker.","spans":[{"start":19,"end":33,"kind":"person_name"}]}
+{"id":"en-person_name-0014","lang":"en","text":"Signed by HANNAH BARKER, branch manager.","spans":[{"start":10,"end":23,"kind":"person_name"}]}
+{"id":"en-person_name-0015","lang":"en","text":"level=info msg=\"profile updated\" customer=Kanovia Bailey","spans":[{"start":42,"end":56,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0016","lang":"en","text":"Ticket assigned to OLIVIA​ BISHOP.","spans":[{"start":19,"end":35,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0017","lang":"en","text":"customer: rachel carpenter","spans":[{"start":10,"end":26,"kind":"person_name"}]}
+{"id":"en-person_name-0018","lang":"en","text":"customer: Sevith Bailey","spans":[{"start":10,"end":23,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0019","lang":"en","text":"level=info msg=\"profile updated\" customer=Laura O. Armstrong","spans":[{"start":42,"end":60,"kind":"person_name"}]}
+{"id":"en-person_name-0020","lang":"en","text":"{\"type\":\"user\",\"customer\":\"John Campbell\",\"active\":true}","spans":[{"start":27,"end":40,"kind":"person_name"}]}
+{"id":"en-person_name-0021","lang":"en","text":"level=info msg=\"profile updated\" customer=Fanodel Zoley","spans":[{"start":42,"end":55,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0022","lang":"en","text":"level=info msg=\"profile updated\" customer=Tasaric Ducombe","spans":[{"start":42,"end":57,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0023","lang":"en","text":"{\"type\":\"user\",\"customer\":\"Lirivia Burke\",\"active\":true}","spans":[{"start":27,"end":40,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0024","lang":"en","text":"Ticket assigned to Mrs. Ben​nett.","spans":[{"start":24,"end":34,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0025","lang":"en","text":"level=info msg=\"profile updated\" customer=Arric Elyriley","spans":[{"start":42,"end":56,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0026","lang":"en","text":"Signed by Quiramir Bennett, branch manager.","spans":[{"start":10,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0027","lang":"en","text":"Signed by Molevia Kasathorpe, branch manager.","spans":[{"start":10,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0028","lang":"en","text":"Signed by JAMES ARMSTRONG, branch manager.","spans":[{"start":10,"end":25,"kind":"person_name"}]}
+{"id":"en-person_name-0029","lang":"en","text":"Please call Kariys Burke about the delivery.","spans":[{"start":12,"end":24,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0030","lang":"en","text":"Ticket assigned to Mrs. Arle​combe.","spans":[{"start":24,"end":36,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0031","lang":"en","text":"Ticket assigned to Quilevia Bennett.","spans":[{"start":19,"end":35,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0032","lang":"en","text":"Ticket assigned to Burke, James.","spans":[{"start":19,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0033","lang":"en","text":"Please call Roviys Bennett about the delivery.","spans":[{"start":12,"end":26,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0034","lang":"en","text":"Signed by Duraane Carpenter, branch manager.","spans":[{"start":10,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0035","lang":"en","text":"{\"type\":\"user\",\"customer\":\"Laura Roricombe\",\"active\":true}","spans":[{"start":27,"end":42,"kind":"person_name"}]}
+{"id":"en-person_name-0036","lang":"en","text":"Please call Lileys Bailey about the delivery.","spans":[{"start":12,"end":25,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0037","lang":"en","text":"{\"type\":\"user\",\"customer\":\"Dr. Anderson\",\"active\":true}","spans":[{"start":31,"end":39,"kind":"person_name"}]}
+{"id":"en-person_name-0038","lang":"en","text":"Ticket assigned to Fanoth Burke.","spans":[{"start":19,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0039","lang":"en","text":"level=info msg=\"profile updated\" customer=Michael T. Butler","spans":[{"start":42,"end":59,"kind":"person_name"}]}
+{"id":"en-person_name-0040","lang":"en","text":"level=info msg=\"profile updated\" customer=Emma Mothorpe","spans":[{"start":42,"end":55,"kind":"person_name"}]}
+{"id":"en-person_name-0041","lang":"en","text":"Please call Dr. Arms​trong about the delivery.","spans":[{"start":16,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0042","lang":"en","text":"Please call Anderson, Peter about the delivery.","spans":[{"start":12,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0043","lang":"en","text":"{\"type\":\"user\",\"customer\":\"OLIVIA ​ANDERSON\",\"active\":true}","spans":[{"start":27,"end":45,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0044","lang":"en","text":"Ticket assigned to Quivimir Bishop.","spans":[{"start":19,"end":34,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0045","lang":"en","text":"Please call Arrith Carpenter about the delivery.","spans":[{"start":12,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0046","lang":"en","text":"Signed by Duleys Barker, branch manager.","spans":[{"start":10,"end":23,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0047","lang":"en","text":"customer: OLIVIA BISHOP","spans":[{"start":10,"end":23,"kind":"person_name"}]}
+{"id":"en-person_name-0048","lang":"en","text":"level=info msg=\"profile updated\" customer=Olivia Berahurst","spans":[{"start":42,"end":58,"kind":"person_name"}]}
+{"id":"en-person_name-0049","lang":"en","text":"Ticket assigned to Niys Bennett.","spans":[{"start":19,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0050","lang":"en","text":"customer: James Serawick","spans":[{"start":10,"end":24,"kind":"person_name"}]}
+{"id":"en-person_name-0051","lang":"en","text":"Meeting with Barker, Olivia tomorrow morning.","spans":[{"start":13,"end":27,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0052","lang":"en","text":"Signed by JAMES BURKE, branch manager.","spans":[{"start":10,"end":21,"kind":"person_name"}]}
+{"id":"en-person_name-0053","lang":"en","text":"customer: Dr. Elysaley","spans":[{"start":14,"end":22,"kind":"person_name"}]}
+{"id":"en-person_name-0054","lang":"en","text":"Ticket assigned to Oliver Zoriwick.","spans":[{"start":19,"end":34,"kind":"person_name"}]}
+{"id":"en-person_name-0055","lang":"en","text":"Signed by Thomas Karawick, branch manager.","spans":[{"start":10,"end":25,"kind":"person_name"}]}
+{"id":"en-person_name-0056","lang":"en","text":"Ticket assigned to James Carpenter.","spans":[{"start":19,"end":34,"kind":"person_name"}]}
+{"id":"en-person_name-0057","lang":"en","text":"Please call Monoric Zoviwick about the delivery.","spans":[{"start":12,"end":28,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-person_name-0058","lang":"en","text":"Please call Olivia Y. Campbell about the delivery.","spans":[{"start":12,"end":30,"kind":"person_name"}]}
+{"id":"en-person_name-0059","lang":"en","text":"Signed by Ms Bishop, branch manager.","spans":[{"start":13,"end":19,"kind":"person_name"}]}
+{"id":"en-person_name-0060","lang":"en","text":"Ticket assigned to Tan Liviwick.","spans":[{"start":19,"end":31,"kind":"person_name"}],"tags":["hard_positive"]}
+{"id":"en-ip-0001","lang":"en","text":"Request blocked: client ::ffff:203.0.113.57.","spans":[{"start":24,"end":43,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0002","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"２００１:db８:７７９４::４０\",\"active\":true}","spans":[{"start":28,"end":67,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0003","lang":"en","text":"Login from 198.51.100.95 at dawn.","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-ip-0004","lang":"en","text":"level=info msg=\"profile updated\" client_ip=2001:4860:​4860::8888","spans":[{"start":43,"end":66,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0005","lang":"en","text":"Connection from 198.51.100.128 refused.","spans":[{"start":16,"end":30,"kind":"ip"}]}
+{"id":"en-ip-0006","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:286::6a8\",\"active\":true}","spans":[{"start":28,"end":45,"kind":"ip"}]}
+{"id":"en-ip-0007","lang":"en","text":"Connection from ８.８.４.４ refused.","spans":[{"start":16,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0008","lang":"en","text":"level=info msg=\"profile updated\" client_ip=9.9.9.9","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"en-ip-0009","lang":"en","text":"Request blocked: client 2001:db8:e88b::40b.","spans":[{"start":24,"end":42,"kind":"ip"}]}
+{"id":"en-ip-0010","lang":"en","text":"client_ip: 9.9.9.9","spans":[{"start":11,"end":18,"kind":"ip"}]}
+{"id":"en-ip-0011","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.64\",\"active\":true}","spans":[{"start":28,"end":38,"kind":"ip"}]}
+{"id":"en-ip-0012","lang":"en","text":"Request blocked: client 9.9.9.9.","spans":[{"start":24,"end":31,"kind":"ip"}]}
+{"id":"en-ip-0013","lang":"en","text":"client_ip: 2606:4700:4700::1111","spans":[{"start":11,"end":31,"kind":"ip"}]}
+{"id":"en-ip-0014","lang":"en","text":"level=info msg=\"profile updated\" client_ip=２０３.０.１１３.１６５","spans":[{"start":43,"end":76,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0015","lang":"en","text":"Request blocked: client 198.51.100.56.","spans":[{"start":24,"end":37,"kind":"ip"}]}
+{"id":"en-ip-0016","lang":"en","text":"Connection from ::ffff:203.0.113.98 refused.","spans":[{"start":16,"end":35,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0017","lang":"en","text":"level=info msg=\"profile updated\" client_ip=198.51.100.232","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"en-ip-0018","lang":"en","text":"client_ip: 192.0.2.19","spans":[{"start":11,"end":21,"kind":"ip"}]}
+{"id":"en-ip-0019","lang":"en","text":"level=info msg=\"profile updated\" client_ip=2001:db8:1ada::9e4","spans":[{"start":43,"end":61,"kind":"ip"}]}
+{"id":"en-ip-0020","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:c743::6e8\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"en-ip-0021","lang":"en","text":"Login from 2001:db8:edff::8b4 at dawn.","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"en-ip-0022","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"192.0.2.120\",\"active\":true}","spans":[{"start":28,"end":39,"kind":"ip"}]}
+{"id":"en-ip-0023","lang":"en","text":"Login from ８.８.４.４ at dawn.","spans":[{"start":11,"end":26,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0024","lang":"en","text":"level=info msg=\"profile updated\" client_ip=203.0.113.13","spans":[{"start":43,"end":55,"kind":"ip"}]}
+{"id":"en-ip-0025","lang":"en","text":"Login from 203.0.113.251 at dawn.","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-ip-0026","lang":"en","text":"client_ip: 198.51.100.128","spans":[{"start":11,"end":25,"kind":"ip"}]}
+{"id":"en-ip-0027","lang":"en","text":"client_ip: 203.0.113.181","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-ip-0028","lang":"en","text":"Connection from ::ffff:203.0.113.82 refused.","spans":[{"start":16,"end":35,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0029","lang":"en","text":"Connection from 8.8.4.4 refused.","spans":[{"start":16,"end":23,"kind":"ip"}]}
+{"id":"en-ip-0030","lang":"en","text":"Connection from １９８.５１.１００.１３２ refused.","spans":[{"start":16,"end":52,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0031","lang":"en","text":"Request blocked: client 198.51.100.24.","spans":[{"start":24,"end":37,"kind":"ip"}]}
+{"id":"en-ip-0032","lang":"en","text":"Connection from １９８.５１.１００.１３６ refused.","spans":[{"start":16,"end":52,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0033","lang":"en","text":"client_ip: 203.0.​113.17","spans":[{"start":11,"end":26,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0034","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:2bcb::247\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"en-ip-0035","lang":"en","text":"level=info msg=\"profile updated\" client_ip=192.0.2.105","spans":[{"start":43,"end":54,"kind":"ip"}]}
+{"id":"en-ip-0036","lang":"en","text":"client_ip: 203.0.113.107","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-ip-0037","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"198.51.​100.145\",\"active\":true}","spans":[{"start":28,"end":45,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0038","lang":"en","text":"Request blocked: client 198.51.100.62.","spans":[{"start":24,"end":37,"kind":"ip"}]}
+{"id":"en-ip-0039","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"2001:db8:2033::85a\",\"active\":true}","spans":[{"start":28,"end":46,"kind":"ip"}]}
+{"id":"en-ip-0040","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"198.51.100.223\",\"active\":true}","spans":[{"start":28,"end":42,"kind":"ip"}]}
+{"id":"en-ip-0041","lang":"en","text":"Connection from 2001:db8:50d::e76 refused.","spans":[{"start":16,"end":33,"kind":"ip"}]}
+{"id":"en-ip-0042","lang":"en","text":"Request blocked: client 9.9.9.9.","spans":[{"start":24,"end":31,"kind":"ip"}]}
+{"id":"en-ip-0043","lang":"en","text":"client_ip: ２０３.０.１１３.２１","spans":[{"start":11,"end":41,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0044","lang":"en","text":"level=info msg=\"profile updated\" client_ip=208.67.​222.222","spans":[{"start":43,"end":60,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0045","lang":"en","text":"client_ip: ::ffff:203.0.113.113","spans":[{"start":11,"end":31,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0046","lang":"en","text":"level=info msg=\"profile updated\" client_ip=2001:db8:3fd1::362","spans":[{"start":43,"end":61,"kind":"ip"}]}
+{"id":"en-ip-0047","lang":"en","text":"{\"type\":\"user\",\"client_ip\":\"192.0​.2.75\",\"active\":true}","spans":[{"start":28,"end":41,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0048","lang":"en","text":"Connection from 9.9.9.9 refused.","spans":[{"start":16,"end":23,"kind":"ip"}]}
+{"id":"en-ip-0049","lang":"en","text":"client_ip: 2620:fe::fe","spans":[{"start":11,"end":22,"kind":"ip"}]}
+{"id":"en-ip-0050","lang":"en","text":"level=info msg=\"profile updated\" client_ip=208.67.222.222","spans":[{"start":43,"end":57,"kind":"ip"}]}
+{"id":"en-ip-0051","lang":"en","text":"Connection from 192.0.2.82 refused.","spans":[{"start":16,"end":26,"kind":"ip"}]}
+{"id":"en-ip-0052","lang":"en","text":"Login from 2001:db8:5ceb::35d at dawn.","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"en-ip-0053","lang":"en","text":"Login from 2001:4860:4860::8888 at dawn.","spans":[{"start":11,"end":31,"kind":"ip"}]}
+{"id":"en-ip-0054","lang":"en","text":"level=info msg=\"profile updated\" client_ip=2001:db8:​6d83::7c0","spans":[{"start":43,"end":64,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0055","lang":"en","text":"level=info msg=\"profile updated\" client_ip=１９８.５１.１００.７３","spans":[{"start":43,"end":76,"kind":"ip"}],"tags":["hard_positive"]}
+{"id":"en-ip-0056","lang":"en","text":"client_ip: 198.51.100.68","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-ip-0057","lang":"en","text":"Request blocked: client 192.0.2.226.","spans":[{"start":24,"end":35,"kind":"ip"}]}
+{"id":"en-ip-0058","lang":"en","text":"client_ip: 2001:db8:df19::dcb","spans":[{"start":11,"end":29,"kind":"ip"}]}
+{"id":"en-ip-0059","lang":"en","text":"level=info msg=\"profile updated\" client_ip=8.8.8.8","spans":[{"start":43,"end":50,"kind":"ip"}]}
+{"id":"en-ip-0060","lang":"en","text":"client_ip: 203.0.113.183","spans":[{"start":11,"end":24,"kind":"ip"}]}
+{"id":"en-phone-0001","lang":"en","text":"{\"type\":\"user\",\"phone\":\"07700 900053\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone"}]}
+{"id":"en-phone-0002","lang":"en","text":"phone: +１-２１２-５５５-０１７５","spans":[{"start":7,"end":44,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0003","lang":"en","text":"{\"type\":\"user\",\"phone\":\"+44 7700 900537\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}]}
+{"id":"en-phone-0004","lang":"en","text":"phone: 0044 20 7946 0974","spans":[{"start":7,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0005","lang":"en","text":"Call me on +44 20 7946 0291 after six.","spans":[{"start":11,"end":27,"kind":"phone"}]}
+{"id":"en-phone-0006","lang":"en","text":"Mobile 0044 20 7946 0484 (evenings only).","spans":[{"start":7,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0007","lang":"en","text":"phone: +44 20 7946 0700","spans":[{"start":7,"end":23,"kind":"phone"}]}
+{"id":"en-phone-0008","lang":"en","text":"Mobile +1-212-555-0158 (evenings only).","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0009","lang":"en","text":"Mobile +44 20 7​946 0146 (evenings only).","spans":[{"start":7,"end":26,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0010","lang":"en","text":"Call me on 020 7946 0969 after six.","spans":[{"start":11,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0011","lang":"en","text":"phone: 07700 900509","spans":[{"start":7,"end":19,"kind":"phone"}]}
+{"id":"en-phone-0012","lang":"en","text":"{\"type\":\"user\",\"phone\":\"+1 415 555 0165\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}]}
+{"id":"en-phone-0013","lang":"en","text":"level=info msg=\"profile updated\" phone=07700 900398","spans":[{"start":39,"end":51,"kind":"phone"}]}
+{"id":"en-phone-0014","lang":"en","text":"{\"type\":\"user\",\"phone\":\"+44 20 7946 0450\",\"active\":true}","spans":[{"start":24,"end":40,"kind":"phone"}]}
+{"id":"en-phone-0015","lang":"en","text":"{\"type\":\"user\",\"phone\":\"+44 20 7​946 0943\",\"active\":true}","spans":[{"start":24,"end":43,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0016","lang":"en","text":"{\"type\":\"user\",\"phone\":\"+44 7700 900645\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}]}
+{"id":"en-phone-0017","lang":"en","text":"Call me on +1 415 555 0115 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0018","lang":"en","text":"Call me on +1 415 555 0176 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0019","lang":"en","text":"level=info msg=\"profile updated\" phone=+1 415 555 0187","spans":[{"start":39,"end":54,"kind":"phone"}]}
+{"id":"en-phone-0020","lang":"en","text":"level=info msg=\"profile updated\" phone=020 7946 0369","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"en-phone-0021","lang":"en","text":"Phone: 020 7946 0769","spans":[{"start":7,"end":20,"kind":"phone"}]}
+{"id":"en-phone-0022","lang":"en","text":"Call me on +1-212-555-0121 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0023","lang":"en","text":"Mobile +1-212-555-0196 (evenings only).","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0024","lang":"en","text":"Mobile 020 7946 0244 (evenings only).","spans":[{"start":7,"end":20,"kind":"phone"}]}
+{"id":"en-phone-0025","lang":"en","text":"level=info msg=\"profile updated\" phone=+1 415 555 0106","spans":[{"start":39,"end":54,"kind":"phone"}]}
+{"id":"en-phone-0026","lang":"en","text":"Phone: 020 7946 0237","spans":[{"start":7,"end":20,"kind":"phone"}]}
+{"id":"en-phone-0027","lang":"en","text":"phone: +1-212-555-0131","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0028","lang":"en","text":"phone: +44 7700 900425","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0029","lang":"en","text":"phone: +44 7700 900996","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0030","lang":"en","text":"Call me on +1 415 555 0169 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0031","lang":"en","text":"Call me on 0044 20 7946 0705 after six.","spans":[{"start":11,"end":28,"kind":"phone"}]}
+{"id":"en-phone-0032","lang":"en","text":"level=info msg=\"profile updated\" phone=+44 20 7946 0590","spans":[{"start":39,"end":55,"kind":"phone"}]}
+{"id":"en-phone-0033","lang":"en","text":"Call me on ０２０ ７９４６ ０４０２ after six.","spans":[{"start":11,"end":46,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0034","lang":"en","text":"Phone: +44 7700 900832","spans":[{"start":7,"end":26,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0035","lang":"en","text":"{\"type\":\"user\",\"phone\":\"07700 900850\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone"}]}
+{"id":"en-phone-0036","lang":"en","text":"Call me on +44 20 7946 0830 after six.","spans":[{"start":11,"end":27,"kind":"phone"}]}
+{"id":"en-phone-0037","lang":"en","text":"level=info msg=\"profile updated\" phone=+１-２１２-５５５-０１０９","spans":[{"start":39,"end":76,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0038","lang":"en","text":"level=info msg=\"profile updated\" phone=+１-２１２-５５５-０１１９","spans":[{"start":39,"end":76,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0039","lang":"en","text":"Call me on +1 415 555 0146 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0040","lang":"en","text":"Call me on 020 7946 0187 after six.","spans":[{"start":11,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0041","lang":"en","text":"level=info msg=\"profile updated\" phone=020 7946 0032","spans":[{"start":39,"end":52,"kind":"phone"}]}
+{"id":"en-phone-0042","lang":"en","text":"level=info msg=\"profile updated\" phone=07700 900406","spans":[{"start":39,"end":51,"kind":"phone"}]}
+{"id":"en-phone-0043","lang":"en","text":"Mobile 0044 20 7946 0178 (evenings only).","spans":[{"start":7,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0044","lang":"en","text":"Call me on +1 415 555 0181 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0045","lang":"en","text":"phone: +44 770​0 900159","spans":[{"start":7,"end":25,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0046","lang":"en","text":"Call me on +１ ４１５ ５５５ ０１６２ after six.","spans":[{"start":11,"end":48,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0047","lang":"en","text":"{\"type\":\"user\",\"phone\":\"07700 ​900482\",\"active\":true}","spans":[{"start":24,"end":39,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0048","lang":"en","text":"Call me on 07700 900656 after six.","spans":[{"start":11,"end":23,"kind":"phone"}]}
+{"id":"en-phone-0049","lang":"en","text":"Call me on 0044 20 7946 0413 after six.","spans":[{"start":11,"end":31,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0050","lang":"en","text":"phone: +1-212-555-0166","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0051","lang":"en","text":"Phone: +1 415 555 0177","spans":[{"start":7,"end":25,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0052","lang":"en","text":"Mobile 07700 900214 (evenings only).","spans":[{"start":7,"end":19,"kind":"phone"}]}
+{"id":"en-phone-0053","lang":"en","text":"Call me on +44 20 7946 0196 after six.","spans":[{"start":11,"end":27,"kind":"phone"}]}
+{"id":"en-phone-0054","lang":"en","text":"Phone: +44 7700 900950","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone-0055","lang":"en","text":"Call me on +1 415 555 0143 after six.","spans":[{"start":11,"end":26,"kind":"phone"}]}
+{"id":"en-phone-0056","lang":"en","text":"Mobile 07700 ​900876 (evenings only).","spans":[{"start":7,"end":22,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0057","lang":"en","text":"Mobile 020 7946 0575 (evenings only).","spans":[{"start":7,"end":20,"kind":"phone"}]}
+{"id":"en-phone-0058","lang":"en","text":"level=info msg=\"profile updated\" phone=+１ ４１５ ５５５ ０１９７","spans":[{"start":39,"end":76,"kind":"phone"}],"tags":["hard_positive"]}
+{"id":"en-phone-0059","lang":"en","text":"Call me on 020 7946 0799 after six.","spans":[{"start":11,"end":24,"kind":"phone"}]}
+{"id":"en-phone-0060","lang":"en","text":"phone: +1 415 555 0197","spans":[{"start":7,"end":22,"kind":"phone"}]}
+{"id":"en-phone_loose-0001","lang":"en","text":"Call me on 20 7946 0791 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0002","lang":"en","text":"level=info msg=\"profile updated\" phone=415 555 0157","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0003","lang":"en","text":"phone: (415) 555-0171","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0004","lang":"en","text":"Phone: (212) 555-0107","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0005","lang":"en","text":"level=info msg=\"profile updated\" phone=(415) 555-0193","spans":[{"start":39,"end":53,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0006","lang":"en","text":"Phone: 415-555-0116","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0007","lang":"en","text":"{\"type\":\"user\",\"phone\":\"20 7946 0597\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0008","lang":"en","text":"Phone: 7700 900004","spans":[{"start":7,"end":18,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0009","lang":"en","text":"Phone: 415-555-0145","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0010","lang":"en","text":"Phone: (212) 555-0135","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0011","lang":"en","text":"Phone: (212) 555-0162","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0012","lang":"en","text":"Phone: (212) 555-0165","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0013","lang":"en","text":"{\"type\":\"user\",\"phone\":\"7700 900263\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0014","lang":"en","text":"Call me on 20 7946 0213 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0015","lang":"en","text":"Reach the front desk at 415 555 0173.","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0016","lang":"en","text":"Call me on (415) 555-0195 after six.","spans":[{"start":11,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0017","lang":"en","text":"level=info msg=\"profile updated\" phone=7700 900613","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0018","lang":"en","text":"level=info msg=\"profile updated\" phone=7700 900904","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0019","lang":"en","text":"Reach the front desk at (415) 555-0124.","spans":[{"start":24,"end":38,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0020","lang":"en","text":"Reach the front desk at 7700 900703.","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0021","lang":"en","text":"Call me on 415-555-0119 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0022","lang":"en","text":"Call me on 415-555-0125 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0023","lang":"en","text":"Reach the front desk at 20 7946 0638.","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0024","lang":"en","text":"Reach the front desk at (212) 555-0162.","spans":[{"start":24,"end":38,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0025","lang":"en","text":"{\"type\":\"user\",\"phone\":\"(415) 555-0194\",\"active\":true}","spans":[{"start":24,"end":38,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0026","lang":"en","text":"{\"type\":\"user\",\"phone\":\"7700 900665\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0027","lang":"en","text":"Reach the front desk at 7700 900911.","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0028","lang":"en","text":"level=info msg=\"profile updated\" phone=(415) 555-0118","spans":[{"start":39,"end":53,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0029","lang":"en","text":"phone: 415 555 0169","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0030","lang":"en","text":"phone: 415 555 0176","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0031","lang":"en","text":"{\"type\":\"user\",\"phone\":\"20 7946 0214\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0032","lang":"en","text":"{\"type\":\"user\",\"phone\":\"415 555 0131\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0033","lang":"en","text":"phone: (212) 555-0154","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0034","lang":"en","text":"phone: 415-555-0104","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0035","lang":"en","text":"{\"type\":\"user\",\"phone\":\"20 7946 0521\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0036","lang":"en","text":"Phone: 415 555 0192","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0037","lang":"en","text":"phone: (415) 555-0104","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0038","lang":"en","text":"level=info msg=\"profile updated\" phone=7700 900912","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0039","lang":"en","text":"level=info msg=\"profile updated\" phone=7700 900796","spans":[{"start":39,"end":50,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0040","lang":"en","text":"Reach the front desk at (415) 555-0135.","spans":[{"start":24,"end":38,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0041","lang":"en","text":"level=info msg=\"profile updated\" phone=(415) 555-0177","spans":[{"start":39,"end":53,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0042","lang":"en","text":"phone: (415) 555-0186","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0043","lang":"en","text":"Phone: 415-555-0188","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0044","lang":"en","text":"{\"type\":\"user\",\"phone\":\"415-555-0120\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0045","lang":"en","text":"Phone: 415-555-0186","spans":[{"start":7,"end":19,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0046","lang":"en","text":"Call me on (212) 555-0135 after six.","spans":[{"start":11,"end":25,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0047","lang":"en","text":"level=info msg=\"profile updated\" phone=415-555-0191","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0048","lang":"en","text":"Call me on 7700 900418 after six.","spans":[{"start":11,"end":22,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0049","lang":"en","text":"Call me on 415 555 0161 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0050","lang":"en","text":"Reach the front desk at 415-555-0157.","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0051","lang":"en","text":"level=info msg=\"profile updated\" phone=(415) 555-0161","spans":[{"start":39,"end":53,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0052","lang":"en","text":"{\"type\":\"user\",\"phone\":\"415-555-0184\",\"active\":true}","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0053","lang":"en","text":"{\"type\":\"user\",\"phone\":\"7700 900500\",\"active\":true}","spans":[{"start":24,"end":35,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0054","lang":"en","text":"level=info msg=\"profile updated\" phone=415 555 0158","spans":[{"start":39,"end":51,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0055","lang":"en","text":"Call me on 415 555 0104 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0056","lang":"en","text":"Call me on 415-555-0173 after six.","spans":[{"start":11,"end":23,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0057","lang":"en","text":"level=info msg=\"profile updated\" phone=(212) 555-0136","spans":[{"start":39,"end":53,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0058","lang":"en","text":"Reach the front desk at (212) 555-0111.","spans":[{"start":24,"end":38,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0059","lang":"en","text":"Phone: (415) 555-0144","spans":[{"start":7,"end":21,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-phone_loose-0060","lang":"en","text":"Reach the front desk at 415 555 0183.","spans":[{"start":24,"end":36,"kind":"phone_loose"}],"tags":["hard_positive"]}
+{"id":"en-mixed-0001","lang":"en","text":"Contact Oliver Butler on +1-212-555-0108 or at Butler_michael@mail.example.com.","spans":[{"start":8,"end":21,"kind":"person_name"},{"start":25,"end":40,"kind":"phone"},{"start":47,"end":78,"kind":"email"}]}
+{"id":"en-mixed-0002","lang":"en","text":"Contact Olivia Bishop on +44 20 7946 0042 or at john.burke@example.com.","spans":[{"start":8,"end":21,"kind":"person_name"},{"start":25,"end":41,"kind":"phone"},{"start":48,"end":70,"kind":"email"}]}
+{"id":"en-mixed-0003","lang":"en","text":"Contact Peter Armstrong on +1 415 555 0184 or at thomas.campbell@mail.example.com.","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":27,"end":42,"kind":"phone"},{"start":49,"end":81,"kind":"email"}]}
+{"id":"en-mixed-0004","lang":"en","text":"{\"name\":\"Hannah Burke\",\"email\":\"burke_hannah@example.com\",\"phone\":\"0044 20 7946 0019\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":56,"kind":"email"},{"start":67,"end":84,"kind":"phone"}]}
+{"id":"en-mixed-0005","lang":"en","text":"Sarah Bishop <bailey_rachel@example.net>, mobile +44 7700 900615","spans":[{"start":0,"end":12,"kind":"person_name"},{"start":14,"end":39,"kind":"email"},{"start":49,"end":64,"kind":"phone"}]}
+{"id":"en-mixed-0006","lang":"en","text":"{\"name\":\"George Burke\",\"email\":\"Olivia.bennett@example.net\",\"phone\":\"020 7946 0510\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":58,"kind":"email"},{"start":69,"end":82,"kind":"phone"}]}
+{"id":"en-mixed-0007","lang":"en","text":"{\"name\":\"Oliver Bailey\",\"email\":\"rarmstrong@example.org\",\"phone\":\"+1-212-555-0118\"}","spans":[{"start":9,"end":22,"kind":"person_name"},{"start":33,"end":55,"kind":"email"},{"start":66,"end":81,"kind":"phone"}]}
+{"id":"en-mixed-0008","lang":"en","text":"Contact Thomas Bishop on +1 415 555 0170 or at michael+billing@example.net.","spans":[{"start":8,"end":21,"kind":"person_name"},{"start":25,"end":40,"kind":"phone"},{"start":47,"end":74,"kind":"email"}]}
+{"id":"en-mixed-0009","lang":"en","text":"Contact Rachel Burke on +44 20 7946 0337 or at thomas.carpenter@example.org.","spans":[{"start":8,"end":20,"kind":"person_name"},{"start":24,"end":40,"kind":"phone"},{"start":47,"end":75,"kind":"email"}]}
+{"id":"en-mixed-0010","lang":"en","text":"{\"name\":\"Peter Butler\",\"email\":\"olivia+news@example.com\",\"phone\":\"0044 20 7946 0378\"}","spans":[{"start":9,"end":21,"kind":"person_name"},{"start":32,"end":55,"kind":"email"},{"start":66,"end":83,"kind":"phone"}]}
+{"id":"en-mixed-0011","lang":"en","text":"{\"name\":\"Laura Burke\",\"email\":\"olivia.bailey68@example.net\",\"phone\":\"+44 20 7946 0597\"}","spans":[{"start":9,"end":20,"kind":"person_name"},{"start":31,"end":58,"kind":"email"},{"start":69,"end":85,"kind":"phone"}]}
+{"id":"en-mixed-0012","lang":"en","text":"Contact Peter Bishop on 020 7946 0598 or at landerson@mail.example.com.","spans":[{"start":8,"end":20,"kind":"person_name"},{"start":24,"end":37,"kind":"phone"},{"start":44,"end":70,"kind":"email"}]}
+{"id":"en-mixed-0013","lang":"en","text":"Contact Rachel Campbell on +44 7700 900303 or at renée.o'hara@example.co.uk.","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":27,"end":42,"kind":"phone"},{"start":49,"end":76,"kind":"email"}]}
+{"id":"en-mixed-0014","lang":"en","text":"Laura Carpenter <rachel.bennett@example.net>, mobile 020 7946 0045","spans":[{"start":0,"end":15,"kind":"person_name"},{"start":17,"end":43,"kind":"email"},{"start":53,"end":66,"kind":"phone"}]}
+{"id":"en-mixed-0015","lang":"en","text":"{\"name\":\"Olivia Bennett\",\"email\":\"rachel.bennett@example.co.uk\",\"phone\":\"07700 900416\"}","spans":[{"start":9,"end":23,"kind":"person_name"},{"start":34,"end":62,"kind":"email"},{"start":73,"end":85,"kind":"phone"}]}
+{"id":"en-mixed-0016","lang":"en","text":"Contact Emma Armstrong on 020 7946 0502 or at james+news@example.co.uk.","spans":[{"start":8,"end":22,"kind":"person_name"},{"start":26,"end":39,"kind":"phone"},{"start":46,"end":70,"kind":"email"}]}
+{"id":"en-mixed-0017","lang":"en","text":"Contact Sarah Barker on +44 7700 900606 or at jcampbell@example.org.","spans":[{"start":8,"end":20,"kind":"person_name"},{"start":24,"end":39,"kind":"phone"},{"start":46,"end":67,"kind":"email"}]}
+{"id":"en-mixed-0018","lang":"en","text":"{\"name\":\"Thomas Anderson\",\"email\":\"rachel.carpenter85@mail.example.com\",\"phone\":\"+1 415 555 0147\"}","spans":[{"start":9,"end":24,"kind":"person_name"},{"start":35,"end":70,"kind":"email"},{"start":81,"end":96,"kind":"phone"}]}
+{"id":"en-mixed-0019","lang":"en","text":"Emma Bennett <zoë.brontë@example.org>, mobile +44 20 7946 0853","spans":[{"start":0,"end":12,"kind":"person_name"},{"start":14,"end":38,"kind":"email"},{"start":48,"end":64,"kind":"phone"}]}
+{"id":"en-mixed-0020","lang":"en","text":"Contact Michael Bennett on 07700 900135 or at zoë.brontë@shop.example.org.","spans":[{"start":8,"end":23,"kind":"person_name"},{"start":27,"end":39,"kind":"phone"},{"start":46,"end":75,"kind":"email"}]}
+{"id":"en-neg-0001","lang":"en","text":"Delivery expected on 2027-11-22.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0002","lang":"en","text":"Delivery expected on 2021-02-25.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0003","lang":"en","text":"Placeholder 666-47-0574 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0004","lang":"en","text":"Stock count: 314 093 458 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0005","lang":"en","text":"Deployed commit 788008c139d1970d6e64929b388958766b0d9e395ebebabd80878f5ec50b142f to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0006","lang":"en","text":"Health check from fd00::b3e passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0007","lang":"en","text":"Item SKU-8385-XL is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0008","lang":"en","text":"Test number 4000 0064 2978 8347 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0009","lang":"en","text":"Delivery expected on 03-08-2026.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0010","lang":"en","text":"Delivery expected on 2021-03-01.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0011","lang":"en","text":"Invoice FAC/2022/2556 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0012","lang":"en","text":"Your order #60502711 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0013","lang":"en","text":"Health check from 192.168.30.28 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0014","lang":"en","text":"Health check from 127.0.0.1 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0015","lang":"en","text":"Delivery expected on 26-09-2024.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0016","lang":"en","text":"Rejected account GB83 ZTZD 3109 7105 5054 93: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0017","lang":"en","text":"Item GAH52526 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0018","lang":"en","text":"Deployed commit edee9ded2721d0c1e1fe8a826ddb18ed56177b289a3a3c9546e640fa37767a88 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0019","lang":"en","text":"Your order #68568990 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0020","lang":"en","text":"Job finished at 2026-07-27 18:31:44.600.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0021","lang":"en","text":"Delivery expected on 2021-04-07.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0022","lang":"en","text":"Rejected account IE87 AHJC 1390 8098 0908 00: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0023","lang":"en","text":"Upgraded the agent to version 4.3.9.186.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0024","lang":"en","text":"Your order #863520799 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0025","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0026","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0027","lang":"en","text":"Job finished at 1781432080.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0028","lang":"en","text":"Stock count: 994 049 725 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0029","lang":"en","text":"Placeholder 666-15-6627 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0030","lang":"en","text":"Upgraded the agent to build 10.0.19983.4948.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0031","lang":"en","text":"Health check from 172.28.89.165 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0032","lang":"en","text":"Invoice FAC/2020/4877 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0033","lang":"en","text":"Health check from 10.54.201.50 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0034","lang":"en","text":"Order 80842012 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0035","lang":"en","text":"Upgraded the agent to Chrome/134.0.5728.26.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0036","lang":"en","text":"Your order #1008918896 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0037","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0038","lang":"en","text":"Item SYP78829 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0039","lang":"en","text":"Your order #128304390 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0040","lang":"en","text":"Order 282512 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0041","lang":"en","text":"Upgraded the agent to build 10.0.19233.4456.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0042","lang":"en","text":"Barcode 5494204508564 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0043","lang":"en","text":"Order 70688356 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0044","lang":"en","text":"Your order #440617 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0045","lang":"en","text":"Stock count: 628 491 644 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0046","lang":"en","text":"Total due: €52,961.82.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0047","lang":"en","text":"Deployed commit aacd18c890f17a437d33b96a1085a62219dd8f02dc655484391e3eb10d02cfe3 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0048","lang":"en","text":"Delivery expected on 2026-07-16.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0049","lang":"en","text":"Order 2320420 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0050","lang":"en","text":"Upgraded the agent to v4.10.10.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0051","lang":"en","text":"Delivery expected on 06/26/2027.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0052","lang":"en","text":"Deployed commit c384fcd to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0053","lang":"en","text":"Invoice INV-2020-021475 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0054","lang":"en","text":"Stock count: 331 805 213 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0055","lang":"en","text":"Health check from fd00::478 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0056","lang":"en","text":"Deployed commit 547ba6e37ccee9f50c2bc29427d52a67974103b0f2d76ff8f7c1ce57af8e86d8 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0057","lang":"en","text":"Stock count: 525 375 494 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0058","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0059","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0060","lang":"en","text":"Delivery expected on 2022-07-05.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0061","lang":"en","text":"Health check from 10.246.184.230 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0062","lang":"en","text":"Order 5059275336 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0063","lang":"en","text":"Test number 2223 0011 4439 2184 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0064","lang":"en","text":"Health check from 127.0.0.1 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0065","lang":"en","text":"Delivery expected on 01/22/2019.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0066","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0067","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0068","lang":"en","text":"Item SKU-2810-XS is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0069","lang":"en","text":"Upgraded the agent to build 10.0.19459.2898.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0070","lang":"en","text":"Upgraded the agent to build 10.0.19934.153.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0071","lang":"en","text":"Order 4046202 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0072","lang":"en","text":"Stock count: 667 613 869 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0073","lang":"en","text":"Total due: €55,921.25.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0074","lang":"en","text":"Delivery expected on 2026-05-09.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0075","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0076","lang":"en","text":"Order 691245981 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0077","lang":"en","text":"Rejected account IE50 CFFR 2966 0429 5250 86: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0078","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0079","lang":"en","text":"Your order #2271658 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0080","lang":"en","text":"Health check from 10.220.114.88 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0081","lang":"en","text":"Barcode 5481851392400 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0082","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0083","lang":"en","text":"Deployed commit 47970c5 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0084","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0085","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0086","lang":"en","text":"Order 7701871791 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0087","lang":"en","text":"Total due: €81,393.01.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0088","lang":"en","text":"Invoice INV-2021-604028 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0089","lang":"en","text":"Barcode 5485627320734 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0090","lang":"en","text":"Job finished at 2026-10-17T22:34:38Z.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0091","lang":"en","text":"Placeholder 000-67-6257 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0092","lang":"en","text":"Delivery expected on 10/05/2022.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0093","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0094","lang":"en","text":"Deployed commit c320cba0b2583e1d5d5bfc5219482d94f781d220 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0095","lang":"en","text":"Item SKU-7365-XL is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0096","lang":"en","text":"Total due: €52,878.39.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0097","lang":"en","text":"Health check from fd00::5d7 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0098","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0099","lang":"en","text":"Delivery expected on 24-12-2025.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0100","lang":"en","text":"Barcode 5419279880100 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0101","lang":"en","text":"Stock count: 242 150 546 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0102","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0103","lang":"en","text":"Total due: €16,521.97.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0104","lang":"en","text":"Job finished at 1715935474.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0105","lang":"en","text":"Item SKU-7930-XL is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0106","lang":"en","text":"Delivery expected on 04/14/2023.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0107","lang":"en","text":"Deployed commit 248102b1f20179e4bbb09f039ac0a0942230640c4187b78bfbfad8e33c5419e1 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0108","lang":"en","text":"Item SKU-2626-XS is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0109","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0110","lang":"en","text":"Total due: €38,990.26.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0111","lang":"en","text":"Deployed commit a0cc06df4898a214597f51bad5c65e32f53984e1 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0112","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0113","lang":"en","text":"Item REF 74-011-819 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0114","lang":"en","text":"Item SKU-0771-XL is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0115","lang":"en","text":"Job finished at 2026-07-28T05:39:06Z.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0116","lang":"en","text":"Health check from 192.168.81.138 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0117","lang":"en","text":"Deployed commit 5d0e609 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0118","lang":"en","text":"Order 826733006 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0119","lang":"en","text":"Job finished at 2026-10-19T16:43:12Z.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0120","lang":"en","text":"Your order #380362 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0121","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0122","lang":"en","text":"Barcode 5482593769277 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0123","lang":"en","text":"Upgraded the agent to version 4.4.5.343.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0124","lang":"en","text":"Placeholder 666-02-6993 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0125","lang":"en","text":"Job finished at 1747183503.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0126","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0127","lang":"en","text":"Placeholder 666-97-5736 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0128","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0129","lang":"en","text":"Total due: €47,140.28.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0130","lang":"en","text":"Your order #3292647536 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0131","lang":"en","text":"Delivery expected on 04-01-2022.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0132","lang":"en","text":"Invoice F2022-22714 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0133","lang":"en","text":"Deployed commit b10b075 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0134","lang":"en","text":"Delivery expected on 25-02-2020.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0135","lang":"en","text":"Order 6933195 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0136","lang":"en","text":"Rejected account GB59 GIDF 2662 4766 5515 49: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0137","lang":"en","text":"Order 783618 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0138","lang":"en","text":"Test number 4000 0090 1705 6818 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0139","lang":"en","text":"Rejected account GB73 TXYO 8518 7164 3309 43: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0140","lang":"en","text":"Your order #2916495232 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0141","lang":"en","text":"Test number 4111 1102 1172 7796 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0142","lang":"en","text":"Delivery expected on 06/09/2026.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0143","lang":"en","text":"Upgraded the agent to Chrome/119.0.5093.78.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0144","lang":"en","text":"Job finished at 1747520326.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0145","lang":"en","text":"Invoice FAC/2025/8519 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0146","lang":"en","text":"Upgraded the agent to version 2.0.7.63.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0147","lang":"en","text":"Upgraded the agent to build 10.0.19324.301.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0148","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0149","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0150","lang":"en","text":"Delivery expected on 2021-07-14.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0151","lang":"en","text":"Delivery expected on 12/07/2019.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0152","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0153","lang":"en","text":"Rejected account IE06 IXRU 2140 2888 8364 17: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0154","lang":"en","text":"Barcode 5413467940805 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0155","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0156","lang":"en","text":"Job finished at 2026-04-27 13:05:26.221.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0157","lang":"en","text":"Barcode 5406725833155 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0158","lang":"en","text":"Stock count: 105 008 493 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0159","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0160","lang":"en","text":"Order 92477600 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0161","lang":"en","text":"Order 6281340798 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0162","lang":"en","text":"Upgraded the agent to version 5.7.3.127.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0163","lang":"en","text":"Test number 4000 0066 8026 0483 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0164","lang":"en","text":"Your order #88275906 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0165","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0166","lang":"en","text":"Your order #1838842414 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0167","lang":"en","text":"Deployed commit 066c07da77b8d2dd3e43c46b93480fea1048935e to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0168","lang":"en","text":"Job finished at 2026-02-24 07:56:06.784.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0169","lang":"en","text":"Invoice FAC/2020/5558 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0170","lang":"en","text":"Delivery expected on 08/19/2019.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0171","lang":"en","text":"Test number 3782 8242 6336 603 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0172","lang":"en","text":"Rejected account IE23 UCDQ 3888 5440 1005 57: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0173","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0174","lang":"en","text":"Invoice INV-2020-764883 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0175","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0176","lang":"en","text":"Job finished at 2026-12-04T08:13:43Z.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0177","lang":"en","text":"Test number 2223 0070 5829 6798 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0178","lang":"en","text":"Deployed commit 9ad4f1d76dead9fb24436f80635611a363eb821c to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0179","lang":"en","text":"Stock count: 175 502 884 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0180","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0181","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0182","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0183","lang":"en","text":"Item REF 71-253-211 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0184","lang":"en","text":"Item REF 46-881-348 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0185","lang":"en","text":"Your order #7919921 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0186","lang":"en","text":"Your order #9967250 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0187","lang":"en","text":"Test number 2223 0048 0676 7854 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0188","lang":"en","text":"Your order #6456714 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0189","lang":"en","text":"Item AJQ14477 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0190","lang":"en","text":"Test number 4111 1148 6126 5931 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0191","lang":"en","text":"Stock count: 495 582 681 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0192","lang":"en","text":"Stock count: 275 404 297 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0193","lang":"en","text":"Delivery expected on 13-12-2023.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0194","lang":"en","text":"Job finished at 2026-03-13 19:03:50.028.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0195","lang":"en","text":"Upgraded the agent to version 7.9.7.216.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0196","lang":"en","text":"Invoice INV-2020-923525 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0197","lang":"en","text":"Health check from 172.22.226.88 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0198","lang":"en","text":"Test number 4242 4294 6459 2110 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0199","lang":"en","text":"Order 6642659 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0200","lang":"en","text":"Upgraded the agent to v0.28.16.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0201","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0202","lang":"en","text":"Health check from 192.168.81.172 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0203","lang":"en","text":"Health check from 192.168.254.197 passed.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0204","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0205","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0206","lang":"en","text":"Barcode 5449717554249 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0207","lang":"en","text":"Upgraded the agent to Chrome/129.0.6618.11.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0208","lang":"en","text":"Barcode 5424680714449 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0209","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0210","lang":"en","text":"Order 48623729 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0211","lang":"en","text":"Order 8371402 shipped this morning.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0212","lang":"en","text":"Invoice FAC/2022/2049 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0213","lang":"en","text":"Stock count: 637 289 606 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0214","lang":"en","text":"Stock count: 901 373 016 units.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0215","lang":"en","text":"Rejected account GB78 GHTN 6735 1537 4347 67: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0216","lang":"en","text":"Delivery expected on 2024-08-15.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0217","lang":"en","text":"Delivery expected on 2027-04-28.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0218","lang":"en","text":"Upgraded the agent to version 6.0.0.335.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0219","lang":"en","text":"Total due: €73,422.96.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0220","lang":"en","text":"Invoice FAC/2020/6065 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0221","lang":"en","text":"Rejected account IE56 GQCP 2507 7922 6055 99: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0222","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0223","lang":"en","text":"Deployed commit 47cc43889bf4b05a5b39e14f1340924ed675b167e9e9d7e34da6349ac253fd25 to staging.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0224","lang":"en","text":"Started Network Manager Wait Online.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0225","lang":"en","text":"Invoice INV-2022-780118 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0226","lang":"en","text":"Grace Period Expired for Mark Price Update.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0227","lang":"en","text":"Total due: €67,343.92.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0228","lang":"en","text":"Job finished at 1706509038.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0229","lang":"en","text":"Your order #3802682947 is ready for pickup.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0230","lang":"en","text":"Rejected account GB82 VJQV 0381 3371 6673 65: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0231","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0232","lang":"en","text":"Placeholder 974-24-0207 used in the form template.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0233","lang":"en","text":"Rejected account IE55 BUID 3718 4814 4127 95: checksum error.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0234","lang":"en","text":"Item JXK64663 is back in stock.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0235","lang":"en","text":"Thank You Page Updated by Marketing Team.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0236","lang":"en","text":"Job finished at 1723823551.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0237","lang":"en","text":"Barcode 5420021818166 scanned at till three.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0238","lang":"en","text":"Invoice INV-2025-393053 was paid in full.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0239","lang":"en","text":"Test number 4000 0033 2348 6019 failed validation.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-0240","lang":"en","text":"Test number 3782 8244 0051 292 failed validation.","spans":[],"tags":["hard_negative"]}
