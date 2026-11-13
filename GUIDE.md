@@ -335,7 +335,7 @@ itself (lockssh runs its commands there).
 
 - `pii.Detectors([]string{"email", "phone", "iban", "card"})` (also `be_niss`,
   `fr_nir`, `nl_bsn`, `us_ssn`, and the opt-in `phone_loose`, `eu_vat`,
-  `be_company`);
+  `be_company`, `be_eid`, `passport`, `birth_date`);
   `pii.Detect(v, ds)` masks what they find in a text or integer value, or an
   integral float (`|f| < 1e19`), scanning at most `DetectLimit` bytes.
   - `email`: Unicode letters, digits and marks in the local part and the
@@ -360,15 +360,17 @@ itself (lockssh runs its commands there).
   checksummed national number with other separators (`85-07-30-033-28`);
   `be_company` (`KBO`, `BCE`, `ondernemingsnummer`, `n° d'entreprise`,
   `company number`, `TVA`, `BTW`, ...) ten bare digits (`0123456749`).
+  `passport` and `birth_date` find nothing without a context.
   `pii.FindField(field, s, ds)` is `FindInViews` with the field name as
   the context of every candidate of `s` (`phone`, `kbo_nr`,
   `companyNumber`).
 - `Match.Confidence`: `pii.ConfidenceHigh` (a checksum verified: `iban`,
-  `card`, `be_niss`, `fr_nir`, `nl_bsn`, `eu_vat`, `be_company`),
+  `card`, `be_niss`, `fr_nir`, `nl_bsn`, `eu_vat`, `be_company`,
+  `be_eid`),
   `ConfidenceMedium` (a pattern: `phone`, `phone_loose`, `email`, `ip`,
   `secret`, `us_ssn`, a French VAT number with a letter in its key, a
-  `Detector` of your own) or `ConfidenceLow` (`person_name`, a candidate
-  raised by a context, the `CutKind` rest). It never changes what is
+  `Detector` of your own) or `ConfidenceLow` (`person_name`, `passport`,
+  `birth_date`, a candidate raised by a context, the `CutKind` rest). It never changes what is
   masked; keep it out of anything an agent sees, or it tells which masks
   hide a verified number.
 - Opt-in, never in `AllDetectors` (name them):
@@ -383,6 +385,18 @@ itself (lockssh runs its commands there).
     `0xxx xxx xxx` (first digit 0 or 1, mod 97); ten bare digits only
     after a context word. A Belgian mobile (`0475 12 34 56`) stays a
     `phone`.
+  - `be_eid`: a Belgian identity card number, `ddd-ddddddd-dd`, the last
+    2 digits the first 10 mod 97 (97 for 0).
+  - `passport`: a Belgian passport number, 2 capitals and 6 digits
+    (`EH123456`), only after a passport word (`passport`, `passeport`,
+    `paspoort`, `Reisepass`) or in a field so named.
+  - `birth_date`: a date (`DD/MM/YYYY`, `DD-MM-YYYY`, `DD.MM.YYYY`,
+    `MM/DD/YYYY` when the day is above 12, `YYYY-MM-DD`, `3 March 1985`,
+    `March 3, 1985`, `1er mars 1985`, `3. März 1985`; years 1900 to 2099)
+    only after a birth word (`date of birth`, `DOB`, `born`, `né le`,
+    `date de naissance`, `geboren`, `geboortedatum`, `Geburtsdatum`,
+    `geb.`) or in a field so named (`birth_date`, `dateOfBirth`,
+    `date_naissance`, `dob`): never every date.
   - `ip`: public IPv4 (dotted quad) and IPv6 (2000::/3, IPv4-mapped and
     IPv4-compatible forms of a public IPv4) addresses. Private, loopback,
     link-local, multicast, unspecified, broadcast and reserved addresses
@@ -492,9 +506,10 @@ itself (lockssh runs its commands there).
   that is a whole value of the kind), then lower-case email (the local
   part too), phone digits with `+` for international numbers (`00`, `+00`
   → `+`, `+32 (0)475` → `+32475`), only the ASCII letters and
-  digits of an IBAN, a VAT or a company number, upper case, a person name in lower case with single
+  digits of an IBAN, a VAT or a company number, upper case, a passport
+  number in upper case, a birth date as `YYYY-MM-DD`, a person name in lower case with single
   spaces, digits of
-  cards and national ids, canonical IP (IPv4-mapped → IPv4). Keep epochs
+  cards, national ids and eID cards, canonical IP (IPv4-mapped → IPv4). Keep epochs
   with `pii.OpenEpochStore(dir, create, now)`: one file per epoch (0600)
   in a private directory (0700, owned by the process user; anything else,
   a symbolic link, a corrupt file or an all-zero key refuses the store),

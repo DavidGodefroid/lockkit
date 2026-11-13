@@ -232,6 +232,11 @@ var negValues = map[string]func(r *rand.Rand, lang string) string{
 		}
 		return d[:4] + "." + d[4:7] + "." + d[7:]
 	},
+	"bad_eid": func(r *rand.Rand, _ string) string { return formatEID(beEID(r, false)) },
+	// Two capitals and six digits: a passport only after a passport word.
+	"code": func(r *rand.Rand, _ string) string { return passportNumber(r) },
+	// A date that is no birth date.
+	"any_date": func(r *rand.Rand, lang string) string { v, _ := birthDate(r, lang); return v },
 }
 
 // laterNegatives are the hard negatives of the kinds written after the
@@ -248,5 +253,21 @@ var laterNegatives = map[string]map[string][]negFrame{
 		"fr": {{"bad_company", "Numéro {v} inconnu à la BCE."}, {"bad_company", "Colis {v} remis au transporteur."}},
 		"nl": {{"bad_company", "Nummer {v} onbekend in de KBO."}, {"bad_company", "Pakket {v} afgegeven aan de koerier."}},
 		"de": {{"bad_company", "Nummer {v} unbekannt in der ZDU."}, {"bad_company", "Paket {v} an den Kurier übergeben."}},
+	},
+	"be_eid": {
+		"fr": {{"bad_eid", "Carte {v} refusée : chiffres de contrôle faux."}, {"bad_eid", "Référence {v} inconnue."}},
+		"nl": {{"bad_eid", "Kaart {v} geweigerd: controlecijfers fout."}, {"bad_eid", "Referentie {v} onbekend."}},
+		"de": {{"bad_eid", "Karte {v} abgelehnt: Prüfziffern falsch."}, {"bad_eid", "Referenz {v} unbekannt."}},
+	},
+	"passport": {
+		"fr": {{"code", "Colis {v} expédié ce matin."}, {"code", "Lot {v} contrôlé."}},
+		"nl": {{"code", "Pakket {v} vanochtend verzonden."}, {"code", "Partij {v} gecontroleerd."}},
+		"de": {{"code", "Paket {v} heute verschickt."}, {"code", "Charge {v} geprüft."}},
+	},
+	"birth_date": {
+		"en": {{"any_date", "Contract signed on {v}."}, {"any_date", "Invoice date: {v}"}, {"any_date", "Warranty until {v}."}},
+		"fr": {{"any_date", "Contrat signé le {v}."}, {"any_date", "Date de facture : {v}"}, {"any_date", "Garantie jusqu'au {v}."}},
+		"nl": {{"any_date", "Contract getekend op {v}."}, {"any_date", "Factuurdatum: {v}"}, {"any_date", "Garantie tot {v}."}},
+		"de": {{"any_date", "Vertrag unterzeichnet am {v}."}, {"any_date", "Rechnungsdatum: {v}"}, {"any_date", "Garantie bis {v}."}},
 	},
 }

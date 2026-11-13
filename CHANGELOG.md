@@ -5,6 +5,12 @@ GUIDE.md is the contract between lockkit and the products built on it.
 
 ## Unreleased
 
+- pii: new opt-in detectors `be_eid` (Belgian identity card numbers,
+  `ddd-ddddddd-dd`, mod 97, high confidence), and the context-only
+  `passport` (Belgian passport numbers after a passport word) and
+  `birth_date` (a date after a birth word or in a birth field, never a
+  date alone), both low confidence. `Normalise` gives a birth date as
+  `YYYY-MM-DD` whatever its spelling (#130).
 - pii: new opt-in detectors `eu_vat` (BE, FR, NL, DE, LU VAT numbers,
   checksums verified) and `be_company` (Belgian KBO/BCE company
   numbers), run after `iban` and before `card`; `Normalise` keeps their

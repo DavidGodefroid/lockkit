@@ -23,13 +23,14 @@ type Detector interface {
 // checksummed numbers (a "BE0…" VAT number before the card, NISS and
 // phone detectors that would read its digits), IP addresses (their digits
 // are not phone numbers either), phone numbers, the loosest pattern, last.
-var detectorOrder = []string{"secret", "email", "iban", "eu_vat", "be_company", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "person_name", "ip", "phone", "phone_loose"}
+var detectorOrder = []string{"secret", "email", "iban", "eu_vat", "be_company", "be_eid", "passport", "card", "be_niss", "fr_nir", "nl_bsn", "us_ssn", "birth_date", "person_name", "ip", "phone", "phone_loose"}
 
 // optInDetectors are left out of AllDetectors: phone_loose and
 // person_name for their false positives; ip and secret so that a product
 // upgrading lockkit masks exactly what it masked before until it names
-// them; so is every detector added since (eu_vat, be_company).
-var optInDetectors = set("phone_loose", "person_name", "ip", "secret", "eu_vat", "be_company")
+// them; so is every detector added since (eu_vat, be_company, be_eid,
+// passport, birth_date).
+var optInDetectors = set("phone_loose", "person_name", "ip", "secret", "eu_vat", "be_company", "be_eid", "passport", "birth_date")
 
 var detectorFinders = map[string]func(string) []span{
 	"email":       findEmails,
@@ -53,6 +54,10 @@ var detectorFinders = map[string]func(string) []span{
 var gradedFinders = map[string]func(string) []gspan{
 	"eu_vat":     findEUVAT,
 	"be_company": findBECompany,
+	"be_eid":     findBEEID,
+	// Context only: contextFinders find them.
+	"passport":   noFinder,
+	"birth_date": noFinder,
 }
 
 // knownDetector reports a detector name Detectors accepts.
@@ -74,8 +79,9 @@ func finderFor(n string) func(string) []gspan {
 // order. Names: email, phone, iban, card, be_niss, fr_nir, nl_bsn, us_ssn,
 // and the opt-in phone_loose, ip (public IPv4 and IPv6 addresses), secret
 // (credentials, tokens and private keys, masked as Redacted), eu_vat (EU
-// VAT numbers: BE, FR, NL, DE, LU) and be_company (Belgian company
-// numbers).
+// VAT numbers: BE, FR, NL, DE, LU), be_company (Belgian company
+// numbers), be_eid (Belgian identity card numbers), and the context-only
+// passport (Belgian passport numbers) and birth_date.
 func Detectors(names []string) ([]Detector, error) {
 	want := map[string]bool{}
 	for i, n := range names {
@@ -100,7 +106,8 @@ func Detectors(names []string) ([]Detector, error) {
 }
 
 // AllDetectors is every detector but the opt-in ones (phone_loose,
-// person_name, ip, secret, eu_vat, be_company), in their run order: what masking falls back to when it was
+// person_name, ip, secret, eu_vat, be_company, be_eid, passport,
+// birth_date), in their run order: what masking falls back to when it was
 // given none.
 func AllDetectors() []Detector {
 	var names []string

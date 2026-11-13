@@ -33,6 +33,12 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `be_company` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_company` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `be_company` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_eid` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_eid` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `be_eid` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `passport` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `passport` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `passport` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `card` | en | 60 | 1.000 | 62 | 0.968 | 0.984 |
 | `card` | fr | 60 | 1.000 | 82 | 0.732 | 0.845 |
 | `card` | nl | 60 | 1.000 | 61 | 0.984 | 0.992 |
@@ -43,6 +49,10 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `fr_nir` | fr | 60 | 0.783 | 47 | 1.000 | 0.879 |
 | `nl_bsn` | nl | 60 | 1.000 | 61 | 0.984 | 0.992 |
 | `us_ssn` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `birth_date` | en | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `birth_date` | fr | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `birth_date` | nl | 60 | 1.000 | 60 | 1.000 | 1.000 |
+| `birth_date` | de | 60 | 1.000 | 60 | 1.000 | 1.000 |
 | `person_name` | en | 80 | 0.613 | 49 | 1.000 | 0.760 |
 | `person_name` | fr | 80 | 0.588 | 47 | 1.000 | 0.740 |
 | `person_name` | nl | 80 | 0.600 | 48 | 1.000 | 0.750 |
@@ -64,11 +74,11 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 
 | Lang | Values | Masked |
 |---|--:|--:|
-| en | 660 | 0.938 |
-| fr | 780 | 0.899 |
-| nl | 780 | 0.933 |
-| de | 720 | 0.917 |
-| all | 2940 | 0.921 |
+| en | 720 | 0.943 |
+| fr | 960 | 0.918 |
+| nl | 960 | 0.946 |
+| de | 900 | 0.933 |
+| all | 3540 | 0.934 |
 
 ## Field heuristics
 

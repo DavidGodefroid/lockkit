@@ -1038,3 +1038,273 @@
 {"id":"nl-neg-be_company-0028","lang":"nl","text":"Nummer 1875.907.398 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-be_company-0029","lang":"nl","text":"Pakket 1910.078.456 afgegeven aan de koerier.","spans":[],"tags":["hard_negative"]}
 {"id":"nl-neg-be_company-0030","lang":"nl","text":"Nummer 1373.302.978 onbekend in de KBO.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-be_eid-0001","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=595-1313505-46","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0002","lang":"nl","text":"Kaartnummer eID 592-8928063-70 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0003","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=594-0160869-82","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0004","lang":"nl","text":"id_card_number: 595-6673989-19","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0005","lang":"nl","text":"id_card_number: 592-0818202-88","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0006","lang":"nl","text":"eID-kaart 591-5521698-75","spans":[{"start":10,"end":24,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0007","lang":"nl","text":"id_card_number: 591-9668445-72","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0008","lang":"nl","text":"eID-kaart 599-334​5829-39","spans":[{"start":10,"end":27,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0009","lang":"nl","text":"eID-kaart 594-8125638-84","spans":[{"start":10,"end":24,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0010","lang":"nl","text":"Identiteitskaartnummer: 596-2905202-49","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0011","lang":"nl","text":"eID-kaart 592-3714017-65","spans":[{"start":10,"end":24,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0012","lang":"nl","text":"eID-kaart 599-6465677-76","spans":[{"start":10,"end":24,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0013","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"596-6511947-43\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0014","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"590-7630660-84\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0015","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=593-2504490-10","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0016","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"593-261​2608-70\",\"active\":true}","spans":[{"start":33,"end":50,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0017","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"597-1783498-32\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0018","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=597-531​5019-74","spans":[{"start":48,"end":65,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0019","lang":"nl","text":"eID-kaart ５９４-７６８６１８９-４５","spans":[{"start":10,"end":48,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0020","lang":"nl","text":"eID-kaart 594-4216482-28","spans":[{"start":10,"end":24,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0021","lang":"nl","text":"Identiteitskaartnummer: 596-7865312-64","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0022","lang":"nl","text":"id_card_number: 591-7547011-28","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0023","lang":"nl","text":"id_card_number: 595-447​0672-57","spans":[{"start":16,"end":33,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0024","lang":"nl","text":"id_card_number: 599-0755765-69","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0025","lang":"nl","text":"id_card_number: 592-6396197-01","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0026","lang":"nl","text":"Kaartnummer eID 598-4019344-07 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0027","lang":"nl","text":"Kaartnummer eID 595-7993351-84 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0028","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"598-4128843-90\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0029","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"597-0380633-78\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0030","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"599-1507037-76\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0031","lang":"nl","text":"Identiteitskaartnummer: 592-4856706-94","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0032","lang":"nl","text":"Identiteitskaartnummer: 599-7228315-03","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0033","lang":"nl","text":"id_card_number: 591-0865796-76","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0034","lang":"nl","text":"id_card_number: 594-1486081-80","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0035","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"592-537​6856-33\",\"active\":true}","spans":[{"start":33,"end":50,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0036","lang":"nl","text":"Kaartnummer eID 592-9517418-53 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0037","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=593-3832745-44","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0038","lang":"nl","text":"Identiteitskaartnummer: 590-6140321-53","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0039","lang":"nl","text":"id_card_number: 592-7898319-78","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0040","lang":"nl","text":"id_card_number: 596-6154817-67","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0041","lang":"nl","text":"Identiteitskaartnummer: 596-9019186-26","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0042","lang":"nl","text":"Kaartnummer eID 593-4256699-11 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0043","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"599-1089643-73\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0044","lang":"nl","text":"Identiteitskaartnummer: 590-9621990-04","spans":[{"start":24,"end":38,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0045","lang":"nl","text":"Kaartnummer eID 597-9597280-76 vervallen.","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0046","lang":"nl","text":"id_card_number: 591-393​5688-15","spans":[{"start":16,"end":33,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0047","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"593-3068432-91\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0048","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"５９１-８０６５４３８-８７\",\"active\":true}","spans":[{"start":33,"end":71,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0049","lang":"nl","text":"Identiteitskaartnummer: ５９９-３９２５０１０-３３","spans":[{"start":24,"end":62,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0050","lang":"nl","text":"id_card_number: 593-0583567-75","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0051","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=592-0734117-05","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0052","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"598-8566339-30\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0053","lang":"nl","text":"eID-kaart ５９３-２４６６７８０-３３","spans":[{"start":10,"end":48,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0054","lang":"nl","text":"{\"type\":\"user\",\"id_card_number\":\"591-6877262-64\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0055","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=592-3873479-59","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0056","lang":"nl","text":"id_card_number: 598-8004446-58","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0057","lang":"nl","text":"level=info msg=\"profile updated\" id_card_number=594-366​4567-43","spans":[{"start":48,"end":65,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-be_eid-0058","lang":"nl","text":"id_card_number: 598-0059965-71","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0059","lang":"nl","text":"id_card_number: 591-6317304-87","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"nl-be_eid-0060","lang":"nl","text":"Identiteitskaartnummer: 595-111​9404-42","spans":[{"start":24,"end":41,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"nl-neg-be_eid-0001","lang":"nl","text":"Kaart 591-3745115-69 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0002","lang":"nl","text":"Referentie 596-3833351-93 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0003","lang":"nl","text":"Referentie 595-2434841-23 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0004","lang":"nl","text":"Kaart 592-9393692-34 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0005","lang":"nl","text":"Referentie 596-1694903-05 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0006","lang":"nl","text":"Kaart 594-7194332-50 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0007","lang":"nl","text":"Referentie 590-2462854-80 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0008","lang":"nl","text":"Referentie 592-3611355-51 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0009","lang":"nl","text":"Kaart 595-6936054-71 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0010","lang":"nl","text":"Kaart 593-0873332-08 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0011","lang":"nl","text":"Kaart 595-4309018-43 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0012","lang":"nl","text":"Referentie 593-7388138-10 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0013","lang":"nl","text":"Kaart 598-5456968-21 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0014","lang":"nl","text":"Referentie 599-2274863-16 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0015","lang":"nl","text":"Kaart 597-3160059-07 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0016","lang":"nl","text":"Referentie 594-1950968-18 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0017","lang":"nl","text":"Kaart 592-6774923-99 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0018","lang":"nl","text":"Referentie 594-3983033-27 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0019","lang":"nl","text":"Kaart 598-4716536-67 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0020","lang":"nl","text":"Referentie 597-0600093-09 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0021","lang":"nl","text":"Kaart 596-4440193-66 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0022","lang":"nl","text":"Referentie 596-5912605-96 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0023","lang":"nl","text":"Kaart 590-3367230-85 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0024","lang":"nl","text":"Kaart 598-6654382-86 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0025","lang":"nl","text":"Referentie 593-9128090-43 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0026","lang":"nl","text":"Referentie 591-6605415-99 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0027","lang":"nl","text":"Kaart 595-9479782-01 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0028","lang":"nl","text":"Referentie 596-7301364-37 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0029","lang":"nl","text":"Kaart 599-6544708-01 geweigerd: controlecijfers fout.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-be_eid-0030","lang":"nl","text":"Referentie 592-4866101-93 onbekend.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-passport-0001","lang":"nl","text":"Paspoortnummer: EH929458","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0002","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EK57​3102\",\"active\":true}","spans":[{"start":34,"end":45,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0003","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EN535504","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0004","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EK096730","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0005","lang":"nl","text":"Paspoort EH882936 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0006","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EN855864","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0007","lang":"nl","text":"Paspoort EN２３３８７４ geldig tot 2030.","spans":[{"start":9,"end":29,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0008","lang":"nl","text":"passport_number: EN635917","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0009","lang":"nl","text":"Paspoort EK63​4926 geldig tot 2030.","spans":[{"start":9,"end":20,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0010","lang":"nl","text":"Paspoortnummer: EJ880972","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0011","lang":"nl","text":"passport_number: EJ216041","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0012","lang":"nl","text":"Paspoort EL７８８７７３ geldig tot 2030.","spans":[{"start":9,"end":29,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0013","lang":"nl","text":"Paspoort nr. EJ949478","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"nl-passport-0014","lang":"nl","text":"Paspoortnummer: EH178336","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0015","lang":"nl","text":"Paspoort EJ51​8559 geldig tot 2030.","spans":[{"start":9,"end":20,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0016","lang":"nl","text":"Paspoort EM279874 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0017","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EP５８２１５３\",\"active\":true}","spans":[{"start":34,"end":54,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0018","lang":"nl","text":"Paspoortnummer: EK639640","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0019","lang":"nl","text":"Paspoortnummer: EL945813","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0020","lang":"nl","text":"Paspoortnummer: EL272705","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0021","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EH034927\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0022","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EK572452\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0023","lang":"nl","text":"passport_number: EN594909","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0024","lang":"nl","text":"Paspoortnummer: EN525859","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0025","lang":"nl","text":"passport_number: EN808157","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0026","lang":"nl","text":"Paspoort EJ072943 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0027","lang":"nl","text":"Paspoort EM765391 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0028","lang":"nl","text":"Paspoortnummer: EP137201","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0029","lang":"nl","text":"Paspoortnummer: EL534334","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0030","lang":"nl","text":"Paspoort EJ618213 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0031","lang":"nl","text":"Paspoort nr. EJ276056","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"nl-passport-0032","lang":"nl","text":"passport_number: EK187352","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0033","lang":"nl","text":"Paspoort EL570552 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0034","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EH267693\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0035","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EK159440","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0036","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EM５２１３０２","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0037","lang":"nl","text":"Paspoort EP801191 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0038","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EN294826\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0039","lang":"nl","text":"Paspoort nr. EM125320","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"nl-passport-0040","lang":"nl","text":"Paspoort nr. EK729397","spans":[{"start":13,"end":21,"kind":"passport"}]}
+{"id":"nl-passport-0041","lang":"nl","text":"Paspoortnummer: EN154493","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0042","lang":"nl","text":"passport_number: EL654898","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0043","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EL608670","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0044","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EL945907","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0045","lang":"nl","text":"passport_number: EK020808","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0046","lang":"nl","text":"Paspoort EM342548 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0047","lang":"nl","text":"Paspoort EK366826 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0048","lang":"nl","text":"passport_number: EL882200","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0049","lang":"nl","text":"Paspoortnummer: EM47​5307","spans":[{"start":16,"end":27,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-passport-0050","lang":"nl","text":"passport_number: EL920038","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0051","lang":"nl","text":"Paspoortnummer: EM938961","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0052","lang":"nl","text":"passport_number: EH279943","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0053","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EN611941\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0054","lang":"nl","text":"{\"type\":\"user\",\"passport_number\":\"EJ025807\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"nl-passport-0055","lang":"nl","text":"passport_number: EK220336","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"nl-passport-0056","lang":"nl","text":"level=info msg=\"profile updated\" passport_number=EL031266","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"nl-passport-0057","lang":"nl","text":"Paspoortnummer: EH446024","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0058","lang":"nl","text":"Paspoortnummer: EL752810","spans":[{"start":16,"end":24,"kind":"passport"}]}
+{"id":"nl-passport-0059","lang":"nl","text":"Paspoort EN372427 geldig tot 2030.","spans":[{"start":9,"end":17,"kind":"passport"}]}
+{"id":"nl-passport-0060","lang":"nl","text":"passport_number: EL25​7351","spans":[{"start":17,"end":28,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"nl-neg-passport-0001","lang":"nl","text":"Pakket EL805678 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0002","lang":"nl","text":"Partij EH267336 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0003","lang":"nl","text":"Pakket EH411862 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0004","lang":"nl","text":"Partij EP712883 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0005","lang":"nl","text":"Partij EH903798 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0006","lang":"nl","text":"Partij EJ519715 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0007","lang":"nl","text":"Pakket EL908044 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0008","lang":"nl","text":"Partij EK059598 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0009","lang":"nl","text":"Pakket EH731803 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0010","lang":"nl","text":"Pakket EJ291529 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0011","lang":"nl","text":"Partij EL767551 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0012","lang":"nl","text":"Pakket EM803998 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0013","lang":"nl","text":"Partij EN247757 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0014","lang":"nl","text":"Pakket EL565180 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0015","lang":"nl","text":"Partij EL281258 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0016","lang":"nl","text":"Pakket EH151503 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0017","lang":"nl","text":"Pakket EK334748 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0018","lang":"nl","text":"Partij EP653897 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0019","lang":"nl","text":"Pakket EJ357152 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0020","lang":"nl","text":"Partij EJ854139 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0021","lang":"nl","text":"Pakket EN836901 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0022","lang":"nl","text":"Partij EN065322 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0023","lang":"nl","text":"Partij EJ806318 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0024","lang":"nl","text":"Pakket EH205749 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0025","lang":"nl","text":"Pakket EJ303249 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0026","lang":"nl","text":"Pakket EP474752 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0027","lang":"nl","text":"Partij EL489396 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0028","lang":"nl","text":"Partij EK949639 gecontroleerd.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0029","lang":"nl","text":"Pakket EH604805 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-passport-0030","lang":"nl","text":"Pakket EJ229663 vanochtend verzonden.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-birth_date-0001","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=20-04-1939","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0002","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=27-02-1968","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0003","lang":"nl","text":"geboren 12-08-1950","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0004","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=15-03-1984","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0005","lang":"nl","text":"Geboren op 1989-01-05 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0006","lang":"nl","text":"Geboortedatum: 22-09-2004","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0007","lang":"nl","text":"Geboortedatum: 1934-10-11","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0008","lang":"nl","text":"birth_date: 1993-10-07","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0009","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"19-03-1953\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0010","lang":"nl","text":"Geboren op 1979-10-16 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0011","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"22-09-1933\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0012","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1934-01-09","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0013","lang":"nl","text":"birth_date: 1975-10-07","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0014","lang":"nl","text":"Geboortedatum: 28-02-1934","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0015","lang":"nl","text":"birth_date: 6 juni 1935","spans":[{"start":12,"end":23,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0016","lang":"nl","text":"Geboren op 09-02-1960 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0017","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1952-04-09","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0018","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"16-02-2002\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0019","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1941-07-14","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0020","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1999-08-12","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0021","lang":"nl","text":"Geboortedatum: 18-04-1951","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0022","lang":"nl","text":"Geboortedatum: 19-01-1940","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0023","lang":"nl","text":"birth_date: 1989-05-05","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0024","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=2002-10-15","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0025","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=10-10-1991","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0026","lang":"nl","text":"Geboortedatum: 21-07-1968","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0027","lang":"nl","text":"birth_date: 1930-03-07","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0028","lang":"nl","text":"birth_date: 27 april 1976","spans":[{"start":12,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0029","lang":"nl","text":"geboren 25-10-2007","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0030","lang":"nl","text":"geboren 1933-03-15","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0031","lang":"nl","text":"birth_date: 1952-01-15","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0032","lang":"nl","text":"geboren 26-11-1954","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0033","lang":"nl","text":"geboren 2 september 1946","spans":[{"start":8,"end":24,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0034","lang":"nl","text":"geboren 28-05-1976","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0035","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1985-09-15","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0036","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"4 april 1989\",\"active\":true}","spans":[{"start":29,"end":41,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0037","lang":"nl","text":"geboren 22 juni 1946","spans":[{"start":8,"end":20,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0038","lang":"nl","text":"geboren 15-08-1979","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0039","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"12-07-2006\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0040","lang":"nl","text":"birth_date: 09-10-1952","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0041","lang":"nl","text":"Geboortedatum: 21-01-1936","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0042","lang":"nl","text":"Geboortedatum: 23-06-1992","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0043","lang":"nl","text":"Geboortedatum: 27-08-2004","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0044","lang":"nl","text":"birth_date: 24-07-1999","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0045","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"11-03-1989\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0046","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=1935-06-24","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0047","lang":"nl","text":"Geboren op 20-01-2008 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0048","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"1970-05-26\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0049","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"22-02-1961\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0050","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"04-03-1976\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0051","lang":"nl","text":"Geboortedatum: 16-02-1985","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0052","lang":"nl","text":"Geboren op 1956-03-01 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0053","lang":"nl","text":"Geboortedatum: 05-05-1971","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0054","lang":"nl","text":"geboren 05-12-1941","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0055","lang":"nl","text":"geboren 17-03-1948","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0056","lang":"nl","text":"Geboren op 1958-11-14 in Gent.","spans":[{"start":11,"end":21,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0057","lang":"nl","text":"level=info msg=\"profile updated\" birth_date=05-10-1984","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0058","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"13 maart 1949\",\"active\":true}","spans":[{"start":29,"end":42,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0059","lang":"nl","text":"geboren 10-07-1993","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"nl-birth_date-0060","lang":"nl","text":"{\"type\":\"user\",\"birth_date\":\"7 september 1976\",\"active\":true}","spans":[{"start":29,"end":45,"kind":"birth_date"}]}
+{"id":"nl-neg-birth_date-0001","lang":"nl","text":"Garantie tot 22-09-1934.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0002","lang":"nl","text":"Factuurdatum: 1964-04-26","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0003","lang":"nl","text":"Garantie tot 02-11-2007.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0004","lang":"nl","text":"Factuurdatum: 1946-05-04","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0005","lang":"nl","text":"Contract getekend op 25 november 1970.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0006","lang":"nl","text":"Contract getekend op 1974-01-05.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0007","lang":"nl","text":"Contract getekend op 4 november 1969.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0008","lang":"nl","text":"Garantie tot 1975-02-12.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0009","lang":"nl","text":"Contract getekend op 04-03-1931.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0010","lang":"nl","text":"Contract getekend op 05-05-1955.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0011","lang":"nl","text":"Garantie tot 1972-12-18.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0012","lang":"nl","text":"Factuurdatum: 2008-06-24","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0013","lang":"nl","text":"Factuurdatum: 14 juni 1960","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0014","lang":"nl","text":"Contract getekend op 24-06-1994.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0015","lang":"nl","text":"Factuurdatum: 22 juli 1990","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0016","lang":"nl","text":"Garantie tot 21-12-1986.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0017","lang":"nl","text":"Contract getekend op 1985-09-07.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0018","lang":"nl","text":"Garantie tot 25-05-2005.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0019","lang":"nl","text":"Factuurdatum: 28-09-1967","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0020","lang":"nl","text":"Factuurdatum: 24-09-1977","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0021","lang":"nl","text":"Garantie tot 1983-09-04.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0022","lang":"nl","text":"Garantie tot 27 april 1933.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0023","lang":"nl","text":"Factuurdatum: 25-11-1972","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0024","lang":"nl","text":"Garantie tot 09-07-1970.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0025","lang":"nl","text":"Contract getekend op 18 november 1945.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0026","lang":"nl","text":"Garantie tot 1934-08-13.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0027","lang":"nl","text":"Contract getekend op 25-07-1979.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0028","lang":"nl","text":"Contract getekend op 23-03-1987.","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0029","lang":"nl","text":"Factuurdatum: 1972-09-22","spans":[],"tags":["hard_negative"]}
+{"id":"nl-neg-birth_date-0030","lang":"nl","text":"Garantie tot 2003-10-28.","spans":[],"tags":["hard_negative"]}

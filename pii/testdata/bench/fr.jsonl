@@ -1038,3 +1038,273 @@
 {"id":"fr-neg-be_company-0028","lang":"fr","text":"Numéro 1014.564.881 inconnu à la BCE.","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-be_company-0029","lang":"fr","text":"Colis 1997.188.341 remis au transporteur.","spans":[],"tags":["hard_negative"]}
 {"id":"fr-neg-be_company-0030","lang":"fr","text":"Colis 1072.470.515 remis au transporteur.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-be_eid-0001","lang":"fr","text":"Numéro de carte eID : 596-6304044-11","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0002","lang":"fr","text":"Carte d'identité n° 596-8522830-19","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0003","lang":"fr","text":"id_card_number: 597-5584920-24","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0004","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"591-812​7647-22\",\"active\":true}","spans":[{"start":33,"end":50,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0005","lang":"fr","text":"eID 591-8454148-21 expirée.","spans":[{"start":4,"end":18,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0006","lang":"fr","text":"eID 595-070​9718-84 expirée.","spans":[{"start":4,"end":21,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0007","lang":"fr","text":"Numéro de carte eID : 598-6851935-04","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0008","lang":"fr","text":"Carte d'identité n° 591-4772295-94","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0009","lang":"fr","text":"Carte d'identité n° 595-9490283-15","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0010","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=593-4604636-09","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0011","lang":"fr","text":"Carte d'identité n° 591-8096017-14","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0012","lang":"fr","text":"id_card_number: 599-8588199-44","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0013","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"597-3882883-46\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0014","lang":"fr","text":"id_card_number: 595-5057028-48","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0015","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=593-2306215-03","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0016","lang":"fr","text":"Carte d'identité n° 593-6104571-33","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0017","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"590-2734158-45\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0018","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=599-1155922-04","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0019","lang":"fr","text":"Numéro de carte eID : 599-5603639-77","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0020","lang":"fr","text":"eID ５９７-７８４９６２５-７０ expirée.","spans":[{"start":4,"end":42,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0021","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"590-7986147-66\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0022","lang":"fr","text":"Numéro de carte eID : 599-1812362-45","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0023","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=597-4560531-52","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0024","lang":"fr","text":"Carte d'identité n° 597-4204319-24","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0025","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"590-9549989-74\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0026","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"595-1665123-39\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0027","lang":"fr","text":"Carte d'identité n° 595-8366295-63","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0028","lang":"fr","text":"Numéro de carte eID : 591-4526395-89","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0029","lang":"fr","text":"eID 599-6281194-87 expirée.","spans":[{"start":4,"end":18,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0030","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"597-7865285-16\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0031","lang":"fr","text":"Carte d'identité n° 598-9931701-20","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0032","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"596-1883613-64\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0033","lang":"fr","text":"Carte d'identité n° 597-9037762-54","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0034","lang":"fr","text":"id_card_number: 595-7793639-95","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0035","lang":"fr","text":"Numéro de carte eID : 598-8272015-04","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0036","lang":"fr","text":"eID 593-530​7182-81 expirée.","spans":[{"start":4,"end":21,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0037","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=597-2507844-79","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0038","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=５９２-３７２７７２５-９６","spans":[{"start":48,"end":86,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0039","lang":"fr","text":"Carte d'identité n° 593-5763283-88","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0040","lang":"fr","text":"eID 595-916​3941-78 expirée.","spans":[{"start":4,"end":21,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0041","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"599-5621228-12\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0042","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"590-8526752-90\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0043","lang":"fr","text":"id_card_number: 593-7402294-90","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0044","lang":"fr","text":"Carte d'identité n° 597-107​0711-01","spans":[{"start":22,"end":39,"kind":"be_eid"}],"tags":["hard_positive"]}
+{"id":"fr-be_eid-0045","lang":"fr","text":"Carte d'identité n° 596-2806303-90","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0046","lang":"fr","text":"Carte d'identité n° 597-6223752-14","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0047","lang":"fr","text":"{\"type\":\"user\",\"id_card_number\":\"594-9926118-50\",\"active\":true}","spans":[{"start":33,"end":47,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0048","lang":"fr","text":"Numéro de carte eID : 594-0595512-68","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0049","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=597-8521492-18","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0050","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=591-9892470-27","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0051","lang":"fr","text":"Carte d'identité n° 598-2537123-43","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0052","lang":"fr","text":"Carte d'identité n° 599-2730117-83","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0053","lang":"fr","text":"id_card_number: 590-2047274-18","spans":[{"start":16,"end":30,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0054","lang":"fr","text":"eID 596-2874516-15 expirée.","spans":[{"start":4,"end":18,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0055","lang":"fr","text":"Carte d'identité n° 595-5198303-91","spans":[{"start":22,"end":36,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0056","lang":"fr","text":"Numéro de carte eID : 595-9790273-81","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0057","lang":"fr","text":"Numéro de carte eID : 591-4579575-16","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0058","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=593-2530551-75","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0059","lang":"fr","text":"level=info msg=\"profile updated\" id_card_number=598-8380680-29","spans":[{"start":48,"end":62,"kind":"be_eid"}]}
+{"id":"fr-be_eid-0060","lang":"fr","text":"Numéro de carte eID : 598-3212311-14","spans":[{"start":23,"end":37,"kind":"be_eid"}]}
+{"id":"fr-neg-be_eid-0001","lang":"fr","text":"Carte 593-0581883-96 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0002","lang":"fr","text":"Carte 595-4893024-91 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0003","lang":"fr","text":"Référence 590-9999133-34 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0004","lang":"fr","text":"Référence 591-4874154-86 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0005","lang":"fr","text":"Carte 591-7469462-47 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0006","lang":"fr","text":"Référence 590-7561417-88 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0007","lang":"fr","text":"Carte 597-1349928-90 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0008","lang":"fr","text":"Carte 598-9052225-86 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0009","lang":"fr","text":"Référence 593-4324557-53 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0010","lang":"fr","text":"Carte 592-7929169-21 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0011","lang":"fr","text":"Référence 590-7960061-81 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0012","lang":"fr","text":"Carte 599-8425523-79 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0013","lang":"fr","text":"Référence 591-2128747-63 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0014","lang":"fr","text":"Carte 596-8421874-71 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0015","lang":"fr","text":"Carte 591-6195122-96 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0016","lang":"fr","text":"Carte 593-6756606-76 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0017","lang":"fr","text":"Référence 590-7374807-50 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0018","lang":"fr","text":"Référence 590-3880970-98 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0019","lang":"fr","text":"Référence 590-1329654-12 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0020","lang":"fr","text":"Carte 591-9597739-85 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0021","lang":"fr","text":"Carte 595-9663467-44 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0022","lang":"fr","text":"Carte 593-8932154-95 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0023","lang":"fr","text":"Référence 593-8122898-86 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0024","lang":"fr","text":"Référence 596-7893596-29 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0025","lang":"fr","text":"Carte 591-2053021-89 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0026","lang":"fr","text":"Carte 598-7380540-03 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0027","lang":"fr","text":"Référence 592-0859378-62 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0028","lang":"fr","text":"Carte 591-6682104-27 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0029","lang":"fr","text":"Carte 593-8368091-07 refusée : chiffres de contrôle faux.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-be_eid-0030","lang":"fr","text":"Référence 592-9326348-75 inconnue.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-passport-0001","lang":"fr","text":"passport_number: EP682651","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0002","lang":"fr","text":"Numéro de passeport : EM853718","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0003","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EL023849","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0004","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EL799218","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0005","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EL609136","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0006","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EJ８０１００１","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0007","lang":"fr","text":"Numéro de passeport : EH307191","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0008","lang":"fr","text":"Passeport EL850958 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0009","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EJ986740\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"fr-passport-0010","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EH860572","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0011","lang":"fr","text":"Passeport n° EP627455","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0012","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EP490184\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"fr-passport-0013","lang":"fr","text":"Passeport EK68​6207 délivré à Bruxelles.","spans":[{"start":10,"end":21,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0014","lang":"fr","text":"Passeport n° EN086084","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0015","lang":"fr","text":"passport_number: EL142682","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0016","lang":"fr","text":"passport_number: EL540754","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0017","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EN637005","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0018","lang":"fr","text":"Numéro de passeport : EN030263","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0019","lang":"fr","text":"Numéro de passeport : EN47​8846","spans":[{"start":23,"end":34,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0020","lang":"fr","text":"Passeport EK923537 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0021","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EL626863","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0022","lang":"fr","text":"passport_number: EP894052","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0023","lang":"fr","text":"Numéro de passeport : EL620971","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0024","lang":"fr","text":"Passeport EL271562 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0025","lang":"fr","text":"Passeport n° EJ８１６２１６","spans":[{"start":14,"end":34,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0026","lang":"fr","text":"Passeport n° EL165123","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0027","lang":"fr","text":"Passeport EK791824 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0028","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EM653699\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"fr-passport-0029","lang":"fr","text":"Passeport n° EK２７６８０１","spans":[{"start":14,"end":34,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0030","lang":"fr","text":"Passeport n° EK446338","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0031","lang":"fr","text":"Passeport n° EJ326533","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0032","lang":"fr","text":"passport_number: EM622259","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0033","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EM０６３８８５","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0034","lang":"fr","text":"Passeport EN25​3283 délivré à Bruxelles.","spans":[{"start":10,"end":21,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0035","lang":"fr","text":"passport_number: EM67​2970","spans":[{"start":17,"end":28,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0036","lang":"fr","text":"Passeport n° EH648325","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0037","lang":"fr","text":"Passeport EK946756 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0038","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EJ584129","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0039","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EN735737\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"fr-passport-0040","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EN657198\",\"active\":true}","spans":[{"start":34,"end":42,"kind":"passport"}]}
+{"id":"fr-passport-0041","lang":"fr","text":"passport_number: EN813875","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0042","lang":"fr","text":"Numéro de passeport : EK852396","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0043","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EN869588","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0044","lang":"fr","text":"Numéro de passeport : EK685430","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0045","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EH５５０５３０","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0046","lang":"fr","text":"Passeport n° EP831495","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0047","lang":"fr","text":"Passeport n° EH089489","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0048","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EJ740917","spans":[{"start":49,"end":57,"kind":"passport"}]}
+{"id":"fr-passport-0049","lang":"fr","text":"Passeport EN703058 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0050","lang":"fr","text":"level=info msg=\"profile updated\" passport_number=EK８４６２６２","spans":[{"start":49,"end":69,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0051","lang":"fr","text":"Numéro de passeport : EP176116","spans":[{"start":23,"end":31,"kind":"passport"}]}
+{"id":"fr-passport-0052","lang":"fr","text":"passport_number: EN１１９０８２","spans":[{"start":17,"end":37,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0053","lang":"fr","text":"passport_number: EL849243","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0054","lang":"fr","text":"passport_number: EN43​3980","spans":[{"start":17,"end":28,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0055","lang":"fr","text":"passport_number: EN097897","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0056","lang":"fr","text":"Passeport EJ980333 délivré à Bruxelles.","spans":[{"start":10,"end":18,"kind":"passport"}]}
+{"id":"fr-passport-0057","lang":"fr","text":"passport_number: EJ586152","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-passport-0058","lang":"fr","text":"Passeport n° EL512803","spans":[{"start":14,"end":22,"kind":"passport"}]}
+{"id":"fr-passport-0059","lang":"fr","text":"{\"type\":\"user\",\"passport_number\":\"EP20​0733\",\"active\":true}","spans":[{"start":34,"end":45,"kind":"passport"}],"tags":["hard_positive"]}
+{"id":"fr-passport-0060","lang":"fr","text":"passport_number: EM275240","spans":[{"start":17,"end":25,"kind":"passport"}]}
+{"id":"fr-neg-passport-0001","lang":"fr","text":"Colis EJ102813 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0002","lang":"fr","text":"Colis EN103232 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0003","lang":"fr","text":"Colis EN537822 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0004","lang":"fr","text":"Lot EJ257156 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0005","lang":"fr","text":"Colis EP700065 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0006","lang":"fr","text":"Lot EM319809 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0007","lang":"fr","text":"Colis EN773132 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0008","lang":"fr","text":"Lot EK421573 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0009","lang":"fr","text":"Colis EN550318 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0010","lang":"fr","text":"Lot EP126857 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0011","lang":"fr","text":"Colis EK546854 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0012","lang":"fr","text":"Lot EM961194 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0013","lang":"fr","text":"Lot EJ413903 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0014","lang":"fr","text":"Lot EK089306 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0015","lang":"fr","text":"Colis EP703294 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0016","lang":"fr","text":"Lot EK045657 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0017","lang":"fr","text":"Colis EH681349 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0018","lang":"fr","text":"Colis EH942145 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0019","lang":"fr","text":"Colis EN152004 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0020","lang":"fr","text":"Lot EK313938 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0021","lang":"fr","text":"Colis EK894431 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0022","lang":"fr","text":"Colis EL685756 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0023","lang":"fr","text":"Colis EH394955 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0024","lang":"fr","text":"Lot EM768569 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0025","lang":"fr","text":"Lot EH873687 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0026","lang":"fr","text":"Lot EP540599 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0027","lang":"fr","text":"Colis EL752504 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0028","lang":"fr","text":"Lot EH085804 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0029","lang":"fr","text":"Lot EJ304245 contrôlé.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-passport-0030","lang":"fr","text":"Colis EJ191816 expédié ce matin.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-birth_date-0001","lang":"fr","text":"birth_date: 25/07/1937","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0002","lang":"fr","text":"Date de naissance : 19/10/1996","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0003","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"11 octobre 1971\",\"active\":true}","spans":[{"start":29,"end":44,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0004","lang":"fr","text":"birth_date: 1975-02-02","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0005","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"16 février 1944\",\"active\":true}","spans":[{"start":29,"end":45,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0006","lang":"fr","text":"Né le 12/08/1969 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0007","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"14/05/1992\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0008","lang":"fr","text":"Date de naissance : 1950-03-19","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0009","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"18/12/1977\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0010","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"4 juillet 1973\",\"active\":true}","spans":[{"start":29,"end":43,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0011","lang":"fr","text":"Date de naissance : 28 octobre 1995","spans":[{"start":20,"end":35,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0012","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=10/01/1986","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0013","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"1er octobre 1979\",\"active\":true}","spans":[{"start":29,"end":45,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0014","lang":"fr","text":"Né le 1er février 1946 à Namur.","spans":[{"start":7,"end":24,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0015","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=07/05/1979","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0016","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"25/09/1984\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0017","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"15/08/1988\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0018","lang":"fr","text":"Né le 1951-11-17 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0019","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"16 mai 2004\",\"active\":true}","spans":[{"start":29,"end":40,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0020","lang":"fr","text":"Date de naissance : 19/07/1974","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0021","lang":"fr","text":"Née le 1958-02-02","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0022","lang":"fr","text":"Né le 1944-10-15 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0023","lang":"fr","text":"Née le 1er octobre 1991","spans":[{"start":8,"end":24,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0024","lang":"fr","text":"Date de naissance : 09/02/2000","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0025","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"10/06/1976\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0026","lang":"fr","text":"Né le 1932-02-25 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0027","lang":"fr","text":"Date de naissance : 24/01/1930","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0028","lang":"fr","text":"Né le 1941-09-08 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0029","lang":"fr","text":"Née le 16 août 1941","spans":[{"start":8,"end":21,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0030","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"13 décembre 1993\",\"active\":true}","spans":[{"start":29,"end":46,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0031","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"20/06/1977\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0032","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"8 mai 1935\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0033","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=18/07/1956","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0034","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"1956-09-16\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0035","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=03/04/1939","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0036","lang":"fr","text":"Née le 1934-07-22","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0037","lang":"fr","text":"Date de naissance : 1931-09-16","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0038","lang":"fr","text":"Date de naissance : 12 novembre 1950","spans":[{"start":20,"end":36,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0039","lang":"fr","text":"Née le 15 juin 1983","spans":[{"start":8,"end":20,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0040","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=07/11/1941","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0041","lang":"fr","text":"Né le 06/05/1960 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0042","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=01/11/2002","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0043","lang":"fr","text":"Né le 24 avril 2003 à Namur.","spans":[{"start":7,"end":20,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0044","lang":"fr","text":"birth_date: 14/02/1958","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0045","lang":"fr","text":"Né le 03/12/1965 à Namur.","spans":[{"start":7,"end":17,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0046","lang":"fr","text":"Né le 12 février 2005 à Namur.","spans":[{"start":7,"end":23,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0047","lang":"fr","text":"Date de naissance : 08/02/1997","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0048","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"1994-08-18\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0049","lang":"fr","text":"Née le 08/06/1983","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0050","lang":"fr","text":"Date de naissance : 27 février 1972","spans":[{"start":20,"end":36,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0051","lang":"fr","text":"birth_date: 1966-01-09","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0052","lang":"fr","text":"Date de naissance : 1944-10-12","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0053","lang":"fr","text":"Né le 15 février 1987 à Namur.","spans":[{"start":7,"end":23,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0054","lang":"fr","text":"{\"type\":\"user\",\"birth_date\":\"24/10/1936\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0055","lang":"fr","text":"Née le 12/08/1984","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0056","lang":"fr","text":"level=info msg=\"profile updated\" birth_date=6 juillet 1951","spans":[{"start":44,"end":58,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0057","lang":"fr","text":"Date de naissance : 02/01/1982","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0058","lang":"fr","text":"birth_date: 1964-06-03","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0059","lang":"fr","text":"Date de naissance : 22/02/1996","spans":[{"start":20,"end":30,"kind":"birth_date"}]}
+{"id":"fr-birth_date-0060","lang":"fr","text":"Née le 12/05/1946","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"fr-neg-birth_date-0001","lang":"fr","text":"Contrat signé le 2008-11-24.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0002","lang":"fr","text":"Garantie jusqu'au 07/06/2007.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0003","lang":"fr","text":"Garantie jusqu'au 25/01/1978.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0004","lang":"fr","text":"Garantie jusqu'au 18/07/1938.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0005","lang":"fr","text":"Garantie jusqu'au 11 août 2001.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0006","lang":"fr","text":"Contrat signé le 1958-08-19.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0007","lang":"fr","text":"Garantie jusqu'au 13/03/1978.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0008","lang":"fr","text":"Garantie jusqu'au 12 août 1932.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0009","lang":"fr","text":"Contrat signé le 1938-03-14.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0010","lang":"fr","text":"Garantie jusqu'au 26/09/1946.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0011","lang":"fr","text":"Garantie jusqu'au 18 mai 1957.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0012","lang":"fr","text":"Garantie jusqu'au 22/06/1950.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0013","lang":"fr","text":"Date de facture : 10 février 1933","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0014","lang":"fr","text":"Date de facture : 1982-02-11","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0015","lang":"fr","text":"Date de facture : 1939-04-22","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0016","lang":"fr","text":"Contrat signé le 06/04/1960.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0017","lang":"fr","text":"Date de facture : 24/07/1948","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0018","lang":"fr","text":"Garantie jusqu'au 25/05/1969.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0019","lang":"fr","text":"Contrat signé le 1952-02-25.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0020","lang":"fr","text":"Contrat signé le 14/12/1972.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0021","lang":"fr","text":"Contrat signé le 17 août 1993.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0022","lang":"fr","text":"Garantie jusqu'au 06/06/1951.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0023","lang":"fr","text":"Garantie jusqu'au 08/12/1992.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0024","lang":"fr","text":"Date de facture : 9 février 1982","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0025","lang":"fr","text":"Date de facture : 1958-02-15","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0026","lang":"fr","text":"Contrat signé le 26/04/1994.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0027","lang":"fr","text":"Date de facture : 1973-09-19","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0028","lang":"fr","text":"Garantie jusqu'au 1981-02-21.","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0029","lang":"fr","text":"Date de facture : 23/12/1980","spans":[],"tags":["hard_negative"]}
+{"id":"fr-neg-birth_date-0030","lang":"fr","text":"Contrat signé le 2006-04-26.","spans":[],"tags":["hard_negative"]}

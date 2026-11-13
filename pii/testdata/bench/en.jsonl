@@ -888,3 +888,93 @@
 {"id":"en-neg-eu_vat-0028","lang":"en","text":"VIES rejected the VAT number LU78561419.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-eu_vat-0029","lang":"en","text":"VIES rejected the VAT number BE0799035260.","spans":[],"tags":["hard_negative"]}
 {"id":"en-neg-eu_vat-0030","lang":"en","text":"Wrong check digits: LU63002888","spans":[],"tags":["hard_negative"]}
+{"id":"en-birth_date-0001","lang":"en","text":"Date of birth: 07/06/2008","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0002","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"14 February 2008\",\"active\":true}","spans":[{"start":29,"end":45,"kind":"birth_date"}]}
+{"id":"en-birth_date-0003","lang":"en","text":"Date of birth: 20 November 1932","spans":[{"start":15,"end":31,"kind":"birth_date"}]}
+{"id":"en-birth_date-0004","lang":"en","text":"Date of birth: May 2, 1965","spans":[{"start":15,"end":26,"kind":"birth_date"}]}
+{"id":"en-birth_date-0005","lang":"en","text":"Date of birth: 1931-08-24","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0006","lang":"en","text":"Born on 2 October 2005 in Leeds.","spans":[{"start":8,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0007","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"1984-03-15\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"en-birth_date-0008","lang":"en","text":"level=info msg=\"profile updated\" birth_date=1947-02-23","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0009","lang":"en","text":"birth_date: 03/01/1991","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0010","lang":"en","text":"DOB 08/24/1937","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0011","lang":"en","text":"Date of birth: 24/10/1935","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0012","lang":"en","text":"Date of birth: 1995-09-23","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0013","lang":"en","text":"level=info msg=\"profile updated\" birth_date=20 August 1937","spans":[{"start":44,"end":58,"kind":"birth_date"}]}
+{"id":"en-birth_date-0014","lang":"en","text":"DOB 1966-04-17","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0015","lang":"en","text":"Date of birth: 12/26/1964","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0016","lang":"en","text":"level=info msg=\"profile updated\" birth_date=28/09/1993","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0017","lang":"en","text":"birth_date: 6 November 1963","spans":[{"start":12,"end":27,"kind":"birth_date"}]}
+{"id":"en-birth_date-0018","lang":"en","text":"level=info msg=\"profile updated\" birth_date=11/13/1959","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0019","lang":"en","text":"birth_date: 02/23/1994","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0020","lang":"en","text":"DOB 1936-04-05","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0021","lang":"en","text":"Date of birth: 05/10/1991","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0022","lang":"en","text":"level=info msg=\"profile updated\" birth_date=1936-03-06","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0023","lang":"en","text":"Born on 02/02/2006 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0024","lang":"en","text":"Date of birth: 10/02/1945","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0025","lang":"en","text":"Born on 27/02/1973 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0026","lang":"en","text":"DOB 05/21/1995","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0027","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"1968-04-15\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"en-birth_date-0028","lang":"en","text":"DOB 08/07/1983","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0029","lang":"en","text":"DOB 20 June 1967","spans":[{"start":4,"end":16,"kind":"birth_date"}]}
+{"id":"en-birth_date-0030","lang":"en","text":"level=info msg=\"profile updated\" birth_date=1975-03-03","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0031","lang":"en","text":"DOB 22/06/1935","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0032","lang":"en","text":"birth_date: 2005-12-03","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0033","lang":"en","text":"level=info msg=\"profile updated\" birth_date=6 July 1975","spans":[{"start":44,"end":55,"kind":"birth_date"}]}
+{"id":"en-birth_date-0034","lang":"en","text":"DOB 1962-05-01","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0035","lang":"en","text":"Date of birth: 1946-08-08","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0036","lang":"en","text":"DOB 05/27/1955","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0037","lang":"en","text":"level=info msg=\"profile updated\" birth_date=13/11/1940","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0038","lang":"en","text":"birth_date: 21/01/1979","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0039","lang":"en","text":"Date of birth: 1933-11-22","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0040","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"1 May 1940\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"en-birth_date-0041","lang":"en","text":"birth_date: 08/02/1958","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0042","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"December 14, 1957\",\"active\":true}","spans":[{"start":29,"end":46,"kind":"birth_date"}]}
+{"id":"en-birth_date-0043","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"05/20/1977\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"en-birth_date-0044","lang":"en","text":"birth_date: 11 June 1960","spans":[{"start":12,"end":24,"kind":"birth_date"}]}
+{"id":"en-birth_date-0045","lang":"en","text":"level=info msg=\"profile updated\" birth_date=18/12/1944","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0046","lang":"en","text":"DOB 10/26/1942","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0047","lang":"en","text":"Born on 1997-07-11 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0048","lang":"en","text":"Born on 1959-04-03 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0049","lang":"en","text":"DOB 11/22/1978","spans":[{"start":4,"end":14,"kind":"birth_date"}]}
+{"id":"en-birth_date-0050","lang":"en","text":"Born on 06/15/1996 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0051","lang":"en","text":"Date of birth: 2007-09-18","spans":[{"start":15,"end":25,"kind":"birth_date"}]}
+{"id":"en-birth_date-0052","lang":"en","text":"Date of birth: 5 June 1979","spans":[{"start":15,"end":26,"kind":"birth_date"}]}
+{"id":"en-birth_date-0053","lang":"en","text":"Born on 20/04/2001 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0054","lang":"en","text":"level=info msg=\"profile updated\" birth_date=2 September 1954","spans":[{"start":44,"end":60,"kind":"birth_date"}]}
+{"id":"en-birth_date-0055","lang":"en","text":"{\"type\":\"user\",\"birth_date\":\"03/03/1960\",\"active\":true}","spans":[{"start":29,"end":39,"kind":"birth_date"}]}
+{"id":"en-birth_date-0056","lang":"en","text":"level=info msg=\"profile updated\" birth_date=1944-10-28","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0057","lang":"en","text":"Born on 01/07/1971 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-birth_date-0058","lang":"en","text":"birth_date: 1978-06-19","spans":[{"start":12,"end":22,"kind":"birth_date"}]}
+{"id":"en-birth_date-0059","lang":"en","text":"level=info msg=\"profile updated\" birth_date=11/20/1980","spans":[{"start":44,"end":54,"kind":"birth_date"}]}
+{"id":"en-birth_date-0060","lang":"en","text":"Born on 18/02/1982 in Leeds.","spans":[{"start":8,"end":18,"kind":"birth_date"}]}
+{"id":"en-neg-birth_date-0001","lang":"en","text":"Contract signed on 05/11/1995.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0002","lang":"en","text":"Invoice date: 12 December 1981","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0003","lang":"en","text":"Invoice date: 1967-05-13","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0004","lang":"en","text":"Warranty until 7 August 1952.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0005","lang":"en","text":"Warranty until 14 March 2002.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0006","lang":"en","text":"Invoice date: 11/10/2002","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0007","lang":"en","text":"Contract signed on 08/04/1956.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0008","lang":"en","text":"Invoice date: 02/05/1960","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0009","lang":"en","text":"Contract signed on 08/03/1991.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0010","lang":"en","text":"Invoice date: 1930-08-10","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0011","lang":"en","text":"Warranty until 1989-02-22.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0012","lang":"en","text":"Invoice date: 09/24/1984","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0013","lang":"en","text":"Contract signed on 08/10/1992.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0014","lang":"en","text":"Invoice date: 1979-12-17","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0015","lang":"en","text":"Invoice date: 28/01/2004","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0016","lang":"en","text":"Invoice date: 08/21/2005","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0017","lang":"en","text":"Warranty until 02/22/1991.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0018","lang":"en","text":"Warranty until 02/18/1987.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0019","lang":"en","text":"Contract signed on 03/11/1996.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0020","lang":"en","text":"Invoice date: 19 January 1977","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0021","lang":"en","text":"Contract signed on 12 April 1938.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0022","lang":"en","text":"Contract signed on 1997-07-23.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0023","lang":"en","text":"Warranty until 18/06/1975.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0024","lang":"en","text":"Warranty until 1933-03-02.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0025","lang":"en","text":"Invoice date: 1976-11-25","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0026","lang":"en","text":"Warranty until 21/05/1990.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0027","lang":"en","text":"Invoice date: 24/05/1986","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0028","lang":"en","text":"Contract signed on 04/15/1998.","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0029","lang":"en","text":"Invoice date: 1994-08-17","spans":[],"tags":["hard_negative"]}
+{"id":"en-neg-birth_date-0030","lang":"en","text":"Invoice date: July 18, 1996","spans":[],"tags":["hard_negative"]}
