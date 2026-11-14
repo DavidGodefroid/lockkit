@@ -57,6 +57,10 @@ type Flags struct {
 	NeverAuto bool `json:"never_auto"`
 	// Retype, when set, is the answer that asks the lock to retype values.
 	Retype string `json:"retype"`
+	// Unconfined: the agent behind the request does not run confined
+	// (lockkit#133); the facade says so. Omitted when false, so that a hub
+	// that does not know it refuses only the tickets that carry it.
+	Unconfined bool `json:"unconfined,omitempty"`
 }
 
 // Screen is the approval screen, masked by the lock before it leaves the

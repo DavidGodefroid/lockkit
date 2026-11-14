@@ -64,7 +64,7 @@ func TestServeStatusPollingEndsOnIdleTimeout(t *testing.T) {
 		clock.advance(time.Minute)
 		method, params := ipc.MethodStatus, any(nil)
 		if i%2 == 1 {
-			method, params = ipc.MethodHello, ipc.HelloParams{ProtocolMajor: ipc.ProtocolMajor, Client: "lockmq"}
+			method, params = ipc.MethodHello, ipc.HelloParams{ProtocolMajor: ipc.ProtocolMajor, Client: "lockmq", Confinement: &ipc.Confinement{Confined: true}}
 		}
 		if r := dialAndCall(t, socket, method, params); r.Error != nil {
 			t.Fatalf("%s at minute %d: %+v", method, i+1, r.Error)

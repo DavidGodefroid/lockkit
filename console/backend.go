@@ -97,6 +97,10 @@ type Profile struct {
 	// The console applies them on start and whenever a policy comes in
 	// force, so a raise counts only once reviewed.
 	TicketLimits hubclient.Limits
+	// Unconfined serves agents that do not run confined
+	// (config.Base.Unconfined, lockkit#133): refused at start on a
+	// production profile.
+	Unconfined bool
 }
 
 // PIIBackend is implemented by a backend whose policy has mask rules: the

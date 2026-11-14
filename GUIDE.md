@@ -216,6 +216,9 @@ loosen it, and no human can approve beyond it.
   `File.Fingerprint` is the sha256 of the bytes, `File.Describe()` the
   "Managed by <organisation> (sha256:…)" line, `File.Family`
   (`RequireConfinedAgent`, `RequireSignature`, `Vault`) the family rules.
+  The console enforces `RequireConfinedAgent` itself: an unconfined agent
+  is refused whatever the profile's `unconfined` says (§10, Confined
+  agents).
 
 Precedence: hard-coded floor > managed bounds and profiles > project file
 > user file > managed defaults > built-in defaults. In your config loader:
@@ -301,6 +304,25 @@ separated setup (`ipc.ListenShared(P, path, gid)`, dir 0710/2710, socket
 c, err := client.Dial(P, cwd, profile)  // *client.NoConsoleError (errors.Is ErrNoConsole): its hint asks the user to run `lox run`
 err = c.Call(ctx, "op.run", params, &result) // hello first, no client-side timeout; ctx cancel closes the connection
 ```
+
+**Confinement (lockkit#133).** The client's `hello` carries
+`ipc.HelloParams.Confinement` (`{"confined":bool,"reasons":[…]}`), the
+outcome of `confine.Check(confine.RealEnv())`, computed once per process.
+Confined means all four checks hold: `in_container` (`/.dockerenv`,
+`/run/.containerenv`, a container in `/proc/1/cgroup` or an overlay root in
+`/proc/self/mountinfo`; Linux only), `no_host_runtime` (none of
+`confine.RuntimeSockets` connects or refuses for want of permission; a
+rootless runtime under `/run/user/<uid>/` is not one),
+`no_family_state` (`$XDG_STATE_HOME/lockfamily` absent or unreadable),
+`lockfamily_read_only` (the nearest `.lockfamily/` above the working
+directory, if any, fails `access(W_OK)`). Each failed check is its code in
+`reasons`; `confine.Text(code)` is its human text. A refusal is
+`ipc.CodeUnconfined` (-32009) with the reasons in the message. Use
+`client.Dial`: a client that builds its own hello must send the same
+report. `ipc.PeerCred` also returns the peer's supplementary groups
+(`Cred.Groups`: Linux `SO_PEERGROUPS`, macOS `cr_groups`), which the
+console checks (§10). A console older than this one refuses the new
+`confinement` member: ship your client and console of the same version.
 
 Several locks of one type (lea mounts each socket volume on
 `<shared socket dir>/<instance>` and lists them, space separated, in
@@ -1079,6 +1101,48 @@ The pieces are exported for a product that assembles its own console:
 / `NewFingerprintApprover`, `console.CheckIsolation` + `RealIsolationEnv`,
 `console.Harden`, `console.Loop`, `console.WithPeer` / `PeerText` /
 `StampPeer`, `console.Level`, `console.ErrResp` / `OKResp` / `Decode`.
+
+### Confined agents (lockkit#133)
+
+The console decides in `hello`, from the client's report (§7) and the
+kernel's record of the peer:
+
+| Client | Profile | Outcome |
+|---|---|---|
+| reports confined, holds no runtime gid | any | served |
+| unconfined (any reason) | default | refused: `CodeUnconfined`, audited `refused/refused-unconfined` with `unconfined_reasons` |
+| unconfined | `unconfined = true`, not production | served; red banner `console.UnconfinedBanner`; every audit record of the connection has `"unconfined":true` and its reasons; its hub tickets have `flags.unconfined` |
+| unconfined | production, or managed `require_confined_agent = true` | refused, whatever `unconfined` says |
+| no `confinement` in its hello | any | unconfined, `old_client` |
+| holds a gid of `ServerConfig.RuntimeGIDs` | any | unconfined, `runtime_group`, whatever it reports |
+
+- On a socket connection every method but `hello` is refused
+  (`CodeInvalidRequest`, "hello first") until a hello is accepted, and the
+  decision is taken again at every request: a policy in force that becomes
+  production or drops `unconfined`, or a managed file that comes to
+  require a confined agent, refuses the next request of an open
+  unconfined connection.
+- Reason codes are the agent's word: the console keeps only known ones
+  (`confine.Known`), never the console's own codes (`runtime_group`,
+  `old_client`), at most eight.
+- `RuntimeGIDs`: `Run` sets them to the gids of `--runtime-gids`
+  (`HubOptions.RuntimeGIDs`, comma-separated, registered with the hub
+  flags but not counted by `Enabled`, so a policy-only console takes it
+  too; `lox run` writes it for a containerized console) and those of this
+  machine's runtime sockets whose group may write them
+  (`confine.RuntimeGIDs`: `docker`'s, not rootful Podman's `root:root
+  0600`). A value that is not a list of gids refuses the start (`ErrConfig`).
+- `Profile.Unconfined` comes from `config.Base.Unconfined` (profile key
+  `unconfined = true`, `json:"unconfined,omitempty"`: existing
+  fingerprints hold). `DiffBase` marks false→true a loosening, true→false
+  a tightening. `Run` refuses a production profile with it (`ErrConfig`:
+  "unconfined is never allowed on a production profile"), before any
+  prompt and again on the policy approved at start, and prints the banner
+  at start.
+- `audit.Base.Unconfined` / `UnconfinedReasons` are set by `StampPeer`,
+  so a product's records through `Env`/`AuditBase` carry them.
+  `ticket.Flags.Unconfined` is `omitempty`: a hub that does not know it
+  refuses only the tickets that carry it.
 
 ## 11. Do not reimplement in your product
 

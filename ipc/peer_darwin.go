@@ -46,8 +46,12 @@ func PeerCred(c net.Conn) (Cred, error) {
 		return Cred{}, fmt.Errorf("ipc: peer check: %w", cerr)
 	}
 	gid := -1
+	var groups []int
 	if cred.Ngroups > 0 {
 		gid = int(cred.Groups[0])
 	}
-	return Cred{UID: int(cred.Uid), GID: gid, PID: pid}, nil
+	for i := 0; i < int(cred.Ngroups) && i < len(cred.Groups); i++ {
+		groups = append(groups, int(cred.Groups[i]))
+	}
+	return Cred{UID: int(cred.Uid), GID: gid, PID: pid, Groups: groups}, nil
 }

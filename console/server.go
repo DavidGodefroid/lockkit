@@ -72,6 +72,9 @@ type ServerConfig struct {
 	// PeerAllowed decides which clients are served; nil: the console's own
 	// account.
 	PeerAllowed func(ipc.Cred) bool
+	// RuntimeGIDs are the groups owning a container runtime socket: a peer
+	// holding one is unconfined (runtime_group), whatever it reports.
+	RuntimeGIDs []int
 	// Sanitizer scrubs error text; nil is sanitize.New().
 	Sanitizer *sanitize.Sanitizer
 	// Refused is the fingerprint of a loosening the human refused at start,
@@ -301,9 +304,12 @@ func (s *Server) Loop() *Loop {
 // client polling status, hello or the console's other methods never keeps
 // an unattended console open.
 func (s *Server) Handle(ctx context.Context, req ipc.Request) ipc.Response {
+	if r := s.checkConfinement(ctx, req); r != nil {
+		return *r
+	}
 	switch req.Method {
 	case ipc.MethodHello:
-		return s.hello(req)
+		return s.hello(ctx, req)
 	case ipc.MethodStatus:
 		if sa, ok := s.cfg.Backend.(StatusAnswerer); ok {
 			return OKResp(req.ID, sa.StatusAnswer(s.consoleStatus(), s.sess))
@@ -370,7 +376,7 @@ func Decode(req ipc.Request, v any) *ipc.Response {
 	return nil
 }
 
-func (s *Server) hello(req ipc.Request) ipc.Response {
+func (s *Server) hello(ctx context.Context, req ipc.Request) ipc.Response {
 	var p ipc.HelloParams
 	if r := Decode(req, &p); r != nil {
 		return *r
@@ -379,6 +385,9 @@ func (s *Server) hello(req ipc.Request) ipc.Response {
 		return ErrResp(req.ID, ipc.CodeInvalidRequest, fmt.Sprintf(
 			"protocol mismatch: client speaks %d, console speaks %d; use the same %s version on both sides",
 			p.ProtocolMajor, ipc.ProtocolMajor, s.cfg.Product.Name))
+	}
+	if r := s.greet(ctx, req, p); r != nil {
+		return *r
 	}
 	return OKResp(req.ID, ipc.HelloResult{ProtocolMajor: ipc.ProtocolMajor, ConsoleVersion: s.cfg.Product.Version, Profile: s.profile.Name})
 }

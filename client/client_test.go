@@ -45,6 +45,7 @@ type fakeConsole struct {
 	mu      sync.Mutex
 	methods []string
 	clients []string
+	confs   []*ipc.Confinement
 }
 
 func (f *fakeConsole) seen() []string {
@@ -88,6 +89,7 @@ func startFake(t *testing.T, cwd, profile string, handler func(req ipc.Request) 
 						_ = json.Unmarshal(req.Params, &hp)
 						f.mu.Lock()
 						f.clients = append(f.clients, hp.Client)
+						f.confs = append(f.confs, hp.Confinement)
 						f.mu.Unlock()
 						resp = result(req.ID, ipc.HelloResult{ProtocolMajor: ipc.ProtocolMajor, ConsoleVersion: "9.9.9", Profile: profile})
 					} else {
@@ -223,6 +225,10 @@ func TestCallSendsHelloFirstAndDecodes(t *testing.T) {
 	// The client names itself after the product unless told otherwise.
 	if fake.clients[0] != "lockmq" {
 		t.Fatalf("hello client = %q", fake.clients[0])
+	}
+	// The hello carries the client's confinement report.
+	if c := fake.confs[0]; c == nil || c.Confined != confinement().Confined {
+		t.Fatalf("hello confinement = %+v, want %+v", c, confinement())
 	}
 }
 

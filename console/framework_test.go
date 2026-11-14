@@ -64,7 +64,8 @@ func (p fakePolicy) Describe() []string {
 func (p fakePolicy) Profile() Profile {
 	return Profile{Name: p.Name, Production: p.Production, Where: p.Host + ":5671", Host: p.Host, Port: 5671, DefaultPort: 5671,
 		User: p.Base.User, Credentials: p.Base.Credentials, VaultPath: p.Base.VaultPath, CredentialsTTL: p.Base.CredentialsTTL,
-		IdleTimeout: p.Base.IdleTimeout, MaxSession: p.Base.MaxSession, TicketLimits: p.Base.TicketLimits()}
+		IdleTimeout: p.Base.IdleTimeout, MaxSession: p.Base.MaxSession, TicketLimits: p.Base.TicketLimits(),
+		Unconfined: p.Base.Unconfined}
 }
 
 func uat() fakePolicy {
@@ -861,17 +862,37 @@ func runEnv(t *testing.T) *IsolationEnv {
 
 func dialAndCall(t *testing.T, socket, method string, params any) ipc.Response {
 	t.Helper()
+	return dialAndCallAs(t, socket, &ipc.Confinement{Confined: true}, method, params)
+}
+
+// dialAndCallAs is dialAndCall from a client reporting conf in its hello
+// (sent first unless method is hello).
+func dialAndCallAs(t *testing.T, socket string, conf *ipc.Confinement, method string, params any) ipc.Response {
+	t.Helper()
 	var resp ipc.Response
 	deadline := time.Now().Add(5 * time.Second)
 	for {
 		c, err := net.Dial("unix", socket)
 		if err == nil {
 			defer c.Close()
+			r := bufio.NewReader(c)
+			if method != ipc.MethodHello {
+				hp, _ := json.Marshal(ipc.HelloParams{ProtocolMajor: ipc.ProtocolMajor, Client: "test", Confinement: conf})
+				if err := ipc.WriteMsg(c, ipc.Request{JSONRPC: "2.0", ID: 1, Method: ipc.MethodHello, Params: hp}); err != nil {
+					t.Fatal(err)
+				}
+				if err := ipc.ReadMsg(r, &resp); err != nil {
+					t.Fatal(err)
+				}
+				if resp.Error != nil {
+					return resp
+				}
+			}
 			raw, _ := json.Marshal(params)
-			if err := ipc.WriteMsg(c, ipc.Request{JSONRPC: "2.0", ID: 1, Method: method, Params: raw}); err != nil {
+			if err := ipc.WriteMsg(c, ipc.Request{JSONRPC: "2.0", ID: 2, Method: method, Params: raw}); err != nil {
 				t.Fatal(err)
 			}
-			if err := ipc.ReadMsg(bufio.NewReader(c), &resp); err != nil {
+			if err := ipc.ReadMsg(r, &resp); err != nil {
 				t.Fatal(err)
 			}
 			return resp
