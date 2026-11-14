@@ -238,6 +238,12 @@ one hub approves for all of them. Start at [lockfamily.dev](https://lockfamily.d
   product or work around it: ask for the change, as
   [GUIDE.md § 15](GUIDE.md#15-asking-for-a-lockkit-change) describes. Tests:
   `go vet ./... && go test ./...`.
+- **Docs:** docs are published at
+  [lockfamily.dev/docs](https://lockfamily.dev/docs/) from this repo's
+  Markdown. Adding a file under `docs/`, or renaming or removing a README H2
+  section, needs a matching change to
+  [lockfamily's `docs-site/nav.toml`](https://github.com/DavidGodefroid/lockfamily/blob/main/docs-site/nav.toml):
+  open a lockfamily PR, or the nightly docs build fails.
 - **Security:** report vulnerabilities privately through
   [GitHub security advisories](https://github.com/DavidGodefroid/lockkit/security/advisories/new).
 - **License:** Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
