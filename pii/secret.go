@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"math"
 	"regexp"
+	"slices"
 	"strings"
 	"unicode/utf8"
 )
@@ -782,7 +783,11 @@ func findSecretFlags(s string) []span {
 			secret = ok && p != "" && !allDigits(u+p)
 		case (len(flag) > 2 && flag[1] == '-' || len(flag) > 3) && LooksSecret(flag):
 			// "--password x", and single-dash Java-style "-storepass x".
-			secret = true
+			// "use --password or --token" is prose; "--auth-local peer"
+			// names a method: a flag secret only by "auth" keeps a method
+			// name, and masks anything else ("--auth admin:pw", httpie).
+			lv := strings.ToLower(v)
+			secret = !(vs == start && stopWords[lv]) && !(authOnly(flag) && authMethods[lv])
 		}
 		if !secret || ve <= vs {
 			return start
@@ -791,6 +796,32 @@ func findSecretFlags(s string) []span {
 		return ve
 	})
 	return out
+}
+
+// stopWords are never the value of a secret flag: "--auth-local and
+// --auth-host", "pass --password or --token".
+var stopWords = set("and", "or", "to", "the", "with", "a", "an", "of", "for", "in", "on", "by", "then", "is", "if", "not", "nor", "but")
+
+// authMethods name an authentication method, not a credential: initdb's
+// "--auth-host scram-sha-256", "--auth-local peer".
+var authMethods = set(
+	"trust", "reject", "md5", "password", "scram-sha-256", "gss", "sspi", "ident", "peer", "ldap", "radius",
+	"cert", "pam", "bsd", "basic", "digest", "bearer", "ntlm", "negotiate", "kerberos", "oauth", "none",
+)
+
+// authOnly reports a flag that is secret only through its "auth" token:
+// "--auth", "--auth-local", "--auth-host", but not "--auth-token" or
+// "--auth-key".
+func authOnly(flag string) bool {
+	toks := Tokens(flag)
+	if !slices.Contains(toks, "auth") {
+		return false
+	}
+	rest := slices.DeleteFunc(slices.Clone(toks), func(t string) bool { return t == "auth" })
+	if slices.Contains(rest, "key") {
+		return false // "--auth-key": an owned key
+	}
+	return len(rest) == 0 || !LooksSecret(strings.Join(rest, "-"))
 }
 
 func allDigits(s string) bool {
