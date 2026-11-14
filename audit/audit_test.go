@@ -167,7 +167,7 @@ func TestConcurrentWritesStayWholeLines(t *testing.T) {
 func TestBaseFieldSet(t *testing.T) {
 	want := []string{
 		"approval", "approver", "code", "decision", "error", "event", "facade", "hub_sig", "inputs", "intent", "managed", "pattern", "peer_pid", "peer_uid", "peer_user",
-		"prev_hash", "profile", "reason", "span", "ticket", "ts", "warnings",
+		"prev_hash", "profile", "reason", "span", "ticket", "ts", "unconfined", "unconfined_reasons", "warnings",
 	}
 	l, err := Open(testProduct, t.TempDir())
 	if err != nil {
@@ -178,6 +178,7 @@ func TestBaseFieldSet(t *testing.T) {
 		Approval: "session", Pattern: "orders.phone", PeerUID: new(int), PeerPID: 4, PeerUser: "agent",
 		Code: "E_NO_LIMIT", Span: &refusal.Span{Line: 1, Col: 2, Token: "FROM"},
 		Ticket: "t", Approver: &ticket.Approver{ID: "u", Display: "d"}, Facade: "tty", HubSig: "s", Inputs: []string{"needle"}, Managed: "sha",
+		Unconfined: true, UnconfinedReasons: []string{"in_container"},
 	}
 	if err := l.Append(full); err != nil {
 		t.Fatal(err)

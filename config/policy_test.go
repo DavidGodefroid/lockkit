@@ -1,12 +1,14 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -194,5 +196,24 @@ func TestConnectionField(t *testing.T) {
 		if !ConnectionField(ch.Field) {
 			t.Errorf("DiffBase field %s not a connection field", ch.Field)
 		}
+	}
+}
+
+// TestUnconfined: the profile key unconfined is in the fingerprint,
+// switching it on loosens and off tightens; false keeps the fingerprint
+// of a policy written before the key existed.
+func TestUnconfined(t *testing.T) {
+	off, on := Base{User: "u", Credentials: CredentialsAsk}, Base{User: "u", Credentials: CredentialsAsk, Unconfined: true}
+	if Fingerprint(off) == Fingerprint(on) {
+		t.Fatal("unconfined does not change the fingerprint")
+	}
+	if b, _ := json.Marshal(off); strings.Contains(string(b), "unconfined") {
+		t.Fatalf("unconfined = false is encoded: %s", b)
+	}
+	if ch := DiffBase(off, on); len(ch) != 1 || ch[0].Field != "unconfined" || !ch[0].Loosens {
+		t.Fatalf("on: %+v", ch)
+	}
+	if ch := DiffBase(on, off); len(ch) != 1 || ch[0].Field != "unconfined" || ch[0].Loosens {
+		t.Fatalf("off: %+v", ch)
 	}
 }

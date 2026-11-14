@@ -52,6 +52,13 @@ type HubOptions struct {
 	// Home is the lock's home volume, where the instance key lives
 	// (hubclient.InstanceKey, made by `hub-key`); "" is the user's home.
 	Home string
+	// RuntimeGIDs are the gids, comma-separated, owning a container
+	// runtime socket of the host (--runtime-gids, written by lox run for a
+	// containerized console): a peer holding one is unconfined. The
+	// console adds those of its own machine (confine.RuntimeGIDs), and
+	// refuses to start on a value that is not a list of gids. Not a hub
+	// option: Enabled ignores it, and a policy-only console takes it.
+	RuntimeGIDs string
 }
 
 // Register adds the hub flags to fs.
@@ -64,6 +71,7 @@ func (h *HubOptions) Register(fs *flag.FlagSet) {
 	fs.StringVar(&h.FacadeKeysFile, "facade-keys-file", "", "the facade keys this lock pins (JSON, written by lox run): reveals are sealed only to them")
 	fs.StringVar(&h.RequireDevice, "require-device", "", "risk classes (comma-separated) whose approvals must be signed by a pinned device, from any facade")
 	fs.BoolVar(&h.SealClear, "seal-clear", false, "send the clear screen sealed to the pinned devices (end to end; the hub relays ciphertext)")
+	fs.StringVar(&h.RuntimeGIDs, "runtime-gids", "", "the gids (comma-separated) owning the host's container runtime sockets: a client holding one is unconfined (written by lox run)")
 }
 
 // Args are the flags of h, as Register reads them back: what a product
@@ -109,6 +117,13 @@ func (h HubOptions) Args() []string {
 	}
 	if h.FacadeKeysFile != "" {
 		out = append(out, "--facade-keys-file", h.FacadeKeysFile)
+	}
+	if h.RuntimeGIDs != "" {
+		g := h.RuntimeGIDs
+		if _, err := ParseGIDs(g); err != nil {
+			g = refusedValue
+		}
+		out = append(out, "--runtime-gids", g)
 	}
 	return out
 }
@@ -327,6 +342,8 @@ func (a *hubApprover) Submit(ctx context.Context, d Decision) (Pending, error) {
 	// Only a human types a value: a ticket asking for some is never auto
 	// (the hub client gives it its one-use key).
 	t.Flags = ticket.Flags{Production: d.Production, NeverAuto: t.Flags.NeverAuto || d.Screen.NeverAuto || len(h.Inputs) > 0, Retype: d.Retype}
+	// The facade tells the human the agent does not run confined.
+	t.Flags.Unconfined, _ = unconfinedOf(ctx)
 	// The screen this console would show: sealed to the pinned devices
 	// only (SubmitClear), never sent as it is.
 	s := d.Screen

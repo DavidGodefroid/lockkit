@@ -119,6 +119,12 @@ type Base struct {
 	// (package managed) when the record was made, so that an action is
 	// tied to the company policy it ran under.
 	Managed string `json:"managed,omitempty"`
+	// Unconfined marks every record of a connection from an agent that
+	// does not run confined (lockkit#133), served because its profile sets
+	// unconfined = true, or refused; UnconfinedReasons are the reason codes
+	// (package confine).
+	Unconfined        bool     `json:"unconfined,omitempty"`
+	UnconfinedReasons []string `json:"unconfined_reasons,omitempty"`
 }
 
 // AuditEvent implements Record.

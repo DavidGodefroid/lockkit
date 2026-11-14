@@ -187,7 +187,7 @@ func (l *Loop) accept(ctx context.Context, ln net.Listener, jobs chan<- job, wg,
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			serveConn(WithPeer(ctx, cred), c, jobs, inflight)
+			serveConn(withConn(WithPeer(ctx, cred)), c, jobs, inflight)
 		}()
 	}
 }

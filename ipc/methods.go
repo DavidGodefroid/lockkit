@@ -28,6 +28,9 @@ const (
 	// for clients of older consoles: no lockkit console answers it since
 	// the standalone console is gone (v0.10.0).
 	CodeWithdrawn = -32008
+	// CodeUnconfined: the agent does not run confined and the profile
+	// does not accept it (lockkit#133); its reasons are in the message.
+	CodeUnconfined = -32009
 
 	CodeParseError     = -32700
 	CodeInvalidRequest = -32600
@@ -50,9 +53,22 @@ type Requester struct {
 }
 
 // HelloParams opens a session; Client is a free-form name and version.
+// Confinement is the client's self-check (package confine); a hello
+// without it comes from an older client, which the console counts as
+// unconfined.
 type HelloParams struct {
-	ProtocolMajor int    `json:"protocol_major"`
-	Client        string `json:"client,omitempty"`
+	ProtocolMajor int          `json:"protocol_major"`
+	Client        string       `json:"client,omitempty"`
+	Confinement   *Confinement `json:"confinement,omitempty"`
+}
+
+// Confinement is the client's report of its containment: confined when
+// every check of confine.Check holds, else the codes of those that failed.
+// It is the agent's word: the console adds what the kernel says of the
+// peer (its groups) and decides.
+type Confinement struct {
+	Confined bool     `json:"confined"`
+	Reasons  []string `json:"reasons,omitempty"`
 }
 
 // HelloResult answers hello.

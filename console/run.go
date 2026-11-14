@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/audit"
 	"github.com/DavidGodefroid/lockkit/config"
+	"github.com/DavidGodefroid/lockkit/confine"
 	"github.com/DavidGodefroid/lockkit/kit"
 	"github.com/DavidGodefroid/lockkit/managed"
 	"github.com/DavidGodefroid/lockkit/sanitize"
@@ -215,6 +217,13 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	if cur.Profile().Name != o.Profile {
 		return fmt.Errorf("%w: the backend loaded another profile than --profile names", ErrConfig)
 	}
+	if err := refuseUnconfinedProduction(cur.Profile()); err != nil {
+		return err
+	}
+	given, err := ParseGIDs(o.Hub.RuntimeGIDs)
+	if err != nil {
+		return err
+	}
 	key := config.ApprovedKey(o.ProjectRoot, o.Profile)
 	// The question the console waits for is kept next to its socket, where
 	// lox attach and lea read it: they attach after it was printed. On a
@@ -291,6 +300,9 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 	}
 	pr := approved.Profile()
 	st.profile, st.policy = pr, approved
+	if err := refuseUnconfinedProduction(pr); err != nil {
+		return err
+	}
 	// The start-up refusals of a production profile, applied again by the
 	// server when the policy in force becomes production.
 	refuseProduction := func() error {
@@ -334,6 +346,9 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		}
 	}
 	o.IO.Println(Paint.OK(fmt.Sprintf("profile %s · %s %s", Paint.Bold(pr.Name), where, Paint.Dim("(approved policy)"))))
+	if pr.Unconfined {
+		o.IO.Println(Paint.Fail(UnconfinedBanner))
+	}
 
 	// 3. User, credentials and connection; 4. the backend's checks.
 	st.user = pr.User
@@ -383,6 +398,7 @@ func Run(ctx context.Context, p kit.Product, b Backend, o Options) error {
 		AllowUnmask: o.AllowUnmask, ShowResults: o.ShowResults,
 		ReconnectPolicy: st.reconnect, Quantum: quantum, PeerAllowed: iso.PeerCheck(), Sanitizer: o.Sanitizer, Refused: refusedFP,
 		RefuseProduction: refuseProduction, Managed: mf, LoadManaged: loadManaged,
+		RuntimeGIDs: runtimeGIDs(given),
 	})
 	if err != nil {
 		ln.Close()
@@ -795,4 +811,25 @@ func (st *starter) reconnect(ctx context.Context, p Policy) (Session, error) {
 		return nil, fmt.Errorf("%w: %v", errReconnectRefused, err)
 	}
 	return sess, nil
+}
+
+// refuseUnconfinedProduction refuses a production profile that sets
+// unconfined = true.
+func refuseUnconfinedProduction(p Profile) error {
+	if p.Unconfined && p.Production {
+		return fmt.Errorf("%w: unconfined is never allowed on a production profile", ErrConfig)
+	}
+	return nil
+}
+
+// runtimeGIDs are the gids given (--runtime-gids) and those of this
+// machine's runtime sockets.
+func runtimeGIDs(given []int) []int {
+	out := slices.Clone(given)
+	for _, g := range confine.RuntimeGIDs() {
+		if !slices.Contains(out, g) {
+			out = append(out, g)
+		}
+	}
+	return out
 }

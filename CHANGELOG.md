@@ -3,6 +3,40 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+### Breaking
+
+- Unconfined agents are refused by default (#133). Every lock client
+  reports in `hello` whether it runs confined (new package `confine`:
+  in a container, no host runtime socket, no Lock Family state, a
+  read-only `.lockfamily/`), and the console refuses an unconfined one
+  with `ipc.CodeUnconfined`, as it does a client holding a gid that owns a
+  runtime socket (`runtime_group`) or one that sends no report
+  (`old_client`). The profile key `unconfined = true` lets one in on a
+  non-production profile (a loosening, approved at the console): red
+  banner, `"unconfined":true` on every audit record of the connection,
+  `flags.unconfined` on its hub tickets. A production profile with it
+  does not start; a managed `require_confined_agent = true` refuses
+  unconfined agents whatever the profile says. No method is served on a
+  connection before its hello is accepted, and the decision is taken
+  again at every request. A lock bumping lockkit must ship its client and
+  console of the same version: an older console refuses the new hello
+  member, and an older client is refused by the new console.
+
+### Changes
+
+- ipc: `Cred.Groups` (the peer's supplementary groups: Linux
+  `SO_PEERGROUPS`, macOS `cr_groups`) and `Cred.HasGroup`;
+  `HelloParams.Confinement`; `CodeUnconfined` (-32009).
+- console: `--runtime-gids` (`HubOptions.RuntimeGIDs`, written by `lox
+  run`), `ServerConfig.RuntimeGIDs`, `Profile.Unconfined`,
+  `UnconfinedBanner`, `DecisionRefusedUnconfined`, `ParseGIDs`.
+- config: `Base.Unconfined` (`unconfined`, in `DiffBase`); audit:
+  `Base.Unconfined`, `Base.UnconfinedReasons`; ticket: `Flags.Unconfined`.
+- An end-to-end test (`go test -tags e2e ./confine/...`) runs a real
+  console and the client on the host and in `docker run`, in CI.
+
 ## v0.19.2 (2026-11-14)
 
 ### Changes

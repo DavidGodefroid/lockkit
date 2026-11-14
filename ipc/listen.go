@@ -9,9 +9,28 @@ import (
 )
 
 // Cred is what the kernel says about the process at the other end of a
-// socket. PID is -1 when the platform does not report it.
+// socket. PID is -1 when the platform does not report it. Groups are the
+// peer's supplementary groups (Linux SO_PEERGROUPS, macOS cr_groups); nil
+// when the platform does not report them.
 type Cred struct {
 	UID, GID, PID int
+	Groups        []int
+}
+
+// HasGroup reports whether c's primary or supplementary groups hold one
+// of gids.
+func (c Cred) HasGroup(gids []int) bool {
+	for _, g := range gids {
+		if g == c.GID {
+			return true
+		}
+		for _, h := range c.Groups {
+			if g == h {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // ErrAlreadyRunning means a live console already listens on the socket.

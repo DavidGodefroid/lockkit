@@ -123,6 +123,13 @@ type Base struct {
 	TicketsPerWindow int           `json:"tickets_per_window,omitempty"`
 	TicketWindow     time.Duration `json:"ticket_window,omitempty"`
 	MaxPending       int           `json:"max_pending,omitempty"`
+	// Unconfined lets an agent that does not run confined use the profile
+	// (lockkit#133; profile key unconfined = true): the lock then protects
+	// against mistakes, not against a compromised agent. Never on a
+	// production profile (the console refuses to start). Part of the
+	// policy and its fingerprint: switching it on is a loosening. Omitted
+	// when false, so that the fingerprints of existing policies hold.
+	Unconfined bool `json:"unconfined,omitempty"`
 }
 
 // TicketLimits are the hub client's limits of b (hubclient.Limits,
@@ -151,7 +158,7 @@ func ConnectionField(field string) bool {
 // tls_cert or tls_key, production true→false, any change of the ssh table
 // (a credentials mode other than ask for the bastion), a longer session
 // limit, a longer or removed credentials_ttl, more tickets per window, a
-// shorter ticket window or more pending tickets.
+// shorter ticket window or more pending tickets, unconfined false→true.
 func DiffBase(a, c Base) []Change {
 	var out []Change
 	same := func(field, o, n string) {
@@ -214,6 +221,9 @@ func DiffBase(a, c Base) []Change {
 	if a.MaxPending != c.MaxPending {
 		out = append(out, Change{Field: "limits.max_pending", Old: strconv.Itoa(a.MaxPending), New: strconv.Itoa(c.MaxPending),
 			Loosens: cl.MaxPending > al.MaxPending})
+	}
+	if a.Unconfined != c.Unconfined {
+		out = append(out, Change{Field: "unconfined", Old: strconv.FormatBool(a.Unconfined), New: strconv.FormatBool(c.Unconfined), Loosens: c.Unconfined})
 	}
 	if a.CredentialsTTL != c.CredentialsTTL {
 		out = append(out, Change{Field: "credentials_ttl", Old: a.CredentialsTTL.String(), New: c.CredentialsTTL.String(),

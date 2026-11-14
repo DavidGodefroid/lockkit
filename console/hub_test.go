@@ -767,3 +767,59 @@ func TestServerTicketLimitsProductionTypedName(t *testing.T) {
 		t.Fatalf("raise not applied with the typed name: %+v", c.Limits())
 	}
 }
+
+// A ticket of an unconfined connection carries flags.unconfined; one of a
+// confined connection does not.
+func TestRunHubTicketUnconfined(t *testing.T) {
+	env := runEnv(t)
+	home, state := t.TempDir(), t.TempDir()
+	key, err := hubclient.InstanceKey(home, hubInstance)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hub := hubtest.New(t, hubInstance, key.Public().(ed25519.PublicKey))
+	b := &hubBackend{fakeBackend: fakeBackend{policy: unconfinedUAT()}}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"s3cret"}}
+	ready := make(chan string, 1)
+	done := make(chan error, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		done <- Run(ctx, testProduct, b, Options{Profile: "uat", IO: io, StateDir: state, Isolation: env,
+			Harden: func() error { return nil }, Quantum: -1, Ready: func(s string) { ready <- s },
+			Hub: HubOptions{URL: hub.URL(), KeyFile: writeHubKey(t, hub.Pub), Instance: hubInstance, Home: home}})
+	}()
+	var socket string
+	select {
+	case socket = <-ready:
+	case err := <-done:
+		t.Fatalf("Run: %v\n%s", err, io.plain())
+	case <-time.After(10 * time.Second):
+		t.Fatal("no socket")
+	}
+	if !strings.Contains(io.plain(), UnconfinedBanner) {
+		t.Fatalf("no banner at start:\n%s", io.plain())
+	}
+	for _, tc := range []struct {
+		conf *ipc.Confinement
+		kind ticket.Kind
+		want bool
+	}{{&ipc.Confinement{Reasons: []string{"in_container"}}, "", true}, {&ipc.Confinement{Confined: true}, ticket.KindAction, false}} {
+		params := map[string]any{"hub": true}
+		if tc.kind != "" {
+			params["kind"] = tc.kind
+		}
+		r := dialAndCallAs(t, socket, tc.conf, "op.write", params)
+		if r.Error != nil {
+			t.Fatalf("op.write: %+v", r.Error)
+		}
+		raw := hub.Ticket(pendingOf(t, r.Result)["ticket"])
+		tk, err := ticket.VerifyTicket(key.Public().(ed25519.PublicKey), raw)
+		if err != nil || tk.Flags.Unconfined != tc.want {
+			t.Fatalf("ticket %s: %v", raw, err)
+		}
+		if !tc.want && strings.Contains(string(raw), "unconfined") {
+			t.Fatalf("a confined ticket names unconfined: %s", raw)
+		}
+	}
+}

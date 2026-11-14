@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/DavidGodefroid/lockkit/config"
+	"github.com/DavidGodefroid/lockkit/confine"
 	"github.com/DavidGodefroid/lockkit/ipc"
 	"github.com/DavidGodefroid/lockkit/kit"
 	"github.com/DavidGodefroid/lockkit/sysconf"
@@ -155,6 +156,13 @@ func sharedDir(p kit.Product, instance string) (string, error) {
 	return filepath.Join(sys.SocketDir, instance), nil
 }
 
+// confinement is the client's self-check (confine.Check), run once per
+// process and sent in every hello; tests replace it.
+var confinement = sync.OnceValue(func() ipc.Confinement {
+	r := confine.Check(confine.RealEnv())
+	return ipc.Confinement{Confined: r.Confined, Reasons: r.Reasons}
+})
+
 // dialUnix opens the socket; tests replace it to watch the connection.
 var dialUnix = func(path string) (net.Conn, error) { return net.Dial("unix", path) }
 
@@ -282,7 +290,8 @@ func (c *Client) handshake(ctx context.Context) error {
 		name = c.product.Name
 	}
 	var hr ipc.HelloResult
-	if err := c.call(ctx, ipc.MethodHello, ipc.HelloParams{ProtocolMajor: ipc.ProtocolMajor, Client: name}, &hr); err != nil {
+	conf := confinement()
+	if err := c.call(ctx, ipc.MethodHello, ipc.HelloParams{ProtocolMajor: ipc.ProtocolMajor, Client: name, Confinement: &conf}, &hr); err != nil {
 		return err
 	}
 	if !ipc.Compatible(hr.ProtocolMajor) {

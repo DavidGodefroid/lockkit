@@ -448,9 +448,11 @@ func PeerFrom(ctx context.Context) (ipc.Cred, bool) {
 }
 
 // StampPeer sets the peer fields of b from the client behind ctx: its uid,
-// pid and account name. The process name, chosen by the agent, stays on
+// pid and account name, and unconfined with its reasons when the client
+// does not run confined. The process name, chosen by the agent, stays on
 // the screen (PeerText) and out of the audit log.
 func StampPeer(ctx context.Context, b *audit.Base) {
+	stampUnconfined(ctx, b)
 	c, ok := PeerFrom(ctx)
 	if !ok {
 		return

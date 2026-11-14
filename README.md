@@ -198,12 +198,65 @@ builds on it too.
   of the human, and on production takes the typed profile name.
 - In hub mode, a lock executes only on a decision signed by the hub key it
   pinned, bound to the exact plan that was approved.
+- The agent must run confined (lea is the reference containment):
+  unconfined agents are refused by default, see
+  [Confined agents](#confined-agents).
 - Masking is best effort. PII detection quality: precision and recall per
   detector and language on a synthetic bench, held to a CI baseline, in
   [pii/testdata/bench/RESULTS.md](pii/testdata/bench/RESULTS.md); its
   Known gaps section lists what the detectors miss most.
 
+### Confined agents
+
+The Locks' guarantees hold only if the agent cannot reach what protects
+them. An agent run directly on your machine (plain `claude` or `codex` in
+a terminal) runs as you: it can read the hub facades' private keys and
+sign its own approvals, use Docker to open a lock's container and read its
+credentials, and edit `lockfamily.yaml` or stop `lox run`. Unconfined, a
+lock protects you against a **confused** agent, not against a
+**prompt-injected** one.
+
+So every lock client checks where it runs and says so in its `hello`; the
+console decides. An agent is confined when all of these hold:
+
+| Check | Reason code when it fails |
+|---|---|
+| it runs in a container (Linux only; on macOS a client is never confined) | `in_container` |
+| no rootful runtime socket is reachable or mounted (`/var/run/docker.sock`, `/run/docker.sock`, `/run/podman/podman.sock`, `/run/containerd/containerd.sock`); a rootless Podman inside the container is fine | `no_host_runtime` |
+| the Lock Family's state directory (`$XDG_STATE_HOME/lockfamily`) is absent or unreadable | `no_family_state` |
+| the project's `.lockfamily/`, if any, is read-only | `lockfamily_read_only` |
+
+The console adds what the kernel says: a client holding a group that owns
+a runtime socket (`docker`) is unconfined (`runtime_group`), whatever it
+reports, and a client too old to report is unconfined (`old_client`).
+
+- By default an unconfined agent is refused: `refused: this agent does not
+  run confined (...); run it inside lea, or ask the human to set
+  unconfined = true on this non-production profile`.
+- `unconfined = true` in a profile lets it in. It is part of the reviewed
+  policy: switching it on is a loosening you approve at the console. The
+  console then prints a red banner (`unconfined: this lock protects
+  against mistakes, not against a compromised agent`) at start and at
+  every unconfined connection, every audit record of that connection says
+  `"unconfined":true` with its reasons, and its hub tickets say so too.
+- Never on production: a production profile with `unconfined = true` does
+  not start. A managed file with `require_confined_agent = true` refuses
+  unconfined agents whatever the profile says.
+- No method is served on a connection before its `hello` is accepted, and
+  the decision is taken again at every request: a policy that becomes
+  production, or a managed file that comes to require a confined agent,
+  cuts an unconfined connection already open.
+
+What this proves, and what it does not: the check makes the safe setup the
+default and stops honest or confused agents run on the host. It does not
+stop a host process that deliberately lies about where it runs: such a
+process already runs as you and can drive Docker, so no lock-side check
+could stop it. What makes the guarantees hold against prompt injection is
+the containment itself: a confined agent (lea) cannot reach the runtime,
+the keys or the console's terminal.
+
 Details: [GUIDE.md § 6](GUIDE.md#6-config-and-policy-the-ai-tightens-the-human-loosens),
+[§ 7](GUIDE.md#7-ipc-client-tunnel),
 [§ 10](GUIDE.md#10-the-console-and-the-backend-seam) and
 [§ 13](GUIDE.md#13-hub-tickets-ticket).
 

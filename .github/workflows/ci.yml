@@ -45,6 +45,11 @@ jobs:
             grep -E -- '--- FAIL|_test\.go:[0-9]+:|^FAIL|panic:' test.log | head -40 | sed 's/^/::error::/'
             exit 1
           }
+      # The confined agent check end to end: a real console, the client
+      # on the host and in docker run (lockkit#133).
+      - name: go test confine e2e (docker)
+        if: runner.os == 'Linux'
+        run: go test -tags e2e -count=1 -v ./confine/...
       - name: go test managed (test build)
         run: go test -tags lockfamily_managed_test ./managed/ ./console/
       - name: pii throughput floor

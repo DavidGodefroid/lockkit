@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
@@ -32,14 +33,43 @@ func PeerCred(c net.Conn) (Cred, error) {
 		return Cred{}, fmt.Errorf("ipc: peer check: %w", err)
 	}
 	var cred *unix.Ucred
+	var groups []int
 	var cerr error
 	if err := raw.Control(func(fd uintptr) {
 		cred, cerr = unix.GetsockoptUcred(int(fd), unix.SOL_SOCKET, unix.SO_PEERCRED)
+		if cerr == nil {
+			groups, cerr = peerGroups(int(fd))
+		}
 	}); err != nil {
 		return Cred{}, fmt.Errorf("ipc: peer check: %w", err)
 	}
 	if cerr != nil {
 		return Cred{}, fmt.Errorf("ipc: peer check: %w", cerr)
 	}
-	return Cred{UID: int(cred.Uid), GID: int(cred.Gid), PID: int(cred.Pid)}, nil
+	return Cred{UID: int(cred.Uid), GID: int(cred.Gid), PID: int(cred.Pid), Groups: groups}, nil
+}
+
+// peerGroups reads SO_PEERGROUPS: the peer's supplementary groups as the
+// kernel recorded them at connect. The buffer grows when the kernel says
+// it is too small (ERANGE, with the length it needs).
+func peerGroups(fd int) ([]int, error) {
+	n := 64
+	for {
+		buf := make([]uint32, n)
+		size := uint32(len(buf) * 4)
+		_, _, errno := unix.Syscall6(unix.SYS_GETSOCKOPT, uintptr(fd), unix.SOL_SOCKET, unix.SO_PEERGROUPS,
+			uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&size)), 0)
+		if errno == unix.ERANGE && int(size/4) > n && n < 1<<16 {
+			n = int(size / 4)
+			continue
+		}
+		if errno != 0 {
+			return nil, errno
+		}
+		out := make([]int, 0, size/4)
+		for _, g := range buf[:size/4] {
+			out = append(out, int(g))
+		}
+		return out, nil
+	}
 }
