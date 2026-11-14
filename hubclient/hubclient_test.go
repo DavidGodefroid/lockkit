@@ -335,6 +335,27 @@ func TestDecisionForAnotherPlanRefused(t *testing.T) {
 	}
 }
 
+// TestPendingIsNotDenied pins the contract a product maps to the agent
+// (lockkit#165): no decision yet is ErrPending and never ErrDenied (the
+// agent waits and runs the ticket again); only a denial the hub signed is
+// ErrDenied, and never ErrPending.
+func TestPendingIsNotDenied(t *testing.T) {
+	e := newEnv(t, nil)
+	_, id := submitted(t, e)
+	_, d, err := e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	if !errors.Is(err, hubclient.ErrPending) || errors.Is(err, hubclient.ErrDenied) || d != nil {
+		t.Fatalf("no decision yet: %v %+v, want ErrPending only", err, d)
+	}
+	e.hub.Decide(id, ticket.Denied, "")
+	if _, err := e.client.Poll(context.Background(), 0); err != nil {
+		t.Fatal(err)
+	}
+	_, d, err = e.client.Begin(e.store, id, caller, recheck(policyFP, planHash))
+	if !errors.Is(err, hubclient.ErrDenied) || errors.Is(err, hubclient.ErrPending) || d == nil || d.Decision != ticket.Denied {
+		t.Fatalf("denied: %v %+v, want ErrDenied only, with the decision", err, d)
+	}
+}
+
 func TestDeniedEndsPlan(t *testing.T) {
 	e := newEnv(t, nil)
 	p, id := submitted(t, e)
