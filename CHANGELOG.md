@@ -3,6 +3,15 @@
 lockkit has no stability promise before v1: pin an exact version.
 GUIDE.md is the contract between lockkit and the products built on it.
 
+## Unreleased
+
+- pii: `LooksPersonNameColumn` reads German plurals in `-er`
+  (`mitglieder`) and `staedte`/`städte` as table hints. The detection
+  bench scores it on sampled name columns (`namecolumns.jsonl`:
+  `name`/`full_name`/`nom`/`naam` with EN/FR/NL/DE names, and
+  `products`/`roles`/`cities`/`tags` negatives), held to the baseline
+  like the detectors (#163).
+
 ## v0.19.1 (2026-11-13)
 
 ### Changes

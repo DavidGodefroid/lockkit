@@ -32,6 +32,7 @@ const (
 	benchMinPersonal  = 20
 	benchMinQuasi     = 10
 	benchMinNeither   = 15
+	benchMinColumns   = 30 // name columns per language, each label
 	benchOutsideShare = 0.30
 )
 
@@ -164,7 +165,7 @@ func (r benchReport) metrics() map[string]float64 {
 	return out
 }
 
-type confusion struct{ TP, FP, FN int }
+type confusion struct{ TP, FP, FN, TN int }
 
 func (c confusion) precision() float64 {
 	if c.TP+c.FP == 0 {
@@ -192,6 +193,8 @@ func scoreFields(cases []gen.FieldCase) (map[string]map[string]*confusion, map[s
 				c.FP++
 			case want:
 				c.FN++
+			default:
+				c.TN++
 			}
 		}
 	}
@@ -205,6 +208,36 @@ func scoreFields(cases []gen.FieldCase) (map[string]map[string]*confusion, map[s
 			out["fields/"+h+"/"+lang+"/precision"] = round3(c.precision())
 			out["fields/"+h+"/"+lang+"/recall"] = round3(c.recall())
 		}
+	}
+	return rep, out
+}
+
+// scoreColumns scores LooksPersonNameColumn on the name column cases, per
+// language and overall: namecolumns/lang/precision and /recall.
+func scoreColumns(cases []gen.ColumnCase) (map[string]*confusion, map[string]float64) {
+	rep := map[string]*confusion{"all": {}}
+	for _, c := range cases {
+		got := LooksPersonNameColumn(c.Table, c.Column, c.Samples)
+		for _, k := range []string{c.Lang, "all"} {
+			if rep[k] == nil {
+				rep[k] = &confusion{}
+			}
+			switch {
+			case got && c.PersonNames:
+				rep[k].TP++
+			case got:
+				rep[k].FP++
+			case c.PersonNames:
+				rep[k].FN++
+			default:
+				rep[k].TN++
+			}
+		}
+	}
+	out := map[string]float64{}
+	for lang, c := range rep {
+		out["namecolumns/"+lang+"/precision"] = round3(c.precision())
+		out["namecolumns/"+lang+"/recall"] = round3(c.recall())
 	}
 	return rep, out
 }
@@ -284,6 +317,7 @@ func benchDetectors(t *testing.T) []Detector {
 type benchRun struct {
 	texts   benchReport
 	fields  map[string]map[string]*confusion
+	columns map[string]*confusion
 	metrics map[string]float64
 }
 
@@ -291,11 +325,15 @@ func runBench(t *testing.T) benchRun {
 	t.Helper()
 	texts := scoreBench(benchTexts(t), benchDetectors(t))
 	fields, fm := scoreFields(readJSONL[gen.FieldCase](t, filepath.Join(benchDir, "fields.jsonl")))
+	columns, cm := scoreColumns(readJSONL[gen.ColumnCase](t, filepath.Join(benchDir, "namecolumns.jsonl")))
 	m := texts.metrics()
 	for k, v := range fm {
 		m[k] = v
 	}
-	return benchRun{texts, fields, m}
+	for k, v := range cm {
+		m[k] = v
+	}
+	return benchRun{texts, fields, columns, m}
 }
 
 func readBaseline(t *testing.T) map[string]float64 {
@@ -383,6 +421,13 @@ func (run benchRun) results() string {
 			c := run.fields[h][lang]
 			fmt.Fprintf(&b, "| `%s` | %s | %.3f | %.3f |\n", fn, lang, c.precision(), c.recall())
 		}
+	}
+	b.WriteString("\n## Name columns\n\n`LooksPersonNameColumn` on sampled columns whose name means \"name\": ")
+	b.WriteString("person names in tables of people or neutral tables, things, places, labels and companies otherwise.\n\n")
+	b.WriteString("| Lang | Columns | Precision | Recall |\n|---|--:|--:|--:|\n")
+	for _, lang := range append(slices.Clone(gen.Langs), "all") {
+		c := run.columns[lang]
+		fmt.Fprintf(&b, "| %s | %d | %.3f | %.3f |\n", lang, c.TP+c.FP+c.FN+c.TN, c.precision(), c.recall())
 	}
 	b.WriteString("\n## Known gaps\n\nEvery detector and language with a recall below 0.9:\n\n")
 	if len(gaps) == 0 {
@@ -534,6 +579,21 @@ func TestBenchCorpusCoverage(t *testing.T) {
 		}
 		fields[f.Lang] = n
 	}
+	columns := map[string][2]int{}
+	for _, c := range readJSONL[gen.ColumnCase](t, filepath.Join(benchDir, "namecolumns.jsonl")) {
+		n := columns[c.Lang]
+		if c.PersonNames {
+			n[0]++
+		} else {
+			n[1]++
+		}
+		columns[c.Lang] = n
+	}
+	for _, lang := range gen.Langs {
+		if n := columns[lang]; n[0] < benchMinColumns || n[1] < benchMinColumns {
+			t.Errorf("%s name columns: %d of person names, %d not; want at least %d each", lang, n[0], n[1], benchMinColumns)
+		}
+	}
 	for _, lang := range gen.Langs {
 		if n := fields[lang]; n[0] < benchMinPersonal || n[1] < benchMinQuasi || n[2] < benchMinNeither {
 			t.Errorf("%s fields: %d personal, %d quasi, %d neither; want at least %d, %d, %d",
@@ -608,10 +668,26 @@ func TestScoreFields(t *testing.T) {
 		{Lang: "en", Field: "birth_date", Quasi: true},
 		{Lang: "fr", Field: "file_name", Personal: true}, // labelled personal, not found
 	})
-	if got, want := *rep["personal"]["all"], (confusion{TP: 1, FN: 1}); got != want {
+	if got, want := *rep["personal"]["all"], (confusion{TP: 1, FN: 1, TN: 2}); got != want {
 		t.Errorf("personal: %+v, want %+v", got, want)
 	}
 	if m["fields/personal/all/recall"] != 0.5 || m["fields/personal/all/precision"] != 1 || m["fields/quasi/en/recall"] != 1 {
+		t.Errorf("metrics %v", m)
+	}
+}
+
+func TestScoreColumns(t *testing.T) {
+	rep, m := scoreColumns([]gen.ColumnCase{
+		{Lang: "fr", Table: "clients", Column: "nom", Samples: []string{"Alice Dupont", "Chloé Lambert"}, PersonNames: true},
+		{Lang: "fr", Table: "villes", Column: "nom", Samples: []string{"Namur", "Liège"}},
+		{Lang: "en", Table: "customers", Column: "name", PersonNames: true},                            // no samples: missed
+		{Lang: "en", Table: "orders", Column: "name", Samples: []string{"Alice Dupont", "Bob Martin"}}, // labelled not, found
+	})
+	if got, want := *rep["all"], (confusion{TP: 1, FP: 1, FN: 1, TN: 1}); got != want {
+		t.Errorf("all: %+v, want %+v", got, want)
+	}
+	if m["namecolumns/fr/recall"] != 1 || m["namecolumns/fr/precision"] != 1 || m["namecolumns/en/recall"] != 0 ||
+		m["namecolumns/en/precision"] != 0 || m["namecolumns/all/recall"] != 0.5 {
 		t.Errorf("metrics %v", m)
 	}
 }

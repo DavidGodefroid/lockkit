@@ -1,8 +1,9 @@
 // Package gen builds the PII detection bench corpus: synthetic text cases
 // in English, French, Dutch and German with the byte span and kind of
 // every personal value they hold, hard negatives that look like personal
-// data without being any, and field names labelled personal or
-// quasi-identifying.
+// data without being any, field names labelled personal or
+// quasi-identifying, and sampled name columns labelled person names or
+// not.
 //
 // Every value is generated: checksummed numbers have valid checksums in
 // positives and invalid ones in hard negatives, e-mail addresses use the
@@ -254,7 +255,7 @@ func negative(r *rand.Rand, lang, id string) TextCase {
 func pick(r *rand.Rand, xs []string) string { return xs[r.IntN(len(xs))] }
 
 // Files returns every corpus file by name: one JSON Lines file per
-// language and fields.jsonl.
+// language, fields.jsonl and namecolumns.jsonl.
 func Files() map[string][]byte {
 	out := map[string][]byte{}
 	for _, lang := range Langs {
@@ -269,6 +270,11 @@ func Files() map[string][]byte {
 		writeLine(&b, fc)
 	}
 	out["fields.jsonl"] = b.Bytes()
+	var c bytes.Buffer
+	for _, cc := range Columns() {
+		writeLine(&c, cc)
+	}
+	out["namecolumns.jsonl"] = c.Bytes()
 	return out
 }
 

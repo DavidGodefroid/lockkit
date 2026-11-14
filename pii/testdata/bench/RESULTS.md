@@ -104,6 +104,18 @@ Masking is best effort. These are the figures of every detector (all enabled, op
 | `LooksQuasi` | de | 1.000 | 0.667 |
 | `LooksQuasi` | all | 1.000 | 0.739 |
 
+## Name columns
+
+`LooksPersonNameColumn` on sampled columns whose name means "name": person names in tables of people or neutral tables, things, places, labels and companies otherwise.
+
+| Lang | Columns | Precision | Recall |
+|---|--:|--:|--:|
+| en | 80 | 1.000 | 0.975 |
+| fr | 80 | 1.000 | 0.900 |
+| nl | 80 | 1.000 | 0.925 |
+| de | 80 | 1.000 | 0.950 |
+| all | 320 | 1.000 | 0.938 |
+
 ## Known gaps
 
 Every detector and language with a recall below 0.9:

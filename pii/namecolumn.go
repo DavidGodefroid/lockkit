@@ -30,7 +30,7 @@ var thingTables = set(
 	"template", "setting", "plan", "status", "type", "service", "feature", "module", "page", "menu",
 	"produit", "categorie", "ville", "pays", "rue", "societe", "entreprise", "fichier",
 	"stad", "gemeente", "land", "straat", "bedrijf", "bestand", "groep",
-	"produkt", "kategorie", "stadt", "firma", "producto", "ciudad",
+	"produkt", "kategorie", "stadt", "staedte", "städte", "firma", "producto", "ciudad",
 )
 
 // Shares of the sampled values that must be person names, by table hint.
@@ -116,11 +116,11 @@ func tableHint(table string) int {
 }
 
 // singulars are a token and its singular candidates in en/fr/nl/de/es
-// ("customers", "cities", "klanten", "leden").
+// ("customers", "cities", "klanten", "leden", "mitglieder").
 func singulars(t string) []string {
 	out := []string{t}
 	for _, suf := range []struct{ plural, single string }{
-		{"ies", "y"}, {"es", ""}, {"s", ""}, {"x", ""}, {"en", ""}, {"eden", "id"}, {"ten", "t"}, {"n", ""},
+		{"ies", "y"}, {"es", ""}, {"s", ""}, {"x", ""}, {"en", ""}, {"eden", "id"}, {"ten", "t"}, {"n", ""}, {"er", ""},
 	} {
 		if strings.HasSuffix(t, suf.plural) && len(t) > len(suf.plural) {
 			out = append(out, strings.TrimSuffix(t, suf.plural)+suf.single)
