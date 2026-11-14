@@ -623,8 +623,8 @@ func TestSecretEmptyEscapedValueHasNoSpan(t *testing.T) {
 	}
 }
 
-// A flag secret only through "auth" names a method unless its value looks
-// like a credential, and a stop word is never a secret flag's value
+// A flag secret only through "auth" keeps an auth method name and masks
+// any other value, and a stop word is never a secret flag's value
 // (lockkit#198, from initdb's hint).
 func TestSecretFlagAuthAndStopWords(t *testing.T) {
 	d := detector(t, "secret")
@@ -643,6 +643,9 @@ func TestSecretFlagAuthAndStopWords(t *testing.T) {
 		"--auth s3cr3tT0ken":            "s3cr3tT0ken",
 		"--auth-local Zq8Lr2Vt6Wn0Yp4X": "Zq8Lr2Vt6Wn0Yp4X",
 		"--auth-key k3y":                "k3y",
+		"http --auth admin:pw x.io":     "admin:pw",
+		"--basic-auth admin:pw":         "admin:pw",
+		"--auth hunter":                 "hunter",
 		"--password hunter2":            "hunter2",
 		"--token tok9":                  "tok9",
 		`--password "and"`:              `and`,

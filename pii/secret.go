@@ -784,11 +784,10 @@ func findSecretFlags(s string) []span {
 		case (len(flag) > 2 && flag[1] == '-' || len(flag) > 3) && LooksSecret(flag):
 			// "--password x", and single-dash Java-style "-storepass x".
 			// "use --password or --token" is prose; "--auth-local peer"
-			// names a method: a flag secret only by "auth" needs a value
-			// shaped like a credential.
-			bare := vs == start
-			secret = !(bare && stopWords[strings.ToLower(v)]) &&
-				(!authOnly(flag) || looksCredential(v) && !authMethods[strings.ToLower(v)])
+			// names a method: a flag secret only by "auth" keeps a method
+			// name, and masks anything else ("--auth admin:pw", httpie).
+			lv := strings.ToLower(v)
+			secret = !(vs == start && stopWords[lv]) && !(authOnly(flag) && authMethods[lv])
 		}
 		if !secret || ve <= vs {
 			return start

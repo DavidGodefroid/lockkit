@@ -459,9 +459,9 @@ itself (lockssh runs its commands there).
     login -p` and `mongo*` `-p` are masked; `-p` elsewhere is not.
     Status words under a secret name (`auth=failed`) are masked too. A
     bare stop word after a secret flag (`--password or --token`) is kept;
-    a flag secret only through `auth` (`--auth`, `--auth-local`) masks its
-    value only when it looks like a credential, not a method name
-    (`--auth-host scram-sha-256`) or a plain word. A
+    a flag secret only through `auth` (`--auth`, `--auth-local`) keeps an
+    auth method name (`--auth-host scram-sha-256`, `--auth-local peer`)
+    and masks any other value (`--auth admin:pw`). A
     dotted quad after `version`, `build`, `release`, `oid` or a product
     token (`Chrome/124.0.0.0`) is no address.
 - `pii.LooksSecret(name)`: a field, header or flag name that holds a
