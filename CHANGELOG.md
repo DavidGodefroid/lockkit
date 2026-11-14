@@ -11,6 +11,13 @@ GUIDE.md is the contract between lockkit and the products built on it.
   `name`/`full_name`/`nom`/`naam` with EN/FR/NL/DE names, and
   `products`/`roles`/`cities`/`tags` negatives), held to the baseline
   like the detectors (#163).
+- pii: a bare stop word (`and`, `or`, `to`…) after a secret command-line
+  flag is no longer masked (`use --password or --token`), and a flag
+  secret only through `auth` (`--auth`, `--auth-local`, `--auth-host`)
+  masks its value only when it looks like a credential: initdb's
+  `--auth-local and --auth-host` hint and `--auth-local peer` stay
+  readable; `--auth-token …`, `--auth s3cr3tT0ken` and
+  `--password hunter2` stay masked (#198).
 
 ## v0.19.1 (2026-11-13)
 

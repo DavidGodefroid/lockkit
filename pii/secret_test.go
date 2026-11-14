@@ -622,3 +622,33 @@ func TestSecretEmptyEscapedValueHasNoSpan(t *testing.T) {
 		}
 	}
 }
+
+// A flag secret only through "auth" names a method unless its value looks
+// like a credential, and a stop word is never a secret flag's value
+// (lockkit#198, from initdb's hint).
+func TestSecretFlagAuthAndStopWords(t *testing.T) {
+	d := detector(t, "secret")
+	for _, in := range []string{
+		"initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.",
+		"initdb --auth-local peer --auth-host scram-sha-256",
+		"use --password or --token to log in",
+		"--auth basic",
+	} {
+		if got := d.Mask(in); got != in {
+			t.Errorf("secret.Mask(%q) = %q, want unchanged", in, got)
+		}
+	}
+	for in, leak := range map[string]string{
+		"--auth-token abcd1234efgh5678": "abcd1234efgh5678",
+		"--auth s3cr3tT0ken":            "s3cr3tT0ken",
+		"--auth-local Zq8Lr2Vt6Wn0Yp4X": "Zq8Lr2Vt6Wn0Yp4X",
+		"--auth-key k3y":                "k3y",
+		"--password hunter2":            "hunter2",
+		"--token tok9":                  "tok9",
+		`--password "and"`:              `and`,
+	} {
+		if got := d.Mask(in); strings.Contains(got, leak) || !strings.Contains(got, Redacted) {
+			t.Errorf("secret.Mask(%q) = %q, leaks %q", in, got, leak)
+		}
+	}
+}
