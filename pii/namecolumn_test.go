@@ -77,6 +77,7 @@ func TestPersonNameAccents(t *testing.T) {
 func TestTableHint(t *testing.T) {
 	for table, want := range map[string]int{
 		"customers": 1, "public.users": 1, "klanten": 1, "leden": 1, "people": 1, "Employees": 1,
+		"mitglieder": 1, "kunden": 1, "benutzer": 1, "staedte": -1, "kategorien": -1, "producten": -1,
 		"products": -1, "roles": -1, "categories": -1, "tags": -1, "cities": -1, "product_categories": -1,
 		"orders": 0, "": 0,
 	} {
