@@ -46,7 +46,8 @@ lockkit supplies the rest.
 - **The AI tightens, only the human loosens.** Policy files, their review
   and the approved store are shared code, not re-implemented per product.
 - **Masking and audit you do not write twice.** Personal-data detectors,
-  masks, capped output, error scrubbing and the append-only audit log.
+  masks, capped output, error scrubbing and the append-only, hash-chained
+  audit log.
 - **One contract with the hub.** Signed tickets and decisions, the client
   for lockhub, and the launcher verbs `lox add` calls.
 
@@ -55,7 +56,7 @@ lockkit supplies the rest.
 lockkit is a Go library (Go 1.26 or later). Pin an exact version:
 
 ```sh
-go get github.com/DavidGodefroid/lockkit@v0.14.0
+go get github.com/DavidGodefroid/lockkit@v0.20.0
 ```
 
 To work on a Lock and lockkit together, use an uncommitted `go.work`
@@ -105,8 +106,9 @@ var P = kit.Product{
 <td width="50%" valign="top">
 
 **🎭 Masking built in**<br>
-`pii` detects emails, phones, IBANs, cards, national IDs, public IPs and
-secrets; `render` caps and escapes output; `sanitize` scrubs errors.
+`pii` detects emails, phones, IBANs, cards and national IDs, and on
+request IPs, secrets, names, addresses and more; `render` caps and escapes
+output; `sanitize` scrubs errors.
 
 </td>
 </tr>
@@ -123,8 +125,8 @@ signed decisions.
 
 **🔌 Any MCP client**<br>
 `mcpkit` gives the MCP plumbing; `agentwire` wires Claude Code, Codex,
-Cursor and Gemini CLI to your server, in a project or for the account,
-merging and never clobbering.
+Cursor and Gemini CLI to your server, in a project or for the account
+(Codex's MCP server: for the account only), merging and never clobbering.
 
 </td>
 </tr>
@@ -135,9 +137,9 @@ merging and never clobbering.
 lockkit splits a Lock in two sides that never share an account:
 
 - **The human side, `console`:** it holds the credentials and the only
-  connection, shows the policy for approval, and serves a socket. In hub
-  mode it sends masked, signed tickets to lockhub and acts only on a
-  decision signed by the hub key it pinned.
+  connection, shows the policy for approval, and serves a socket. It
+  sends masked, signed tickets to lockhub and acts only on a decision
+  signed by the hub key it pinned (there is no standalone mode).
 - **The agent side, `client` + `mcpkit`:** secret-free. It dials the
   console's socket (peer credentials checked by the kernel) and calls it
   over newline-delimited JSON-RPC 2.0.
@@ -161,17 +163,18 @@ The product plugs its own operations in between, through `console.Backend`.
 | Data protection | `pii` | value detectors, mask modes, name heuristics, the redacted-reference store |
 | | `render` | capped, escaped output for agents: `Value` and `Table` |
 | | `sanitize` | error text scrubbing and terminal-safe text |
-| | `audit` | the console's append-only JSONL audit log |
+| | `audit` | the console's append-only, hash-chained JSONL audit log |
 | Transport | `ipc` | console socket, peer credentials, 1 MiB JSON-RPC 2.0 framing, lockkit's methods and error codes |
 | | `client` | the secret-free side: dial, hello, `Call` |
 | | `tunnel` | SSH bastion: known_hosts, key/agent/password auth, `Dial` and `NewSession` through it |
 | | `lazyconn` | backend connections opened on a connect ticket's approval, closed when idle |
+| | `confine` | the client's self-check of its containment, sent in `hello` |
 | Hub | `ticket` | signed tickets and decisions, risk classes and TTLs, ticket kinds, canonical JSON, sealed boxes |
 | | `hubclient` | a lock's client for lockhub: `Submit`, long-poll of decisions, `Begin`/`Finish`, `Ask`; `hubclient/hubtest` fake hub |
 | Agent side | `mcpkit` | MCP server and stdio, profile resolution, progress while the human decides, untrusted framing, structured refusals |
 | | `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server |
 | | `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`) and the JSON `lox add` reads |
-| Release | `update` | cosign keyless signature check of a release artifact, checksums |
+| Release | `update` | cosign signature check (keyless or key pair) of a release artifact, checksums |
 
 The full map, with what not to reimplement in your product, is in
 [GUIDE.md § 1](GUIDE.md#1-package-map) and [§ 11](GUIDE.md#11-do-not-reimplement-in-your-product).
@@ -196,8 +199,8 @@ builds on it too.
   peer credentials on the socket.
 - A policy change the agent proposes can only tighten; loosening is asked
   of the human, and on production takes the typed profile name.
-- In hub mode, a lock executes only on a decision signed by the hub key it
-  pinned, bound to the exact plan that was approved.
+- A lock executes only on a decision signed by the hub key it pinned,
+  bound to the exact plan that was approved.
 - The agent must run confined (lea is the reference containment):
   unconfined agents are refused by default, see
   [Confined agents](#confined-agents).
@@ -248,12 +251,19 @@ reports, and a client too old to report is unconfined (`old_client`).
   cuts an unconfined connection already open.
 
 What this proves, and what it does not: the check makes the safe setup the
-default and stops honest or confused agents run on the host. It does not
+default and stops honest or confused agents that run a lock client on the
+host itself. It does not
 stop a host process that deliberately lies about where it runs: such a
 process already runs as you and can drive Docker, so no lock-side check
-could stop it. What makes the guarantees hold against prompt injection is
-the containment itself: a confined agent (lea) cannot reach the runtime,
-the keys or the console's terminal.
+could stop it. Nor does it see the agent behind a Lock's launcher: a host
+agent that starts `<lock> mcp` (what `<lock> init` wires) runs the client
+in a throwaway container with no runtime socket, which reports confined, so
+that agent is served while it still runs as you
+([#207](https://github.com/DavidGodefroid/lockkit/issues/207)). What makes
+the guarantees hold against prompt injection is the containment itself: a
+confined agent (lea) cannot reach the runtime, the keys or the console's
+terminal. With an agent on the host, the Locks protect against mistakes,
+not against a compromised agent.
 
 Details: [GUIDE.md § 6](GUIDE.md#6-config-and-policy-the-ai-tightens-the-human-loosens),
 [§ 7](GUIDE.md#7-ipc-client-tunnel),

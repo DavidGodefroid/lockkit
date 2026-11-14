@@ -1,18 +1,18 @@
 # lockkit guide
 
-lockkit is the product-neutral half of locksql: everything that keeps a
-secret-holding console separate from an AI agent, asks the human, and
-records what happened. A product (locksql, lockmq, lockfile, lockhttp, lockssh) supplies its
-names and its operations; lockkit supplies the rest. This guide is the
-contract between lockkit and the products built on it.
+lockkit is the shared, product-neutral core of every Lock: everything
+that keeps a secret-holding console separate from an AI agent, asks the
+human, and records what happened. A product (locksql, lockmq, lockfile,
+lockhttp, locklog, lockssh) supplies its names and its operations; lockkit
+supplies the rest. This guide is the contract between lockkit and the
+products built on it.
 
-> Status: v0.3, no stability promise before v1: pin an exact version.
-> locksql runs on every package below except `console.Run`/`console.Server`:
-> its console still keeps its own modes, status row, policy review and
-> start-up sequence (they are interleaved with its SQL state), on lockkit's
-> terminal, approvers, isolation checks and request loop. Moving locksql
-> onto `console.Run` is the next locksql PR; until then the two copies of
-> that logic must stay in step (the framework is the reference).
+> No stability promise before v1: pin an exact version (every product pins
+> v0.20.0 today). locksql hosts its backend on `console.Server`
+> (`console.NewServer`) but keeps its own start-up sequence instead of
+> `console.Run` (its modes, status row and policy review are interleaved
+> with its SQL state); the two copies of that logic must stay in step (the
+> framework is the reference).
 
 ## 1. Package map
 
@@ -40,7 +40,8 @@ contract between lockkit and the products built on it.
 | `hubclient` | a lock's client for lockhub: signed requests, `Submit` of masked tickets, long-poll of decisions, `Begin`/`Finish` of a decided plan, `Ask` of a connect ticket; the instance key and `hub-key`; `hubclient/hubtest` is a fake hub for tests |
 | `lazyconn` | backend connections opened on a connect ticket's approval, shared per profile, closed when idle and asked for again; the secret handed from the decider to the lock sealed |
 | `plans` | a lock's persisted plans awaiting a decision: bound (peer UID, agent token, policy fingerprint, plan hash), single use, 0600 |
-| `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account: merge, never clobber |
+| `agentwire` | wiring Claude Code, Codex, Cursor and Gemini CLI to your MCP server, in a project or for the account (Codex's `[mcp_servers]` table: for the account only): merge, never clobber |
+| `confine` | the client's self-check of its containment (in a container, no host runtime socket, no Lock Family state, a read-only `.lockfamily/`), sent in `hello` for the console to decide (§10, Confined agents) |
 | `verbs` | the launcher verbs every lock shares (`init`, `profile add`, `doctor`): the non-interactive form's secret refusal and credential source, the JSON `lox add` reads |
 
 ## 2. `kit.Product`
@@ -1261,13 +1262,17 @@ already holds a `<name>` server that is not the product's exact entry
 (action `kept`: a cloned repository may ship one that runs anything), it is
 foreign: `Init` leaves it, writes nothing to `.claude/settings.local.json`,
 and the notes only warn the human to check what it runs before approving
-it, and to remove it and run init again to wire the product. Codex and Gemini get
-600 s tool timeouts from agentwire, which cover the console's 5 minute
-approval and a queued call.
+it, and to remove it and run init again to wire the product. Codex gets
+its MCP server only for the account: a project `Init(root, "codex")`
+writes the AGENTS.md section and prints the `[mcp_servers]` table in its
+notes, and `InitUser` writes it to `~/.codex/config.toml` (`CODEX_HOME`
+when set). Gemini (in a project or for the account) and Codex (for the
+account) get 600 s tool timeouts from agentwire, which cover the console's
+5 minute approval and a queued call.
 
 ## 13. Hub tickets (`ticket`)
 
-In hub mode a lock does not ask the human itself: it pushes a signed
+A lock does not ask the human itself: it pushes a signed
 `ticket.Ticket` to lockhub and acts only on a `ticket.Decision` signed by
 the hub key it pinned. The package is the contract with lockhub; its
 `testdata` fixtures are verified by lockhub's CI and do not change within a
@@ -1286,9 +1291,9 @@ err = d.Usable(t, time.Now(), ticket.ClampTTL(t.Risk, cfgTTL)) // ErrDenied unle
 // then consume d.Nonce once, recompute the plan hash, execute
 ```
 
-- **Risk classes** are closed: `read`, `read-pii`, `write`, `prod-write`,
-  `policy-loosen`, `unlock`. Map each operation onto one; an unknown name
-  does not decode. `Risk.TTL()`: `read` and `read-pii` 1 h (a read left
+- **Risk classes** are closed (`ticket.Risks`): `read`, `read-pii`,
+  `grant`, `write`, `prod-write`, `policy-loosen`, `unlock`. Map each
+  operation onto one; an unknown name does not decode. `Risk.TTL()`: `read` and `read-pii` 1 h (a read left
   pending ends by itself), `write` and `policy-loosen` 24 h, `grant`,
   `prod-write` and `unlock` 4 h; `ClampTTL` lets an instance shorten it,
   never lengthen it.
@@ -1339,14 +1344,16 @@ Another peer UID gets `ErrWrongPeer`, another agent token
 each other's token, so it is no security boundary). The token itself is
 never written, only its hash. A plan executing when the lock stopped
 comes back `Failed` and never runs again. `End` records a denial,
-withdrawal or staleness, `WithdrawAll` withdraws every pending plan (a
-lock started without its hub), `Prune` expires and removes final plans
-after `Retention`; consumed nonces are kept.
+withdrawal or staleness, `WithdrawAll` withdraws every pending plan
+(legacy: a lock can no longer start without its hub, and no product calls
+it), `Prune` expires and removes final plans after `Retention`; consumed
+nonces are kept.
 
 ## 14. Launcher verbs (`verbs`)
 
 `lox add` sets up every lock of a project through the same three verbs
-of each lock's launcher (locksql, lockmq, lockfile, lockhttp). The verbs
+of each lock's launcher (locksql, lockmq, lockfile, lockhttp, locklog,
+lockssh). The verbs
 are the product's; this section is their contract, and `verbs` holds the
 checks and JSON shapes they share. Old verbs (`lockmq setup`, `lockhttp
 init --trusted`, ...) are removed, not aliased (pre-release).
@@ -1355,7 +1362,9 @@ init --trusted`, ...) are removed, not aliased (pre-release).
 current directory (§12: `Wiring.Init(agentwire.ProjectRoot(P, cwd),
 agent)`), for `<agent>` one of `agentwire.Agents()`. It never asks, is
 idempotent, and exits 0 when the files are written or already there.
-`lox add` calls `<lock> init claude` from the project root.
+`lox add` calls `<lock> init claude` from the project root; for another
+agent, run `<lock> init codex`, `<lock> init cursor` or `<lock> init gemini`
+yourself.
 
 **`<lock> profile add`** adds one profile to the project's
 `.<lock>/config.toml`:
@@ -1431,9 +1440,11 @@ it detected in the project):
 | Lock | Target flags `lox add` passes |
 |---|---|
 | locksql | `--engine postgres\|mysql\|mariadb\|sqlite`, `--host`, `--port`, `--user`, `--database`, `--tls MODE`; `--path FILE` for sqlite |
-| lockmq | `--url` (management API, `http(s)://host:port`), `--user`, `--vhost` (repeatable) |
-| lockfile | `--source local\|s3\|sftp` and the flags of that source |
+| lockmq | `--url` (management API, `http(s)://host:port`), `--user`, `--vhost` (repeatable), `--amqp-url` |
+| lockfile | `--source local\|s3\|sftp` and the flags of that source: `--bucket`, `--endpoint`, `--region`, `--path`, `--host`, `--port`, `--user`, `--auth`, `--key`, `--known-hosts`, `--base-dir` |
 | lockhttp | none (manual mode only, with lea): `profile add --non-interactive --profile NAME` adds a profile with the lock's default policy |
+| locklog | `--only` (the log directories) |
+| lockssh | `--host`, `--port`, `--user`, `--auth`, `--key`, `--known-hosts`, `--allow` (repeatable), `--exec` |
 
 A profile already in the config is never rewritten: `profile add` fails
 with code `exists` and writes nothing. `lox add` takes `exists` as "kept":
@@ -1458,7 +1469,10 @@ The exit status is 0 exactly when no check fails (a warning does not
 fail). A doctor that could not check (a usage error, `--fix` refused)
 prints a `verbs.Error` instead: `lox add` tells the two apart by the
 `checks` key (`verbs.Doctor`) or the `code` key (`verbs.Error`). `lox
-add` calls `<lock> doctor --fix --yes --json`.
+add` calls `<lock> doctor --fix --yes --json` for locksql, lockmq,
+lockhttp and lockssh, and `<lock> doctor --json` (advisory, no repair) for
+lockfile and locklog, whose `--fix` wires the agents for the account, and
+for a locksql or lockmq launcher older than v0.13.1 / v0.6.1.
 
 **JSON and exit status.** A verb run with `--json` prints one line of
 JSON on stdout, even when it fails. Its exit status is 0 on success and
@@ -1472,9 +1486,9 @@ A non-zero exit with no JSON line on stdout (an older lock, a crash) is
 What `lox add` calls, for each lock it sets up, from the project root:
 
 ```
-<lock> profile add --non-interactive --json --profile NAME [--production] [--credentials ask|vault --vault-path P] <target flags>
+<lock> profile add --non-interactive --json --project ROOT --profile NAME [--credentials ask|vault [--vault-path P]] [--production] <target flags>
 <lock> init claude
-<lock> doctor --fix --yes --json
+<lock> doctor --fix --yes --json      # or doctor --json, see above
 ```
 
 then `lox add <lock> <instance>` with that profile, and `lox run`. The
