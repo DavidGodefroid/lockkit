@@ -14,6 +14,10 @@ import (
 	"github.com/DavidGodefroid/lockkit/managed"
 )
 
+// The tests' Run consoles take no runtime gid of the machine: a CI runner
+// is in the docker group (TestRunRuntimeGIDs covers them).
+func init() { hostRuntimeGIDs = func() []int { return nil } }
+
 var (
 	confined   = &ipc.Confinement{Confined: true}
 	hostClient = &ipc.Confinement{Reasons: []string{confine.InContainer, confine.NoHostRuntime}}
@@ -234,5 +238,23 @@ func TestParseGIDs(t *testing.T) {
 	in := HubOptions{RuntimeGIDs: "999,998"}
 	if a := in.Args(); len(a) != 2 || a[0] != "--runtime-gids" || a[1] != "999,998" || in.Enabled() {
 		t.Fatalf("args %v enabled %v", a, in.Enabled())
+	}
+}
+
+// Run serves with the gids of --runtime-gids and those of the machine.
+func TestRunRuntimeGIDs(t *testing.T) {
+	old := hostRuntimeGIDs
+	hostRuntimeGIDs = func() []int { return []int{999, 5} }
+	defer func() { hostRuntimeGIDs = old }()
+	if g := runtimeGIDs([]int{5, 7}); len(g) != 3 || g[0] != 5 || g[1] != 7 || g[2] != 999 {
+		t.Fatalf("runtimeGIDs = %v", g)
+	}
+	io := &fakeIO{answers: []string{"y"}, secrets: []string{"pw"}}
+	h := testHub(t)
+	h.RuntimeGIDs = "x"
+	err := Run(context.Background(), testProduct, &fakeBackend{policy: uat()}, Options{Profile: "uat", Hub: h, IO: io, StateDir: t.TempDir(),
+		Isolation: runEnv(t), Harden: func() error { return nil }})
+	if !errors.Is(err, ErrConfig) || !strings.Contains(err.Error(), "--runtime-gids") {
+		t.Fatalf("Run: %v", err)
 	}
 }

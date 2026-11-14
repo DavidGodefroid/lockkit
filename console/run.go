@@ -822,11 +822,15 @@ func refuseUnconfinedProduction(p Profile) error {
 	return nil
 }
 
+// hostRuntimeGIDs are this machine's runtime gids (confine.RuntimeGIDs);
+// tests of this package replace it, a CI runner being in the docker group.
+var hostRuntimeGIDs = confine.RuntimeGIDs
+
 // runtimeGIDs are the gids given (--runtime-gids) and those of this
 // machine's runtime sockets.
 func runtimeGIDs(given []int) []int {
 	out := slices.Clone(given)
-	for _, g := range confine.RuntimeGIDs() {
+	for _, g := range hostRuntimeGIDs() {
 		if !slices.Contains(out, g) {
 			out = append(out, g)
 		}
